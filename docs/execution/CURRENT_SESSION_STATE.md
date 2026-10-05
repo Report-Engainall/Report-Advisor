@@ -1,51 +1,51 @@
-SESSION HANDOFF = READY
+﻿SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
+CURRENT_EXACT_HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
+CURRENT_EXECUTION_HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
+CURRENT_PR_HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
 
 WHAT_ACTUALLY_HAPPENED
-- تم إصلاح مسارات عرض التقارير بحيث لا يحجب كتالوج التقارير أو طلبات الخلفية وصول اللقطة الحقيقية إلى الواجهة.
-- تم تعزيز Smart Report الحقيقي بسلسلة WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF، مع ربطها بالـjob والبصمة ولقطة الدليل وعدم اختلاق Outcome/Benchmark.
-- تم تشديد Browser E2E ليشترط الاستقرار والمحتوى الحقيقي بدل route-load فقط، وإثبات jobId/sourceHash وعناصر Smart Report.
-- تم إزالة continue-on-error من إثبات real-source 48 ليصبح fail-closed.
-- تم توسيع real-source 48 eligibility إلى جميع E2E_CORPUS_TENANT_IDS المصرح بها، باستخدام service-role للأهلية فقط، مع إلزام file_record بنفس company_id/source_hash لمنع خلط provenance.
-- تم جعل tenant B في browser proof هو tenant مالك Smart Report c42fb0e1، مع إبقاء tenant A/B isolation proof.
-- تم ربط browser telemetry بصفحة tenant B أيضًا حتى لا تكون نتيجة Smart Report ناقصة.
-- تم إصلاح artifact screenshot naming من query characters.
-- تم تحديث هذا handoff ليغطي كل الملفات المعدلة حتى الرأس الحالي.
+- طھظ… ط¥طµظ„ط§ط­ ظ…ط³ط§ط±ط§طھ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط¨ط­ظٹط« ظ„ط§ ظٹط­ط¬ط¨ ظƒطھط§ظ„ظˆط¬ ط§ظ„طھظ‚ط§ط±ظٹط± ط£ظˆ ط·ظ„ط¨ط§طھ ط§ظ„ط®ظ„ظپظٹط© ظˆطµظˆظ„ ط§ظ„ظ„ظ‚ط·ط© ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ط¥ظ„ظ‰ ط§ظ„ظˆط§ط¬ظ‡ط©.
+- طھظ… طھط¹ط²ظٹط² Smart Report ط§ظ„ط­ظ‚ظٹظ‚ظٹ ط¨ط³ظ„ط³ظ„ط© WHAT â†’ WHY â†’ SO WHAT â†’ IMPACT â†’ WHAT NEXT â†’ PROOFطŒ ظ…ط¹ ط±ط¨ط·ظ‡ط§ ط¨ط§ظ„ظ€job ظˆط§ظ„ط¨طµظ…ط© ظˆظ„ظ‚ط·ط© ط§ظ„ط¯ظ„ظٹظ„ ظˆط¹ط¯ظ… ط§ط®طھظ„ط§ظ‚ Outcome/Benchmark.
+- طھظ… طھط´ط¯ظٹط¯ Browser E2E ظ„ظٹط´طھط±ط· ط§ظ„ط§ط³طھظ‚ط±ط§ط± ظˆط§ظ„ظ…ط­طھظˆظ‰ ط§ظ„ط­ظ‚ظٹظ‚ظٹ ط¨ط¯ظ„ route-load ظپظ‚ط·طŒ ظˆط¥ط«ط¨ط§طھ jobId/sourceHash ظˆط¹ظ†ط§طµط± Smart Report.
+- طھظ… ط¥ط²ط§ظ„ط© continue-on-error ظ…ظ† ط¥ط«ط¨ط§طھ real-source 48 ظ„ظٹطµط¨ط­ fail-closed.
+- طھظ… طھظˆط³ظٹط¹ real-source 48 eligibility ط¥ظ„ظ‰ ط¬ظ…ظٹط¹ E2E_CORPUS_TENANT_IDS ط§ظ„ظ…طµط±ط­ ط¨ظ‡ط§طŒ ط¨ط§ط³طھط®ط¯ط§ظ… service-role ظ„ظ„ط£ظ‡ظ„ظٹط© ظپظ‚ط·طŒ ظ…ط¹ ط¥ظ„ط²ط§ظ… file_record ط¨ظ†ظپط³ company_id/source_hash ظ„ظ…ظ†ط¹ ط®ظ„ط· provenance.
+- طھظ… ط¬ط¹ظ„ tenant B ظپظٹ browser proof ظ‡ظˆ tenant ظ…ط§ظ„ظƒ Smart Report c42fb0e1طŒ ظ…ط¹ ط¥ط¨ظ‚ط§ط، tenant A/B isolation proof.
+- طھظ… ط±ط¨ط· browser telemetry ط¨طµظپط­ط© tenant B ط£ظٹط¶ظ‹ط§ ط­طھظ‰ ظ„ط§ طھظƒظˆظ† ظ†طھظٹط¬ط© Smart Report ظ†ط§ظ‚طµط©.
+- طھظ… ط¥طµظ„ط§ط­ artifact screenshot naming ظ…ظ† query characters.
+- طھظ… طھط­ط¯ظٹط« ظ‡ط°ط§ handoff ظ„ظٹط؛ط·ظٹ ظƒظ„ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط¹ط¯ظ„ط© ط­طھظ‰ ط§ظ„ط±ط£ط³ ط§ظ„ط­ط§ظ„ظٹ.
 
 WHAT_IS_PROVEN
 - Local typecheck PASS.
-- Navigation/route contract PASS: لا duplicate route paths، 46 route declarations.
+- Navigation/route contract PASS: ظ„ط§ duplicate route pathsطŒ 46 route declarations.
 - UI route completeness PASS.
-- Session Handoff على الرأس 9a17ec8cf PASS.
+- Session Handoff ط¹ظ„ظ‰ ط§ظ„ط±ط£ط³ 9a17ec8cf PASS.
 - Phase 2 security PASS.
 - Phase 3 data/import truth PASS.
-- Cloudflare preview deployment على الرأس الحالي PASS: branch preview منشور.
-- البيانات الحقيقية: 54 governed real files عبر 4 corpus tenants و47 VERIFIED/READY passports في الجرد الحالي.
-- Smart Report الحقيقي c42fb0e1-75f2-4727-8c3e-470ae1a804fa: 342 canonical rows، Evidence VERIFIED، Decision READY، sourceHash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
+- Cloudflare preview deployment ط¹ظ„ظ‰ ط§ظ„ط±ط£ط³ ط§ظ„ط­ط§ظ„ظٹ PASS: branch preview ظ…ظ†ط´ظˆط±.
+- ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط­ظ‚ظٹظ‚ظٹط©: 54 governed real files ط¹ط¨ط± 4 corpus tenants ظˆ47 VERIFIED/READY passports ظپظٹ ط§ظ„ط¬ط±ط¯ ط§ظ„ط­ط§ظ„ظٹ.
+- Smart Report ط§ظ„ط­ظ‚ظٹظ‚ظٹ c42fb0e1-75f2-4727-8c3e-470ae1a804fa: 342 canonical rowsطŒ Evidence VERIFIEDطŒ Decision READYطŒ sourceHash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
 
 CURRENT_OPEN_GATES
-- Full Product Browser E2E على الرأس الحالي: قيد التنفيذ.
-- real-source 48 archetype matrix على الرأس الحالي: قيد التنفيذ ضمن Browser E2E.
-- Final Certification Gate: قيد التنفيذ.
-- لازم انتظار terminal evidence للـ48/48 وChromium screenshots وSmart Report business proof قبل إعلان الإقفال.
-- Netlify/Vercel لا يُستخدم كمرجع نجاح؛ Cloudflare preview الحالي موجود كمرجع runtime للنسخة نفسها.
+- Full Product Browser E2E ط¹ظ„ظ‰ ط§ظ„ط±ط£ط³ ط§ظ„ط­ط§ظ„ظٹ: ظ‚ظٹط¯ ط§ظ„طھظ†ظپظٹط°.
+- real-source 48 archetype matrix ط¹ظ„ظ‰ ط§ظ„ط±ط£ط³ ط§ظ„ط­ط§ظ„ظٹ: ظ‚ظٹط¯ ط§ظ„طھظ†ظپظٹط° ط¶ظ…ظ† Browser E2E.
+- Final Certification Gate: ظ‚ظٹط¯ ط§ظ„طھظ†ظپظٹط°.
+- ظ„ط§ط²ظ… ط§ظ†طھط¸ط§ط± terminal evidence ظ„ظ„ظ€48/48 ظˆChromium screenshots ظˆSmart Report business proof ظ‚ط¨ظ„ ط¥ط¹ظ„ط§ظ† ط§ظ„ط¥ظ‚ظپط§ظ„.
+- Netlify/Vercel ظ„ط§ ظٹظڈط³طھط®ط¯ظ… ظƒظ…ط±ط¬ط¹ ظ†ط¬ط§ط­ط› Cloudflare preview ط§ظ„ط­ط§ظ„ظٹ ظ…ظˆط¬ظˆط¯ ظƒظ…ط±ط¬ط¹ runtime ظ„ظ„ظ†ط³ط®ط© ظ†ظپط³ظ‡ط§.
 
 CURRENT_ACTIVE_FAILURE
-- failure الوحيد المثبت سابقًا كان scope خطأ في real-48: الجولة كانت ترى tenant واحدًا فقط، فدعمت 17/48. تم تعديل البوابة لتقرأ corpus tenants المصرح بها كلّها.
-- لا توجد حاليًا نتيجة نهائية 48/48 أو Browser PASS على b84550327 يجب ادعاؤها قبل اكتمال jobs الحالية.
+- failure ط§ظ„ظˆط­ظٹط¯ ط§ظ„ظ…ط«ط¨طھ ط³ط§ط¨ظ‚ظ‹ط§ ظƒط§ظ† scope ط®ط·ط£ ظپظٹ real-48: ط§ظ„ط¬ظˆظ„ط© ظƒط§ظ†طھ طھط±ظ‰ tenant ظˆط§ط­ط¯ظ‹ط§ ظپظ‚ط·طŒ ظپط¯ط¹ظ…طھ 17/48. طھظ… طھط¹ط¯ظٹظ„ ط§ظ„ط¨ظˆط§ط¨ط© ظ„طھظ‚ط±ط£ corpus tenants ط§ظ„ظ…طµط±ط­ ط¨ظ‡ط§ ظƒظ„ظ‘ظ‡ط§.
+- ظ„ط§ طھظˆط¬ط¯ ط­ط§ظ„ظٹظ‹ط§ ظ†طھظٹط¬ط© ظ†ظ‡ط§ط¦ظٹط© 48/48 ط£ظˆ Browser PASS ط¹ظ„ظ‰ b84550327 ظٹط¬ط¨ ط§ط¯ط¹ط§ط¤ظ‡ط§ ظ‚ط¨ظ„ ط§ظƒطھظ…ط§ظ„ jobs ط§ظ„ط­ط§ظ„ظٹط©.
 
 DO_NOT_REPEAT
-- لا stale SHA PASS.
-- لا queued/pending/cancelled كـPASS.
-- لا synthetic 48 proof.
-- لا fake impact/outcome/benchmark.
-- لا route-load-only browser PASS.
-- لا blind production deploy retries.
+- ظ„ط§ stale SHA PASS.
+- ظ„ط§ queued/pending/cancelled ظƒظ€PASS.
+- ظ„ط§ synthetic 48 proof.
+- ظ„ط§ fake impact/outcome/benchmark.
+- ظ„ط§ route-load-only browser PASS.
+- ظ„ط§ blind production deploy retries.
 
-NEXT_EXACT_ACTION = انتظر terminal results للرأس b84550327، ثم اقرأ أول failure فقط إن وجد. عند اكتمال 48/48 + Chromium screenshots + Smart Report six-card proof + certification على نفس SHA، حدّث هذا الملف مرة أخيرة بالرأس النهائي ولا تُعلن الجاهزية قبل ذلك.
+NEXT_EXACT_ACTION = ط§ظ†طھط¸ط± terminal results ظ„ظ„ط±ط£ط³ b84550327طŒ ط«ظ… ط§ظ‚ط±ط£ ط£ظˆظ„ failure ظپظ‚ط· ط¥ظ† ظˆط¬ط¯. ط¹ظ†ط¯ ط§ظƒطھظ…ط§ظ„ 48/48 + Chromium screenshots + Smart Report six-card proof + certification ط¹ظ„ظ‰ ظ†ظپط³ SHAطŒ ط­ط¯ظ‘ط« ظ‡ط°ط§ ط§ظ„ظ…ظ„ظپ ظ…ط±ط© ط£ط®ظٹط±ط© ط¨ط§ظ„ط±ط£ط³ ط§ظ„ظ†ظ‡ط§ط¦ظٹ ظˆظ„ط§ طھظڈط¹ظ„ظ† ط§ظ„ط¬ط§ظ‡ط²ظٹط© ظ‚ط¨ظ„ ط°ظ„ظƒ.

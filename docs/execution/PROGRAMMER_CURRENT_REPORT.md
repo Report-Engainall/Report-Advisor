@@ -1,28 +1,28 @@
-SESSION HANDOFF = READY
+﻿SESSION HANDOFF = READY
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
 REFERENCE START HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT EXECUTION HEAD = 093ac3706e56c0588d5c91c8d595c523e4c6b06c
-REPORT_FOR_HEAD = 093ac3706e56c0588d5c91c8d595c523e4c6b06c
+CURRENT EXECUTION HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
+REPORT_FOR_HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-UPDATED_AT = 2026-10-05T02:16:00Z
-WHAT_I_WAS_ASKED_TO_DO = استكمال التنفيذ من 06a9c69 دون إعادة بناء ما أُنجز، وإخراج Report-Advisor كمنتج قابل للبيع: إصلاح عرض التقارير الحقيقي، إثبات Smart Report الحقيقي، فك real-source eligibility للـ48، وإغلاق Quality/Certification على نفس HEAD بدون PASS وهمي.
+UPDATED_AT = 2026-10-05T02:25:00Z
+WHAT_I_WAS_ASKED_TO_DO = ط§ط³طھظƒظ…ط§ظ„ ط§ظ„طھظ†ظپظٹط° ظ…ظ† 06a9c69 ط¯ظˆظ† ط¥ط¹ط§ط¯ط© ط¨ظ†ط§ط، ظ…ط§ ط£ظڈظ†ط¬ط²طŒ ظˆط¥ط®ط±ط§ط¬ Report-Advisor ظƒظ…ظ†طھط¬ ظ‚ط§ط¨ظ„ ظ„ظ„ط¨ظٹط¹: ط¥طµظ„ط§ط­ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ط¥ط«ط¨ط§طھ Smart Report ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ظپظƒ real-source eligibility ظ„ظ„ظ€48طŒ ظˆط¥ط؛ظ„ط§ظ‚ Quality/Certification ط¹ظ„ظ‰ ظ†ظپط³ HEAD ط¨ط¯ظˆظ† PASS ظˆظ‡ظ…ظٹ.
 
-OBJECTIVE = إغلاق فجوة المنتج الفعلي للبيع: تقرير حقيقي يظهر ويُفهم ويقود إلى Evidence ثم Signal ثم Recommendation ثم Decision ثم Action، مع إثبات Browser حقيقي و48 archetypes حقيقية.
+OBJECTIVE = ط¥ط؛ظ„ط§ظ‚ ظپط¬ظˆط© ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظپط¹ظ„ظٹ ظ„ظ„ط¨ظٹط¹: طھظ‚ط±ظٹط± ط­ظ‚ظٹظ‚ظٹ ظٹط¸ظ‡ط± ظˆظٹظڈظپظ‡ظ… ظˆظٹظ‚ظˆط¯ ط¥ظ„ظ‰ Evidence ط«ظ… Signal ط«ظ… Recommendation ط«ظ… Decision ط«ظ… ActionطŒ ظ…ط¹ ط¥ط«ط¨ط§طھ Browser ط­ظ‚ظٹظ‚ظٹ ظˆ48 archetypes ط­ظ‚ظٹظ‚ظٹط©.
 
 WHAT_I_ACTUALLY_DID = Report rendering, Smart Report decision-chain, authenticated browser proof, governed real-48 eligibility, and CI fail-closed hardening were implemented.
-1) Report Center/Sales/Purchases/Receivables rendering: فصل critical snapshot عن background catalog/invoice hydration حتى لا تبقى الشاشة في loading غير منتهٍ.
-2) Smart Report: إضافة decision-chain تجاري واضح WHAT/WHY/SO WHAT/IMPACT/WHAT NEXT/PROOF وربطه ببيانات التقرير الحقيقي.
-3) Browser proof: الاستقرار أصبح شرط نجاح، وSmart Report يتطلب العناصر الستة، jobId/sourceHash، refresh readback، وtelemetry من صفحة tenant الصحيح.
-4) 48 real-source proof: eligibility أصبحت عبر corpus tenant IDs المصرح بها، service-role للأهلية فقط، مع same-company source binding، وبدون synthetic corpus.
-5) Browser Smart Report proof: tenant B أصبح مرتبطًا بمالك التقرير الحقيقي c42fb0e1 بدل tenant corpus افتراضي آخر.
-6) CI governance: real-48 لم يعد continue-on-error، وsession handoff يُحدّث مع كل HEAD.
+1) Report Center/Sales/Purchases/Receivables rendering: ظپطµظ„ critical snapshot ط¹ظ† background catalog/invoice hydration ط­طھظ‰ ظ„ط§ طھط¨ظ‚ظ‰ ط§ظ„ط´ط§ط´ط© ظپظٹ loading ط؛ظٹط± ظ…ظ†طھظ‡ظچ.
+2) Smart Report: ط¥ط¶ط§ظپط© decision-chain طھط¬ط§ط±ظٹ ظˆط§ط¶ط­ WHAT/WHY/SO WHAT/IMPACT/WHAT NEXT/PROOF ظˆط±ط¨ط·ظ‡ ط¨ط¨ظٹط§ظ†ط§طھ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹ.
+3) Browser proof: ط§ظ„ط§ط³طھظ‚ط±ط§ط± ط£طµط¨ط­ ط´ط±ط· ظ†ط¬ط§ط­طŒ ظˆSmart Report ظٹطھط·ظ„ط¨ ط§ظ„ط¹ظ†ط§طµط± ط§ظ„ط³طھط©طŒ jobId/sourceHashطŒ refresh readbackطŒ ظˆtelemetry ظ…ظ† طµظپط­ط© tenant ط§ظ„طµط­ظٹط­.
+4) 48 real-source proof: eligibility ط£طµط¨ط­طھ ط¹ط¨ط± corpus tenant IDs ط§ظ„ظ…طµط±ط­ ط¨ظ‡ط§طŒ service-role ظ„ظ„ط£ظ‡ظ„ظٹط© ظپظ‚ط·طŒ ظ…ط¹ same-company source bindingطŒ ظˆط¨ط¯ظˆظ† synthetic corpus.
+5) Browser Smart Report proof: tenant B ط£طµط¨ط­ ظ…ط±طھط¨ط·ظ‹ط§ ط¨ظ…ط§ظ„ظƒ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹ c42fb0e1 ط¨ط¯ظ„ tenant corpus ط§ظپطھط±ط§ط¶ظٹ ط¢ط®ط±.
+6) CI governance: real-48 ظ„ظ… ظٹط¹ط¯ continue-on-errorطŒ ظˆsession handoff ظٹظڈط­ط¯ظ‘ط« ظ…ط¹ ظƒظ„ HEAD.
 
-WHAT_IS_PROVEN = Local typecheck/route checks, security/import truth, corpus inventory, and certified Smart Report provenance are proven; final browser/48/certification remain open.
+WHAT_IS_PROVEN = Local typecheck/route checks, security/import truth, exact-head 40/40 value cohort, full certification-contract gate, corpus inventory, and certified Smart Report provenance are proven; final 48/48 and authenticated Smart Report browser proof remain open.
 - Current HEAD: 093ac3706.
-- Session Handoff Contract: PASS على HEAD الحالي.
+- Session Handoff Contract: PASS ط¹ظ„ظ‰ HEAD ط§ظ„ط­ط§ظ„ظٹ.
 - Typecheck/local route checks: PASS.
 - Phase 2 security: PASS.
 - Phase 3 data/import truth: PASS.
@@ -36,10 +36,10 @@ CURRENT_OPEN_GATES
 - Chromium screenshots for reports and Smart Report.
 - Final Certification Gate on the same HEAD.
 
-FIRST_ACTIVE_FAILURE = No new product failure is proven on the current candidate; active blockers are evidence/CI sequencing.
+FIRST_ACTIVE_FAILURE = Previous browser run failed in E2E actor provisioning because Tenant B was incorrectly pointed at the Smart Report owner, which is the same tenant as Tenant A. This was fixed by restoring a distinct B tenant and provisioning actor C for the real Smart Report owner.
 - No new product failure is proven on the current candidate; the active blockers are evidence/CI sequencing.
 
-ROOT_CAUSE = Real-48 was previously scoped to one tenant; browser proof had stale markers and route-only settlement; handoff fields also fell out of exact contract.
+ROOT_CAUSE = Real-48 was previously scoped to one tenant; browser proof had stale markers and route-only settlement; and actor provisioning conflated tenant-isolation B with the report-owner tenant. The current code separates A/B isolation from the dedicated C report-proof actor.
 - Real-48 was previously scoped to one tenant; browser proof also had stale markers and route-only settlement.
 
 - Prior Browser failure: report expectations were stale and screenshot artifact names contained query characters.
@@ -47,4 +47,4 @@ ROOT_CAUSE = Real-48 was previously scoped to one tenant; browser proof had stal
 - Prior real-48 failure: actor tenant saw only 25 completed jobs and target report belonged to another corpus tenant; eligibility gate therefore proved 17/48, not 48/48.
 - These are addressed in the current candidate; no PASS is claimed until exact-head terminal evidence arrives.
 
-NEXT_EXACT_ACTION = متابعة jobs الخاصة بالرأس 093ac3706، والتقاط أول failure فقط إن ظهر، ثم إعادة إصلاحه على نفس الرأس الجديد. لا إعلان “جاهز للبيع” قبل PASS نهائي متزامن للـ48 والـBrowser والـCertification.
+NEXT_EXACT_ACTION = ظ…طھط§ط¨ط¹ط© jobs ط§ظ„ط®ط§طµط© ط¨ط§ظ„ط±ط£ط³ 093ac3706طŒ ظˆط§ظ„طھظ‚ط§ط· ط£ظˆظ„ failure ظپظ‚ط· ط¥ظ† ط¸ظ‡ط±طŒ ط«ظ… ط¥ط¹ط§ط¯ط© ط¥طµظ„ط§ط­ظ‡ ط¹ظ„ظ‰ ظ†ظپط³ ط§ظ„ط±ط£ط³ ط§ظ„ط¬ط¯ظٹط¯. ظ„ط§ ط¥ط¹ظ„ط§ظ† â€œط¬ط§ظ‡ط² ظ„ظ„ط¨ظٹط¹â€‌ ظ‚ط¨ظ„ PASS ظ†ظ‡ط§ط¦ظٹ ظ…طھط²ط§ظ…ظ† ظ„ظ„ظ€48 ظˆط§ظ„ظ€Browser ظˆط§ظ„ظ€Certification.
