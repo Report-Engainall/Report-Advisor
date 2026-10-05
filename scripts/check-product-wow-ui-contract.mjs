@@ -41,11 +41,11 @@ const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 for (const token of [
   'competitiveProofLanes',
   'خمس طرق محددة لمنافسة المشاريع الأكبر',
-  'Evidence-First BI',
-  'Governed Excel / CSV',
-  'Arabic RTL B2B UX',
-  'Inventory / Receivables',
-  'Supabase Tenant Security',
+  'ذكاء أعمال مبني على الدليل',
+  'ملفات أعمال محكومة',
+  'تجربة أعمال عربية وRTL',
+  'المخزون والتحصيل',
+  'عزل الشركة وأمن البيانات',
 ]) assert.ok(login.includes(token), `login proof theater missing: ${token}`);
 
 for (const token of [
