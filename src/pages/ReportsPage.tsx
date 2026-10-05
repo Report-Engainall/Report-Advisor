@@ -164,8 +164,8 @@ export function ReportsCenterPage() {
     // The report center must not wait for the dashboard RPC. Previously a single
     // Promise.allSettled left the entire customer surface behind a slow/hung KPI
     // request even after real report jobs were already readable.
-    const dashboardPromise = withDeadline(fetchDashboardSnapshot(6), 'dashboard', 8000);
-    const catalogPromise = withDeadline(fetchSmartReportCatalog(60), 'catalog', 12000);
+    const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
+    const catalogPromise = fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) });
     const [dashboardResult, catalogResult] = await Promise.allSettled([dashboardPromise, catalogPromise]);
 
     const catalog = catalogResult.status === 'fulfilled' ? catalogResult.value : [];
@@ -203,7 +203,7 @@ export function ReportsCenterPage() {
     void (async () => {
       try {
         const detail = await withDeadline(
-          fetchSmartReport(PRIMARY_SMART_REPORT_JOB_ID, PRIMARY_SMART_REPORT_SOURCE_HASH),
+          fetchSmartReport(PRIMARY_SMART_REPORT_JOB_ID, PRIMARY_SMART_REPORT_SOURCE_HASH, { signal: AbortSignal.timeout(15000) }),
           'primary-smart-readback',
           15000,
         );
