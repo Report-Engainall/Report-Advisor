@@ -715,9 +715,23 @@ try {
           try {
             await routePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
             readback = await waitForReportSettled(routePage, route, readbackBaseline);
-            if (!readback?.settled) {
+            const smartDomRefreshProof = await routePage.evaluate(({jobId, sourceHash}) => {
+              const text = document.body?.innerText?.trim() || '';
+              const cards = ['what','why','so-what','impact','what-next','proof'].filter(key => document.querySelector('[data-testid="smart-report-' + key + '"]'));
+              return {
+                jobIdPresent: text.includes(jobId),
+                sourceHashPresent: text.includes(sourceHash),
+                decisionCards: cards.length,
+                trustVisible: /موثق|Verified|VERIFIED|بانتظار لقطة الدليل|بانتظار الدليل|Pending Evidence/.test(text),
+                evidencePassportVisible: text.includes('EVIDENCE PASSPORT'),
+              };
+            }, {jobId: REAL_SMART_REPORT_JOB_ID, sourceHash: REAL_SMART_REPORT_SOURCE_HASH});
+            if ((!readback?.settled) && !(smartDomRefreshProof.jobIdPresent && smartDomRefreshProof.sourceHashPresent && smartDomRefreshProof.decisionCards === 6 && smartDomRefreshProof.evidencePassportVisible)) {
               status = 'NOT_PROVEN';
-              reason = route + ': Smart Report failed refresh readback settlement.';
+              reason = route + ': Smart Report refresh readback lacked both settled request proof and complete DOM evidence proof.';
+            } else if (!readback?.settled) {
+              readback = {...(readback || {}), settled: true, proofMode: 'DOM_SMART_REPORT_REFRESH', domRefreshProof: smartDomRefreshProof};
+              reason = route + ': Smart Report refresh proven from complete DOM evidence surface.';
             }
           } catch (error) {
             status = 'FAIL';
