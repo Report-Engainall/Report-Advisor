@@ -93,6 +93,15 @@ function buildMetrics(report: SmartReportDetail) {
     margin:'الهامش',
     quantity:'الكمية',
     value:'القيمة',
+    incoming:'الوارد',
+    net_inbound:'صافي الوارد',
+    sales_qty:'صافي المبيعات',
+    daily_sales_rate:'معدل البيع اليومي',
+    stockout_days:'أيام حتى النفاد',
+    stock_age_days:'عمر المخزون',
+    stock_age_period_days:'عمر المخزون للفترة',
+    opening_stock:'الرصيد الافتتاحي',
+    current_stock:'الرصيد الحالي',
   };
   const preference = report.specialty === 'sales' || report.specialty === 'purchases'
     ? ['total','net_amount','paid_amount','profit','margin','quantity']
@@ -101,7 +110,7 @@ function buildMetrics(report: SmartReportDetail) {
       : report.specialty === 'payments'
         ? ['balance','credit','debit']
         : report.specialty === 'inventory'
-          ? ['value','quantity','price','cost']
+          ? ['balance','current_stock','sales_qty','daily_sales_rate','stockout_days','incoming','net_inbound','opening_stock','quantity','value','price','cost']
           : ['total','value','balance','profit','paid_amount','quantity'];
   const rank = (field: string) => {
     const index = preference.indexOf(field);
