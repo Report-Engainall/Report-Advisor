@@ -30,8 +30,9 @@ export async function resolveCurrentCompanyId(signal?: AbortSignal): Promise<str
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError || !sessionData.session) return null;
 
+  const effectiveSignal = signal ?? AbortSignal.timeout(12000);
   const tenantQuery = supabase.rpc('current_company_id');
-  const { data, error } = await (signal ? tenantQuery.abortSignal(signal) : tenantQuery);
+  const { data, error } = await tenantQuery.abortSignal(effectiveSignal);
   if (error || !data) return null;
 
   return String(data);
