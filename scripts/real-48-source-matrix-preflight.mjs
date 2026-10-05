@@ -6,6 +6,8 @@ const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
 const email = (process.env.REAL_48_TEST_USER_EMAIL || process.env.TEST_USER_B_EMAIL || process.env.TEST_USER_A_EMAIL)?.trim();
 const password = process.env.REAL_48_TEST_USER_PASSWORD || process.env.TEST_USER_B_PASSWORD || process.env.TEST_USER_A_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || '';
+const targetJobId = process.env.REAL_48_TARGET_JOB_ID?.trim() || 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
 const outFile = process.env.E2E_REPORT_DIR
   ? process.env.E2E_REPORT_DIR + '/real-48-source-matrix-preflight.json'
   : 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
@@ -24,6 +26,66 @@ async function fetchJson(url, options = {}) {
   return body ? JSON.parse(body) : null;
 }
 
+async function rpcCurrentCompany(token) {
+  const response = await fetchJson(supabaseURL + '/rest/v1/rpc/current_company_id', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  return response == null ? null : String(response);
+}
+
+async function serviceRestSelect(table, filters, select, options = {}) {
+  if (!serviceRoleKey) return [];
+  const url = new URL(supabaseURL + '/rest/v1/' + table);
+  url.searchParams.set('select', select);
+  for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, 'eq.' + value);
+  if (options.order) url.searchParams.set('order', options.order);
+  if (options.limit) url.searchParams.set('limit', String(options.limit));
+  const response = await fetch(url, { headers: { apikey: serviceRoleKey, Authorization: 'Bearer ' + serviceRoleKey } });
+  const body = await response.text();
+  if (!response.ok) throw new Error('SERVICE_' + table + '_HTTP_' + response.status + ':' + body.slice(0, 800));
+  return body ? JSON.parse(body) : [];
+}
+
+async function buildSelectionDiagnostics(actorCompanyId) {
+  if (!serviceRoleKey) return { serviceRole: 'NOT_AVAILABLE' };
+  const [targetJobs, targetPassports, targetFiles, actorJobs, actorPassports, actorFiles] = await Promise.all([
+    serviceRestSelect('report_execution_jobs', { id: targetJobId }, 'id,company_id,status,source_path,source_hash,completed_at', { limit: 2 }),
+    serviceRestSelect('report_evidence_passports', { report_execution_job_id: targetJobId }, 'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash,verification_status,decision_readiness', { order: 'created_at.desc', limit: 10 }),
+    (async () => {
+      const jobs = await serviceRestSelect('report_execution_jobs', { id: targetJobId }, 'source_hash', { limit: 2 });
+      const sourceHash = String(jobs[0]?.source_hash || '');
+      return sourceHash ? serviceRestSelect('file_records', { file_hash: sourceHash }, 'id,company_id,file_name,file_hash,metadata', { limit: 20 }) : [];
+    })(),
+    serviceRestSelect('report_execution_jobs', { company_id: actorCompanyId, status: 'completed' }, 'id,company_id,status,source_path,source_hash,completed_at', { limit: 1000 }),
+    serviceRestSelect('report_evidence_passports', { company_id: actorCompanyId, verification_status: 'VERIFIED', decision_readiness: 'READY' }, 'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash', { limit: 500 }),
+    serviceRestSelect('file_records', { company_id: actorCompanyId, 'metadata->>report_corpus': 'true' }, 'id,company_id,file_name,file_hash,metadata', { limit: 100 }),
+  ]);
+  const target = targetJobs[0] || null;
+  const targetFileClassification = targetFiles.map(record => {
+    const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};
+    return {
+      id: record.id, companyId: record.company_id, fileName: record.file_name,
+      reportCorpus: metadata.report_corpus === true || String(metadata.report_corpus ?? '').toLowerCase() === 'true',
+      fixtureType: metadata.fixture_type ?? null, catalogId: metadata.catalog_id ?? null,
+    };
+  });
+  return {
+    serviceRole: 'AVAILABLE',
+    actorCompanyId: actorCompanyId || null,
+    actorCompletedJobs: actorJobs.length,
+    actorReadyPassports: actorPassports.length,
+    actorGovernedCorpusFiles: actorFiles.length,
+    targetJobId,
+    targetJob: target ? { id: target.id, companyId: target.company_id, status: target.status, sourcePath: target.source_path, sourceHashPresent: Boolean(target.source_hash) } : null,
+    targetVisibleToActorTenant: Boolean(target && actorCompanyId && String(target.company_id) === String(actorCompanyId)),
+    targetPassportCount: targetPassports.length,
+    targetReadyPassportCount: targetPassports.filter(row => row.verification_status === 'VERIFIED' && row.decision_readiness === 'READY').length,
+    targetFileRecords: targetFileClassification,
+  };
+}
+
 async function signIn() {
   const auth = await fetchJson(supabaseURL + '/auth/v1/token?grant_type=password', {
     method: 'POST',
@@ -35,6 +97,8 @@ async function signIn() {
 }
 
 const accessToken = await signIn();
+const actorCompanyId = await rpcCurrentCompany(accessToken);
+const selectionDiagnostics = await buildSelectionDiagnostics(actorCompanyId);
 
 async function restSelect(table, filters, select, options = {}) {
   const url = new URL(supabaseURL + '/rest/v1/' + table);
@@ -393,6 +457,7 @@ const supported = results.filter((row) => row.status === 'SUPPORTED_REAL_SOURCE'
 const missing = results.filter((row) => row.status === 'NOT_PROVEN_REAL_SOURCE').length;
 const proof = {
   exactHead,
+  diagnostics: selectionDiagnostics,
   generatedAt: new Date().toISOString(),
   status: supported === profiles.length ? 'PASS' : 'NOT_PROVEN',
   sourceJobsScanned: sourceRecords.length,
@@ -408,7 +473,7 @@ await (await import('node:fs/promises')).mkdir(outFile.slice(0, outFile.lastInde
 await (await import('node:fs/promises')).writeFile(outFile, JSON.stringify(proof, null, 2) + '\n', 'utf8');
 
 if (proof.status !== 'PASS') {
-  console.error(JSON.stringify(proof.summary));
+  console.error(JSON.stringify({ summary: proof.summary, sourceJobsScanned: proof.sourceJobsScanned, diagnostics: proof.diagnostics }));
   process.exit(2);
 }
 console.log(JSON.stringify(proof.summary));
