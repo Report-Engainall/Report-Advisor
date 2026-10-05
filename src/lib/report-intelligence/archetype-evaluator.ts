@@ -55,6 +55,21 @@ function columnKey(report: RuleReport, field: string): string | null {
       }
     }
   }
+
+  // Real canonical imports may carry authoritative field keys in row data while
+  // source-analysis metadata omits dataset column descriptors. Use those keys
+  // as the evidence-bound fallback; never synthesize a field that is absent.
+  const rowKeys = new Set<string>();
+  for (const row of report.canonicalRows ?? []) {
+    if (!row?.data || typeof row.data !== 'object') continue;
+    for (const key of Object.keys(row.data)) rowKeys.add(key);
+  }
+  for (const key of rowKeys) {
+    if (norm(key) === norm(field)) return key;
+    if (aliases.some((alias) => norm(key) === norm(alias))) return key;
+    if (matchCanonicalField(key) === field) return key;
+  }
+
   return null;
 }
 
