@@ -3,8 +3,8 @@ import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-sc
 
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || 'https://fnqbvfuwbdpwvhcgzksl.supabase.co').replace(/\/$/, '');
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
-const email = process.env.TEST_USER_A_EMAIL?.trim();
-const password = process.env.TEST_USER_A_PASSWORD;
+const email = (process.env.REAL_48_TEST_USER_EMAIL || process.env.TEST_USER_B_EMAIL || process.env.TEST_USER_A_EMAIL)?.trim();
+const password = process.env.REAL_48_TEST_USER_PASSWORD || process.env.TEST_USER_B_PASSWORD || process.env.TEST_USER_A_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const outFile = process.env.E2E_REPORT_DIR
   ? process.env.E2E_REPORT_DIR + '/real-48-source-matrix-preflight.json'
