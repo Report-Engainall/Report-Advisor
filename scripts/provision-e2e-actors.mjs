@@ -132,7 +132,8 @@ function runId() {
 function actorCredentials(label) {
   const normalized = label.toLowerCase();
   const suffix = runId();
-  const email = 'e2e-' + normalized + '-' + suffix + '@e2e.report-advisor.invalid';
+  const unique = randomBytes(6).toString('hex');
+  const email = 'e2e-' + normalized + '-' + suffix + '-' + unique + '@e2e.report-advisor.invalid';
   const password = 'E2e-' + normalized + '-' + randomBytes(24).toString('base64url') + '!';
   return { email, password, generated: true };
 }
@@ -175,6 +176,19 @@ async function createActor(email, password) {
       if (!error) {
         assert.ok(data.user?.id, 'E2E_ACTOR_ID_REQUIRED');
         return data.user;
+      }
+
+      if (Number(error?.status ?? 0) === 422 && error?.code === 'email_exists') {
+        const existing = await findUserByEmail(email);
+        if (existing.user) {
+          const metadata = existing.user.user_metadata ?? {};
+          const tagged = metadata.e2e_actor === 'true' && metadata.e2e_purpose === ACTOR_METADATA.e2e_purpose;
+          if (!tagged) throw new Error('E2E_ACTOR_EMAIL_COLLISION:' + email);
+          return existing.user;
+        }
+        if (existing.lookupUnavailable) {
+          throw new Error('E2E_ACTOR_EMAIL_EXISTS_LOOKUP_UNAVAILABLE:' + email);
+        }
       }
 
       if (!isRetryableAuthLookup(error) || attempt === 4) throw error;
