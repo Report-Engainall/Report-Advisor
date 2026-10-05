@@ -399,7 +399,7 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
 
 export async function fetchSmartReportCatalog(limit = 500, options: ReportRequestOptions = {}): Promise<SmartReportCatalogItem[]> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_LIMIT');
-  const companyId = await resolveCurrentCompanyId();
+  const companyId = await resolveCurrentCompanyId(options.signal);
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
   const pageSize = 200;
