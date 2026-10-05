@@ -443,11 +443,11 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
   return reportJob;
 }
 
-const CURRENT_REPORT_SOURCE_PATH = process.env.CURRENT_REPORT_SOURCE_PATH?.trim() || 'تسعيرة الاصناف حسب رقم الصنف.pdf';
-const CURRENT_REPORT_SOURCE_HASH = process.env.CURRENT_REPORT_SOURCE_HASH?.trim() || 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300';
-const CURRENT_REPORT_ROW_COUNT = Number(process.env.CURRENT_REPORT_ROW_COUNT || '735');
+const CURRENT_REPORT_SOURCE_PATH = process.env.CURRENT_REPORT_SOURCE_PATH?.trim() || 'تقارير ادارية.xlsx';
+const CURRENT_REPORT_SOURCE_HASH = process.env.CURRENT_REPORT_SOURCE_HASH?.trim() || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const CURRENT_REPORT_ROW_COUNT = Number(process.env.CURRENT_REPORT_ROW_COUNT || '342');
 const CURRENT_REPORT_TASK_COUNT = 9;
-const CURRENT_REPORT_ENTITY_TYPE = 'generic:inventory';
+const CURRENT_REPORT_ENTITY_TYPE = 'generic:sales';
 
 function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
@@ -461,7 +461,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const uniqueJobs = [...new Map(jobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
-  assert.equal(job.id, 'f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0', 'CURRENT_REPORT_JOB_ID_CHANGED');
+  assert.equal(job.id, 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa', 'CURRENT_REPORT_JOB_ID_CHANGED');
   assert.equal(job.status, 'completed');
   assert.equal(job.source_hash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(job.source_path, CURRENT_REPORT_SOURCE_PATH);
@@ -517,30 +517,24 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(response, 'CURRENT_REPORT_SMART_BROWSER_JOB_READBACK_MISSING');
   const jobRows = await response.json();
   assert.equal(jobRows.length, 1); assert.equal(jobRows[0].id, report.reportJobId); assert.equal(jobRows[0].source_hash, CURRENT_REPORT_SOURCE_HASH); assert.equal(jobRows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
-  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText('EVIDENCE PASSPORT', { exact: false }).waitFor({ state: 'visible', timeout: 30000 });
   const before = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(before, 'current smart report');
-  assert.ok(before.includes('EVIDENCE INSPECTOR'));
+  assert.ok(before.includes('EVIDENCE PASSPORT'));
   assert.ok(before.includes(String(Number(report.rendered.qualityScore)) + '%'));
-  assert.ok(
-    before.includes('موثق') ||
-    before.includes('Verified') ||
-    before.includes('VERIFIED') ||
-    before.includes('بانتظار لقطة الدليل') ||
-    before.includes('بانتظار الدليل') ||
-    before.includes('Pending Evidence')
-  );
-  assert.ok(before.includes('ماذا استنتج النظام من هذا التقرير؟'), 'Smart Report intelligence panel missing');
-  assert.ok(before.includes('الإشارات المكتشفة'), 'Smart Report signals section missing');
-  assert.ok(before.includes('ما الذي ينصح به النظام؟'), 'Smart Report recommendations section missing');
-  assert.ok(before.includes('التنبؤ'), 'Smart Report forecast section missing');
-  assert.ok(before.includes('GUIDANCE'), 'Smart Report guidance section missing');
+  assert.ok(before.includes('التقرير موثق') || before.includes('الدليل موثق') || before.includes('موثّق') || before.includes('TRUSTED'), 'Smart Report trust state missing');
+  assert.ok(before.includes('WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF'), 'Smart Report decision chain missing');
+  assert.ok(await page.locator('[data-testid="smart-report-decision-chain"]').count() === 1, 'Smart Report decision chain DOM surface missing');
+  assert.ok(before.includes('ماذا يقول هذا التقرير فعليًا؟') || before.includes('ماذا يحدث في هذا التقرير؟'), 'Smart Report executive summary missing');
+  assert.ok(before.includes('التفاصيل الكاملة للتقرير'), 'Smart Report evidence disclosure missing');
+  assert.ok(before.includes('التوصية'), 'Smart Report recommendation state missing');
+  assert.ok(before.includes('القرار'), 'Smart Report decision state missing');
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText('EVIDENCE PASSPORT', { exact: false }).waitFor({ state: 'visible', timeout: 30000 });
   const after = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(after, 'current smart report refresh');
-  assert.ok(after.includes('EVIDENCE INSPECTOR'));
+  assert.ok(after.includes('EVIDENCE PASSPORT'));
   assert.ok(after.includes(String(Number(report.rendered.qualityScore)) + '%'));
   assert.ok(
     after.includes('موثق') ||
