@@ -231,7 +231,7 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
   return best;
 }
 
-function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: AnalysisSnapshotLike | null | undefined): string | null {
+export function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: AnalysisSnapshotLike | null | undefined): string | null {
   const renderedValue = renderedSpecialty == null ? null : String(renderedSpecialty).trim() || null;
   const inferred = inferSpecialtyFromAnalysis(analysis);
   // The source-bound rendered specialty is authoritative. Inference may be used
