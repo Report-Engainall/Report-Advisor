@@ -144,7 +144,7 @@ export const CALCULATION_REGISTRY: readonly CalculationDefinition[] = [
   { metricId: 'inventory.stock.value', name: 'قيمة المخزون المرجعية', formula: 'SUM(currentStock * cost)', requiredFields: ['currentStock','cost'], optionalFields: [], supportedArchetypes: ['inventory.*'], minimumSample: 1, dataType: 'number', evidenceRequirements: ['currentStock','cost'], confidenceRule: 'rows with both fields / sample', limitation: 'قيمة مرجعية وليست تقييمًا محاسبيًا نهائيًا.' },
   { metricId: 'inventory.coverage.ratio', name: 'نسبة الرصيد إلى الطلب المرجعي', formula: 'SUM(currentStock) / ABS(SUM(salesQty))', requiredFields: ['currentStock','salesQty'], optionalFields: [], supportedArchetypes: ['inventory.*'], minimumSample: 1, dataType: 'ratio', evidenceRequirements: ['currentStock','salesQty'], confidenceRule: 'rows with both fields / sample', limitation: 'ليست أيام تغطية؛ تحتاج فترة طلب معتمدة.' },
   { metricId: 'fulfillment.rate', name: 'نسبة تلبية الطلب', formula: 'SUM(fulfilledQty) / ABS(SUM(requestedQty))', requiredFields: ['requestedQty','fulfilledQty'], optionalFields: [], supportedArchetypes: ['*'], minimumSample: 1, dataType: 'percent', evidenceRequirements: ['requestedQty','fulfilledQty'], confidenceRule: 'rows with both fields / sample', limitation: 'لا يثبت سبب عدم التلبية.' },
-  { metricId: 'receivable.outstanding', name: 'المستحقات القائمة', formula: 'SUM(balance)', requiredFields: ['balance'], optionalFields: ['paidAmount','netAmount'], supportedArchetypes: ['customers.*','finance.receivables-aging'], minimumSample: 1, dataType: 'number', evidenceRequirements: ['balance'], confidenceRule: 'usable balance rows / sample', limitation: 'الرصيد يحتاج تعريفًا زمنيًا قبل وصفه بالمتأخر.' },
+  { metricId: 'receivable.outstanding', name: 'المستحقات القائمة', formula: 'SUM(netAmount - paidAmount)', requiredFields: ['netAmount','paidAmount'], optionalFields: [], supportedArchetypes: ['customers.*','finance.receivables-aging'], minimumSample: 1, dataType: 'number', evidenceRequirements: ['netAmount','paidAmount'], confidenceRule: 'rows with both fields / sample', limitation: 'هذا رصيد مشتق من صافي المبلغ والمدفوع وليس إثباتًا محاسبيًا نهائيًا.' },
   { metricId: 'profit.gross.margin', name: 'الهامش الإجمالي', formula: '(SUM(netAmount)-SUM(cost)) / ABS(SUM(netAmount))', requiredFields: ['netAmount','cost'], optionalFields: [], supportedArchetypes: ['finance.*','sales.*'], minimumSample: 1, dataType: 'percent', evidenceRequirements: ['netAmount','cost'], confidenceRule: 'rows with both fields / sample', limitation: 'هامش إجمالي مشتق ولا يمثل صافي الربح.' },
   { metricId: 'forecast.linear.next', name: 'التنبؤ الخطي للفترة التالية', formula: 'linear regression over monthly values', requiredFields: ['documentDate','netAmount'], optionalFields: [], supportedArchetypes: ['*'], minimumSample: 4, dataType: 'number', evidenceRequirements: ['>=4 consistent monthly observations'], confidenceRule: 'period count >= 4 and continuous monthly spacing', limitation: 'التنبؤ غير متاح عند عدم كفاية الفترات أو عدم انتظامها، ولا يثبت المستقبل.' },
 ] as const;
@@ -369,9 +369,17 @@ function evaluate(def: CalculationDefinition, rows: Row[], archetypeId: string |
       return result(def, { availabilityState: 'CALCULATED', value: Number((fulfilled / Math.abs(requested) * 100).toFixed(2)), unit: '%', ...common(usable), sourceFields: [keys.requestedQty, keys.fulfilledQty] });
     }
     case 'receivable.outstanding': {
-      const data = values(rows, keys.balance);
-      if (!data.length) return makeUnavailable(def, rows, 'INSUFFICIENT_SAMPLE', ['balance']);
-      return result(def, { availabilityState: 'CALCULATED', value: data.reduce((sum, item) => sum + item.value, 0), unit: 'source value', ...common(data.length) });
+      let usable = 0;
+      let total = 0;
+      for (const row of rows) {
+        const amount = n(row.data?.[keys.netAmount]);
+        const paid = n(row.data?.[keys.paidAmount]);
+        if (amount == null || paid == null) continue;
+        usable += 1;
+        total += amount - paid;
+      }
+      if (!usable) return makeUnavailable(def, rows, 'INSUFFICIENT_SAMPLE', ['netAmount','paidAmount']);
+      return result(def, { availabilityState: 'CALCULATED', value: total, unit: 'source value', ...common(usable), sourceFields: [keys.netAmount, keys.paidAmount] });
     }
     case 'profit.gross.margin': {
       let usable = 0;
