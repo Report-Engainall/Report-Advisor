@@ -99,7 +99,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref }}
+  group: full-product-browser-e2e-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 permissions:
