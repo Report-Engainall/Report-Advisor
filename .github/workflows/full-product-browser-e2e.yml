@@ -313,6 +313,8 @@ jobs:
           E2E_REPORT_DIR: artifacts/e2e-business
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          REAL_48_TEST_USER_EMAIL: ${{ env.TEST_USER_B_EMAIL }}
+          REAL_48_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
