@@ -108,7 +108,7 @@ assert.ok(reports.includes('export function InventoryReportPage()'), 'inventory 
 assert.ok(reports.includes('export function ReceivablesReportPage()'), 'receivables report must remain guarded after retry refactor');
 assert.ok(reports.includes('export function ProfitabilityReportPage()'), 'profitability report must remain guarded after retry refactor');
 assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center must expose the current canonical snapshot');
-assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');
+assert.ok(reports.includes('الخطوة التالية'), 'reports center must expose a concrete next action');
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
