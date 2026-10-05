@@ -461,7 +461,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const uniqueJobs = [...new Map(jobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
-  assert.equal(job.id, 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa', 'CURRENT_REPORT_JOB_ID_CHANGED');
+  assert.equal(job.id, '16709d80-e012-40ef-9c12-6fd8255897f8', 'CURRENT_REPORT_JOB_ID_CHANGED');
   assert.equal(job.status, 'completed');
   assert.equal(job.source_hash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(job.source_path, CURRENT_REPORT_SOURCE_PATH);
