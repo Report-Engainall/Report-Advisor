@@ -1112,7 +1112,7 @@ export function SmartReportPage() {
         </div>
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE</div>
-          <div className="mt-1 text-[10px] font-bold text-white">{report.sourcePath}</div>
+          <div data-testid="smart-report-source-path" className="mt-1 text-[10px] font-bold text-white">{report.sourcePath}</div>
           <div className="mt-1 text-[9px] text-slate-400">الفترة: غير محددة في المصدر ما لم يثبتها الملف.</div>
         </div>
       </div>
