@@ -278,7 +278,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
   let lastState = null;
 
   while (Date.now() < deadline) {
-    const state = await targetPage.evaluate(({ expected, loadingMarkers }) => {
+    const state = await targetPage.evaluate(({ expected, loadingMarkers, smartReportJobId, smartReportSourceHash }) => {
       const text = document.body?.innerText?.trim() || '';
       const loading = loadingMarkers.filter(marker => text.includes(marker));
       const matches = expected.map(marker => ({ marker, found: text.includes(marker) }));
@@ -300,10 +300,15 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartAdvisorSurfacePresent: text.includes('المستشار'),
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
-        smartJobIdPresent: text.includes(REAL_SMART_REPORT_JOB_ID),
-        smartSourceHashPresent: text.includes(REAL_SMART_REPORT_SOURCE_HASH),
+        smartJobIdPresent: text.includes(smartReportJobId),
+        smartSourceHashPresent: text.includes(smartReportSourceHash),
       };
-    }, { expected, loadingMarkers: REPORT_LOADING_MARKERS });
+    }, {
+      expected,
+      loadingMarkers: REPORT_LOADING_MARKERS,
+      smartReportJobId: REAL_SMART_REPORT_JOB_ID,
+      smartReportSourceHash: REAL_SMART_REPORT_SOURCE_HASH,
+    });
 
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
     const allExpectedFound = state.matches.every(item => item.found);
