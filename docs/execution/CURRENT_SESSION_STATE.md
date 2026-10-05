@@ -1,11 +1,11 @@
 ﻿SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
+CURRENT_EXACT_HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
+CURRENT_EXECUTION_HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
+CURRENT_PR_HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
 
 WHAT_ACTUALLY_HAPPENED
 - طھظ… ط¥طµظ„ط§ط­ ظ…ط³ط§ط±ط§طھ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط¨ط­ظٹط« ظ„ط§ ظٹط­ط¬ط¨ ظƒطھط§ظ„ظˆط¬ ط§ظ„طھظ‚ط§ط±ظٹط± ط£ظˆ ط·ظ„ط¨ط§طھ ط§ظ„ط®ظ„ظپظٹط© ظˆطµظˆظ„ ط§ظ„ظ„ظ‚ط·ط© ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ط¥ظ„ظ‰ ط§ظ„ظˆط§ط¬ظ‡ط©.
@@ -19,6 +19,7 @@ WHAT_ACTUALLY_HAPPENED
 - طھظ… طھط­ط¯ظٹط« ظ‡ط°ط§ handoff ظ„ظٹط؛ط·ظٹ ظƒظ„ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط¹ط¯ظ„ط© ط­طھظ‰ ط§ظ„ط±ط£ط³ ط§ظ„ط­ط§ظ„ظٹ.
 
 WHAT_IS_PROVEN
+- Login commercial value surface contract PASS on 0f41ffba2; visible Evidence-first, Provenance, Decision, Outcome, and Arabic-first value principles are now on the entry surface.
 - Local typecheck PASS.
 - Navigation/route contract PASS: ظ„ط§ duplicate route pathsطŒ 46 route declarations.
 - UI route completeness PASS.
@@ -48,4 +49,4 @@ DO_NOT_REPEAT
 - ظ„ط§ route-load-only browser PASS.
 - ظ„ط§ blind production deploy retries.
 
-NEXT_EXACT_ACTION = ط§ظ†طھط¸ط± terminal results ظ„ظ„ط±ط£ط³ b84550327طŒ ط«ظ… ط§ظ‚ط±ط£ ط£ظˆظ„ failure ظپظ‚ط· ط¥ظ† ظˆط¬ط¯. ط¹ظ†ط¯ ط§ظƒطھظ…ط§ظ„ 48/48 + Chromium screenshots + Smart Report six-card proof + certification ط¹ظ„ظ‰ ظ†ظپط³ SHAطŒ ط­ط¯ظ‘ط« ظ‡ط°ط§ ط§ظ„ظ…ظ„ظپ ظ…ط±ط© ط£ط®ظٹط±ط© ط¨ط§ظ„ط±ط£ط³ ط§ظ„ظ†ظ‡ط§ط¦ظٹ ظˆظ„ط§ طھظڈط¹ظ„ظ† ط§ظ„ط¬ط§ظ‡ط²ظٹط© ظ‚ط¨ظ„ ط°ظ„ظƒ.
+NEXT_EXACT_ACTION = consume terminal results for HEAD 0f41ffba2; fix only the first failure if any, then rerun evidence on the resulting exact HEAD. Do not declare sale-ready before 48/48 + Chromium Smart Report + certification.
