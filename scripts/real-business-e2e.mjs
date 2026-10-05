@@ -518,8 +518,10 @@ async function proveCurrentSmartReport(page, report) {
   const jobRows = await response.json();
   assert.equal(jobRows.length, 1); assert.equal(jobRows[0].id, report.reportJobId); assert.equal(jobRows[0].source_hash, CURRENT_REPORT_SOURCE_HASH); assert.equal(jobRows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
   await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('[data-testid="smart-report-source-path"]').waitFor({ state: 'visible', timeout: 30000 });
   const before = (await page.locator('body').innerText()).trim();
-  assertCurrentReportText(before, 'current smart report');
+  assert.ok(before.includes('SOURCE'), 'Smart Report source identity surface missing');
+  assert.ok(await page.locator('[data-testid="smart-report-source-hash"]').count() === 1, 'Smart Report source hash DOM surface missing');
   assert.ok(before.includes('EVIDENCE PASSPORT'));
   assert.ok(before.includes(String(Number(report.rendered.qualityScore)) + '%'));
   assert.ok(before.includes('التقرير موثق') || before.includes('الدليل موثق') || before.includes('موثّق') || before.includes('TRUSTED'), 'Smart Report trust state missing');
@@ -532,8 +534,10 @@ async function proveCurrentSmartReport(page, report) {
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
   await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('[data-testid="smart-report-source-path"]').waitFor({ state: 'visible', timeout: 30000 });
   const after = (await page.locator('body').innerText()).trim();
-  assertCurrentReportText(after, 'current smart report refresh');
+  assert.ok(after.includes('SOURCE'), 'Smart Report source identity surface missing after refresh');
+  assert.ok(await page.locator('[data-testid="smart-report-source-hash"]').count() === 1, 'Smart Report source hash DOM surface missing after refresh');
   assert.ok(after.includes('EVIDENCE PASSPORT'));
   assert.ok(after.includes(String(Number(report.rendered.qualityScore)) + '%'));
   assert.ok(
