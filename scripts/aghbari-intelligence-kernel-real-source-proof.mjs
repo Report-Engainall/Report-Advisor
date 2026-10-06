@@ -2,7 +2,9 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const sourcePath = process.env.KERNEL_REAL_SOURCE_JSON;
+const proofTenantId = process.env.KERNEL_REAL_SOURCE_TENANT_ID;
 if (!sourcePath) throw new Error('KERNEL_REAL_SOURCE_JSON_REQUIRED');
+if (!proofTenantId) throw new Error('KERNEL_REAL_SOURCE_TENANT_ID_REQUIRED');
 
 const { runAghbariIntelligenceKernel, compileKernelReportIntegration } = await import('../src/lib/report-intelligence/aghbari-intelligence-kernel.ts');
 const { runReportArchetype } = await import('../src/lib/report-intelligence/archetype-registry.ts');
@@ -17,7 +19,7 @@ const result = runAghbariIntelligenceKernel({
   canonicalRowsComplete: true,
   evidenceReady: true,
   provenance: {
-    tenantId: '99e33354-cc45-4317-8eb3-0d486b6c5932',
+    tenantId: proofTenantId,
     reportExecutionJobId: '16709d80-e012-40ef-9c12-6fd8255897f8',
     sourceHash: 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313',
     evidenceSnapshotId: '01e41830-fa44-41a3-9790-cb5cd8202d6a',
