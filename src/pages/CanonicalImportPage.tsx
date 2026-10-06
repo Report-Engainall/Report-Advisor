@@ -62,6 +62,72 @@ function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; rea
   if (confidence >= 50) return { confidence, reason: 'تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ بعض الحقول تحتاج مراجعة قبل الاعتماد.' };
   return { confidence, reason: 'تمت قراءة المصدر، لكن دقة الفهم البنيوي لا تزال محدودة ويجب مراجعة البيانات قبل الاعتماد.' };
 }
+
+function inferGenericEntityType(
+  columns: Array<{ name: string; mappedField: string | null }>,
+  fileName: string,
+): `generic:${string}` {
+  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\s_./\\-]+/g, '');
+  const fields = new Set<string>();
+  for (const column of columns) {
+    if (column.mappedField) fields.add(normalize(column.mappedField));
+    if (column.name) fields.add(normalize(column.name));
+  }
+
+  const hasAny = (values: string[]) => values.some((value) => fields.has(normalize(value)));
+  const hasInventory = hasAny([
+    'sku','productCode','رمز الصنف','رقم الصنف',
+    'balance','current_stock','currentStock','الرصيد','الرصيدالحالي',
+    'warehouse','المخزن','المستودع',
+    'opening_balance','openingStock','الرصيد الافتتاحي',
+    'incoming','inbound','صافي الوارد','الوارد',
+    'stockout_days','stockoutDays','أيام النفاد','الفترة المتوقعة لنفاد الكمية',
+    'stock_age_days','stockAgeDays','عمر المخزون','عمر المخزون للفترة',
+    'daily_sales_rate','dailySalesRate','معدل البيع اليومي','معدل البيع ليومي',
+  ]);
+  const inventoryStrength = [
+    hasAny(['sku','productCode','رمز الصنف','رقم الصنف']),
+    hasAny(['balance','current_stock','currentStock','الرصيد','الرصيدالحالي']),
+    hasAny(['warehouse','المخزن','المستودع']),
+    hasAny(['opening_balance','openingStock','الرصيد الافتتاحي']),
+    hasAny(['incoming','inbound','صافي الوارد','الوارد']),
+    hasAny(['stockout_days','stockoutDays','أيام النفاد','الفترة المتوقعة لنفاد الكمية']),
+    hasAny(['daily_sales_rate','dailySalesRate','معدل البيع اليومي','معدل البيع ليومي']),
+  ].filter(Boolean).length;
+
+  const nameSignals = [
+    /inventory|stock|مخزون|اصناف|أصناف|مستودع|مخزن/i.test(fileName),
+    /sales|sale|مبيع|مبيعات|بيع/i.test(fileName),
+    /purchase|purchas|شراء|مشتريات/i.test(fileName),
+    /receivable|aging|ديون|ذمم|تحصيل/i.test(fileName),
+  ];
+
+  if (inventoryStrength >= 2 && (hasInventory || nameSignals[0])) return 'generic:inventory';
+
+  const salesStrength = [
+    hasAny(['invoice_number','invoiceNo','رقم الفاتورة','رقم الفاتوره']),
+    hasAny(['customer_name','customer','اسم العميل','العميل']),
+    hasAny(['date','invoice_date','التاريخ','تاريخ الفاتورة']),
+    hasAny(['total','net_amount','sales_amount','الإجمالي','اجمالي الفاتورة']),
+  ].filter(Boolean).length;
+  if (salesStrength >= 2 || nameSignals[1]) return 'generic:sales';
+
+  const purchasesStrength = [
+    hasAny(['supplier_name','supplier','vendor','اسم المورد','المورد']),
+    hasAny(['purchase','purchases','المشتريات','الشراء']),
+    hasAny(['total','amount','الإجمالي','المبلغ']),
+  ].filter(Boolean).length;
+  if (purchasesStrength >= 2 || nameSignals[2]) return 'generic:purchases';
+
+  const receivablesStrength = [
+    hasAny(['outstanding_balance','balance_due','الرصيد المستحق','المتبقي']),
+    hasAny(['customer_name','customer','اسم العميل','العميل']),
+    hasAny(['due_date','aging','الاستحقاق','عمر الدين']),
+  ].filter(Boolean).length;
+  if (receivablesStrength >= 2 || nameSignals[3]) return 'generic:receivables';
+
+  return 'generic:source-data';
+}
 const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
   { key: 'scanning', label: 'الفحص' },
@@ -295,7 +361,7 @@ export function CanonicalImportPage() {
 
       setProgress(30);
 
-      const entityType = 'generic:source-data';
+      const entityType = inferGenericEntityType(mappings, file.name);
       const rec = await createImportRecord({
         file_name: file.name,
         file_size: file.size,
