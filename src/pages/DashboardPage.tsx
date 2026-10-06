@@ -290,7 +290,7 @@ export function DashboardPage() {
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
 
       {primaryReport && (
-        <section className="rounded-[20px] border border-[#25334a] bg-[linear-gradient(135deg,#09111f,#142438)] p-5 text-white shadow-[0_26px_70px_-40px_rgba(15,23,42,.95)] lg:p-6" aria-label="التقرير الحقيقي الحالي">
+        <section data-testid="primary-real-smart-report-card" className="rounded-[20px] border border-[#25334a] bg-[linear-gradient(135deg,#09111f,#142438)] p-5 text-white shadow-[0_26px_70px_-40px_rgba(15,23,42,.95)] lg:p-6" aria-label="التقرير الحقيقي الحالي">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.12em] text-primary-200">

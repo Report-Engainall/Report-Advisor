@@ -60,6 +60,7 @@ let reportProofPage = null;
 let reportProofTenant = null;
 
 const REPORT_EXPECTATIONS = new Map([
+  ['/', ['التقرير الحقيقي الحالي', 'تقارير ادارية.xlsx', '332', 'VERIFIED / READY / ACCEPTED']],
   ['/reports', ['مركز التقارير', 'بيانات → دليل → قرار']],
   ['/reports/sales', ['تقرير المبيعات', 'إجمالي المبيعات']],
   ['/reports/purchases', ['تقرير المشتريات', 'إجمالي المشتريات']],
@@ -731,11 +732,11 @@ try {
         try {
           const response = await routePage.goto(baseURL + route, { waitUntil: 'domcontentloaded', timeout: 30000 });
           await routePage.waitForTimeout(250);
-          if (route === '/reports') {
+          if (route === '/' || route === '/reports') {
             firstPaint = await waitForRealReportFirstPaint(routePage, 8000);
             if (!firstPaint.proven) {
               status = 'NOT_PROVEN';
-              reason = '/reports: real report content did not become visible within the first-paint budget.';
+              reason = route + ': real report content did not become visible within the first-paint budget.';
             }
           }
           settlement = await waitForReportSettled(routePage, route, dataBaseline);
