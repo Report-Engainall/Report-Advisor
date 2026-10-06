@@ -190,11 +190,16 @@ if (restoreTarget?.isConnected) requestAnimationFrame(() => restoreTarget.focus(
 function PublicOrAuthenticatedWorkspace() {
   const location = useLocation();
   const host = typeof window !== 'undefined' ? window.location.hostname.toLowerCase() : '';
+  const query = new URLSearchParams(location.search);
   const isNetlifyPreview = host.endsWith('--aghbari-report-advisor.netlify.app')
     && host !== 'aghbari-report-advisor.netlify.app'
     && host !== 'main--aghbari-report-advisor.netlify.app';
-  const demoQuery = new URLSearchParams(location.search).get('demo') === '1';
-  if (demoQuery || isNetlifyPreview) return <ProposalDemoPage />;
+  const isPrimaryPublicPreview = host === 'aghbari-report-advisor.netlify.app' || host === 'main--aghbari-report-advisor.netlify.app';
+  const demoQuery = query.get('demo') === '1';
+  const authQuery = query.get('auth') === '1';
+
+  if (authQuery) return <AuthGate />;
+  if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview) return <ProposalDemoPage />;
   return <AuthGate><AppShell /></AuthGate>;
 }
 

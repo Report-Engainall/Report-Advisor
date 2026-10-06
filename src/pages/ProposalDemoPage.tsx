@@ -94,7 +94,7 @@ const CAPABILITIES: Capability[] = [
   { id: 'data-quality', title: 'جودة البيانات والمراجعة', description: 'مراجعة فجوات البيانات ومشكلات التحقق والسجلات المحجوبة قبل الاعتماد.', path: '/data-quality', keywords: ['quality', 'review', 'duplicates', 'validation', 'quarantine', 'جودة', 'مراجعة', 'تكرار', 'سجلات'] },
   { id: 'reports', title: 'التقارير التجارية', description: 'تقارير المبيعات والمخزون والذمم والربحية والتقرير التنفيذي.', path: '/reports', keywords: ['report', 'reporting', 'sales report', 'inventory report', 'finance'] },
   { id: 'receivables', title: 'الذمم والأعمار', description: 'الأرصدة المستحقة وتصنيف الأعمار وواجهات تركز على التحصيل.', path: '/reports/receivables', keywords: ['receivables', 'aging', 'collections', 'ar', 'debtor', 'ذمم', 'أعمار', 'تحصيل', 'مدين'] },
-  { id: 'profitability', title: 'ذكاء الربحية', description: 'تقارير المبيعات والتكلفة والربح الإجمالي من المصدر الكانوني مع سياق الدليل.', path: '/reports/profitability', keywords: ['profitability', 'margin', 'gross profit', 'cost', 'finance', 'ربحية', 'هامش', 'ربح', 'تكلفة'] },
+  { id: 'profitability', title: 'ذكاء الربحية', description: 'تقارير المبيعات والتكلفة والربح الإجمالي من الـFixture الكانوني مع سياق الدليل.', path: '/reports/profitability', keywords: ['profitability', 'margin', 'gross profit', 'cost', 'finance', 'ربحية', 'هامش', 'ربح', 'تكلفة'] },
   { id: 'inventory', title: 'ذكاء المخزون', description: 'موقف المخزون والحركة والأصناف منخفضة الرصيد وتحليل الإتاحة.', path: '/reports/inventory-intelligence', keywords: ['inventory', 'stock', 'warehouse', 'availability', 'slow movers', 'مخزون', 'مستودع', 'إتاحة', 'أصناف'] },
   { id: 'demand', title: 'الطلب والتنبؤ', description: 'سرعة الطلب والتنبؤات وواجهات التخطيط المقيدة بالبيانات.', path: '/reports/demand-velocity', keywords: ['demand', 'forecast', 'forecasting', 'planning', 'seasonality', 'طلب', 'تنبؤ', 'تخطيط', 'موسمية'] },
   { id: 'analytics', title: 'تحليلات العملاء والمحفظة', description: 'تحليل RFM وABC والأعمار للتقسيم وتحديد الأولويات.', path: '/analytics', keywords: ['analytics', 'rfm', 'abc', 'segmentation', 'customer value', 'تحليل', 'عملاء', 'محفظة', 'تقسيم'] },
@@ -124,6 +124,92 @@ function PreviewMetric({ label, value, meta }: { label: string; value: string; m
       <div className="mt-1.5 text-2xl font-black tabular-nums text-ink-950">{value}</div>
       <div className="mt-1 text-[9px] text-ink-400">{meta}</div>
     </div>
+  );
+}
+
+function PreviewNavigation({ currentPath }: { currentPath: string }) {
+  const sections = [
+    {
+      title: 'الرئيسية',
+      items: [
+        ['/', 'لوحة الأعمال'],
+        ['/reports', 'التقارير'],
+        ['/reports/executive', 'التقرير التنفيذي'],
+      ],
+    },
+    {
+      title: 'التحليل',
+      items: [
+        ['/reports/sales', 'المبيعات'],
+        ['/reports/inventory', 'المخزون'],
+        ['/reports/profitability', 'الربحية'],
+        ['/reports/receivables', 'الذمم المشتقة'],
+        ['/reports/demand-velocity', 'حركة الطلب'],
+        ['/analytics/liquidity', 'السيولة المشتقة'],
+      ],
+    },
+    {
+      title: 'الذكاء والقرار',
+      items: [
+        ['/intelligence', 'ذكاء القرار'],
+        ['/intelligence/recommendations', 'التوصيات'],
+        ['/intelligence/forecasts', 'الاتجاه'],
+        ['/decision-experience', 'القرار'],
+        ['/work-center', 'العمل'],
+      ],
+    },
+    {
+      title: 'الثقة والحوكمة',
+      items: [
+        ['/data-quality', 'جودة البيانات'],
+        ['/trust', 'الثقة'],
+        ['/replay', 'إعادة التتبع'],
+        ['/benchmark', 'المقارنة'],
+        ['/reports/smart/demo', 'التقرير الذكي'],
+      ],
+    },
+  ] as const;
+
+  return (
+    <nav aria-label="تنقل معاينة المنتج" className="rounded-[20px] border border-ink-200 bg-white p-3 shadow-sm">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PRODUCT PREVIEW NAVIGATION</div>
+            <div className="mt-1 text-sm font-black text-ink-950">تنقل بين مساحات المنتج بنفس بيانات المعاينة</div>
+          </div>
+          <Link
+            to="/?auth=1"
+            className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-3 text-[10px] font-black text-ink-700 hover:bg-ink-50"
+          >
+            اختبار الدخول الحقيقي
+          </Link>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-4">
+          {sections.map(section => (
+            <div key={section.title} className="rounded-xl border border-ink-100 bg-ink-50/60 p-2.5">
+              <div className="px-2 py-1 text-[9px] font-black text-ink-500">{section.title}</div>
+              <div className="mt-1 grid gap-1">
+                {section.items.map(([href, label]) => {
+                  const active = currentPath === href || (href !== '/' && currentPath.startsWith(href + '/'));
+                  return (
+                    <Link
+                      key={href}
+                      to={href}
+                      className={`inline-flex min-h-9 items-center justify-between rounded-lg px-2.5 py-2 text-[10px] font-black transition ${active ? 'bg-primary-700 text-white' : 'text-ink-700 hover:bg-white hover:text-primary-700'}`}
+                      aria-current={active ? 'page' : undefined}
+                    >
+                      <span>{label}</span>
+                      <span aria-hidden="true">←</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </nav>
   );
 }
 
@@ -211,14 +297,14 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     '/master-data': 'البيانات الرئيسية',
     '/alternative-groups': 'البدائل · غير موجودة في الـFixture',
     '/onboarding': 'التجهيز التجاري · بيانات المعاينة',
-    '/': 'لوحة الأعمال من المصدر الحالي',
+    '/': 'لوحة الأعمال من الـFixture الحالي',
     '/reports': 'مركز التقارير',
     '/reports/sales': 'المبيعات الموجودة داخل المصدر',
     '/reports/purchases': 'المشتريات · غير متاحة في هذا المصدر',
     '/reports/inventory': 'تقرير المخزون',
     '/reports/inventory-intelligence': 'ذكاء المخزون',
-    '/reports/receivables': 'المبالغ المفتوحة المستخرجة من المصدر',
-    '/reports/profitability': 'الربحية المحسوبة من المصدر',
+    '/reports/receivables': 'المبالغ المفتوحة المستخرجة من الـFixture',
+    '/reports/profitability': 'الربحية المحسوبة من الـFixture',
     '/reports/demand-velocity': 'حركة الطلب من وحدات المبيعات',
     '/reports/executive': 'الملخص التنفيذي',
     '/command-center': 'مركز القرار',
@@ -234,7 +320,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     '/import': 'استيراد المصدر',
     '/import/analyze': 'تحليل المصدر',
     '/customers': 'العملاء · غير متاحين في هذا المصدر',
-    '/products': 'المنتجات المستخرجة من المصدر',
+    '/products': 'المنتجات المستخرجة من الـFixture',
     '/inventory': 'المخزون التشغيلي',
   };
   const title = routeTitle[route] ?? 'مساحة المعاينة';
@@ -250,10 +336,11 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   const commonHeader = (
     <>
       <PreviewSourceBanner />
+      <PreviewNavigation currentPath={route} />
       <div className="flex flex-col gap-1">
         <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PREVIEW BUSINESS SURFACE</div>
         <h2 className="text-xl font-black text-ink-950">{title}</h2>
-        <p className="text-xs leading-5 text-ink-500">نفس الصفوف، نفس المصدر، مع حدود المجال معلنة.</p>
+        <p className="text-xs leading-5 text-ink-500">نفس الـFixture، مع حدود المجال معلنة وحدود البيانات غير المتاحة ظاهرة.</p>
       </div>
     </>
   );
@@ -263,10 +350,10 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   if (route === '/reports/purchases' || route === '/customers' || route === '/suppliers') {
     body = sourceUnavailable(
       route === '/reports/purchases'
-        ? 'حقول الشراء والمورد لا توجد في المصدر الحالي. لذلك لا نعرض تقرير مشتريات مزيفًا.'
+        ? 'حقول الشراء والمورد لا توجد في Fixture الحالي. لذلك لا نعرض تقرير مشتريات مزيفًا.'
         : route === '/customers'
-          ? 'لا يوجد مفتاح عميل أو سجل عميل في المصدر الحالي. هذا المسار ينتظر مصدر مبيعات/عملاء معتمد.'
-          : 'لا يوجد سجل مورد في المصدر الحالي. هذا المسار ينتظر مصدر مشتريات معتمد.'
+          ? 'لا يوجد مفتاح عميل أو سجل عميل في Fixture الحالي. هذا المسار ينتظر مصدر مبيعات/عملاء معتمد.'
+          : 'لا يوجد سجل مورد في Fixture الحالي. هذا المسار ينتظر مصدر مشتريات معتمد.'
     );
   } else if (route === '/data-quality' || route === '/import' || route === '/import/analyze') {
     const malformedRows = LIVE_ROWS.filter(row =>
@@ -324,7 +411,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
           <PreviewMetric label="إجمالي الصافي" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
           <PreviewMetric label="إجمالي المدفوع" value={LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0).toLocaleString('ar-YE')} meta="YER" />
           <PreviewMetric label="المفتوح" value={outstanding.toLocaleString('ar-YE')} meta="YER · مشتق" />
-          <PreviewMetric label="صفوف مفتوحة" value={String(LIVE_ROWS.filter(row => row.netAmount > row.paidAmount).length)} meta="من المصدر" />
+          <PreviewMetric label="صفوف مفتوحة" value={String(LIVE_ROWS.filter(row => row.netAmount > row.paidAmount).length)} meta="من الـFixture" />
         </div>
         <PreviewInventoryTable rows={LIVE_ROWS.filter(row => row.netAmount > row.paidAmount)} />
       </>
@@ -412,7 +499,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <PreviewMetric label="إشارات عمل" value={String(LOW_COVERAGE_ROWS.length)} meta="تغطية أقل من 2.00" />
           <PreviewMetric label="أولوية" value="P1" meta="مراجعة مخزون" />
-          <PreviewMetric label="صفوف متأثرة" value={String(LOW_COVERAGE_ROWS.length)} meta="من المصدر" />
+          <PreviewMetric label="صفوف متأثرة" value={String(LOW_COVERAGE_ROWS.length)} meta="من الـFixture" />
           <PreviewMetric label="الأثر المالي المثبت" value="غير متاح" meta="لا يوجد سعر قرار معتمد" />
         </div>
         <div className="grid gap-3 lg:grid-cols-3">
@@ -469,7 +556,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     body = (
       <>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <PreviewMetric label="الصفوف" value={String(LIVE_ROWS.length)} meta="المصدر الحالي" />
+          <PreviewMetric label="الصفوف" value={String(LIVE_ROWS.length)} meta="Fixture الحالي" />
           <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
           <PreviewMetric label="الرصيد" value={String(LIVE_TOTALS.currentStock)} meta="وحدة" />
           <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
@@ -488,8 +575,8 @@ function PreviewBusinessSurface({ path }: { path: string }) {
       <>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <PreviewMetric label="أصناف مميزة في المصدر" value={String(new Set(LIVE_ROWS.map(row => row.productCode)).size)} meta="SKU" />
-          <PreviewMetric label="وحدات مباعة" value={String(LIVE_TOTALS.salesQty)} meta="من المصدر" />
-          <PreviewMetric label="الرصيد الحالي" value={String(LIVE_TOTALS.currentStock)} meta="من المصدر" />
+          <PreviewMetric label="وحدات مباعة" value={String(LIVE_TOTALS.salesQty)} meta="من الـFixture" />
+          <PreviewMetric label="الرصيد الحالي" value={String(LIVE_TOTALS.currentStock)} meta="من الـFixture" />
           <PreviewMetric label="إشارة إعادة الطلب" value={String(LOW_COVERAGE_ROWS.length)} meta="تغطية منخفضة" />
         </div>
         <PreviewInventoryTable />
@@ -595,9 +682,9 @@ function ProposalCommercialDemoPage() {
                 : demoPath.includes('/reports/sales') ? 'المبيعات والربحية من الصفوف نفسها'
                 : demoPath.includes('/reports/receivables') ? 'الرصيد المفتوح للتحصيل'
                 : demoPath.includes('/decision-experience') ? 'إشارات قابلة للتحويل إلى قرار'
-                : 'بيانات فعلية قابلة للبحث'}
+                : 'بيانات المعاينة القابلة للبحث'}
             </h2>
-            <p className="mt-1 text-xs leading-5 text-ink-500">ابحث، اقرأ، واتخذ إجراءً على نفس البيانات. الحالة والتغطية محسوبتان من المصدر المعروض، لا من نص تسويقي مستقل.</p>
+            <p className="mt-1 text-xs leading-5 text-ink-500">ابحث، اقرأ، واتخذ إجراءً على نفس بيانات المعاينة. الحالة والتغطية محسوبتان من الـFixture المعروض، لا من نص تسويقي مستقل.</p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
             <input value={liveQuery} onChange={event => setLiveQuery(event.target.value)} className="input h-10 w-full sm:w-80" placeholder="ابحث بالمستند أو الصنف أو المستودع" aria-label="بحث في البيانات المصدرية" />
@@ -617,7 +704,7 @@ function ProposalCommercialDemoPage() {
             <>
               <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
                 {[
-                  ['عدد الصفوف', LIVE_ROWS.length.toLocaleString('ar-EG'), 'من المصدر'],
+                  ['عدد الصفوف', LIVE_ROWS.length.toLocaleString('ar-EG'), 'من الـFixture'],
                   ['المبيعات', totalSales.toLocaleString('ar-EG'), 'وحدة'],
                   ['الرصيد الحالي', totalStock.toLocaleString('ar-EG'), 'وحدة'],
                   ['صافي المبيعات', totalNet.toLocaleString('ar-EG'), 'YER'],
