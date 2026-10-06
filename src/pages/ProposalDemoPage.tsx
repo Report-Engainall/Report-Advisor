@@ -233,6 +233,170 @@ function PreviewSourceBanner() {
   );
 }
 
+
+function PreviewAdvisorReport() {
+  const lowSalesQty = LOW_COVERAGE_ROWS.reduce((sum, row) => sum + row.salesQty, 0);
+  const lowStockQty = LOW_COVERAGE_ROWS.reduce((sum, row) => sum + row.currentStock, 0);
+  const lowSalesShare = LIVE_TOTALS.salesQty > 0 ? (lowSalesQty / LIVE_TOTALS.salesQty) * 100 : 0;
+  const lowStockShare = LIVE_TOTALS.currentStock > 0 ? (lowStockQty / LIVE_TOTALS.currentStock) * 100 : 0;
+  const latestLow = [...LOW_COVERAGE_ROWS].sort((a, b) => b.documentDate.localeCompare(a.documentDate))[0] ?? null;
+  const overallGrowth = LIVE_ROWS[0]?.salesQty > 0
+    ? ((LIVE_ROWS[LIVE_ROWS.length - 1].salesQty - LIVE_ROWS[0].salesQty) / LIVE_ROWS[0].salesQty) * 100
+    : null;
+  const margin = LIVE_TOTALS.netAmount > 0 ? (LIVE_TOTALS.profit / LIVE_TOTALS.netAmount) * 100 : null;
+  const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
+  const outstanding = LIVE_TOTALS.netAmount - paidTotal;
+  const outstandingShare = LIVE_TOTALS.netAmount > 0 ? (outstanding / LIVE_TOTALS.netAmount) * 100 : null;
+
+  const recommendation = 'مراجعة إعادة الطلب للأصناف الثلاثة منخفضة التغطية، ثم تثبيت خطة شراء بعد التحقق من مهلة التوريد ونقطة إعادة الطلب.';
+  const whyNow = latestLow
+    ? `آخر صف منخفض التغطية هو ${latestLow.productCode} في ${latestLow.warehouse} بتغطية ${(latestLow.currentStock / latestLow.salesQty).toFixed(2)}، بينما سجل المصدر ارتفاعًا في وحدات المبيعات من ${LIVE_ROWS[0].salesQty} إلى ${LIVE_ROWS[LIVE_ROWS.length - 1].salesQty}.`
+    : 'تظهر الإشارة من الصفوف المصدرية الحالية.';
+  const measurement = 'نجاح المعالجة = عودة تغطية الصفوف الثلاثة إلى 2.00 فأعلى مع استمرار مراقبة المبيعات والرصيد.';
+  const blocker = 'المصدر لا يحتوي مهلة توريد أو نقطة إعادة طلب أو كمية شراء موصى بها؛ لذلك لا نحسب أمر شراء أو أثرًا ماليًا غير مثبت.';
+  const proof = LOW_COVERAGE_ROWS.map(row => `${row.documentNo} · ${row.productCode} · تغطية ${(row.currentStock / row.salesQty).toFixed(2)}`);
+
+  return (
+    <section className="overflow-hidden rounded-[24px] border border-primary-200 bg-white shadow-[0_24px_70px_-45px_rgba(15,23,42,.35)]" dir="rtl" aria-label="التقرير الذكي الاستشاري">
+      <div className="bg-[linear-gradient(135deg,#07151c,#0d2a2a)] p-5 text-white lg:p-7">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-4xl">
+            <div className="text-[9px] font-black tracking-[.18em] text-primary-200">ADVISOR-FIRST SMART REPORT</div>
+            <h2 className="mt-2 text-2xl font-black tracking-tight lg:text-3xl">الخلاصة التي يحتاجها المدير، لا جدول الأرقام</h2>
+            <p className="mt-2 text-sm leading-7 text-slate-300">
+              التقرير لا يكتفي بوصف ما في المصدر؛ يحدد القضية الحالية، يشرح لماذا ظهرت، يقدّر نطاق التعرض بما يمكن إثباته، ثم يحدد القرار المقترح وحدوده.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 xl:min-w-[240px]">
+            <div className="text-[9px] font-black tracking-[.14em] text-slate-300">حكم التقرير</div>
+            <div className="mt-2 text-xl font-black text-white">يحتاج تدخلًا تشغيليًا</div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-300">المشكلة الأساسية: التغطية بدأت تنخفض تحت حد 2.00 في آخر ثلاث فترات.</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 border-b border-ink-100 bg-ink-50/70 p-5 md:grid-cols-4 lg:p-6">
+        <div className="rounded-2xl border border-warning-200 bg-warning-50 p-4">
+          <div className="text-[9px] font-black text-warning-800">ما المشكلة؟</div>
+          <div className="mt-2 text-sm font-black text-warning-950">3 صفوف تحت حد التغطية</div>
+          <div className="mt-1 text-[10px] leading-5 text-warning-900/80">كلها في آخر ثلاث فترات من الـFixture.</div>
+        </div>
+        <div className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black text-ink-500">لماذا الآن؟</div>
+          <div className="mt-2 text-sm font-black text-ink-950">المبيعات ترتفع</div>
+          <div className="mt-1 text-[10px] leading-5 text-ink-500">من {LIVE_ROWS[0].salesQty} إلى {LIVE_ROWS[LIVE_ROWS.length - 1].salesQty} وحدة ({overallGrowth == null ? 'غير متاح' : overallGrowth.toFixed(1) + '%'}).</div>
+        </div>
+        <div className="rounded-2xl border border-primary-200 bg-primary-50/70 p-4">
+          <div className="text-[9px] font-black text-primary-700">ما حجم التعرض؟</div>
+          <div className="mt-2 text-sm font-black text-primary-950">{lowSalesShare.toFixed(1)}% من وحدات المبيعات</div>
+          <div className="mt-1 text-[10px] leading-5 text-primary-900/75">مرتبطة بصفوف تغطيتها أقل من 2.00، وتمثل {lowStockShare.toFixed(1)}% من الرصيد الحالي.</div>
+        </div>
+        <div className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black text-ink-500">ما وضع الأعمال؟</div>
+          <div className="mt-2 text-sm font-black text-ink-950">هامش {margin == null ? 'غير متاح' : margin.toFixed(1) + '%'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-ink-500">المبيعات الصافية {LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} YER، والمفتوح المشتق {outstanding.toLocaleString('ar-YE')} YER ({outstandingShare == null ? 'غير متاح' : outstandingShare.toFixed(1) + '%'}).</div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 p-5 lg:grid-cols-[1.15fr_.85fr] lg:p-6">
+        <article className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">WHY · السبب</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">{whyNow}</h3>
+          <p className="mt-3 text-xs leading-6 text-ink-600">
+            التغطية هي الرصيد الحالي ÷ وحدات المبيعات في الصف. الصفوف الثلاثة الأخيرة هي الوحيدة تحت 2.00، لذلك الإشارة ليست مجرد انخفاض عام في المخزون؛ إنها تركّز واضح في آخر الفترات ومع ارتفاع المبيعات.
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            {LOW_COVERAGE_ROWS.map(row => (
+              <div key={row.documentNo} className="rounded-xl border border-warning-200 bg-warning-50/70 p-3">
+                <div className="text-[9px] font-black text-warning-800">{row.productCode} · {row.warehouse}</div>
+                <div className="mt-1 text-base font-black text-warning-950">{(row.currentStock / row.salesQty).toFixed(2)}×</div>
+                <div className="mt-1 text-[9px] leading-4 text-warning-900/75">{row.salesQty} مبيعات · {row.currentStock} رصيد</div>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-[20px] border border-primary-200 bg-[linear-gradient(145deg,#f3fbf8,#ffffff)] p-5 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">SO WHAT · ماذا يعني؟</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">هناك خطر تشغيلي يستحق تدخل المخزون قبل أن يتحول إلى نفاد</h3>
+          <p className="mt-3 text-xs leading-6 text-ink-700">
+            لا نستنتج فقد مبيعات أو تكلفة نفاد مالية لأن المصدر لا يثبت ذلك. الذي نستطيع إثباته هو أن ثلث وحدات المبيعات تقريبًا تأتي من صفوف أصبحت تحت حد التغطية، وأن آخر صف منخفض التغطية موجود في أحدث فترة من العينة.
+          </p>
+          <div className="mt-4 rounded-xl border border-ink-200 bg-white p-3">
+            <div className="text-[9px] font-black text-ink-400">نطاق الأثر المثبت</div>
+            <div className="mt-1 text-sm font-black text-ink-950">{lowSalesShare.toFixed(1)}% من وحدات المبيعات ضمن الصفوف المتأثرة</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">ليس تقديرًا لخسارة مالية مستقبلية.</div>
+          </div>
+        </article>
+      </div>
+
+      <div className="grid gap-4 border-t border-ink-100 bg-ink-50/50 p-5 lg:grid-cols-[1fr_1fr] lg:p-6">
+        <article className="rounded-[20px] border border-primary-300 bg-white p-5 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">RECOMMENDATION · التوصية</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">{recommendation}</h3>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-ink-100 bg-ink-50 p-3">
+              <div className="text-[9px] font-black text-ink-400">WHY NOW</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-700">المبيعات صاعدة، وآخر 3 صفوف دخلت تحت 2.00.</div>
+            </div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50 p-3">
+              <div className="text-[9px] font-black text-ink-400">OWNER</div>
+              <div className="mt-1 text-[10px] font-black text-ink-800">مدير المخزون / المشتريات</div>
+            </div>
+            <div className="rounded-xl border border-success-200 bg-success-50 p-3">
+              <div className="text-[9px] font-black text-success-700">MEASUREMENT</div>
+              <div className="mt-1 text-[10px] leading-5 text-success-900">{measurement}</div>
+            </div>
+            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3">
+              <div className="text-[9px] font-black text-warning-700">BLOCKER</div>
+              <div className="mt-1 text-[10px] leading-5 text-warning-900">{blocker}</div>
+            </div>
+          </div>
+        </article>
+
+        <article className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-ink-500">EVIDENCE · الدليل</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">الصفوف التي بنت عليها التوصية</h3>
+          <div className="mt-3 space-y-2">
+            {proof.map(item => (
+              <div key={item} className="rounded-xl border border-ink-100 bg-ink-50 px-3 py-2.5 text-[10px] font-bold text-ink-700">{item}</div>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-3.5 py-2 text-[10px] font-black text-white">حوّلها إلى قرار</Link>
+            <Link to="/work-center" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 bg-white px-3.5 py-2 text-[10px] font-black text-ink-800">اذهب للعمل</Link>
+          </div>
+        </article>
+      </div>
+
+      <div className="border-t border-ink-100 bg-white p-5 lg:p-6">
+        <div className="grid gap-3 md:grid-cols-4">
+          <div className="rounded-xl border border-ink-100 bg-ink-50 p-3">
+            <div className="text-[9px] font-black text-ink-400">CONFIDENCE</div>
+            <div className="mt-1 text-sm font-black text-ink-900">Source-derived</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">كل claim أعلاه يمكن رده إلى صفوف الـFixture.</div>
+          </div>
+          <div className="rounded-xl border border-ink-100 bg-ink-50 p-3">
+            <div className="text-[9px] font-black text-ink-400">EXPECTED OUTCOME</div>
+            <div className="mt-1 text-sm font-black text-ink-900">رفع التغطية</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">الهدف قابل للقياس؛ الكمية المطلوب شراؤها غير مثبتة.</div>
+          </div>
+          <div className="rounded-xl border border-ink-100 bg-ink-50 p-3">
+            <div className="text-[9px] font-black text-ink-400">RISK</div>
+            <div className="mt-1 text-sm font-black text-ink-900">شراء زائد</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">يجب عدم تحويل الإشارة إلى كمية شراء قبل توفر lead time وreorder point.</div>
+          </div>
+          <div className="rounded-xl border border-ink-100 bg-ink-50 p-3">
+            <div className="text-[9px] font-black text-ink-400">LIMITATION</div>
+            <div className="mt-1 text-sm font-black text-ink-900">Fixture تجريبي</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">هذا يثبت سلوك المنتج، لا يمثل بيانات عميل حي.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PreviewInventoryTable({ rows = LIVE_ROWS }: { rows?: LiveRow[] }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-ink-100 bg-white">
@@ -376,6 +540,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   } else if (route === '/reports/inventory' || route === '/reports/inventory-intelligence' || route === '/inventory') {
     body = (
       <>
+        <PreviewAdvisorReport />
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <PreviewMetric label="الصفوف" value={String(LIVE_ROWS.length)} meta="المصدر" />
           <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
@@ -419,6 +584,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   } else if (route.startsWith('/reports/smart/')) {
     body = (
       <>
+        <PreviewAdvisorReport />
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <PreviewMetric label="صفوف التقرير" value={String(LIVE_ROWS.length)} meta="الـFixture" />
           <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
