@@ -129,15 +129,6 @@ function useOptionalSourceReport() {
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
   return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
-function withDeadline<T>(promise: Promise<T>, label: string, milliseconds: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => {
-      window.setTimeout(() => reject(new Error('REPORT_UI_TIMEOUT:' + label)), milliseconds);
-    }),
-  ]);
-}
-
 const reportCards = [
   { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
   { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
