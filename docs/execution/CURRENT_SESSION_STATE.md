@@ -1,53 +1,61 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 756cab2bf0f62af76f8eafe3c2a0536e0a750c3e
-CURRENT_EXACT_PRODUCT_HEAD = 756cab2bf0f62af76f8eafe3c2a0536e0a750c3e
+CURRENT_EXACT_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
+CURRENT_EXACT_PRODUCT_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_EXECUTION_HEAD = 756cab2bf0f62af76f8eafe3c2a0536e0a750c3e
+CURRENT_EXECUTION_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
 BRANCH = feat/calculation-capability-engine-20261006
-CURRENT_PR_HEAD = 756cab2bf0f62af76f8eafe3c2a0536e0a750c3e
+CURRENT_PR_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
 PR = #850
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 
 WHAT_ACTUALLY_HAPPENED
-- Finalized Aghbari Intelligence Kernel orchestration and Smart Report integration.
-- Fixed explicit TypeScript module extensions in kernel and archetype registry for GitHub Actions Node ESM.
-- Separated live real-source proof from offline certification checks.
-- Reduced initial critical asset size from 930.0KB to 863.0KB by lazy-loading DashboardPage; performance gate threshold was not weakened.
-- Contract test now covers Kernel computation, integration compilation, and runReportArchetype signal retention.
+- Aghbari Intelligence Kernel implemented above Calculation Capability Registry.
+- Kernel computed source-bound statistics, anomalies, scenarios and sensitivity with fail-closed quality/evidence boundaries.
+- Smart Report computes Kernel against canonical rows and passes compiled findings/risks/signals/recommendations into runReportArchetype().
+- Kernel and report-intelligence import chains hardened for Node ESM with explicit .ts extensions across the direct execution path.
+- Live real-source proof kept separate from offline certification contracts.
+- DashboardPage lazy-loaded; critical initial asset gate reduced from 930.0KB to 863.1KB without weakening the 900KB threshold.
 
 REAL_SOURCE_PROOF
 - Source = تقارير ادارية.xlsx
-- reportExecutionJobId = 16709d80-e012-40ef-9c12-6fd8255897f8
-- sourceHash = sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313
-- rows = 332
-- qualityScore = 98
-- stock = 23075
-- demand = 324250
-- baselineCoverage = 0.0711642251
-- demandPlus15Coverage = 0.0618819349
-- anomalyCount = 3
-- scenarioCount = 1
-- sensitivityCount = 2
-- kernelStatus = REVIEW_REQUIRED
-- blindSpot = monetary inventory value unavailable; no financial value fabricated
+- Job = 16709d80-e012-40ef-9c12-6fd8255897f8
+- SHA = sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313
+- Rows = 332
+- Quality = 98
+- Stock = 23075
+- Demand = 324250
+- Baseline coverage = 0.0711642251
+- Demand +15% coverage = 0.0618819349
+- Kernel anomalies = 3
+- Scenarios = 1
+- Sensitivity = 2
+- Kernel status = REVIEW_REQUIRED
+- Monetary inventory value = NOT_AVAILABLE because cost evidence is absent.
 
 LOCAL_EVIDENCE
-- typecheck = PASS
-- production build = PASS
-- performance budget = PASS at critical=863.0KB
-- executive visual contract = PASS
+- Typecheck = PASS
 - Kernel -> Smart Report contract = PASS
-- git diff --check = PASS
+- 48-archetype runtime contract = PASS
+- Smart Report runtime archetype contract = PASS
+- Smart Report complete intelligence surface = PASS
+- Real-48-source contract = PASS
+- Production build = PASS
+- Performance budget = PASS at critical=863.1KB
+- Executive visual contract = PASS
+- Session Handoff Contract = PASS
+- Local browser reached app shell but remained blocked by missing frontend Supabase env; this is not customer proof and is not used as PASS.
 
 OPEN_GATES
-- Exact-head Full Product Browser E2E run 8552
-- Exact-head Final Certification run 17335
-- real-source 48/48 capability matrix = NOT_PROVEN
-- final authenticated customer-visible Smart Report proof = NOT_PROVEN
+- Exact-head Full Product Browser E2E run 8557.
+- Exact-head Final Certification run 17343.
+- Authenticated Smart Report business proof.
+- Real-source 48/48 runtime capability proof.
+- Final certification.
 
 FIRST_ACTIVE_FAILURE
-- Final certification on 3ee6 failed because archetype-registry.ts imported canonical-schema without a .ts extension.
-ROOT_CAUSE = Node ESM loader used in certification resolves explicit TypeScript module paths but does not resolve extensionless local imports in that execution mode.
-FIX = All direct local imports in archetype-registry.ts now use explicit .ts extensions.
-NEXT_EXACT_ACTION = Consume current-head Browser E2E 8552 and Final Certification 17335; first newly proven failure only.
+- Final Certification on 3ee6 exposed extensionless imports inside archetype-registry.ts.
+ROOT_CAUSE = Offline Node ESM certification requires explicit local TypeScript module extensions.
+FIX = Explicit .ts extensions added across the direct report-intelligence execution chain.
+
+NEXT_EXACT_ACTION = Consume Browser 8557 and Final Certification 17343 on this exact head; fix only the first newly proven failure.
