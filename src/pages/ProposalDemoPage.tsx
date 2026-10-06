@@ -234,6 +234,114 @@ function PreviewSourceBanner() {
 }
 
 
+function BuyerProofPanel() {
+  const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
+  const outstanding = LIVE_TOTALS.netAmount - paidTotal;
+  const margin = LIVE_TOTALS.netAmount > 0 ? (LIVE_TOTALS.profit / LIVE_TOTALS.netAmount) * 100 : null;
+  const firstSales = LIVE_ROWS[0]?.salesQty ?? null;
+  const lastSales = LIVE_ROWS[LIVE_ROWS.length - 1]?.salesQty ?? null;
+  const salesGrowth = firstSales && firstSales > 0 && lastSales != null
+    ? ((lastSales - firstSales) / firstSales) * 100
+    : null;
+  const latestLow = [...LOW_COVERAGE_ROWS].sort((a, b) => b.documentDate.localeCompare(a.documentDate))[0] ?? null;
+
+  const proofs = [
+    {
+      label: 'المخزون',
+      value: String(LOW_COVERAGE_ROWS.length),
+      unit: 'إشارات',
+      detail: 'صفوف تحت حد التغطية 2.00',
+      tone: 'warning',
+    },
+    {
+      label: 'المبيعات',
+      value: salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%',
+      unit: 'نمو',
+      detail: firstSales != null && lastSales != null ? 'من ' + firstSales + ' إلى ' + lastSales + ' وحدة' : 'لا توجد سلسلة كافية',
+      tone: 'primary',
+    },
+    {
+      label: 'التحصيل',
+      value: outstanding.toLocaleString('ar-YE'),
+      unit: 'YER',
+      detail: 'رصيد مفتوح مشتق من الصافي − المدفوع',
+      tone: 'warning',
+    },
+    {
+      label: 'الربحية',
+      value: margin == null ? 'غير متاح' : margin.toFixed(1) + '%',
+      unit: 'هامش',
+      detail: 'الربح ÷ صافي المبيعات من الصفوف نفسها',
+      tone: 'success',
+    },
+  ] as const;
+
+  return (
+    <section dir="rtl" className="overflow-hidden rounded-[24px] border border-primary-200 bg-white shadow-[0_24px_70px_-42px_rgba(15,23,42,.4)]">
+      <div className="bg-[linear-gradient(135deg,#07151c,#0e2d2c)] p-5 text-white lg:p-7">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.18em] text-primary-200">BUYER PROOF · 30 SECOND READ</div>
+            <h2 className="mt-2 text-2xl font-black tracking-tight lg:text-3xl">الزبون لا يشتري «لوحة»؛ يشتري إجابة وقرارًا ودليلًا</h2>
+            <p className="mt-2 max-w-4xl text-xs leading-6 text-slate-300">
+              هذه اللقطة تعرض أربع إجابات أعمال مشتقة من نفس الـFixture. الهدف من المنتج هو أن يأخذ الزبون تقريره الحقيقي، ويصل من المصدر إلى قرار يمكن مراجعته وقياس نتيجته.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 lg:min-w-[260px]">
+            <div className="text-[9px] font-black tracking-[.12em] text-slate-400">أقوى دليل حالي</div>
+            <div className="mt-2 text-lg font-black text-white">
+              {latestLow ? latestLow.productCode + ' · تغطية ' + (latestLow.currentStock / latestLow.salesQty).toFixed(2) : 'لا توجد إشارة منخفضة'}
+            </div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-300">أحدث صف تحت حد التغطية، مع الاحتفاظ برقم المستند والمستودع كمصدر للإشارة.</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 border-b border-ink-100 bg-ink-50/70 p-5 sm:grid-cols-2 xl:grid-cols-4 lg:p-6">
+        {proofs.map(item => (
+          <article key={item.label} className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm">
+            <div className="text-[9px] font-black text-ink-400">{item.label}</div>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="text-2xl font-black text-ink-950">{item.value}</span>
+              <span className="text-[10px] font-bold text-ink-400">{item.unit}</span>
+            </div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">{item.detail}</div>
+          </article>
+        ))}
+      </div>
+
+      <div className="grid gap-3 p-5 lg:grid-cols-4 lg:p-6">
+        {[
+          ['1', 'الحقيقة', '12 صفًا و11 حقلًا من ملف المصدر؛ لا توجد أرقام ملخصة خارج الصفوف.'],
+          ['2', 'الإشارة', '3 صفوف منخفضة التغطية؛ أحدثها SKU-2 في WH-3 بتغطية 1.84 تقريبًا.'],
+          ['3', 'التوصية', 'مراجعة إعادة الطلب والتحقق من مهلة التوريد قبل تثبيت كمية شراء.'],
+          ['4', 'القياس', 'نجاح القرار = عودة التغطية إلى 2.00 فأعلى؛ النتيجة الفعلية لا تُخترع مسبقًا.'],
+        ].map(([index, title, detail]) => (
+          <article key={index} className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-700 text-[10px] font-black text-white">{index}</span>
+              <span className="text-xs font-black text-ink-950">{title}</span>
+            </div>
+            <p className="mt-3 text-[10px] leading-5 text-ink-600">{detail}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 border-t border-ink-100 bg-white p-5 sm:flex-row sm:items-center sm:justify-between lg:p-6">
+        <div className="flex items-center gap-2 text-[10px] font-semibold text-ink-500">
+          <CheckCircle2 size={15} className="text-success-600" />
+          النتيجة قابلة للإثبات، والتوقعات منفصلة عن النتائج الفعلية.
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/reports/inventory" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">افتح التقرير الذكي</Link>
+          <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">جرّب القرار</Link>
+          <Link to="/?auth=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">جرّب ببيانات شركتك</Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PreviewAdvisorReport() {
   const lowSalesQty = LOW_COVERAGE_ROWS.reduce((sum, row) => sum + row.salesQty, 0);
   const lowStockQty = LOW_COVERAGE_ROWS.reduce((sum, row) => sum + row.currentStock, 0);
@@ -941,6 +1049,8 @@ function ProposalCommercialDemoPage() {
         </div>
         <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50 print:hidden lg:mt-1"><Printer size={16} /> طباعة / PDF</button>
       </div>
+
+      <BuyerProofPanel />
 
       <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#0f2231)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
