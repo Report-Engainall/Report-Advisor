@@ -55,7 +55,7 @@ function statusLabel(value: unknown): string {
     INSUFFICIENT_SAMPLE: 'عينة غير كافية',
     NOT_AVAILABLE: 'غير متاح',
   };
-  return labels[text] ?? text || 'غير متاح';
+  return labels[text] ?? (text || 'غير متاح');
 }
 
 export function ExecutiveReportPage() {
