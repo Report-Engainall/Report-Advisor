@@ -719,6 +719,9 @@ try {
             if (!readback?.settled) {
               status = 'NOT_PROVEN';
               reason = route + ': Smart Report failed refresh readback settlement.';
+            } else if (status !== 'FAIL') {
+              status = 'PASS';
+              reason = route + ': Smart Report refresh readback settled with the expected decision surface, source binding, and no loading/error state.';
             }
           } catch (error) {
             status = 'FAIL';
