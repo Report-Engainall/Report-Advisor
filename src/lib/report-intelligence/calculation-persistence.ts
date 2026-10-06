@@ -33,7 +33,28 @@ export async function persistAndReadBackCalculations(input: PersistInput): Promi
   }
 
   const currentCompanyId = await resolveCurrentCompanyId();
-  if (!currentCompanyId || currentCompanyId !== input.tenantId) throw new Error('CALCULATION_PERSISTENCE_TENANT_MISMATCH');
+  // The report job and all source reads are already scoped to the authoritative
+  // company id. A second auth resolver call can transiently disagree during
+  // browser session refresh; never turn that readback race into a page-level
+  // crash. The database/RLS boundary remains authoritative on the write.
+  if (!currentCompanyId) {
+    return {
+      status: 'PERSISTENCE_FAILED',
+      persistedCount: 0,
+      readBackCount: 0,
+      calculationIds: [],
+      mismatches: ['TENANT_CONTEXT_UNAVAILABLE'],
+    };
+  }
+  if (currentCompanyId !== input.tenantId) {
+    return {
+      status: 'PERSISTENCE_FAILED',
+      persistedCount: 0,
+      readBackCount: 0,
+      calculationIds: [],
+      mismatches: ['TENANT_CONTEXT_MISMATCH'],
+    };
+  }
 
   const rows = input.calculations.map((calculation) => ({
     company_id: input.tenantId,
