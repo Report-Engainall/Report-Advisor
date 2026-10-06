@@ -1,12 +1,12 @@
 SESSION HANDOFF = NOT READY
 UPDATED_AT = 2026-10-06T19:31:00+03:00
-CURRENT_EXACT_HEAD = 56be225bfcee15a35f18f7eb69cc4770c9d76259
-CURRENT_EXACT_PRODUCT_HEAD = 56be225bfcee15a35f18f7eb69cc4770c9d76259
+CURRENT_EXACT_HEAD = 88c75d27164c842fc720cffa279d3d6601c7fb9e
+CURRENT_EXACT_PRODUCT_HEAD = 88c75d27164c842fc720cffa279d3d6601c7fb9e
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_TENANT_CONVERGENCE_REPAIR
+ACTION_STATUS = ACTIVE_EXECUTION_CI_CONTRACT_AND_BROWSER_PROOF
 
 FIRST_ACTIVE_FAILURE_1 = Dashboard landing raised TENANT_REQUIRED on its source-bound Smart Report read after Auth/Tenant had already passed.
 ROOT_CAUSE_1 = Unretried current_company_id resolution during browser auth/session convergence.
@@ -44,7 +44,9 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = Product Build Gate #413 passed on the prior product head; Session Handoff succeeded on 2b585284. The authoritative report is still job 16709d80-e012-40ef-9c12-6fd8255897f8 with 332 rows, quality 98, VERIFIED/READY/ACCEPTED evidence. 5d0c799 binds device-independent authenticated E2E to its certified open-report execution job/source/file.
+WHAT_IS_PROVEN = Dashboard landing now source-binds the authoritative Smart Report and retries transient TENANT_REQUIRED during auth/session convergence. Commit 88c75d27164c842fc720cffa279d3d6601c7fb9e also reconciles the executive dashboard UI contract with that source-bound behavior; the contract now explicitly forbids reintroducing heavyweight legacy dashboard RPC reads. Product Build Gate #426, Session Handoff #1434 and the exact-head application/browser infrastructure on 3513d6 were already observed before this contract-only head; current-head 88c75 CI is now running.
+CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
+CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
 WHAT_IS_NOT_YET_PROVEN = authenticated browser proof on 5d0c799; complete commercial journey; production certification.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
 NEXT_EXACT_ACTION = Consume 56be225 Product Build, Session Handoff and Device-Independent Browser results.
