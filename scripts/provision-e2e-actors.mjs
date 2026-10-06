@@ -145,7 +145,9 @@ function persistActorCredentials(label, email, password) {
       ? { email: 'TEST_USER_B_EMAIL', password: 'TEST_USER_B_PASSWORD' }
       : label === 'C'
         ? { email: 'TEST_USER_C_EMAIL', password: 'TEST_USER_C_PASSWORD' }
-        : { email: 'TEST_APPROVER_EMAIL', password: 'TEST_APPROVER_PASSWORD' };
+        : label === 'D'
+          ? { email: 'TEST_USER_D_EMAIL', password: 'TEST_USER_D_PASSWORD' }
+          : { email: 'TEST_APPROVER_EMAIL', password: 'TEST_APPROVER_PASSWORD' };
 
   if (process.env.GITHUB_ENV) {
     fs.appendFileSync(process.env.GITHUB_ENV, fields.email + '=' + email + '\n' + fields.password + '=' + password + '\n');
