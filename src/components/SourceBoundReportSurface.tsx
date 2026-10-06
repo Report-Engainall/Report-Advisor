@@ -306,7 +306,26 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
   };
   const title = labels[report.specialty ?? ''] ? 'تقرير ' + labels[report.specialty ?? ''] : 'تقرير أعمال ذكي';
   return (
-    <section className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1424] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.9)]">
+    <>
+      {!report.isCurrentForSource && report.currentSourceReportJobId && (
+        <section className="rounded-[18px] border border-warning-300 bg-warning-50 p-4 shadow-sm" role="status">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black text-warning-950">هذا إصدار تاريخي لنفس المصدر</div>
+              <p className="mt-1 text-[10px] leading-5 text-warning-900">
+                التقرير الحالي لهذا الملف هو الأحدث، بينما هذه الصفحة تحافظ على الإصدار الذي طلبته دون خلط lineage.
+              </p>
+            </div>
+            <Link
+              to={'/reports/smart/' + report.currentSourceReportJobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
+              className="shrink-0 rounded-xl bg-warning-900 px-3.5 py-2.5 text-[10px] font-black text-white"
+            >
+              فتح التقرير الحالي
+            </Link>
+          </div>
+        </section>
+      )}
+      <section className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1424] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.9)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="text-[9px] font-black tracking-[.16em] text-amber-200">REPORT ADVISOR</div>
@@ -324,6 +343,7 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
         </div>
       </div>
     </section>
+    </>
   );
 }
 
