@@ -1138,7 +1138,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
             kernel,
             advisorBrief: {
               ...baseIntelligence.advisorBrief,
-              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الحسابات والذكاء المصدرّي المتاح دون اعتماد القرار المتخصص.',
+              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح والحسابات دون اعتماد القرار المتخصص.',
             },
           };
 
