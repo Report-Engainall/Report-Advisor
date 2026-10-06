@@ -842,6 +842,36 @@ export function SmartReportPage() {
   const topOpportunity = report.intelligence.advisorBrief.topOpportunity;
   const executiveSignal = selectExecutiveSignal(report.intelligence);
   const primaryRecommendation = selectExecutiveRecommendation(report.intelligence, executiveSignal);
+
+  const advisorHeadline = executiveSignal?.message
+    || report.intelligence.advisorBrief.headline
+    || 'لا يوجد حكم استشاري مثبت من المصدر الحالي.';
+  const advisorAction = primaryRecommendation?.action
+    || report.intelligence.advisorBrief.recommendedAction
+    || 'لا توجد خطوة تنفيذية مؤهلة قبل اكتمال الدليل.';
+  const advisorImpact = primaryRecommendation?.impact
+    || executiveSignal?.impact
+    || 'الأثر الفعلي غير مثبت؛ لا نخلط بين المتوقع والمتحقق.';
+  const advisorWhyNow = primaryRecommendation?.whyNow
+    || executiveSignal?.soWhat
+    || topFinding?.statement
+    || 'لا توجد قرينة إضافية كافية لتحديد سبب الأولوية.';
+  const advisorMeasurement = primaryRecommendation?.measurement
+    || report.intelligence.advisorBrief.measurement
+    || 'لا توجد آلية قياس مثبتة بعد.';
+  const advisorOwner = primaryRecommendation?.ownerHint
+    || report.intelligence.advisorBrief.ownerHint
+    || executiveSignal?.ownerHint
+    || 'مالك الإجراء غير محدد.';
+  const advisorBlocker = primaryRecommendation?.blocker
+    || primaryRecommendation?.limitation
+    || report.intelligence.advisorBrief.proofRequirement
+    || 'لا يوجد مانع موثق إضافي.';
+  const advisorEvidence = executiveSignal?.evidence?.length
+    ? executiveSignal.evidence
+    : primaryRecommendation?.evidence?.length
+      ? primaryRecommendation.evidence
+      : topFinding?.evidence ?? [];
   const confidenceLabel =
     report.reportVerificationState === 'VERIFIED' && report.qualityScore != null
       ? `ثقة المصدر ${report.qualityScore}% · الدليل موثق`
@@ -879,8 +909,8 @@ export function SmartReportPage() {
             <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
             <span className="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-2.5 py-1 text-[9px] font-black text-emerald-200">الذكاء المصدرّي متاح</span>
           </div>
-          <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
+          <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">حكم المستشار: ماذا ينبغي أن تعرفه الإدارة الآن؟</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{advisorHeadline}</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source">
               <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE</div>
@@ -933,6 +963,83 @@ export function SmartReportPage() {
             <div className="mt-1 truncate text-[9px] text-slate-400">{metric.detail}</div>
           </div>
         ))}
+      </div>
+    </section>
+
+
+    <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="section-kicker text-primary-700">ADVISOR BRIEF · ماذا يفعل المدير بهذه المعلومة؟</div>
+          <h2 className="mt-1 text-2xl font-black tracking-tight text-ink-950">التقرير لا يصف الأرقام؛ يحدد القضية والتصرف التالي</h2>
+          <p className="mt-2 max-w-4xl text-xs leading-6 text-ink-600">هذه الطبقة هي نقطة البداية التنفيذية. الأرقام والصفوف التفصيلية أدناه تستخدم لإثبات الحكم، وليست بديلًا عنه.</p>
+        </div>
+        <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'الأساس موثق' : 'الدليل يحتاج مراجعة'}</span>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-[1.2fr_.8fr]">
+        <article className="rounded-[20px] border border-ink-200 bg-white p-5">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">الحكم التنفيذي</div>
+          <div className="mt-2 text-lg font-black leading-8 text-ink-950">{advisorHeadline}</div>
+          <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/70 p-3">
+            <div className="text-[9px] font-black text-primary-700">لماذا الآن؟</div>
+            <div className="mt-1 text-[11px] leading-6 text-primary-950">{advisorWhyNow}</div>
+          </div>
+        </article>
+
+        <article className="rounded-[20px] border border-amber-200 bg-amber-50/70 p-5">
+          <div className="text-[9px] font-black tracking-[.14em] text-amber-800">ما الذي ينبغي فعله؟</div>
+          <div className="mt-2 text-base font-black leading-7 text-amber-950">{advisorAction}</div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-xl border border-amber-200 bg-white/70 p-3">
+              <div className="text-[9px] font-black text-ink-400">المالك</div>
+              <div className="mt-1 text-[10px] font-black text-ink-900">{advisorOwner}</div>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-white/70 p-3">
+              <div className="text-[9px] font-black text-ink-400">المعيار</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-800">{advisorMeasurement}</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div className="mt-3 grid gap-3 md:grid-cols-3">
+        <article className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-ink-400">ماذا يعني ذلك؟</div>
+          <div className="mt-2 text-sm font-black leading-6 text-ink-950">{executiveSignal?.soWhat || topRisk?.statement || topFinding?.statement || 'لا توجد دلالة تنفيذية إضافية مثبتة.'}</div>
+        </article>
+        <article className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-ink-400">نطاق الأثر</div>
+          <div className="mt-2 text-sm font-black leading-6 text-ink-950">{advisorImpact}</div>
+        </article>
+        <article className="rounded-2xl border border-warning-200 bg-warning-50/70 p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-warning-700">ما يمنعنا من الجزم؟</div>
+          <div className="mt-2 text-sm font-black leading-6 text-warning-950">{advisorBlocker}</div>
+        </article>
+      </div>
+
+      <div className="mt-3 rounded-2xl border border-ink-200 bg-white p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-ink-400">دليل الحكم</div>
+            <div className="mt-1 text-xs font-black text-ink-950">الادعاءات التالية مرتبطة بالإشارة/التوصية الحالية</div>
+          </div>
+          <span className="text-[9px] font-bold text-ink-400">{advisorEvidence.length} عناصر دليل</span>
+        </div>
+        {advisorEvidence.length ? (
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            {advisorEvidence.slice(0, 6).map((item) => (
+              <div key={item} className="rounded-xl border border-ink-100 bg-ink-50 px-3 py-2.5 text-[10px] leading-5 text-ink-700">{item}</div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50 p-3 text-[10px] text-warning-900">لا يوجد دليل تفصيلي كافٍ في الحزمة الحالية؛ لذلك لا يتم رفع مستوى الحكم.</div>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-xs">ابدأ مسار القرار من هذه القضية</Link>
+        <Link to={'/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-xs">حوّل التوصية إلى عمل</Link>
       </div>
     </section>
 

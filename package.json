@@ -117,6 +117,7 @@
     "test:preview-route-truth": "node scripts/check-preview-route-truth.mjs",
     "test:route-aware-preview": "node scripts/check-route-aware-preview.mjs",
     "test:advisor-first-report": "node scripts/check-advisor-first-report.mjs",
+    "test:real-smart-report-advisor": "node scripts/check-real-smart-report-advisor.mjs",
     "test:demand-velocity": "node scripts/check-demand-velocity.mjs",
     "test:batch-decision": "node --experimental-strip-types scripts/check-batch-decision-engine.mjs",
     "test:safe-metrics": "node scripts/check-safe-metrics.mjs",
