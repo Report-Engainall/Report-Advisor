@@ -195,7 +195,7 @@ function PublicOrAuthenticatedWorkspace() {
     && host !== 'main--aghbari-report-advisor.netlify.app';
   const demoQuery = new URLSearchParams(location.search).get('demo') === '1';
   return (isNetlifyPreview || demoQuery)
-    ? <PublicDemoWorkspacePage />
+    ? <ProposalDemoPage />
     : <AuthGate><AppShell /></AuthGate>;
 }
 
