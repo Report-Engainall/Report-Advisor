@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { resolveReportEvidenceStatus } from '../src/lib/report-smart-evidence-status.ts';
+import { resolveReportEvidenceStatus, resolveReportTrustState } from '../src/lib/report-smart-evidence-status.ts';
 
 assert.equal(
   resolveReportEvidenceStatus(
@@ -55,6 +55,51 @@ assert.equal(
   ),
   'BLOCKED',
   'blocked state must remain a real state',
+);
+
+assert.equal(
+  resolveReportTrustState(
+    {},
+    {
+      verification_status: 'VERIFIED',
+      decision_readiness: 'READY',
+      acceptance_status: 'ACCEPTED',
+    },
+    'VERIFIED',
+    true,
+  ),
+  'TRUSTED',
+  'a verified, accepted Passport with full canonical coverage must derive TRUSTED even when the persisted rendered output omitted trustState',
+);
+
+assert.equal(
+  resolveReportTrustState(
+    {},
+    {
+      verification_status: 'VERIFIED',
+      decision_readiness: 'READY',
+      acceptance_status: 'ACCEPTED',
+    },
+    'AWAITING_EVIDENCE_SNAPSHOT',
+    true,
+  ),
+  'AWAITING_EVIDENCE_SNAPSHOT',
+  'missing evidence snapshot must not be promoted to TRUSTED',
+);
+
+assert.equal(
+  resolveReportTrustState(
+    { trustState: 'REVIEW' },
+    {
+      verification_status: 'VERIFIED',
+      decision_readiness: 'READY',
+      acceptance_status: 'ACCEPTED',
+    },
+    'VERIFIED',
+    true,
+  ),
+  'REVIEW',
+  'an explicit persisted trustState remains authoritative when present',
 );
 
 
@@ -245,7 +290,7 @@ assert.match(
 );
 assert.match(
   smartReport,
-  /headline: 'النموذج لم يجتز بوابة التشغيل: ' \+ archetypeRun\.state \+ ' — تم إبقاء الذكاء المصدرّي المتاح/,
+  /headline: 'النموذج لم يجتز بوابة الاعتماد: ' \+ archetypeRun\.state \+ ' — تم إبقاء الحسابات والإشارات والذكاء المتاح/,
   'Archetype review must preserve source intelligence instead of blanking all signals and recommendations',
 );
 assert.doesNotMatch(
@@ -312,6 +357,3 @@ assert.match(smartReport, /const exactCanonicalCommit = authoritativeCurrentRowC
 
 assert.match(smartReport, /(?:const|let) canonicalImportJobId = renderedImportId \|\|/, 'canonical rows must prefer the active import job identity');
 assert.match(smartReport, /canonicalSourceQuery\.eq\('import_job_id', canonicalImportJobId\)/, 'canonical row reads must scope to the active import job');
-
-
-console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback, catalog provenance scope and source-proposal reconciliation remain fail-closed.');

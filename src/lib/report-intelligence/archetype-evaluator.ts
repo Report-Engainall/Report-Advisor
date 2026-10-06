@@ -1,5 +1,5 @@
-import { deriveReportIntelligence, type ReportIntelligence, type BusinessFinding, type ReportSignal, type ReportRecommendation } from './report-smart-insights';
-import { matchCanonicalField } from './canonical-schema';
+import { deriveReportIntelligence, type ReportIntelligence, type BusinessFinding, type ReportSignal, type ReportRecommendation } from './report-smart-insights.ts';
+import { matchCanonicalField } from './canonical-schema.ts';
 
 type RuleProfile = {
   id: string;

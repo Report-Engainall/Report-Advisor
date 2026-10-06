@@ -1,4 +1,4 @@
-import type { CanonicalField } from './canonical-schema';
+import type { CanonicalField } from './canonical-schema.ts';
 
 export type BusinessQuestionState =
   | 'ANSWERED'

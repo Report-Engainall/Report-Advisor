@@ -64,6 +64,7 @@ on:
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
+      - 'docs/execution/**'
       - 'supabase/migrations/**'
       - 'package.json'
       - 'package-lock.json'
@@ -201,6 +202,7 @@ jobs:
           npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
           npm run test:report-smart-evidence-boundary
+          npm run test:calculation-capability-registry
           npm run test:smart-report-complete-intelligence-surface
           npm run test:report-evidence-passport-contract
           npm run test:document-intelligence-lines
@@ -315,6 +317,8 @@ jobs:
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '60000'
           E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
           E2E_CORPUS_TENANT_ID: '6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b'
+          OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
+          OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
           REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
           REPORT_ADVISOR_E2E_DEBUG: '1'
         shell: bash
@@ -350,6 +354,11 @@ jobs:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          # The open report belongs to the certified real-report company f68a7e91...
+          # Actor A belongs to RUNTIME-EVIDENCE-A-401117 and is intentionally synthetic.
+          # Actor D is defaulted to the real tenant owning the open report job.
+          TEST_USER_A_EMAIL: ${{ env.TEST_USER_D_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ env.TEST_USER_D_PASSWORD }}
           OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
           OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
           OPEN_REPORT_EXPECTED_ROWS: '0'
@@ -390,7 +399,7 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: node scripts/real-business-e2e.mjs
 
-      - name: Report real-source 48 archetype coverage (non-blocking)
+      - name: Prove exact-head 48/48 real-source evidence matrix
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
@@ -404,14 +413,57 @@ jobs:
           REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
         shell: bash
         run: |
-          set +e
+          set -euo pipefail
           test -n "${TEST_USER_B_EMAIL}" && test -n "${TEST_USER_B_PASSWORD}"
-          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
+          set +e
+          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs > artifacts/e2e-business/real-48-source-matrix-preflight.log 2>&1
           rc=$?
-          echo "REAL_SOURCE_48_COVERAGE_IS_NON_BLOCKING=true" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_EXIT_CODE=$rc" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_GATE=DIAGNOSTIC_ONLY" >> "$GITHUB_STEP_SUMMARY"
-          exit 0
+          set -e
+          cat artifacts/e2e-business/real-48-source-matrix-preflight.log
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
+          if (!fs.existsSync(path)) throw new Error('REAL_SOURCE_48_MATRIX_MISSING');
+          const proof = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const expectedHead = process.env.EXACT_HEAD;
+          if (proof.exactHead !== expectedHead) throw new Error('REAL_SOURCE_48_EXACT_HEAD_MISMATCH');
+          if (proof.matrixComplete !== true) throw new Error('REAL_SOURCE_48_MATRIX_INCOMPLETE');
+          if (proof.summary?.totalArchetypes !== 48) throw new Error('REAL_SOURCE_48_TOTAL_MISMATCH');
+          if (!Array.isArray(proof.archetypes) || proof.archetypes.length !== 48) throw new Error('REAL_SOURCE_48_ROW_COUNT_MISMATCH');
+
+          const allowed = new Set([
+            'SUPPORTED_REAL_SOURCE',
+            'REVIEW_REQUIRED_REAL_SOURCE',
+            'INSUFFICIENT_SAMPLE_REAL_SOURCE',
+            'BLOCKED_REAL_SOURCE',
+            'NOT_PROVEN_REAL_SOURCE',
+          ]);
+          const numbers = new Set();
+          for (const row of proof.archetypes) {
+            if (!Number.isInteger(row.number) || row.number < 1 || row.number > 48) throw new Error('REAL_SOURCE_48_NUMBER_INVALID:' + row.number);
+            if (numbers.has(row.number)) throw new Error('REAL_SOURCE_48_DUPLICATE:' + row.number);
+            numbers.add(row.number);
+            if (!allowed.has(row.status)) throw new Error('REAL_SOURCE_48_STATUS_UNCLASSIFIED:' + row.archetypeId + ':' + row.status);
+            if (row.status === 'NOT_PROVEN_REAL_SOURCE') {
+              if (!row.notProvenReason) throw new Error('REAL_SOURCE_48_NOT_PROVEN_REASON_MISSING:' + row.archetypeId);
+            } else {
+              for (const field of ['runtimeState','reportJobId','sourceHash','evidenceSnapshotId','evidencePassportId']) {
+                if (!row[field]) throw new Error('REAL_SOURCE_48_LINEAGE_MISSING:' + row.archetypeId + ':' + field);
+              }
+            }
+          }
+          for (let i = 1; i <= 48; i++) if (!numbers.has(i)) throw new Error('REAL_SOURCE_48_NUMBER_MISSING:' + i);
+
+          console.log(JSON.stringify({
+            REAL_SOURCE_48_MATRIX: 'PASS',
+            exactHead: proof.exactHead,
+            total: proof.summary.totalArchetypes,
+            supported: proof.summary.supported,
+            nonSupported: proof.summary.nonSupported,
+            preflightExitCode: rc
+          }));
+          NODE
 
       - name: Fail closed on browser evidence
         if: ${{ always() }}

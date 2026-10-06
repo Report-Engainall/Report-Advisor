@@ -475,7 +475,17 @@ for (const profile of profiles) {
     number: profile.number,
     archetypeId: profile.id,
     title: profile.title,
-    status: chosen ? 'SUPPORTED_REAL_SOURCE' : 'NOT_PROVEN_REAL_SOURCE',
+    status: chosen
+      ? runtime?.state === 'SUPPORTED'
+        ? 'SUPPORTED_REAL_SOURCE'
+        : runtime?.state === 'REVIEW_REQUIRED'
+          ? 'REVIEW_REQUIRED_REAL_SOURCE'
+          : runtime?.state === 'INSUFFICIENT_SAMPLE'
+            ? 'INSUFFICIENT_SAMPLE_REAL_SOURCE'
+            : runtime?.state === 'BLOCKED'
+              ? 'BLOCKED_REAL_SOURCE'
+              : 'RUNTIME_UNCLASSIFIED_REAL_SOURCE'
+      : 'NOT_PROVEN_REAL_SOURCE',
     sourcePath: chosen?.job?.source_path ?? null,
     sourceHash: chosen?.job?.source_hash ?? null,
     reportJobId: chosen?.job?.id ?? null,
@@ -512,18 +522,38 @@ for (const profile of profiles) {
 }
 
 const supported = results.filter((row) => row.status === 'SUPPORTED_REAL_SOURCE').length;
-const missing = results.filter((row) => row.status === 'NOT_PROVEN_REAL_SOURCE').length;
+const nonSupported = results.filter((row) => row.status !== 'SUPPORTED_REAL_SOURCE').length;
+const explicitRuntimeStates = new Set([
+  'SUPPORTED_REAL_SOURCE',
+  'REVIEW_REQUIRED_REAL_SOURCE',
+  'INSUFFICIENT_SAMPLE_REAL_SOURCE',
+  'BLOCKED_REAL_SOURCE',
+  'NOT_PROVEN_REAL_SOURCE',
+]);
+const matrixComplete =
+  results.length === profiles.length &&
+  new Set(results.map((row) => row.number)).size === profiles.length &&
+  profiles.every((profile) => {
+    const row = results.find((item) => item.number === profile.number);
+    return Boolean(row) && explicitRuntimeStates.has(row.status) && (
+      row.status === 'NOT_PROVEN_REAL_SOURCE'
+        ? Boolean(row.notProvenReason)
+        : Boolean(row.runtimeState && row.reportJobId && row.sourceHash && row.evidenceSnapshotId && row.evidencePassportId)
+    );
+  });
 const proof = {
   exactHead,
   diagnostics: selectionDiagnostics,
   generatedAt: new Date().toISOString(),
   status: supported === profiles.length ? 'PASS' : 'NOT_PROVEN',
+  matrixComplete,
   sourceJobsScanned: sourceRecords.length,
   archetypes: results,
   summary: {
     totalArchetypes: profiles.length,
     supported,
-    notProven: missing,
+    nonSupported,
+    notProven: results.filter((row) => row.status === 'NOT_PROVEN_REAL_SOURCE').length,
   },
 };
 

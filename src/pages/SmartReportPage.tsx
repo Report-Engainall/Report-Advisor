@@ -7,6 +7,7 @@ import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
+import { KernelDecisionSurface } from '@/components/KernelDecisionSurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
@@ -1109,6 +1110,29 @@ export function SmartReportPage() {
 
     <ReportIntelligencePanel report={report} />
     <SmartReportAdvisorySurface report={report} />
+    <KernelDecisionSurface
+      kernel={report.intelligence.kernel}
+      calculations={report.intelligence.calculations}
+      archetypeState={report.archetypeState}
+      calculationPersistenceStatus={
+        report.calculationPersistence?.status ??
+        (typeof report.renderedOutput.calculationPersistenceStatus === 'string'
+          ? report.renderedOutput.calculationPersistenceStatus
+          : null)
+      }
+      calculationPersistedCount={
+        report.calculationPersistence?.persistedCount ??
+        (typeof report.renderedOutput.calculationPersistedCount === 'number'
+          ? report.renderedOutput.calculationPersistedCount
+          : null)
+      }
+      calculationReadBackCount={
+        report.calculationPersistence?.readBackCount ??
+        (typeof report.renderedOutput.calculationReadBackCount === 'number'
+          ? report.renderedOutput.calculationReadBackCount
+          : null)
+      }
+    />
 
     <SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''}/>
 

@@ -42,8 +42,19 @@ const consoleErrors = [];
 const failedRequests = [];
 const failedResponses = [];
 const requests = [];
-const pendingDataRequests = new Set();
-let dataRequestsSeen = 0;
+const pendingDataRequestsByPage = new WeakMap();
+const dataRequestsSeenByPage = new WeakMap();
+function pendingRequestsFor(targetPage) {
+  let pending = pendingDataRequestsByPage.get(targetPage);
+  if (!pending) {
+    pending = new Set();
+    pendingDataRequestsByPage.set(targetPage, pending);
+  }
+  return pending;
+}
+function dataRequestsCountFor(targetPage) {
+  return dataRequestsSeenByPage.get(targetPage) || 0;
+}
 let reportProofContext = null;
 let reportProofPage = null;
 let reportProofTenant = null;
@@ -79,6 +90,8 @@ function isDataRequest(request) {
 }
 
 function wirePageTelemetry(targetPage) {
+  const pendingDataRequests = pendingRequestsFor(targetPage);
+  dataRequestsSeenByPage.set(targetPage, 0);
   targetPage.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
   targetPage.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`));
   targetPage.on('requestfailed', request => {
@@ -102,7 +115,7 @@ function wirePageTelemetry(targetPage) {
     requests.push({ method: request.method(), url: request.url() });
     if (isDataRequest(request)) {
       pendingDataRequests.add(request);
-      dataRequestsSeen += 1;
+      dataRequestsSeenByPage.set(targetPage, dataRequestsCountFor(targetPage) + 1);
     }
   });
 }
@@ -271,6 +284,7 @@ async function inspectPage(targetPage) {
 
 async function waitForReportSettled(targetPage, route, dataBaseline) {
   const expected = REPORT_EXPECTATIONS.get(route);
+  const pendingDataRequests = pendingRequestsFor(targetPage);
   if (!expected) return null;
 
   await targetPage.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
@@ -298,6 +312,22 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         busy,
         smartSignalSurfacePresent: text.includes('الإشارات'),
         smartAdvisorSurfacePresent: text.includes('المستشار'),
+        smartKernelSurfacePresent: Boolean(document.querySelector('[data-testid="aghbari-intelligence-kernel-surface"]')),
+        smartKernelSourceMetricsPresent:
+          Boolean(document.querySelector('[data-testid="kernel-stock-baseline"]')) &&
+          Boolean(document.querySelector('[data-testid="kernel-demand-baseline"]')) &&
+          Boolean(document.querySelector('[data-testid="kernel-coverage-baseline"]')),
+        smartKernelCertifiedValuesPresent:
+          document.querySelector('[data-testid="kernel-stock-baseline"]')?.getAttribute('data-value') === '23075' &&
+          document.querySelector('[data-testid="kernel-demand-baseline"]')?.getAttribute('data-value') === '324250' &&
+          Boolean(document.querySelector('[data-testid="kernel-coverage-baseline"]')?.getAttribute('data-value')) &&
+          Boolean(document.querySelector('[data-testid="kernel-coverage-plus-demand"]')?.getAttribute('data-value')),
+        smartKernelReviewStatePresent:
+          document.querySelector('[data-testid="kernel-status"]')?.getAttribute('data-status') === 'REVIEW_REQUIRED',
+        smartKernelExpectedCountsPresent:
+          document.querySelector('[data-testid="kernel-anomaly-count"]')?.getAttribute('data-value') === '3' &&
+          document.querySelector('[data-testid="kernel-scenario-count"]')?.getAttribute('data-value') === '1' &&
+          document.querySelector('[data-testid="kernel-sensitivity-count"]')?.getAttribute('data-value') === '2',
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
         smartJobIdPresent: text.includes(smartReportJobId),
@@ -312,18 +342,26 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       smartReportSourceHash: REAL_SMART_REPORT_SOURCE_HASH,
     });
 
-    const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
+    const dataRequestsSeenSinceRoute = dataRequestsCountFor(targetPage) - dataBaseline;
     const allExpectedFound = state.matches.every(item => item.found);
+    const isReportsCenter = route === '/reports';
+    const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const optionalBackgroundRequest = request => {
-      if (route === '/reports') {
-        const url = request.url();
-        return url.includes('/rest/v1/report_execution_jobs') || url.includes('/rest/v1/source_analysis_snapshots');
+      const url = request.url();
+      const isCurrentCompanyBootstrap = url.includes('/rest/v1/rpc/current_company_id');
+      if (isReportsCenter) {
+        return url.includes('/rest/v1/report_execution_jobs') ||
+          url.includes('/rest/v1/source_analysis_snapshots') ||
+          isCurrentCompanyBootstrap;
+      }
+      if (isSmartReport && isCurrentCompanyBootstrap) {
+        // Smart Report refresh rehydrates the authenticated tenant before
+        // rendering. That RPC is auth/bootstrap state, not report-data work.
+        return true;
       }
       return false;
     };
     const criticalPendingDataRequests = [...pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
-    const isReportsCenter = route === '/reports';
-    const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const domBackedSmartReadback = isSmartReport && state.smartJobIdPresent && state.smartSourceHashPresent && state.smartDecisionCards.length === 6 && criticalPendingDataRequests.length === 0;
     const dataComplete = (dataRequestsSeenSinceRoute > 0 || domBackedSmartReadback) && criticalPendingDataRequests.length === 0;
     const pendingDataRequestDetails = [...pendingDataRequests].slice(0, 20).map(request => ({
@@ -335,6 +373,9 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       (state.textLength > 120 && state.realReportSourcePresent);
     const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
     const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
+    const smartKernelSurfacePresent = !isSmartReport || state.smartKernelSurfacePresent;
+    const smartKernelSourceMetricsPresent = !isSmartReport || state.smartKernelSourceMetricsPresent;
+    const smartKernelCertifiedValuesPresent = !isSmartReport || state.smartKernelCertifiedValuesPresent;
     const smartDecisionChainPresent = !isSmartReport || state.smartDecisionChainPresent;
     const smartDecisionCardsComplete = !isSmartReport || state.smartDecisionCards.length === 6;
     const smartJobIdPresent = !isSmartReport || state.smartJobIdPresent;
@@ -350,6 +391,11 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       !state.busy &&
       smartSignalSurfacePresent &&
       smartAdvisorSurfacePresent &&
+      smartKernelSurfacePresent &&
+      smartKernelSourceMetricsPresent &&
+      smartKernelCertifiedValuesPresent &&
+      (!isSmartReport || state.smartKernelReviewStatePresent) &&
+      (!isSmartReport || state.smartKernelExpectedCountsPresent) &&
       smartDecisionChainPresent &&
       smartDecisionCardsComplete &&
       smartJobIdPresent &&
@@ -368,7 +414,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     await targetPage.waitForTimeout(350);
   }
 
-  return lastState || { dataRequestsSeenSinceRoute: dataRequestsSeen - dataBaseline, pendingDataRequests: pendingDataRequests.size, settled: false };
+  return lastState || { dataRequestsSeenSinceRoute: dataRequestsCountFor(targetPage) - dataBaseline, pendingDataRequests: pendingDataRequests.size, settled: false };
 }
 
 async function waitForRealReportFirstPaint(targetPage, timeoutMs = 8000) {
@@ -674,8 +720,9 @@ try {
         const beforeFailed = failedRequests.length;
         const beforeFailedResponses = failedResponses.length;
         const beforeRequests = requests.length;
+        const pendingDataRequests = pendingRequestsFor(routePage);
         pendingDataRequests.clear();
-        const dataBaseline = dataRequestsSeen;
+        const dataBaseline = dataRequestsCountFor(routePage);
         const started = Date.now();
         let status = 'PASS'; let reason = '';
         let inspection = null;
@@ -712,13 +759,16 @@ try {
 
         let readback = null;
         if (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID) && status !== 'FAIL') {
-          const readbackBaseline = dataRequestsSeen;
+          const readbackBaseline = dataRequestsCountFor(routePage);
           try {
             await routePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
             readback = await waitForReportSettled(routePage, route, readbackBaseline);
             if (!readback?.settled) {
               status = 'NOT_PROVEN';
               reason = route + ': Smart Report failed refresh readback settlement.';
+            } else if (status !== 'FAIL') {
+              status = 'PASS';
+              reason = route + ': Smart Report refresh readback settled with the expected decision surface, source binding, and no loading/error state.';
             }
           } catch (error) {
             status = 'FAIL';

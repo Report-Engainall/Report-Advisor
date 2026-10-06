@@ -1,7 +1,7 @@
 const SUPABASE_URL = process.env.REPORT_ADVISOR_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY;
-const EMAIL = process.env.TEST_USER_A_EMAIL;
-const PASSWORD = process.env.TEST_USER_A_PASSWORD;
+const EMAIL = process.env.TEST_USER_A_EMAIL || process.env.TEST_USER_D_EMAIL;
+const PASSWORD = process.env.TEST_USER_A_PASSWORD || process.env.TEST_USER_D_PASSWORD;
 const BASE_URL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4173';
 const JOB_ID = process.env.OPEN_REPORT_EXECUTION_JOB_ID;
 const EXPECTED_HASH = process.env.OPEN_REPORT_EXPECTED_SOURCE_HASH;
@@ -71,8 +71,11 @@ if (!beforeJob) throw new Error('OPEN_REPORT_JOB_NOT_FOUND');
 if (beforeJob.source_path !== EXPECTED_FILE) throw new Error('OPEN_REPORT_SOURCE_PATH_MISMATCH');
 if (beforeJob.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_SOURCE_HASH_MISMATCH');
 
+const alreadyRendered = beforeJob.status === 'completed' && beforeJob.checkpoint?.stage === 'rendered';
+
 console.log(JSON.stringify({
-  phase: 'RESUME_PREFLIGHT',
+  phase: alreadyRendered ? 'RESUME_READBACK_PREFLIGHT' : 'RESUME_PREFLIGHT',
+  resumeRequested: !alreadyRendered,
   jobId: beforeJob.id,
   status: beforeJob.status,
   sourcePath: beforeJob.source_path,
@@ -82,22 +85,24 @@ console.log(JSON.stringify({
   evidence: beforeJob.evidence,
 }, null, 2));
 
-const run = await fetch(BASE_URL + '/api/canonical-import-execute', {
-  method: 'POST',
-  headers: {
-    Authorization: 'Bearer ' + accessToken,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ resumeReportExecutionJobId: JOB_ID }),
-});
-const runText = await run.text();
-let runBody = null;
-try { runBody = runText ? JSON.parse(runText) : null; } catch {}
-if (!run.ok && run.status !== 202) {
-  throw new Error('OPEN_REPORT_RESUME_FAILED_HTTP_' + run.status + ':' + runText.slice(0, 1200));
-}
-if (run.status !== 202 && (runBody?.jobId !== JOB_ID || runBody?.sourceHash !== EXPECTED_HASH || (EXPECTED_ROWS_ENV > 0 && Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS_ENV))) {
-  throw new Error('OPEN_REPORT_RESUME_SYNCHRONOUS_RESPONSE_INVALID');
+if (!alreadyRendered) {
+  const run = await fetch(BASE_URL + '/api/canonical-import-execute', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + accessToken,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ resumeReportExecutionJobId: JOB_ID }),
+  });
+  const runText = await run.text();
+  let runBody = null;
+  try { runBody = runText ? JSON.parse(runText) : null; } catch {}
+  if (!run.ok && run.status !== 202) {
+    throw new Error('OPEN_REPORT_RESUME_FAILED_HTTP_' + run.status + ':' + runText.slice(0, 1200));
+  }
+  if (run.status !== 202 && (runBody?.jobId !== JOB_ID || runBody?.sourceHash !== EXPECTED_HASH || (EXPECTED_ROWS_ENV > 0 && Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS_ENV))) {
+    throw new Error('OPEN_REPORT_RESUME_SYNCHRONOUS_RESPONSE_INVALID');
+  }
 }
 
 const checkpointImportId = Array.isArray(beforeJob.checkpoint?.evidenceKeys)
