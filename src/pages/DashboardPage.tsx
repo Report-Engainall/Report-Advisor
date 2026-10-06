@@ -15,6 +15,7 @@ import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDa
 import { fetchSmartReportCatalog, fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
+import type { ReportRecommendation } from '@/lib/report-intelligence/report-smart-insights';
 import { readWorkspacePreferences, type WorkspacePreferences } from '@/lib/workspace-mode';
 
 const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
@@ -100,6 +101,7 @@ export function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [workspacePreferences, setWorkspacePreferences] = useState<WorkspacePreferences>(readWorkspacePreferences);
   const [primaryReport, setPrimaryReport] = useState<SmartReportDetail | null>(null);
+  const [smartRecommendations, setSmartRecommendations] = useState<ReportRecommendation[]>([]);
 
   const load = useCallback(async (silent = false) => {
     try {
@@ -147,7 +149,8 @@ export function DashboardPage() {
           unknownRows: 0,
           status: 'NO_DATA',
         });
-        setRecommendations(nextPrimaryReport.intelligence?.recommendations ?? []);
+        setRecommendations([]);
+        setSmartRecommendations(nextPrimaryReport.intelligence?.recommendations ?? []);
         setAlerts([]);
         setPrimaryReport(nextPrimaryReport);
         return;
@@ -325,6 +328,14 @@ export function DashboardPage() {
               <div className="mt-2 text-sm font-black">الحقيقة ← الدليل ← الإشارة ← القرار ← العمل</div>
               <div className="mt-1 text-[10px] leading-5 text-slate-400">السياق محفوظ عبر نفس reportJobId + sourceHash.</div>
             </div>
+            {smartRecommendations[0] && (
+              <div className="mt-3 rounded-2xl border border-amber-200/20 bg-amber-300/[.07] p-4">
+                <div className="text-[9px] font-black tracking-[.1em] text-amber-200">التوصية المصدرية</div>
+                <div className="mt-2 text-sm font-black text-white">{smartRecommendations[0].title}</div>
+                <div className="mt-1 text-[10px] leading-5 text-slate-300">{smartRecommendations[0].action}</div>
+                <div className="mt-2 text-[9px] leading-5 text-slate-400">الأهمية: {smartRecommendations[0].priority} · المالك المقترح: {smartRecommendations[0].ownerHint} · الأثر: {smartRecommendations[0].impact}</div>
+              </div>
+            )}
           </div>
         </section>
       )}
