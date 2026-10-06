@@ -11,17 +11,10 @@ import { LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/
 const TrendChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.TrendChart })));
 const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.CategoryPieChart })));
 const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.HorizontalBarChart })));
-import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
+import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
 import { fetchSmartReportCatalog, fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
-import type {
-  DashboardKPIs,
-  MonthlyTrend,
-  TopEntity,
-  CategoryBreakdown,
-  AgingDashboard,
-} from '@/lib/dashboard-canonical';
 import { readWorkspacePreferences, type WorkspacePreferences } from '@/lib/workspace-mode';
 
 const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
@@ -114,51 +107,61 @@ export function DashboardPage() {
       else setLoading(true);
       setError(null);
 
-      const primaryReportPromise = fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) })
-        .then(async (catalog) => {
-          const selected = catalog.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH) ?? catalog[0] ?? null;
-          return selected ? fetchSmartReport(selected.jobId, selected.sourceHash, { signal: AbortSignal.timeout(15000) }) : null;
-        })
-        .catch((cause) => {
-          console.warn('[Dashboard] primary smart report readback unavailable', cause);
-          return null;
+      // The landing surface is evidence-first. Do not block the real report
+      // on the heavyweight legacy company dashboard RPC; that RPC has a hard
+      // two-minute PostgreSQL timeout and is not required to render the
+      // source-bound report the customer is here to inspect.
+      const catalog = await fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) });
+      const selected = catalog.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH) ?? catalog[0] ?? null;
+      const nextPrimaryReport = selected
+        ? await fetchSmartReport(selected.jobId, selected.sourceHash, { signal: AbortSignal.timeout(20000) })
+        : null;
+
+      if (nextPrimaryReport) {
+        const sourceKpis: DashboardKPIs = {
+          totalSales: null,
+          totalCost: null,
+          grossProfit: null,
+          grossMargin: null,
+          totalReceivables: null,
+          overdueReceivables: null,
+          totalPayables: null,
+          inventoryValue: null,
+          totalCustomers: null,
+          activeCustomers: null,
+          totalProducts: null,
+          invoiceCount: null,
+          avgInvoiceValue: null,
+          collectionRate: null,
+          status: 'INSUFFICIENT_DATA',
+        };
+        setKpis(sourceKpis);
+        setSnapshotAsOf(null);
+        setTrend([]);
+        setTopCustomers([]);
+        setTopProducts([]);
+        setCategories([]);
+        setAging({
+          rows: [],
+          totalAmount: null,
+          unknownRows: 0,
+          status: 'NO_DATA',
         });
+        setRecommendations(nextPrimaryReport.intelligence?.recommendations ?? []);
+        setAlerts([]);
+        setPrimaryReport(nextPrimaryReport);
+        return;
+      }
 
-      const [
-        {
-          kpis: nextKpis,
-          trend: nextTrend,
-          topCustomers: customers,
-          topProducts: products,
-          categories: nextCategories,
-          aging: nextAging,
-          asOf: nextAsOf,
-        },
-        intelligence,
-        nextPrimaryReport,
-      ] = await Promise.all([
-        fetchDashboardSnapshot(trendMonths),
-        fetchDashboardIntelligence(),
-        primaryReportPromise,
-      ]);
-
-      setKpis(nextKpis);
-      setSnapshotAsOf(nextAsOf);
-      setTrend(nextTrend);
-      setTopCustomers(customers.slice(0, 5));
-      setTopProducts(products.slice(0, 5));
-      setCategories(nextCategories);
-      setAging(nextAging);
-      setRecommendations(intelligence.recommendations);
-      setAlerts(intelligence.alerts);
-      setPrimaryReport(nextPrimaryReport);
+      throw new Error('لا يوجد تقرير مصدر حقيقي صالح للعرض ضمن سياق المؤسسة الحالية.');
     } catch (cause) {
+      console.error('[Dashboard] source-bound landing load failed', cause);
       setError(cause instanceof Error ? cause.message : 'فشل تحميل لوحة الأعمال');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [trendMonths]);
+  }, []);
 
   useEffect(() => { void load(); }, [load]);
 
