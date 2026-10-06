@@ -113,11 +113,40 @@ export function DashboardPage() {
       // on the heavyweight legacy company dashboard RPC; that RPC has a hard
       // two-minute PostgreSQL timeout and is not required to render the
       // source-bound report the customer is here to inspect.
-      const catalog = await fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) });
+      let catalog = null;
+      let lastTenantError: unknown = null;
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        try {
+          catalog = await fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) });
+          lastTenantError = null;
+          break;
+        } catch (cause) {
+          lastTenantError = cause;
+          const message = cause instanceof Error ? cause.message : String(cause);
+          if (!message.includes('TENANT_REQUIRED') || attempt === 3) throw cause;
+          await new Promise((resolve) => setTimeout(resolve, 600 * attempt));
+        }
+      }
+      if (!catalog) throw lastTenantError instanceof Error ? lastTenantError : new Error('TENANT_REQUIRED');
+
       const selected = catalog.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH) ?? catalog[0] ?? null;
-      const nextPrimaryReport = selected
-        ? await fetchSmartReport(selected.jobId, selected.sourceHash, { signal: AbortSignal.timeout(20000) })
-        : null;
+      let nextPrimaryReport = null;
+      if (selected) {
+        for (let attempt = 1; attempt <= 2; attempt += 1) {
+          try {
+            nextPrimaryReport = await fetchSmartReport(
+              selected.jobId,
+              selected.sourceHash,
+              { signal: AbortSignal.timeout(20000) },
+            );
+            break;
+          } catch (cause) {
+            const message = cause instanceof Error ? cause.message : String(cause);
+            if (!message.includes('TENANT_REQUIRED') || attempt === 2) throw cause;
+            await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+          }
+        }
+      }
 
       if (nextPrimaryReport) {
         const sourceKpis: DashboardKPIs = {
