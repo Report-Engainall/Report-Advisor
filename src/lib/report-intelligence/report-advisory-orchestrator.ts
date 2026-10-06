@@ -36,28 +36,20 @@ function claimStateForProof(provenance: ClaimProvenance): AdvisoryPacket['proofS
 type AdvisoryQuestionAnswer = Record<string, unknown>;
 
 function expandCanonicalFieldAliases(fields: CanonicalField[]): CanonicalField[] {
+  const rawFields = new Set(fields.map((field) => String(field)));
   const expanded = new Set<CanonicalField>(fields);
-  const add = (field: CanonicalField, ...aliases: string[]) => {
-    if (!expanded.has(field)) return;
-    for (const alias of aliases) expanded.add(alias as CanonicalField);
+
+  const add = (canonical: CanonicalField, ...aliases: string[]) => {
+    if (aliases.some((alias) => rawFields.has(alias))) expanded.add(canonical);
   };
 
-  // Inventory sources commonly arrive with generic canonical names while
-  // archetype/business-question contracts intentionally use precise business
-  // vocabulary. Keep the source truth unchanged, but make semantic equivalents
-  // visible to the evaluator instead of incorrectly declaring them unavailable.
-  add('sku', 'productCode');
-  add('name', 'productName');
-  add('product_name', 'productName');
-  add('balance', 'currentStock');
-  add('current_stock', 'currentStock');
-  add('sales_qty', 'salesQty');
-  add('net_sales', 'salesQty');
-  add('daily_sales_rate', 'dailySalesRate');
-  add('stockout_days', 'stockoutDays');
-  add('stock_age_days', 'stockAgeDays');
-  add('stock_age_period_days', 'stockAgePeriodDays');
-  add('warehouse', 'warehouse');
+  // The source-analysis layer may expose legacy semantic names. Do not insert
+  // those names into CanonicalField itself; translate them into the official
+  // schema vocabulary consumed by Business Questions.
+  add('productCode', 'productCode', 'sku', 'item_code', 'product_code', 'productcode');
+  add('productName', 'productName', 'name', 'product_name', 'item_name');
+  add('currentStock', 'currentStock', 'balance', 'current_stock', 'stock', 'on_hand', 'onhand');
+  add('salesQty', 'salesQty', 'sales_qty', 'net_sales', 'salesqty');
 
   return [...expanded];
 }
