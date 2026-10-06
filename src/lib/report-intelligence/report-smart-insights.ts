@@ -401,6 +401,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         const dailyRate = dailyRateKey ? numeric(rowValue(row.data, dailyRateKey)) : null;
         const netSales = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
         const salesForCoverage = netSales;
+        const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
         if (salesForCoverage != null && salesForCoverage > 0) {
           const coverage = stock / salesForCoverage;
           if (Number.isFinite(coverage) && coverage < 2) {
@@ -411,7 +412,6 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           const date = parseDateValue(rowValue(row.data, dateKey));
           if (date) datedDemandRows.push({ date, sales: salesForCoverage });
         }
-        const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
         if (dailyRate != null && dailyRate > 0) {
           totalDailyRate += dailyRate;
           dailyRateRows += 1;
