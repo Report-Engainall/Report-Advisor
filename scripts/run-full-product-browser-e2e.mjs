@@ -42,8 +42,19 @@ const consoleErrors = [];
 const failedRequests = [];
 const failedResponses = [];
 const requests = [];
-const pendingDataRequests = new Set();
-let dataRequestsSeen = 0;
+const pendingDataRequestsByPage = new WeakMap();
+const dataRequestsSeenByPage = new WeakMap();
+function pendingRequestsFor(targetPage) {
+  let pending = pendingDataRequestsByPage.get(targetPage);
+  if (!pending) {
+    pending = new Set();
+    pendingDataRequestsByPage.set(targetPage, pending);
+  }
+  return pending;
+}
+function dataRequestsCountFor(targetPage) {
+  return dataRequestsSeenByPage.get(targetPage) || 0;
+}
 let reportProofContext = null;
 let reportProofPage = null;
 let reportProofTenant = null;
@@ -79,6 +90,8 @@ function isDataRequest(request) {
 }
 
 function wirePageTelemetry(targetPage) {
+  const pendingDataRequests = pendingRequestsFor(targetPage);
+  dataRequestsSeenByPage.set(targetPage, 0);
   targetPage.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
   targetPage.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`));
   targetPage.on('requestfailed', request => {
@@ -102,7 +115,7 @@ function wirePageTelemetry(targetPage) {
     requests.push({ method: request.method(), url: request.url() });
     if (isDataRequest(request)) {
       pendingDataRequests.add(request);
-      dataRequestsSeen += 1;
+      dataRequestsSeenByPage.set(targetPage, dataRequestsCountFor(targetPage) + 1);
     }
   });
 }
@@ -271,6 +284,7 @@ async function inspectPage(targetPage) {
 
 async function waitForReportSettled(targetPage, route, dataBaseline) {
   const expected = REPORT_EXPECTATIONS.get(route);
+  const pendingDataRequests = pendingRequestsFor(targetPage);
   if (!expected) return null;
 
   await targetPage.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
@@ -328,7 +342,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       smartReportSourceHash: REAL_SMART_REPORT_SOURCE_HASH,
     });
 
-    const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
+    const dataRequestsSeenSinceRoute = dataRequestsCountFor(targetPage) - dataBaseline;
     const allExpectedFound = state.matches.every(item => item.found);
     const isReportsCenter = route === '/reports';
     const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
@@ -400,7 +414,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     await targetPage.waitForTimeout(350);
   }
 
-  return lastState || { dataRequestsSeenSinceRoute: dataRequestsSeen - dataBaseline, pendingDataRequests: pendingDataRequests.size, settled: false };
+  return lastState || { dataRequestsSeenSinceRoute: dataRequestsCountFor(targetPage) - dataBaseline, pendingDataRequests: pendingDataRequests.size, settled: false };
 }
 
 async function waitForRealReportFirstPaint(targetPage, timeoutMs = 8000) {
@@ -706,8 +720,9 @@ try {
         const beforeFailed = failedRequests.length;
         const beforeFailedResponses = failedResponses.length;
         const beforeRequests = requests.length;
+        const pendingDataRequests = pendingRequestsFor(routePage);
         pendingDataRequests.clear();
-        const dataBaseline = dataRequestsSeen;
+        const dataBaseline = dataRequestsCountFor(routePage);
         const started = Date.now();
         let status = 'PASS'; let reason = '';
         let inspection = null;
@@ -744,7 +759,7 @@ try {
 
         let readback = null;
         if (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID) && status !== 'FAIL') {
-          const readbackBaseline = dataRequestsSeen;
+          const readbackBaseline = dataRequestsCountFor(routePage);
           try {
             await routePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
             readback = await waitForReportSettled(routePage, route, readbackBaseline);
