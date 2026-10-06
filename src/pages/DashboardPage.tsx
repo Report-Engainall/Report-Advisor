@@ -60,6 +60,7 @@ function PulseMetric({
   detail?: string;
   icon: ReactNode;
   status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
+  valueUnit?: 'currency' | 'percent' | 'number';
 }) {
   const stateLabel = status === 'CONFIRMED' ? 'مثبت' : status === 'CALCULATED' ? 'محسوب' : 'غير كافٍ';
   const stateTone = status === 'CONFIRMED'
@@ -76,7 +77,15 @@ function PulseMetric({
       </div>
       <div className="mt-2 flex items-end justify-between gap-2">
         <div className="min-w-0">
-          <div className="truncate text-[18px] font-black tabular-nums text-ink-950">{value === null ? 'غير متاح' : formatCurrency(value)}</div>
+          <div className="truncate text-[18px] font-black tabular-nums text-ink-950">
+            {value === null
+              ? 'غير متاح'
+              : valueUnit === 'percent'
+                ? value.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '%'
+                : valueUnit === 'number'
+                  ? value.toLocaleString('ar-YE', { maximumFractionDigits: 0 })
+                  : formatCurrency(value)}
+          </div>
           {detail && <div className="mt-0.5 truncate text-[10px] text-ink-400">{detail}</div>}
         </div>
         <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + stateTone}>{stateLabel}</span>
@@ -448,10 +457,10 @@ export function DashboardPage() {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {primaryReport ? (
           <>
-            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="السجلات المصدرية" value={typeof sourceRowCount === 'number' ? sourceRowCount : null} icon={<FileSearch size={16} />} status={sourceRowCount !== null ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="من المصدر الكانوني الحالي" /></CardBody></Card>
-            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="اكتمال البيانات" value={typeof sourceCompleteness === 'number' ? sourceCompleteness : null} icon={<CheckCircle2 size={16} />} status={typeof sourceCompleteness === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="محسوب على الحقول الموجودة فعليًا" /></CardBody></Card>
-            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="القيم المتطرفة" value={typeof sourceOutlierRate === 'number' ? sourceOutlierRate : null} icon={<CircleAlert size={16} />} status={typeof sourceOutlierRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="شذوذ إحصائي؛ ليس خطأً مثبتًا" /></CardBody></Card>
-            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="تكرار الصفوف" value={typeof sourceDuplicateRate === 'number' ? sourceDuplicateRate : null} icon={<BarChart3 size={16} />} status={typeof sourceDuplicateRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="تطابق كامل للحمولة الصفية" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="السجلات المصدرية" value={typeof sourceRowCount === 'number' ? sourceRowCount : null} icon={<FileSearch size={16} />} status={sourceRowCount !== null ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="من المصدر الكانوني الحالي" valueUnit="number" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="اكتمال البيانات" value={typeof sourceCompleteness === 'number' ? sourceCompleteness : null} icon={<CheckCircle2 size={16} />} status={typeof sourceCompleteness === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="محسوب على الحقول الموجودة فعليًا" valueUnit="percent" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="القيم المتطرفة" value={typeof sourceOutlierRate === 'number' ? sourceOutlierRate : null} icon={<CircleAlert size={16} />} status={typeof sourceOutlierRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="شذوذ إحصائي؛ ليس خطأً مثبتًا" valueUnit="percent" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="تكرار الصفوف" value={typeof sourceDuplicateRate === 'number' ? sourceDuplicateRate : null} icon={<BarChart3 size={16} />} status={typeof sourceDuplicateRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="تطابق كامل للحمولة الصفية" valueUnit="percent" /></CardBody></Card>
           </>
         ) : (
           <>
