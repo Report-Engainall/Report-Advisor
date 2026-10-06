@@ -1,14 +1,14 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 8fbff2734099dc9b4906605278d2dd47d9418222
+CURRENT_EXACT_HEAD = e9cc2dd0cb756cdbb931dfa9034fe8d183a32803
 CURRENT_EXACT_PRODUCT_HEAD = 8fbff2734099dc9b4906605278d2dd47d9418222
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_EXECUTION_HEAD = 8fbff2734099dc9b4906605278d2dd47d9418222
+CURRENT_EXECUTION_HEAD = e9cc2dd0cb756cdbb931dfa9034fe8d183a32803
 BRANCH = feat/calculation-capability-engine-20261006
-CURRENT_PR_HEAD = 8fbff2734099dc9b4906605278d2dd47d9418222
+CURRENT_PR_HEAD = e9cc2dd0cb756cdbb931dfa9034fe8d183a32803
 PR = #850
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 ACTION_STATUS = ACTIVE_EXECUTION
-NEXT_EXACT_ACTION = Consume exact-head CI on 8fbff2734099dc9b4906605278d2dd47d9418222; then consume Full Product Browser E2E and prove Smart Report plus Decision/Work routes; fix only the first newly proven failure.
+NEXT_EXACT_ACTION = Consume exact-head Final Certification, Quality, Build, Session Handoff and Full Product Browser E2E on e9cc2dd0cb756cdbb931dfa9034fe8d183a32803; then fix only the first newly proven failure.
 
 REAL_SOURCE_PROOF = تقارير ادارية.xlsx | job=16709d80-e012-40ef-9c12-6fd8255897f8 | rows=332 | sourceHash=sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313
 REAL_KERNEL = stock=23075 | demand=324250 | coverage=0.0711642251 | demand+15%=0.0618819349 | anomalies=3 | scenarios=1 | sensitivity=2 | status=REVIEW_REQUIRED
