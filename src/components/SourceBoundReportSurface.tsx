@@ -328,7 +328,7 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
 }
 
 
-function BusinessDataExplorer({ report }: { report: SmartReportDetail }) {
+export function BusinessDataExplorer({ report }: { report: SmartReportDetail }) {
   const rows = useMemo(
     () => report.canonicalRows
       .map((row, index) => ({ row, index, data: row.data as Record<string, unknown> }))
