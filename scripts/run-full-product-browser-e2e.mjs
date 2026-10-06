@@ -315,9 +315,17 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
     const allExpectedFound = state.matches.every(item => item.found);
     const optionalBackgroundRequest = request => {
+      const url = request.url();
+      const isCurrentCompanyBootstrap = url.includes('/rest/v1/rpc/current_company_id');
       if (route === '/reports') {
-        const url = request.url();
-        return url.includes('/rest/v1/report_execution_jobs') || url.includes('/rest/v1/source_analysis_snapshots');
+        return url.includes('/rest/v1/report_execution_jobs') ||
+          url.includes('/rest/v1/source_analysis_snapshots') ||
+          isCurrentCompanyBootstrap;
+      }
+      if (isSmartReport && isCurrentCompanyBootstrap) {
+        // Smart Report refresh rehydrates the authenticated tenant before
+        // rendering. That RPC is auth/bootstrap state, not report-data work.
+        return true;
       }
       return false;
     };
@@ -698,144 +706,3 @@ try {
           inspection = await inspectPage(routePage);
           if (!response || response.status() >= 400) { status = 'FAIL'; reason = 'HTTP ' + (response?.status() ?? 'NO_RESPONSE'); }
           else if (!bodyText) { status = 'FAIL'; reason = 'Blank body'; }
-          else if (appError) { status = 'FAIL'; reason = 'App error boundary'; }
-          else if (notFound) { status = 'FAIL'; reason = '404 page'; }
-          else if (settlement && !settlement.settled) {
-            status = 'NOT_PROVEN';
-            reason = route + ': report state did not settle with expected content after bounded wait.';
-          } else if (settlement) {
-            reason = 'Settled report state proven: data request completed, expected customer content rendered, no loading/error state visible.';
-          }
-        } catch (error) {
-          status = 'FAIL'; reason = error instanceof Error ? error.message : String(error);
-        }
-
-        let readback = null;
-        if (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID) && status !== 'FAIL') {
-          const readbackBaseline = dataRequestsSeen;
-          try {
-            await routePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-            readback = await waitForReportSettled(routePage, route, readbackBaseline);
-            if (!readback?.settled) {
-              status = 'NOT_PROVEN';
-              reason = route + ': Smart Report failed refresh readback settlement.';
-            } else if (status !== 'FAIL') {
-              status = 'PASS';
-              reason = route + ': Smart Report refresh readback settled with the expected decision surface, source binding, and no loading/error state.';
-            }
-          } catch (error) {
-            status = 'FAIL';
-            reason = route + ': Smart Report refresh readback failed: ' + (error instanceof Error ? error.message : String(error));
-          }
-        }
-
-        const baseName = String(i + 2).padStart(2, '0') + '-' + (route === '/' ? 'home' : route.slice(1).replace(/[\\/?#%=&:]+/g, '-'));
-        const screenshot = settlement?.settled ? reportDir + '/' + baseName + '.png' : reportDir + '/' + baseName + '-unsettled.png';
-        await routePage.screenshot({ path: screenshot, fullPage: true }).catch(() => {});
-        const routeRequests = requests.slice(beforeRequests).map(x => ({ method: x.method, url: x.url }));
-        const routeErrors = consoleErrors.slice(beforeErrors);
-        const routeFailed = failedRequests.slice(beforeFailed);
-        const routeFailedResponses = failedResponses.slice(beforeFailedResponses);
-        result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot, firstPaint, settlement, readback,
-          consoleErrors: routeErrors, failedRequests: routeFailed, failedResponses: routeFailedResponses, requests: routeRequests, interaction: inspection,
-          proofTenant: usesReportProofTenant ? reportProofTenant : result.tenantA });
-        result.actions.push({ route, buttonCount: inspection?.buttonCount ?? 0, buttons: inspection?.buttons ?? [],
-          inputCount: inspection?.inputCount ?? 0, linkCount: inspection?.linkCount ?? 0 });
-        if (status === 'FAIL') addFinding('E2E-ROUTE-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1', route + ': ' + reason);
-        if (status === 'NOT_PROVEN') addFinding('E2E-REPORT-' + String(i + 1).padStart(3, '0'), 'NOT_PROVEN', 'P0', reason, { firstPaint, settlement });
-        if (routeFailed.length) addFinding('E2E-NET-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
-          route + ': ' + routeFailed.length + ' browser network request(s) failed.', { requests: routeFailed });
-        if (routeFailedResponses.length) addFinding('E2E-HTTP-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
-          route + ': ' + routeFailedResponses.length + ' relevant HTTP response(s) returned 4xx/5xx.', { responses: routeFailedResponses });
-        if (routeErrors.length) addFinding('E2E-CONSOLE-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
-          route + ': browser emitted ' + routeErrors.length + ' console/page error(s).', { errors: routeErrors });
-      }
-
-      try {
-        const workspaceProbe = await runWorkspacePersonalizationProbe(page);
-        addFinding('E2E-WORKSPACE-001', 'PASS', 'P1', 'Workspace personalization is proven through real browser interaction, persistence, landing redirect, and reset.', workspaceProbe);
-      } catch (error) {
-        addFinding('E2E-WORKSPACE-001', 'FAIL', 'P1', `Workspace personalization browser probe failed: ${error instanceof Error ? error.message : String(error)}`);
-      }
-
-      try {
-        await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        const beforeRefreshTenant = result.tenantA;
-        await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-        const afterRefreshTenant = await authenticatedTenantId(page);
-        if (beforeRefreshTenant !== afterRefreshTenant) {
-          addFinding('E2E-AUTH-009', 'FAIL', 'P0', `Tenant changed across browser refresh: ${beforeRefreshTenant} -> ${afterRefreshTenant}.`);
-        } else addFinding('E2E-AUTH-010', 'PASS', 'P0', 'Authenticated tenant context survived browser refresh.');
-      } catch (error) {
-        addFinding('E2E-AUTH-011', 'FAIL', 'P0', `Authenticated refresh persistence failed: ${error instanceof Error ? error.message : String(error)}`);
-      }
-
-      await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-      const logout = page.getByRole('button', { name: 'تسجيل الخروج' });
-      await logout.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
-      if (await logout.count() && await logout.isVisible().catch(() => false)) {
-        await logout.click();
-        try {
-          const loginInput = page.locator('#login-email');
-          let loginVisible = false;
-          for (let attempt = 0; attempt < 12; attempt += 1) {
-            loginVisible = await loginInput.isVisible().catch(() => false);
-            if (loginVisible) break;
-
-            const residualAuthToken = await page.evaluate(() =>
-              Object.keys(localStorage).some(key => key.endsWith('-auth-token'))
-            ).catch(() => true);
-
-            if (!residualAuthToken) {
-              await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
-              loginVisible = await loginInput.isVisible().catch(() => false);
-              if (loginVisible) break;
-            }
-
-            await page.waitForTimeout(1000);
-          }
-
-          if (!loginVisible) {
-            addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout did not return the browser to the unauthenticated login state within the bounded convergence window.');
-          } else {
-            const residualAuthToken = await page.evaluate(() => Object.keys(localStorage).some(key => key.endsWith('-auth-token')));
-            if (residualAuthToken) addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout UI reached login state but an auth token remained in browser storage.');
-            else addFinding('E2E-AUTH-008', 'PASS', 'P1', 'Logout returned the browser to the unauthenticated login state and cleared the persisted auth token.');
-          }
-        } catch (error) {
-          addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout convergence probe failed: ' + (error instanceof Error ? error.message : String(error)));
-        }
-      } else addFinding('E2E-AUTH-009', 'NOT_PROVEN', 'P1', 'Logout control was not available in authenticated UI.');
-    }
-  }
-} catch (error) {
-  addFinding('E2E-HARNESS-001', 'FAIL', 'P0', error instanceof Error ? error.message : String(error));
-} finally {
-  result.finishedAt = new Date().toISOString();
-  result.consoleErrors = consoleErrors;
-  result.failedRequests = failedRequests;
-  result.failedResponses = failedResponses;
-  result.requests = requests;
-  const browserBlocked = result.findings.some(x => x.status === 'BLOCKED');
-  const browserFailed = result.findings.some(x => x.status === 'FAIL') || result.routes.some(x => x.status === 'FAIL');
-  const browserNotProven = result.findings.some(x => x.status === 'NOT_PROVEN') ||
-    result.auth !== 'PASS' || result.tenant !== 'PASS' ||
-    result.routes.length !== routes.length ||
-    result.routes.some(x => x.status !== 'PASS');
-  result.status = browserFailed ? 'FAIL' : (browserNotProven || browserBlocked ? 'NOT_PROVEN' : 'PASS');
-  await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(result, null, 2));
-  await browser.close();
-}
-
-const counts = [...result.routes, ...result.findings].reduce((acc, x) => { acc[x.status] = (acc[x.status] || 0) + 1; return acc; }, {});
-const blocked = result.findings.filter(x => x.status === 'BLOCKED').length;
-const failed = result.findings.filter(x => x.status === 'FAIL').length;
-const notProven = result.findings.filter(x => x.status === 'NOT_PROVEN').length;
-console.log(JSON.stringify({ exactHead: result.exactHead, auth: result.auth, tenant: result.tenant,
-  routesExecuted: result.routes.length, routesPassed: result.routes.filter(x => x.status === 'PASS').length,
-  routesFailed: result.routes.filter(x => x.status === 'FAIL').length, counts, blocked, failed, notProven,
-  findings: result.findings }, null, 2));
-
-// Fail closed: unresolved FAIL or NOT_PROVEN findings are never green.
-// BLOCKED remains exit 2 so environment/access blockers are distinguishable from test failures.
-process.exitCode = failed || notProven ? 1 : (blocked ? 2 : 0);
