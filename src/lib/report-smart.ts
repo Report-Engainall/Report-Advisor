@@ -931,6 +931,31 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     intelligence = emptyReportIntelligence(specialty);
   } else if (detectedArchetype.profile) {
     try {
+      const { runCalculationRegistry } = await import('./report-intelligence/calculation-capability-registry.ts');
+      const calculationRegistryResults = runCalculationRegistry({
+        rows: canonicalRows,
+        archetypeId: detectedArchetype.profile.id,
+        includeUnavailable: true,
+      });
+      const { runAghbariIntelligenceKernel, compileKernelReportIntegration } = await import('./report-intelligence/aghbari-intelligence-kernel.ts');
+      const kernel: AghbariIntelligenceKernelResult = runAghbariIntelligenceKernel({
+        rows: canonicalRows,
+        specialty: detectedArchetype.profile.adapterSpecialty,
+        qualityScore: Number((sourceAnalysis as { qualityScore?: unknown } | null | undefined)?.qualityScore ?? 100),
+        canonicalRowsComplete: true,
+        evidenceReady: Boolean(effectiveRendered.evidenceSnapshotId || effectiveRendered.evidencePassportId),
+        provenance: {
+          tenantId: companyId,
+          sourceHash: String(job.source_hash ?? ''),
+          reportExecutionJobId: String(job.id),
+          evidenceSnapshotId: typeof effectiveRendered.evidenceSnapshotId === 'string' ? effectiveRendered.evidenceSnapshotId : null,
+          evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
+        },
+      });
+      const kernelIntegration = compileKernelReportIntegration(kernel, {
+        domain: detectedArchetype.profile.domain,
+        recommendationFocus: detectedArchetype.profile.recommendationFocus,
+      });
       const archetypeRun = runReportArchetype({
         intelligence: baseIntelligence,
         provenance: {
@@ -945,6 +970,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         sampleSize: effectiveRendered.rowCount == null ? 0 : Number(effectiveRendered.rowCount),
         archetypeId: detectedArchetype.profile.id,
         profileVersion: detectedArchetype.profile.version,
+        calculations: calculationRegistryResults,
+        kernel,
+        kernelIntegration,
         report: {
           specialty,
           rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),

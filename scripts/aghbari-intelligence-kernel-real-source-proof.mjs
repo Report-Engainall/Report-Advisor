@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 const sourcePath = process.env.KERNEL_REAL_SOURCE_JSON;
 if (!sourcePath) throw new Error('KERNEL_REAL_SOURCE_JSON_REQUIRED');
 
-const { runAghbariIntelligenceKernel } = await import('../src/lib/report-intelligence/aghbari-intelligence-kernel.ts');
+const { runAghbariIntelligenceKernel, compileKernelReportIntegration } = await import('../src/lib/report-intelligence/aghbari-intelligence-kernel.ts');
 const { runReportArchetype } = await import('../src/lib/report-intelligence/archetype-registry.ts');
 const rows = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
 
@@ -43,7 +43,13 @@ const expectedScenarioCoverage = stock / (demand * 1.15);
 assert.ok(Math.abs(Number(scenario.baseline.coverage) - expectedCoverage) < 1e-9, 'SCENARIO_BASELINE_MISMATCH');
 assert.ok(Math.abs(Number(scenario.result.coverage) - expectedScenarioCoverage) < 1e-9, 'SCENARIO_RESULT_MISMATCH');
 
+const kernelIntegration = compileKernelReportIntegration(result, {
+  domain: 'inventory',
+  recommendationFocus: ['مراجعة المخزون مقابل الدليل المصدرّي.'],
+});
 const integrated = runReportArchetype({
+  kernel: result,
+  kernelIntegration,
   archetypeId: 'inventory.balances',
   profileVersion: 1,
   provenance: result.provenance,
