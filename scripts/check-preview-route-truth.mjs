@@ -8,7 +8,7 @@ const page = readFileSync(resolve(process.cwd(), 'src/pages/ProposalDemoPage.tsx
 assert.match(app, /const isNetlifyPreview = host\.endsWith\('--aghbari-report-advisor\.netlify\.app'\)/);
 assert.match(app, /const isPrimaryPublicPreview = host === 'aghbari-report-advisor\.netlify\.app' \|\| host === 'main--aghbari-report-advisor\.netlify\.app';/);
 assert.match(app, /if \(authQuery\) return <AuthGate \/>;/);
-assert.match(app, /if \(demoQuery \|\| isNetlifyPreview \|\| isPrimaryPublicPreview\) return <ProposalDemoPage \/>;/);
+assert.match(app, /if \(demoQuery \|\| isNetlifyPreview \|\| isPrimaryPublicPreview \|\| isGitHubPagesPublicPreview\) return <ProposalDemoPage \/>;/);
 assert.doesNotMatch(app, /return \(isNetlifyPreview \|\| demoQuery\)\s*\n\s*\? <ProposalDemoPage \/>/);
 
 assert.match(page, /function PreviewBusinessSurface\(\{ path \}: \{ path: string \}\)/);
