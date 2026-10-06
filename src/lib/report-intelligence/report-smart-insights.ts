@@ -783,9 +783,15 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
     else if (signal.id.includes('paid-above-total')) action = 'افتح السجلات المتأثرة وطابق الإجمالي والمدفوع مع الفاتورة الأصلية والقيد المحاسبي قبل اعتماد التحصيل.';
     else if (signal.id.includes('invoice-total-conflict')) action = 'طابق أرقام الفواتير المتعارضة مع المستندات الأصلية وسبب التعديل/التجزئة قبل اعتبارها ازدواجية أو خطأ.';
     const isDemandPressure = signal.id === 'inventory:demand-pressure-low-coverage';
+    const isSalesConcentration = signal.id === 'sales:top-party';
+    const isPurchasesConcentration = signal.id === 'purchases:top-party';
     const recommendationTitle = isDemandPressure
       ? 'أعد ترتيب أولوية إعادة الطلب قبل قرار الشراء'
-      : 'راجع: ' + signal.title;
+      : isSalesConcentration
+        ? 'أعد تقييم التركّز في المبيعات قبل اعتماد خطة النمو'
+        : isPurchasesConcentration
+          ? 'أعد تقييم تركّز المشتريات قبل اعتماد خطة التوريد'
+          : 'راجع: ' + signal.title;
     return {
       id: 'rec:' + signal.id,
       status: 'PROPOSED' as const,
