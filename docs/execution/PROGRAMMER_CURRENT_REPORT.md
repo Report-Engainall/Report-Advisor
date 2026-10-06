@@ -1,21 +1,24 @@
 SESSION HANDOFF = NOT READY
-REPORT_FOR_HEAD = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51
-UPDATED_AT = 2026-10-06
+REPORT_FOR_HEAD = 1010f0a74aa8b9cd44583dbe41cb9b8a2a9d9991
+UPDATED_AT = 2026-10-06T20:45:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Continue from the exact product head, close proven failures, keep the Smart Report journey source-bound, and produce visible real-business results without rebuilding or fabricating PASS.
 
 WHAT_I_ACTUALLY_DID = Removed the timeout-prone dashboard dependency, made calculation persistence tenant mismatch fail-soft, corrected Smart Report recommendation typing, added bounded tenant-resolution retry, reconciled the dashboard UI contract, and replaced the landing catalog fan-out with a direct source-hash-bound Smart Report read with bounded network/session retries.
-CURRENT_HEAD_CHANGE = fabf6e60b38e3412d60af12f8b63a1f33e7608a8 extends the source-bound landing: when the real Smart Report is present, the home screen now surfaces source-native calculated metrics (row count, completeness, numeric outlier rate, duplicate rate) and routes the next action to the real report/recommendation instead of presenting legacy unavailable KPIs.
+CURRENT_HEAD_CHANGE = 1010f0a74aa8b9cd44583dbe41cb9b8a2a9d9991 closes two proven Smart Report truth leaks: net_sales/warehouse fields are now semantically mapped, and 100%-blank fields cannot qualify an archetype. Unsupported archetypes now fail closed to source intelligence instead of exposing model-specific recommendations.
 FIRST_ACTIVE_FAILURE = Exact-head Chromium on 88c75 failed at landing: E2E-REPORT-001 NOT_PROVEN and E2E-CONSOLE-001 FAIL; console error was TypeError: Failed to fetch.
 ROOT_CAUSE = The landing requested a broad 60-item catalog before resolving the one designated source, creating an unnecessary network/convergence failure point.
 REPAIR = ee46edfc introduces direct source-hash lookup for the latest completed report in the authenticated tenant and bounded retries for transient tenant/network/timeout failures.
 
-WHAT_IS_PROVEN = Artifact 11429020660 contains 35 screenshots; the real Smart Report visibly rendered the Arabic report surface, reportJobId, source hash, 332 rows, truth/evidence context, WHAT/WHY/SO WHAT/IMPACT/WHAT NEXT/PROOF, plus decision/evidence surfaces. Auth, tenant isolation, and workspace interaction passed.
-NOT_YET_PROVEN = ee46edfc exact-head landing proof, terminal browser PASS, production promotion, and complete commercial certification.
+WHAT_IS_PROVEN = Product commit 1010f0a74aa8b9cd44583dbe41cb9b8a2a9d9991 is on the exact execution branch. Inventory intelligence truth gate is passing on this head; the same-head Product Build is running. The code change explicitly blocks unusable blank fields and non-SUPPORTED archetype outputs from becoming customer-facing model advice.
+NOT_YET_PROVEN = same-head Product Build/Typecheck terminal result, authenticated browser visual proof after this patch, and public customer-sale certification.
 
 DO_NOT_REPEAT = Do not rebuild; do not delete prior work; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale-SHA PASS; do not weaken browser/security/truth contracts.
 
-NEXT_EXACT_ACTION = Run exact-head Product Build, Session Handoff and Device-Independent Browser on 56be225; if Chromium raises another terminal failure, fix only that first failure.
+NEXT_EXACT_ACTION = Consume same-head Product Build, Inventory Intelligence Truth, Device-Independent Browser and Netlify preview results; if any terminal failure appears, fix only the first customer-visible failure, then re-run.
 
 LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
 
 LANDING_UNIT_FORMAT_FIX = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51 adds explicit source metric units: row count renders as number; completeness/outlier/duplicate render as percentages, not currency.
+
+
+CURRENT_PRODUCT_TRUTH_FIX_1010F0A7 = Added net_sales/netsales aliases to sales_qty, added warehouse/store/location aliases, excluded 100%-blank fields from archetype qualification, and fail-closed unsupported archetypes to base source intelligence. This is a product behavior change, not a documentation-only claim.
