@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T21:53:00+03:00
-CURRENT_EXACT_HEAD = 71a6f5ef59c5f5dba23c53cc422880552e210595
-CURRENT_EXACT_PRODUCT_HEAD = 14caaacfd962f1de89b4968d5c8be13b389e1796
+UPDATED_AT = 2026-10-06T21:38:00+03:00
+CURRENT_EXACT_HEAD = 618ce1728ec6071d6ea4682b93390575df88e07f
+CURRENT_EXACT_PRODUCT_HEAD = 618ce1728ec6071d6ea4682b93390575df88e07f
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
@@ -47,9 +47,9 @@ OPEN_REPORT_CANONICAL_COMMITTED = 6776
 WHAT_IS_PROVEN = Tenant f68 report c42 remains generic:inventory across report/import/canonical/rendered/evidence layers, 342/342, Passport VERIFIED/ACCEPTED/READY/FULL. Import-domain truth is now enforced client-side, server-side after authoritative parse, and in recovery rendering.
 CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
-WHAT_IS_NOT_YET_PROVEN = Current-head build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, customer-sale readiness.
+WHAT_IS_NOT_YET_PROVEN = Current-head Product Build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume 71a6 current-head workflow terminals. Fix only first terminal failure, then verify latest Netlify preview and the live f68 inventory report readback.
+NEXT_EXACT_ACTION = Consume 618ce current-head workflow terminals. Fix only the first terminal failure. Then verify the latest Netlify preview for 618ce and perform one live f68 inventory report readback.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -82,3 +82,5 @@ CURRENT_UI_CLEANUP_942F = Customer-facing intelligence no longer labels the prim
 CURRENT_IMPORT_DOMAIN_GUARD_20CC = Server canonical import validates inferred domain after authoritative parsing; generic source-data is upgraded or conflicting generic domains are rejected before canonical durable write.
 
 CURRENT_IMPORT_DOMAIN_GUARD_14CAA = Server persists authoritative inferred domain into import_jobs before canonical durable execution; conflicts are rejected instead of written.
+
+CURRENT_UI_CLEANUP_20261006 = Removed visible N/A technical placeholders from Report Intelligence drivers; translated Smart Report status keys and Trust/Evidence hero labels into business Arabic; replaced raw decision activity identifiers with business-readable labels while preserving audit records.
