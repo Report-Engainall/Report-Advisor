@@ -1,16 +1,16 @@
 SESSION HANDOFF = NOT READY
-UPDATED_AT = 2026-10-06T19:25:00+03:00
-CURRENT_EXACT_HEAD = f292bf63c56528dfb4f73f6cdef974a9149752e8
-CURRENT_EXACT_PRODUCT_HEAD = f292bf63c56528dfb4f73f6cdef974a9149752e8
+UPDATED_AT = 2026-10-06T19:31:00+03:00
+CURRENT_EXACT_HEAD = 56be225bfcee15a35f18f7eb69cc4770c9d76259
+CURRENT_EXACT_PRODUCT_HEAD = 56be225bfcee15a35f18f7eb69cc4770c9d76259
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_SOURCE_BOUND_BROWSER
+ACTION_STATUS = ACTIVE_EXECUTION_TENANT_CONVERGENCE_REPAIR
 
-FIRST_ACTIVE_FAILURE_1 = Landing dashboard invoked get_dashboard_snapshot and received PostgreSQL statement_timeout (HTTP 500).
-ROOT_CAUSE_1 = Legacy aggregate dashboard RPC is too expensive for the landing path and is not required to render the authoritative Smart Report.
-REPAIR_1 = 6dbd674 makes landing source-bound and resolves the real Smart Report before any generic dashboard aggregate path; generic KPIs remain explicitly unavailable.
+FIRST_ACTIVE_FAILURE_1 = Dashboard landing raised TENANT_REQUIRED on its source-bound Smart Report read after Auth/Tenant had already passed.
+ROOT_CAUSE_1 = Unretried current_company_id resolution during browser auth/session convergence.
+REPAIR_1 = 56be225 bounded retries TENANT_REQUIRED on landing Smart Report catalog/detail reads without changing tenant authority.
 
 FIRST_ACTIVE_FAILURE_2 = Full Product Browser E2E source-workspace contract rejected a valid multiline report.canonicalRows.map implementation.
 ROOT_CAUSE_2 = The contract asserted source formatting rather than behavior.
@@ -47,7 +47,7 @@ OPEN_REPORT_CANONICAL_COMMITTED = 6776
 WHAT_IS_PROVEN = Product Build Gate #413 passed on the prior product head; Session Handoff succeeded on 2b585284. The authoritative report is still job 16709d80-e012-40ef-9c12-6fd8255897f8 with 332 rows, quality 98, VERIFIED/READY/ACCEPTED evidence. 5d0c799 binds device-independent authenticated E2E to its certified open-report execution job/source/file.
 WHAT_IS_NOT_YET_PROVEN = authenticated browser proof on 5d0c799; complete commercial journey; production certification.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Read f292bf63 exact-head terminal results; repair the first new proven failure only.
+NEXT_EXACT_ACTION = Consume 56be225 Product Build, Session Handoff and Device-Independent Browser results.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
