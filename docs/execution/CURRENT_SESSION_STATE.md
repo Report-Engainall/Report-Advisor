@@ -1,21 +1,20 @@
-SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
 CURRENT_EXACT_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
 CURRENT_EXACT_PRODUCT_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_EXECUTION_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
+CURRENT_EXECUTION_HEAD = ebffe8a97e8c3240af53d2261dd5fbafd2366b30
 BRANCH = feat/calculation-capability-engine-20261006
-CURRENT_PR_HEAD = 0b361737d97da3100085fe1563700f4c28430d8c
+CURRENT_PR_HEAD = ebffe8a97e8c3240af53d2261dd5fbafd2366b30
 PR = #850
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 
 WHAT_ACTUALLY_HAPPENED
 - Aghbari Intelligence Kernel implemented above Calculation Capability Registry.
-- Kernel computed source-bound statistics, anomalies, scenarios and sensitivity with fail-closed quality/evidence boundaries.
+- Kernel computes source-bound statistics, anomalies, scenarios and sensitivity with fail-closed quality/evidence boundaries.
 - Smart Report computes Kernel against canonical rows and passes compiled findings/risks/signals/recommendations into runReportArchetype().
-- Kernel and report-intelligence import chains hardened for Node ESM with explicit .ts extensions across the direct execution path.
+- Node ESM import chains hardened across the direct report-intelligence execution path.
 - Live real-source proof kept separate from offline certification contracts.
-- DashboardPage lazy-loaded; critical initial asset gate reduced from 930.0KB to 863.1KB without weakening the 900KB threshold.
+- DashboardPage, Calculation Registry and Kernel execution split into lazy paths; critical initial assets reduced from 930.0KB to 863.1KB without weakening the 900KB threshold.
 
 REAL_SOURCE_PROOF
 - Source = تقارير ادارية.xlsx
@@ -39,23 +38,21 @@ LOCAL_EVIDENCE
 - 48-archetype runtime contract = PASS
 - Smart Report runtime archetype contract = PASS
 - Smart Report complete intelligence surface = PASS
-- Real-48-source contract = PASS
+- Real-source contract = PASS
 - Production build = PASS
 - Performance budget = PASS at critical=863.1KB
 - Executive visual contract = PASS
-- Session Handoff Contract = PASS
-- Local browser reached app shell but remained blocked by missing frontend Supabase env; this is not customer proof and is not used as PASS.
+- Local browser shell smoke = PASS on a public-config build; authenticated business proof is not claimed.
 
 OPEN_GATES
-- Exact-head Full Product Browser E2E run 8557.
-- Exact-head Final Certification run 17343.
+- Exact-head Full Product Browser E2E.
 - Authenticated Smart Report business proof.
 - Real-source 48/48 runtime capability proof.
-- Final certification.
+- Final Certification.
 
 FIRST_ACTIVE_FAILURE
 - Final Certification on 3ee6 exposed extensionless imports inside archetype-registry.ts.
 ROOT_CAUSE = Offline Node ESM certification requires explicit local TypeScript module extensions.
 FIX = Explicit .ts extensions added across the direct report-intelligence execution chain.
 
-NEXT_EXACT_ACTION = Consume Browser 8557 and Final Certification 17343 on this exact head; fix only the first newly proven failure.
+NEXT_EXACT_ACTION = Consume Full Product Browser E2E and Final Certification on branch head ebffe8a97e8c3240af53d2261dd5fbafd2366b30; fix only the first newly proven failure.
