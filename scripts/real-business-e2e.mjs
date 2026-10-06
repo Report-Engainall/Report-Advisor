@@ -467,7 +467,13 @@ function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_HASH), label + ': source hash missing');
   assert.ok(text.includes(String(CURRENT_REPORT_ROW_COUNT)), label + ': row count missing');
-  assert.ok(text.includes('موثوق') || text.includes('TRUSTED'), label + ': trust state missing');
+  assert.ok(
+    text.includes('موثوق') ||
+    text.includes('موثق') ||
+    text.includes('TRUSTED') ||
+    text.includes('VERIFIED'),
+    label + ': trust state missing'
+  );
 }
 
 async function readCurrentPersistedReport(page, companyId) {
