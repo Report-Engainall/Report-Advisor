@@ -34,6 +34,53 @@ function reportEntityTypeFromJobKey(jobKey: string): string {
   throw new Error('REPORT_EXECUTION_ENTITY_TYPE_MISSING');
 }
 
+function inferAuthoritativeGenericEntityType(
+  columns: Array<{ name?: unknown; mappedField?: unknown }>,
+  fileName: string,
+): string | null {
+  const normalize = (value: unknown) => String(value ?? '').toLowerCase().normalize('NFKC').replace(/[\s_./\\-]+/g, '');
+  const fields = new Set<string>();
+  for (const column of columns) {
+    if (column.mappedField != null) fields.add(normalize(column.mappedField));
+    if (column.name != null) fields.add(normalize(column.name));
+  }
+  const has = (values: string[]) => values.some((value) => fields.has(normalize(value)));
+  const inventoryStrength = [
+    has(['sku','productCode','رمز الصنف','رقم الصنف']),
+    has(['balance','current_stock','currentStock','الرصيد','الرصيدالحالي']),
+    has(['warehouse','المخزن','المستودع']),
+    has(['opening_balance','openingStock','الرصيد الافتتاحي']),
+    has(['incoming','inbound','صافي الوارد','الوارد']),
+    has(['stockout_days','stockoutDays','أيام النفاد','الفترة المتوقعة لنفاد الكمية']),
+    has(['daily_sales_rate','dailySalesRate','معدل البيع اليومي','معدل البيع ليومي']),
+  ].filter(Boolean).length;
+  if (inventoryStrength >= 2 || (/inventory|stock|مخزون|اصناف|أصناف|مستودع|مخزن/i.test(fileName) && inventoryStrength >= 1)) return 'generic:inventory';
+
+  const salesStrength = [
+    has(['invoice_number','invoiceNo','رقم الفاتورة','رقم الفاتوره']),
+    has(['customer_name','customer','اسم العميل','العميل']),
+    has(['date','invoice_date','التاريخ','تاريخ الفاتورة']),
+    has(['total','net_amount','sales_amount','الإجمالي','اجمالي الفاتورة']),
+  ].filter(Boolean).length;
+  if (salesStrength >= 2 || /sales|sale|مبيع|مبيعات|بيع/i.test(fileName)) return 'generic:sales';
+
+  const purchasesStrength = [
+    has(['supplier_name','supplier','vendor','اسم المورد','المورد']),
+    has(['purchase','purchases','المشتريات','الشراء']),
+    has(['total','amount','الإجمالي','المبلغ']),
+  ].filter(Boolean).length;
+  if (purchasesStrength >= 2 || /purchase|purchas|شراء|مشتريات/i.test(fileName)) return 'generic:purchases';
+
+  const receivablesStrength = [
+    has(['outstanding_balance','balance_due','الرصيد المستحق','المتبقي']),
+    has(['customer_name','customer','اسم العميل','العميل']),
+    has(['due_date','aging','الاستحقاق','عمر الدين']),
+  ].filter(Boolean).length;
+  if (receivablesStrength >= 2 || /receivable|aging|ديون|ذمم|تحصيل/i.test(fileName)) return 'generic:receivables';
+
+  return null;
+}
+
 export async function handleCanonicalImport(request: Request): Promise<Response> {
   if (request.method !== 'POST') return json(405, { error: 'METHOD_NOT_ALLOWED' });
 
@@ -219,7 +266,6 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
       .maybeSingle();
     if (jobError) throw jobError;
     if (!job?.file_record_id) throw new Error('IMPORT_JOB_SOURCE_RECORD_NOT_FOUND_OR_FORBIDDEN');
-    if (job.job_type && job.job_type !== entityType) throw new Error('IMPORT_JOB_ENTITY_TYPE_MISMATCH');
 
     const { data: fileRecord, error: fileError } = await serviceClient
       .from('file_records')
@@ -266,8 +312,22 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
     const authoritativeDataset = authoritativeDatasets[0];
     if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
 
-    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));
-    if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
+    const inferredEntityType = inferAuthoritativeGenericEntityType(
+      Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns : [],
+      fileRecord.file_name || fileName || 'import',
+    );
+    if (inferredEntityType) {
+      if (entityType === 'generic:source-data') {
+        entityType = inferredEntityType;
+      } else if (entityType.startsWith('generic:') && entityType !== inferredEntityType) {
+        throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_SOURCE_MISMATCH:' + entityType + ':' + inferredEntityType);
+      }
+    }
+    if (job.job_type && job.job_type !== entityType && job.job_type !== 'generic:source-data') {
+      throw new Error('IMPORT_JOB_ENTITY_TYPE_MISMATCH');
+    }
+
+    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));    if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
     if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
       throw new Error(`CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED:${authoritativeQualityScore}`);
     }
