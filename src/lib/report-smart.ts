@@ -801,6 +801,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalCommitLineageCount === actualCanonicalRowCount &&
     !canonicalRowsPartial;
 
+  const evidenceStatus = resolveReportEvidenceStatus(effectiveRendered, canonicalCommitVerified);
   const runtimeTrustState = resolveReportTrustState(
     effectiveRendered,
     currentPassport,
@@ -826,7 +827,6 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
   } : null;
 
-  const evidenceStatus = resolveReportEvidenceStatus(effectiveRendered, canonicalCommitVerified);
   const specialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
   const sourceAnalysisDatasets = Array.isArray(analysis?.datasets)
     ? analysis.datasets.filter((dataset): dataset is Record<string, unknown> => Boolean(dataset) && typeof dataset === 'object')
