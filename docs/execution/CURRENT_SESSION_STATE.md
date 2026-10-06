@@ -1,12 +1,12 @@
 SESSION HANDOFF = NOT READY
-UPDATED_AT = 2026-10-06T19:31:00+03:00
-CURRENT_EXACT_HEAD = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51
-CURRENT_EXACT_PRODUCT_HEAD = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51
+UPDATED_AT = 2026-10-06T20:55:00+03:00
+CURRENT_EXACT_HEAD = 65471fd7543911d3a8b33694d63e9881a1d16842
+CURRENT_EXACT_PRODUCT_HEAD = 65471fd7543911d3a8b33694d63e9881a1d16842
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_UNIT_FORMAT_BROWSER_PROOF
+ACTION_STATUS = ACTIVE_EXECUTION_TRUTH_UI_BROWSER_CERTIFICATION
 
 FIRST_ACTIVE_FAILURE_1 = Exact-head authenticated Chromium showed the Smart Report itself rendered real data, while the landing route failed to settle because the broad Smart Report catalog read emitted TypeError: Failed to fetch during auth/session convergence.
 ROOT_CAUSE_1 = Landing depended on a 60-item Smart Report catalog fan-out before reading the designated source; transient/network timeout during that fan-out prevented the primary card from painting.
@@ -49,7 +49,7 @@ CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
 WHAT_IS_NOT_YET_PROVEN = authenticated browser proof on 5d0c799; complete commercial journey; production certification.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume exact-head ee46edfc browser result; if landing still fails, fix only that first terminal error.
+NEXT_EXACT_ACTION = Consume exact-head build/browser/Netlify results; fix the first terminal customer-visible failure only, then re-run.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -62,3 +62,6 @@ VISUAL_PROOF_88C75 = Artifact 11429020660 contains 35 screenshots; Smart Report 
 LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
 
 LANDING_UNIT_FORMAT_FIX = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51 adds explicit source metric units: row count renders as number; completeness/outlier/duplicate render as percentages, not currency.
+
+
+CURRENT_PRODUCT_FIX_65471FD = truth-field aliases + blank-field archetype gating + unsupported-archetype fail-closed + DashboardPage valueUnit initialization + executive-priority alignment.
