@@ -670,65 +670,6 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // Smart-report intelligence must inspect the canonical source, not an arbitrary preview.
   // Supabase REST can cap a single response; page deterministically until the full source
   // is consumed (with a defensive ceiling so a pathological source cannot freeze the browser).
-  const canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }> = [];
-  const canonicalFetchPageSize = 1000;
-  const canonicalFetchLimit = 50000;
-  const reportImportJobId = renderedImportId;
-  if (!reportImportJobId) throw new Error('INVALID_REPORT_CONTEXT');
-
-  // Canonical row reads remain bound to the active import job identity from the
-  // durable execution checkpoint. A commit anchor can be inspected for warnings,
-  // but must not silently redirect a report to a repeated/foreign import.
-  let canonicalImportJobId = renderedImportId || reportImportJobId;
-  let canonicalResolvedFromCommit = false;
-  try {
-    const latestCommitQuery = supabase
-      .from('canonical_import_commits')
-      .select('committed_ids')
-      .eq('company_id', companyId)
-      .eq('source_hash', resolvedSourceHash)
-      .order('committed_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const { data: latestCommit, error: latestCommitError } = await maybeAbort(latestCommitQuery, options.signal);
-
-    if (latestCommitError) {
-      canonicalCommitError = latestCommitError;
-    } else {
-      const committedIds = latestCommit?.committed_ids;
-      const firstCommittedId = Array.isArray(committedIds) && committedIds.length > 0
-        ? String(committedIds[0] ?? '').trim()
-        : '';
-
-      if (firstCommittedId) {
-        const anchorQuery = supabase
-          .from('canonical_dataset_records')
-          .select('import_job_id')
-          .eq('company_id', companyId)
-          .eq('id', firstCommittedId)
-          .maybeSingle();
-        const { data: anchor, error: anchorError } = await maybeAbort(anchorQuery, options.signal);
-        if (anchorError) {
-          canonicalCommitError = anchorError;
-        } else {
-          const resolved = String(anchor?.import_job_id ?? '').trim();
-          if (resolved) {
-            canonicalImportJobId = resolved;
-            canonicalResolvedFromCommit = resolved !== reportImportJobId;
-          }
-        }
-      }
-    }
-  } catch (error) {
-    canonicalCommitError = error;
-    console.warn('[SmartReport] canonical commit anchor lookup failed; continuing with report import id', error);
-  }
-
-  const canonicalCommitQueryFailed = Boolean(canonicalCommitError);
-  if (canonicalCommitQueryFailed) {
-    runtimeWarnings.push('تعذر قراءة سجل الاعتماد الكانوني؛ تم فصل فشل القراءة عن فجوة البيانات وعدم إصدار فجوة رقمية مصطنعة.');
-  }
-
   if (options.surfaceReadback) {
     const surfaceCommitQuery = supabase
       .from('canonical_import_commits')
@@ -848,6 +789,66 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     });
     return detail;
   }
+
+  const canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }> = [];
+  const canonicalFetchPageSize = 1000;
+  const canonicalFetchLimit = 50000;
+  const reportImportJobId = renderedImportId;
+  if (!reportImportJobId) throw new Error('INVALID_REPORT_CONTEXT');
+
+  // Canonical row reads remain bound to the active import job identity from the
+  // durable execution checkpoint. A commit anchor can be inspected for warnings,
+  // but must not silently redirect a report to a repeated/foreign import.
+  let canonicalImportJobId = renderedImportId || reportImportJobId;
+  let canonicalResolvedFromCommit = false;
+  try {
+    const latestCommitQuery = supabase
+      .from('canonical_import_commits')
+      .select('committed_ids')
+      .eq('company_id', companyId)
+      .eq('source_hash', resolvedSourceHash)
+      .order('committed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: latestCommit, error: latestCommitError } = await maybeAbort(latestCommitQuery, options.signal);
+
+    if (latestCommitError) {
+      canonicalCommitError = latestCommitError;
+    } else {
+      const committedIds = latestCommit?.committed_ids;
+      const firstCommittedId = Array.isArray(committedIds) && committedIds.length > 0
+        ? String(committedIds[0] ?? '').trim()
+        : '';
+
+      if (firstCommittedId) {
+        const anchorQuery = supabase
+          .from('canonical_dataset_records')
+          .select('import_job_id')
+          .eq('company_id', companyId)
+          .eq('id', firstCommittedId)
+          .maybeSingle();
+        const { data: anchor, error: anchorError } = await maybeAbort(anchorQuery, options.signal);
+        if (anchorError) {
+          canonicalCommitError = anchorError;
+        } else {
+          const resolved = String(anchor?.import_job_id ?? '').trim();
+          if (resolved) {
+            canonicalImportJobId = resolved;
+            canonicalResolvedFromCommit = resolved !== reportImportJobId;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    canonicalCommitError = error;
+    console.warn('[SmartReport] canonical commit anchor lookup failed; continuing with report import id', error);
+  }
+
+  const canonicalCommitQueryFailed = Boolean(canonicalCommitError);
+  if (canonicalCommitQueryFailed) {
+    runtimeWarnings.push('تعذر قراءة سجل الاعتماد الكانوني؛ تم فصل فشل القراءة عن فجوة البيانات وعدم إصدار فجوة رقمية مصطنعة.');
+  }
+
 
   if (canonicalResolvedFromCommit) {
     runtimeWarnings.push('تم ربط التقرير بالاستيراد الكانوني الفعلي من سجل الاعتماد لنفس بصمة المصدر؛ معرف تنفيذ التقرير مختلف عن معرف الاستيراد الكانوني.');
