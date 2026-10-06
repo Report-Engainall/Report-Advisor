@@ -129,9 +129,6 @@ function useOptionalSourceReport() {
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
   return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
-const PRIMARY_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
-const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
-
 function withDeadline<T>(promise: Promise<T>, label: string, milliseconds: number): Promise<T> {
   return Promise.race([
     promise,
@@ -162,125 +159,82 @@ export function ReportsCenterPage() {
     if (silent) setRefreshing(true); else setLoading(true);
     setError(null);
 
-    // Customer-visible truth has priority. Start all reads together, but publish
-    // each source as soon as it settles instead of waiting for the slowest read.
-    const primaryPromise = fetchSmartReport(
-      PRIMARY_SMART_REPORT_JOB_ID,
-      PRIMARY_SMART_REPORT_SOURCE_HASH,
-      { signal: AbortSignal.timeout(15000) },
-    );
+    // The catalog is the authority for "latest report". A fixed historical
+    // report job must never outrank a newer completed report from the tenant.
     const catalogPromise = fetchSmartReportCatalog(
       60,
       { signal: AbortSignal.timeout(12000) },
     );
     const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
 
-    let primary: SmartReportDetail | null = null;
     let catalog: SmartReportCatalogItem[] = [];
     let dashboard: Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null = null;
-    let catalogSettled = false;
-    let dashboardSettled = false;
     let firstFailure: unknown = null;
 
-    const publish = () => {
-      const currentPrimary = primary;
-      const currentCatalog = catalog;
-      const currentDashboard = dashboard;
-      const mergedReports = currentPrimary
-        ? [currentPrimary, ...currentCatalog.filter((report) => report.jobId !== currentPrimary.jobId)]
-        : currentCatalog;
+    const [catalogRead, dashboardRead] = await Promise.allSettled([catalogPromise, dashboardPromise]);
 
-      if (currentPrimary) {
-        setPrimarySmartReport(currentPrimary);
-        window.sessionStorage.setItem('aghbari:last-smart-report-job', currentPrimary.jobId);
-        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', currentPrimary.sourceHash);
+    if (catalogRead.status === 'fulfilled') {
+      catalog = catalogRead.value;
+      setSmartReports(catalog);
+      const selected = catalog[0] ?? null;
+      if (selected) {
+        window.sessionStorage.setItem('aghbari:last-smart-report-job', selected.jobId);
+        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selected.sourceHash);
       }
-      if (catalogSettled || currentPrimary) setSmartReports(mergedReports);
-      if (dashboardSettled) setSnapshot(currentDashboard);
+    } else {
+      firstFailure ??= catalogRead.reason;
+      console.warn('[ReportsCenter] smart report catalog readback failed', catalogRead.reason);
+      setSmartReports([]);
+    }
 
-      // Unlock the customer surface on the first meaningful successful read.
-      // Slow dashboard KPIs or catalog enrichment must never keep a real report
-      // behind the global spinner.
-      if (primary || catalogSettled || dashboardSettled) setLoading(false);
-    };
+    if (dashboardRead.status === 'fulfilled') {
+      dashboard = dashboardRead.value;
+      setSnapshot(dashboard);
+    } else {
+      firstFailure ??= dashboardRead.reason;
+      console.warn('[ReportsCenter] dashboard snapshot readback failed', dashboardRead.reason);
+      setSnapshot(null);
+    }
 
-    const primaryRead = primaryPromise.then(
-      (result) => {
-        primary = result;
-        publish();
-      },
-      (cause) => {
-        firstFailure ??= cause;
-        console.warn('[ReportsCenter] exact primary smart report readback failed', cause);
-        publish();
-      },
-    );
+    // Catalog/snapshot data is enough to unlock the screen; the detail read
+    // enriches the first/latest report without blocking the whole customer surface.
+    if (catalog.length > 0 || dashboard) setLoading(false);
 
-    const catalogRead = catalogPromise.then(
-      (result) => {
-        catalog = result;
-        catalogSettled = true;
-        const selected = primary
-          ?? result.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID)
-          ?? result[0]
-          ?? null;
-        if (selected) {
-          window.sessionStorage.setItem('aghbari:last-smart-report-job', selected.jobId);
-          window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selected.sourceHash);
+    const selected = catalog[0] ?? null;
+    if (selected) {
+      try {
+        const detail = await fetchSmartReport(
+          selected.jobId,
+          selected.sourceHash,
+          { signal: AbortSignal.timeout(15000) },
+        );
+        if (detail) {
+          setPrimarySmartReport(detail);
+          window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
+          window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
         }
-        publish();
-      },
-      (cause) => {
-        catalogSettled = true;
+      } catch (cause) {
         firstFailure ??= cause;
-        publish();
-      },
-    );
+        console.warn('[ReportsCenter] latest smart report detail readback failed', cause);
+      }
+    } else {
+      setPrimarySmartReport(null);
+      window.sessionStorage.removeItem('aghbari:last-smart-report-job');
+      window.sessionStorage.removeItem('aghbari:last-smart-report-source-hash');
+    }
 
-    const dashboardRead = dashboardPromise.then(
-      (result) => {
-        dashboard = result;
-        dashboardSettled = true;
-        publish();
-      },
-      (cause) => {
-        dashboardSettled = true;
-        firstFailure ??= cause;
-        publish();
-      },
-    );
-
-    await Promise.allSettled([primaryRead, catalogRead, dashboardRead]);
-
-    // All reads have now settled. This is only the terminal reconciliation
-    // step; it is deliberately not the gate for first paint.
-    const finalPrimary: SmartReportDetail | null = primary as SmartReportDetail | null;
-    const finalCatalog: SmartReportCatalogItem[] = [...catalog] as SmartReportCatalogItem[];
-    const finalDashboard: Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null = dashboard;
-
-    if (!finalPrimary && finalCatalog.length === 0 && !finalDashboard && firstFailure) {
+    if (catalog.length === 0 && !dashboard && firstFailure) {
       setError(errorMessage(firstFailure));
     } else {
       setError(null);
     }
 
-    if (finalPrimary) {
-      window.sessionStorage.setItem('aghbari:last-smart-report-job', finalPrimary.jobId);
-      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', finalPrimary.sourceHash);
-    } else if (finalCatalog.length > 0) {
-      const selected = finalCatalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID) ?? finalCatalog[0];
-      window.sessionStorage.setItem('aghbari:last-smart-report-job', selected.jobId);
-      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selected.sourceHash);
-    } else {
-      // Keep the buyer path deterministic even before a network read succeeds.
-      window.sessionStorage.setItem('aghbari:last-smart-report-job', PRIMARY_SMART_REPORT_JOB_ID);
-      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', PRIMARY_SMART_REPORT_SOURCE_HASH);
+    if (catalog.length === 0 && !dashboard) {
+      setLoading(false);
     }
-
-    // Terminal fallback: never leave the customer in an infinite spinner.
-    if (!finalPrimary && finalCatalog.length === 0 && !finalDashboard) setLoading(false);
     setRefreshing(false);
   }, []);
+
   useEffect(() => { void load(); }, [load]);
 
   if (loading) {
