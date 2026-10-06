@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -241,7 +241,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     </>
   );
 
-  let body: React.ReactNode;
+  let body: ReactNode;
 
   if (route === '/reports/purchases' || route === '/customers' || route === '/suppliers') {
     body = sourceUnavailable(
