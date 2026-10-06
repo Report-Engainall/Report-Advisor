@@ -65,7 +65,13 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
   const signalClaims = claims.filter((claim) => claim.claimId.startsWith('signal:'));
   const recommendationClaims = claims.filter((claim) => claim.claimId.startsWith('recommendation:'));
   const primarySignal = signalClaims[0] ?? null;
-  const nextRecommendation = recommendationClaims[0] ?? null;
+  const matchingRecommendation = primarySignal
+    ? recommendationClaims.find((claim) => {
+        const signalEvidence = new Set(primarySignal.supportingEvidence ?? []);
+        return (claim.supportingEvidence ?? []).some((item) => signalEvidence.has(item));
+      })
+    : null;
+  const nextRecommendation = matchingRecommendation ?? recommendationClaims[0] ?? null;
 
   const business = input.intelligence;
   const topFinding = business.findings?.[0] ?? null;
@@ -258,6 +264,14 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
     if (id === 'inventory.position') {
       const finding = findingById('inventory:position');
       return finding ? answerText(finding.statement) : null;
+    }
+    if (id === 'inventory.coverage') {
+      const signal = business.signals?.find((item) => item.id === 'inventory:coverage-summary');
+      return signal ? answerText(signal.message) : null;
+    }
+    if (id === 'inventory.aging') {
+      const signal = business.signals?.find((item) => item.id === 'inventory:aging-attention');
+      return signal ? answerText(signal.message) : null;
     }
     if (id === 'inventory.valuation') {
       const finding = findingById('inventory:position');
