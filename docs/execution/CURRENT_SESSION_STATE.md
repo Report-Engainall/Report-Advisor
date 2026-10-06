@@ -1,16 +1,16 @@
 SESSION HANDOFF = NOT READY
 UPDATED_AT = 2026-10-06T19:31:00+03:00
-CURRENT_EXACT_HEAD = 88c75d27164c842fc720cffa279d3d6601c7fb9e
-CURRENT_EXACT_PRODUCT_HEAD = 88c75d27164c842fc720cffa279d3d6601c7fb9e
+CURRENT_EXACT_HEAD = ee46edfcfb72fe6eade0bf04348fb792a4877f61
+CURRENT_EXACT_PRODUCT_HEAD = ee46edfcfb72fe6eade0bf04348fb792a4877f61
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_CI_CONTRACT_AND_BROWSER_PROOF
+ACTION_STATUS = ACTIVE_EXECUTION_DIRECT_SOURCE_LANDING_REPAIR
 
-FIRST_ACTIVE_FAILURE_1 = Dashboard landing raised TENANT_REQUIRED on its source-bound Smart Report read after Auth/Tenant had already passed.
-ROOT_CAUSE_1 = Unretried current_company_id resolution during browser auth/session convergence.
-REPAIR_1 = 56be225 bounded retries TENANT_REQUIRED on landing Smart Report catalog/detail reads without changing tenant authority.
+FIRST_ACTIVE_FAILURE_1 = Exact-head authenticated Chromium showed the Smart Report itself rendered real data, while the landing route failed to settle because the broad Smart Report catalog read emitted TypeError: Failed to fetch during auth/session convergence.
+ROOT_CAUSE_1 = Landing depended on a 60-item Smart Report catalog fan-out before reading the designated source; transient/network timeout during that fan-out prevented the primary card from painting.
+REPAIR_1 = ee46edfcfb72fe6eade0bf04348fb792a4877f61 changes the landing to read the current report directly by source hash, with bounded retries for TENANT_REQUIRED, Failed to fetch, and REPORT_UI_TIMEOUT.
 
 FIRST_ACTIVE_FAILURE_2 = Full Product Browser E2E source-workspace contract rejected a valid multiline report.canonicalRows.map implementation.
 ROOT_CAUSE_2 = The contract asserted source formatting rather than behavior.
@@ -49,10 +49,12 @@ CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
 WHAT_IS_NOT_YET_PROVEN = authenticated browser proof on 5d0c799; complete commercial journey; production certification.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume 56be225 Product Build, Session Handoff and Device-Independent Browser results.
+NEXT_EXACT_ACTION = Consume exact-head ee46edfc browser result; if landing still fails, fix only that first terminal error.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
 
 
 PRODUCT_FIX_F292BF63 = Smart Report ReportRecommendation contract is now kept separate from legacy dashboard Recommendation rows; first source recommendation is rendered from the verified report context.
+
+VISUAL_PROOF_88C75 = Artifact 11429020660 contains 35 screenshots; Smart Report route visibly rendered the real report 16709d80-e012-40ef-9c12-6fd8255897f8, source تقارير ادارية.xlsx, 332 rows, evidence/truth context and decision flow, while landing screenshot remained loading.
