@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CheckCircle2, Clock3, FileSearch, ShieldCheck, XCircle } from 'lucide-react';
+import { ArrowDownUp, ArrowLeft, CheckCircle2, Clock3, FileSearch, Filter, Search, ShieldCheck, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
@@ -327,6 +327,281 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
   );
 }
 
+
+function BusinessDataExplorer({ report }: { report: SmartReportDetail }) {
+  const rows = useMemo(
+    () => report.canonicalRows
+      .map((row, index) => ({ row, index, data: row.data as Record<string, unknown> }))
+      .filter(({ data }) => data && typeof data === 'object'),
+    [report.canonicalRows],
+  );
+  const columns = useMemo(() => {
+    const dataset = report.sourceAnalysis?.datasets?.[0];
+    const raw = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
+      ? (dataset as Record<string, unknown>).columns as unknown[]
+      : [];
+    const seen = new Set<string>();
+    return raw.map((item) => {
+      const column = item && typeof item === 'object' ? item as Record<string, unknown> : { name: String(item ?? '') };
+      const key = String(column.mappedField ?? column.name ?? '').trim();
+      if (!key || seen.has(key)) return null;
+      seen.add(key);
+      return { key, name: String(column.name ?? key).trim() };
+    }).filter(Boolean) as Array<{ key: string; name: string }>;
+  }, [report.sourceAnalysis]);
+
+  const resolveField = (candidates: string[]) => {
+    const normalized = (value: string) => value.toLowerCase().replace(/[\\s_\\-]+/g, '');
+    return columns.find((column) => {
+      const key = normalized(column.key);
+      const name = normalized(column.name);
+      return candidates.some((candidate) => {
+        const target = normalized(candidate);
+        return key === target || name === target;
+      });
+    })?.key ?? null;
+  };
+
+  const identityField = resolveField(
+    ['product_name', 'item_name', 'product', 'name', 'customer_name', 'supplier_name', 'invoice_number', 'category', 'warehouse', 'اسم الصنف', 'الصنف', 'اسم العميل', 'اسم المورد'],
+  );
+  const skuField = resolveField(['sku', 'product_code', 'item_code', 'رقم الصنف', 'كود الصنف', 'رمز الصنف']);
+  const stockField = resolveField(['current_stock', 'balance', 'stock', 'quantity', 'الرصيد', 'الرصيد الحالي', 'المخزون الحالي']);
+  const salesField = resolveField(['daily_sales_rate', 'sales_qty', 'sales', 'net_sales', 'معدل البيع اليومي', 'صافي المبيعات']);
+  const stockoutField = resolveField(['stockout_days', 'stockoutdays', 'أيام النفاد', 'الفترة المتوقعة لنفاد الكمية']);
+  const ageField = resolveField(['stock_age_days', 'stock_age_period_days', 'age', 'عمر المخزون', 'عمر المخزون للفترة']);
+  const genericNumericField = useMemo(() => {
+    if (identityField) {
+      const candidates = columns.filter((column) => column.key !== identityField && rows.some(({ data }) => numberValue(data[column.key]) != null));
+      return candidates[0]?.key ?? null;
+    }
+    return columns.find((column) => rows.some(({ data }) => numberValue(data[column.key]) != null))?.key ?? null;
+  }, [columns, identityField, rows]);
+
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<'all' | 'attention' | 'zero' | 'soon' | 'aging'>('all');
+  const [sortBy, setSortBy] = useState<string>(identityField ?? stockField ?? genericNumericField ?? '');
+  const [sortDesc, setSortDesc] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const activeFieldLabels = useMemo(() => ({
+    identity: identityField,
+    sku: skuField,
+    stock: stockField,
+    sales: salesField,
+    stockout: stockoutField,
+    age: ageField,
+    numeric: genericNumericField,
+  }), [ageField, genericNumericField, identityField, salesField, skuField, stockField, stockoutField]);
+
+  const classify = (data: Record<string, unknown>) => {
+    const stock = stockField ? numberValue(data[stockField]) : null;
+    const stockout = stockoutField ? numberValue(data[stockoutField]) : null;
+    const age = ageField ? numberValue(data[ageField]) : null;
+    const sales = salesField ? numberValue(data[salesField]) : null;
+    return {
+      zero: stock != null && stock <= 0,
+      soon: stockout != null && stockout >= 0 && stockout <= 7,
+      aging: age != null && age >= 120 && (sales == null || sales > 0),
+      attention: (stock != null && stock <= 0) || (stockout != null && stockout >= 0 && stockout <= 7) || (age != null && age >= 120 && (sales == null || sales > 0)),
+    };
+  };
+
+  const summary = useMemo(() => rows.reduce((acc, item) => {
+    const state = classify(item.data);
+    acc.total += 1;
+    if (state.attention) acc.attention += 1;
+    if (state.zero) acc.zero += 1;
+    if (state.soon) acc.soon += 1;
+    if (state.aging) acc.aging += 1;
+    return acc;
+  }, { total: 0, attention: 0, zero: 0, soon: 0, aging: 0 }), [rows, stockField, stockoutField, ageField, salesField]);
+
+  const filteredRows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows
+      .filter(({ data }) => {
+        const state = classify(data);
+        const matchesFilter =
+          filter === 'all' ||
+          (filter === 'attention' && state.attention) ||
+          (filter === 'zero' && state.zero) ||
+          (filter === 'soon' && state.soon) ||
+          (filter === 'aging' && state.aging);
+        if (!matchesFilter) return false;
+        if (!q) return true;
+        return Object.values(data).some((value) => String(value ?? '').toLowerCase().includes(q));
+      })
+      .sort((a, b) => {
+        const left = a.data[sortBy];
+        const right = b.data[sortBy];
+        const leftNumber = numberValue(left);
+        const rightNumber = numberValue(right);
+        const comparison = leftNumber != null && rightNumber != null
+          ? leftNumber - rightNumber
+          : String(left ?? '').localeCompare(String(right ?? ''), 'ar', { numeric: true, sensitivity: 'base' });
+        return sortDesc ? -comparison : comparison;
+      })
+      .slice(0, 120);
+  }, [filter, query, rows, sortBy, sortDesc]);
+
+  const selected = selectedIndex == null ? null : rows.find((item) => item.index === selectedIndex) ?? null;
+  const label = (field: string | null, fallback: string) => {
+    if (!field) return fallback;
+    const found = columns.find((column) => column.key === field);
+    const key = String(found?.name ?? field).trim();
+    const labels: Record<string, string> = {
+      product_name: 'الصنف',
+      item_name: 'الصنف',
+      customer_name: 'العميل',
+      supplier_name: 'المورد',
+      invoice_number: 'رقم الفاتورة',
+      current_stock: 'الرصيد الحالي',
+      balance: 'الرصيد',
+      quantity: 'الكمية',
+      daily_sales_rate: 'معدل البيع اليومي',
+      sales_qty: 'المبيعات',
+      stockout_days: 'أيام حتى النفاد',
+      stock_age_days: 'عمر المخزون',
+      stock_age_period_days: 'عمر المخزون',
+    };
+    return labels[field] ?? labels[key] ?? key;
+  };
+  const display = (value: unknown) => {
+    if (value == null || value === '') return '—';
+    const parsed = numberValue(value);
+    return parsed == null ? String(value) : formatNumber(parsed);
+  };
+  const toggleSort = (field: string) => {
+    if (!field) return;
+    if (sortBy === field) setSortDesc((current) => !current);
+    else {
+      setSortBy(field);
+      setSortDesc(true);
+    }
+  };
+  const businessMode = report.specialty === 'inventory' || Boolean(stockField || stockoutField);
+
+  return (
+    <section className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-sm lg:p-6" aria-label="مساحة البيانات الفعلية">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-primary-700"><Filter size={14}/> مساحة البيانات الفعلية</div>
+          <h2 className="mt-1 text-xl font-black text-ink-950">{businessMode ? 'ما الذي يحتاج تدخّلًا الآن؟' : 'استكشف الصفوف التي صنعت التقرير'}</h2>
+          <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">
+            هذه ليست مؤشرات وصفية: كل رقم أدناه محسوب مباشرة من صفوف التقرير الحالية، ويمكن فتح الصف لمعرفة القيم التي صنعت التصنيف.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[
+            ['كل السجلات', summary.total, 'all'],
+            ['تحتاج انتباهًا', summary.attention, 'attention'],
+            [businessMode ? 'رصيد صفر/سالب' : 'الحالات الحرجة', businessMode ? summary.zero : summary.attention, 'zero'],
+            [businessMode ? 'نفاد خلال 7 أيام' : 'متابعة', businessMode ? summary.soon : summary.attention, 'soon'],
+          ].map(([text, value, key]) => (
+            <button key={String(key)} type="button" onClick={() => setFilter(key as typeof filter)} className={'rounded-xl border p-3 text-right transition ' + (filter === key ? 'border-primary-400 bg-primary-50' : 'border-ink-100 bg-ink-50 hover:border-primary-200')}>
+              <div className="text-[9px] text-ink-500">{text}</div>
+              <div className="mt-1 text-lg font-black tabular-nums text-ink-950">{formatNumber(Number(value))}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <label className="relative flex-1">
+          <Search size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحث داخل الصفوف: اسم صنف، عميل، رقم، قيمة..." className="w-full rounded-xl border border-ink-200 bg-white py-2.5 pr-9 pl-3 text-xs text-ink-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100" />
+        </label>
+        <button type="button" onClick={() => { setQuery(''); setFilter('all'); }} className="inline-flex items-center justify-center gap-2 rounded-xl border border-ink-200 px-4 py-2.5 text-xs font-bold text-ink-700 hover:bg-ink-50"><X size={14}/> تصفير الفلاتر</button>
+      </div>
+
+      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="overflow-hidden rounded-xl border border-ink-200">
+          <div className="max-h-[440px] overflow-auto">
+            <table className="min-w-full text-right text-[10px]">
+              <thead className="sticky top-0 bg-ink-50 text-ink-500">
+                <tr>
+                  <th className="px-3 py-2">#</th>
+                  <th className="px-3 py-2"><button type="button" onClick={() => toggleSort(activeFieldLabels.identity ?? '')} className="inline-flex items-center gap-1 font-black">{label(activeFieldLabels.identity, 'البيان')}<ArrowDownUp size={11}/></button></th>
+                  {activeFieldLabels.sku && <th className="px-3 py-2">{label(activeFieldLabels.sku, 'الرمز')}</th>}
+                  {activeFieldLabels.stock && <th className="px-3 py-2"><button type="button" onClick={() => toggleSort(activeFieldLabels.stock!)} className="inline-flex items-center gap-1 font-black">{label(activeFieldLabels.stock, 'الرصيد')}<ArrowDownUp size={11}/></button></th>}
+                  {activeFieldLabels.sales && <th className="px-3 py-2"><button type="button" onClick={() => toggleSort(activeFieldLabels.sales!)} className="inline-flex items-center gap-1 font-black">{label(activeFieldLabels.sales, 'المبيعات')}<ArrowDownUp size={11}/></button></th>}
+                  {activeFieldLabels.stockout && <th className="px-3 py-2"><button type="button" onClick={() => toggleSort(activeFieldLabels.stockout!)} className="inline-flex items-center gap-1 font-black">{label(activeFieldLabels.stockout, 'النفاد')}<ArrowDownUp size={11}/></button></th>}
+                  {activeFieldLabels.age && <th className="px-3 py-2"><button type="button" onClick={() => toggleSort(activeFieldLabels.age!)} className="inline-flex items-center gap-1 font-black">{label(activeFieldLabels.age, 'العمر')}<ArrowDownUp size={11}/></button></th>}
+                  {!activeFieldLabels.stock && !activeFieldLabels.sales && activeFieldLabels.numeric && <th className="px-3 py-2"><button type="button" onClick={() => toggleSort(activeFieldLabels.numeric!)} className="inline-flex items-center gap-1 font-black">{label(activeFieldLabels.numeric, 'القيمة')}<ArrowDownUp size={11}/></button></th>}
+                  <th className="px-3 py-2">الحالة</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.map(({ row, index, data }) => {
+                  const state = classify(data);
+                  return (
+                    <tr key={row.row_number ?? index} onClick={() => setSelectedIndex(index)} className={'cursor-pointer border-t border-ink-100 transition hover:bg-primary-50/40 ' + (selectedIndex === index ? 'bg-primary-50' : '')}>
+                      <td className="px-3 py-2 font-black text-ink-400">#{row.row_number ?? index + 1}</td>
+                      <td className="max-w-[220px] truncate px-3 py-2 font-bold text-ink-900">{display(identityField ? data[identityField] : Object.values(data)[0])}</td>
+                      {activeFieldLabels.sku && <td className="px-3 py-2 text-ink-600">{display(data[activeFieldLabels.sku])}</td>}
+                      {activeFieldLabels.stock && <td className="px-3 py-2 font-black tabular-nums text-ink-900">{display(data[activeFieldLabels.stock])}</td>}
+                      {activeFieldLabels.sales && <td className="px-3 py-2 tabular-nums text-ink-700">{display(data[activeFieldLabels.sales])}</td>}
+                      {activeFieldLabels.stockout && <td className={'px-3 py-2 tabular-nums font-black ' + (numberValue(data[activeFieldLabels.stockout]) != null && numberValue(data[activeFieldLabels.stockout])! <= 7 ? 'text-danger-700' : 'text-ink-700')}>{display(data[activeFieldLabels.stockout])}</td>}
+                      {activeFieldLabels.age && <td className={'px-3 py-2 tabular-nums ' + (numberValue(data[activeFieldLabels.age]) != null && numberValue(data[activeFieldLabels.age])! >= 120 ? 'text-warning-700 font-black' : 'text-ink-700')}>{display(data[activeFieldLabels.age])}</td>}
+                      {!activeFieldLabels.stock && !activeFieldLabels.sales && activeFieldLabels.numeric && <td className="px-3 py-2 font-black tabular-nums text-ink-900">{display(data[activeFieldLabels.numeric])}</td>}
+                      <td className="px-3 py-2">
+                        {state.attention ? <span className="rounded-full bg-danger-50 px-2 py-1 text-[8px] font-black text-danger-800">{state.zero ? 'رصيد صفر/سالب' : state.soon ? 'نفاد قريب' : 'مخزون راكد'}</span> : <span className="rounded-full bg-success-50 px-2 py-1 text-[8px] font-black text-success-800">طبيعي وفق الحقول المتاحة</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {!filteredRows.length && <tr><td colSpan={9} className="p-8 text-center text-xs text-ink-500">لا توجد صفوف تطابق الاختيار.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex items-center justify-between border-t border-ink-100 bg-ink-50 px-3 py-2 text-[9px] text-ink-500">
+            <span>يعرض أول {formatNumber(filteredRows.length)} صف من نتيجة البحث الحالية.</span>
+            <span>انقر صفًا لفتح تفاصيله.</span>
+          </div>
+        </div>
+
+        <aside className="rounded-xl border border-primary-200 bg-primary-50/30 p-4">
+          {!selected ? (
+            <div className="flex h-full min-h-[220px] flex-col justify-center">
+              <div className="text-xs font-black text-ink-900">اختر صفًا حقيقيًا</div>
+              <p className="mt-2 text-[10px] leading-5 text-ink-500">ستظهر هنا القيم التي صنعت التصنيف، ثم تنتقل منها مباشرة إلى مساحة القرار.</p>
+            </div>
+          ) : (
+            <div>
+              <div className="flex items-start justify-between gap-3">
+                <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">تفاصيل الصف</div><h3 className="mt-1 text-sm font-black text-ink-950">{display(identityField ? selected.data[identityField] : Object.values(selected.data)[0])}</h3></div>
+                <button type="button" onClick={() => setSelectedIndex(null)} className="rounded-lg border border-ink-200 bg-white p-1.5 text-ink-500 hover:text-ink-900" aria-label="إغلاق"><X size={14}/></button>
+              </div>
+              <div className="mt-3 space-y-2">
+                {Object.entries(selected.data).slice(0, 12).map(([key, value]) => (
+                  <div key={key} className="flex items-start justify-between gap-3 rounded-lg bg-white px-3 py-2">
+                    <span className="min-w-0 text-[9px] font-bold text-ink-500">{label(key, key)}</span>
+                    <span className="max-w-[150px] break-words text-left text-[10px] font-black text-ink-900">{display(value)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[9px] leading-5 text-amber-950">
+                <strong>لماذا ظهر هنا؟</strong>{' '}
+                {(() => {
+                  const state = classify(selected.data);
+                  if (state.zero) return 'الرصيد الحالي صفر أو سالب وفق الحقل المصدر.';
+                  if (state.soon) return 'فترة النفاد المتوقعة لا تتجاوز 7 أيام وفق المصدر.';
+                  if (state.aging) return 'عمر المخزون مرتفع مع وجود حركة بيع وفق الحقول المتاحة.';
+                  return 'لا توجد قاعدة انتباه حرجة مطابقة؛ الصف عُرض لأنك اخترته.';
+                })()}
+              </div>
+              <Link to={'/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash) + '&row=' + encodeURIComponent(String(selected.row.row_number ?? selected.index + 1))} className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-ink-950 px-3 py-2.5 text-[10px] font-black text-white hover:bg-ink-800">
+                افتح هذا الصف في مساحة القرار <ArrowLeft size={12}/>
+              </Link>
+            </div>
+          )}
+        </aside>
+      </div>
+    </section>
+  );
+}
+
 function ExecutiveMode({ report }: { report: SmartReportDetail }) {
   const metrics = buildMetrics(report);
   const output = report.renderedOutput;
@@ -371,7 +646,7 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           </div>
         </div>
       </section>
-      <ReportIntelligencePanel report={report} />
+      <BusinessDataExplorer report={report} />\n      <ReportIntelligencePanel report={report} />
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">مؤشرات المصدر</div>
