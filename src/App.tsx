@@ -204,4 +204,4 @@ function PublicOrAuthenticatedWorkspace() {
   return <AuthGate><AppShell /></AuthGate>;
 }
 
-export default function App() { return <LanguageProvider><BrowserRouter basename={import.meta.env.BASE_URL}><AppErrorBoundary><Routes><Route path="/proposal-demo" element={<ProposalDemoPage />} /><Route path="*" element={<PublicOrAuthenticatedWorkspace />} /></Routes></AppErrorBoundary></BrowserRouter></LanguageProvider>; }
+export default function App() { return <LanguageProvider><BrowserRouter basename={import.meta.env.BASE_URL}><AppErrorBoundary><Routes><Route path="/proposal-demo" element={<ProposalDemoPage />} /><Route path="/try-report" element={<ExternalFileAnalysisPage />} /><Route path="*" element={<PublicOrAuthenticatedWorkspace />} /></Routes></AppErrorBoundary></BrowserRouter></LanguageProvider>; }

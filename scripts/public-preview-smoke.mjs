@@ -39,6 +39,7 @@ try {
     ['/reports/inventory?demo=1', 'تقرير المخزون'],
     ['/reports/sales?demo=1', 'المبيعات'],
     ['/decision-experience?demo=1', 'تجربة القرار'],
+    ['/try-report', 'مختبر الملفات والبيانات'],
   ];
 
   for (const [path, expected] of cases) {
