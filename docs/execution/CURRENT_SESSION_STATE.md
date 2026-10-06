@@ -1,28 +1,33 @@
 SESSION HANDOFF = NOT READY
-UPDATED_AT = 2026-10-06T18:00:00+03:00
-CURRENT_EXACT_HEAD = 721f09c963bf6200086d37afad71453fe4051e30
-CURRENT_EXACT_PRODUCT_HEAD = 721f09c963bf6200086d37afad71453fe4051e30
+UPDATED_AT = 2026-10-06T18:18:00+03:00
+CURRENT_EXACT_HEAD = a796dac1ebbd1bcee1563198c4d1e972fe0ca5e7
+CURRENT_EXACT_PRODUCT_HEAD = a796dac1ebbd1bcee1563198c4d1e972fe0ca5e7
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
 ACTION_STATUS = ACTIVE_EXECUTION_PRODUCT_EVIDENCE_PENDING
 
-FIRST_ACTIVE_FAILURE_1 = Smart Report previously mixed historical and current jobs for the same source hash and could render contradictory specialty/row data.
-ROOT_CAUSE_1 = Multiple completed jobs shared the same source hash, while customer-facing consumers and session state could select an older job.
-REPAIR_1 = 24e9a64b52d00f4668528ff2947349611aad0a22 added source-hash dedupe/current-source resolution, historical handoff warnings, source-bound links, canonical field normalization, recommendation/evidence matching, stale sessionStorage protection, empty-row filtering, and source-scoped Work Center behavior.
+FIRST_ACTIVE_FAILURE_1 = Smart Report could mix historical and current jobs for the same physical source and render contradictory specialty/row data.
+ROOT_CAUSE_1 = Completed jobs sharing a source hash existed under different tenant contexts while customer-facing selection had a fixed primary job and stale session state could override it.
+REPAIR_1 = 24e9a64b52d00f4668528ff2947349611aad0a22 added source-hash dedupe/current-source resolution, historical handoff warnings, source-bound links, field normalization, evidence pairing, empty-row filtering, and source-scoped Work Center behavior.
 
-FIRST_ACTIVE_FAILURE_2 = Exact-head Full Product Browser E2E canonical heart regression rejected the old source-workspace assertion because it searched for the literal contiguous string report.canonicalRows.map while the valid implementation is formatted across lines.
-ROOT_CAUSE_2 = The test asserted source formatting instead of the intended behavior.
-REPAIR_2 = 28e6ed2f42478563246296aa1b20aeca82208a21 changed the contract to a whitespace-tolerant regex while retaining all behavioral assertions.
+FIRST_ACTIVE_FAILURE_2 = Full Product Browser E2E source-workspace contract rejected a valid multiline report.canonicalRows.map implementation.
+ROOT_CAUSE_2 = The contract asserted source formatting rather than behavior.
+REPAIR_2 = 28e6ed2f42478563246296aa1b20aeca82208a21 changed the assertion to whitespace-tolerant matching.
 
-FIRST_ACTIVE_FAILURE_3 = Exact-head Full Product Browser E2E resume step received empty TEST_USER_A_EMAIL/PASSWORD.
-ROOT_CAUSE_3 = The workflow assigned TEST_USER_A_* from expression-context env.TEST_USER_D_* immediately after the provisioning step, before the GITHUB_ENV values existed in that expression context.
-REPAIR_3 = a4ed31ff8fdb0ea121f4eafefb4ee13236ce3a19 removed those overrides; resume-open-report-server-proof.mjs already falls back from TEST_USER_A_* to TEST_USER_D_*.
+FIRST_ACTIVE_FAILURE_3 = Full Product Browser E2E resume received empty TEST_USER_A_EMAIL/PASSWORD.
+ROOT_CAUSE_3 = full-product-browser-e2e.yml overwrote A credentials from expression-context env.TEST_USER_D_* before GITHUB_ENV values existed.
+REPAIR_3 = a4ed31ff8fdb0ea121f4eafefb4ee13236ce3a19 removed the overwrite and retained the script fallback to provisioned Actor D.
 
-FIRST_ACTIVE_FAILURE_4 = Session Handoff Contract incorrectly treated all changed files as unreported.
-ROOT_CAUSE_4 = scripts/check-session-handoff-contract.mjs split git diff output with a regex matching literal backslashes instead of real CR/LF separators.
-REPAIR_4 = 721f09c963bf6200086d37afad71453fe4051e30 changes the split to /\r?\n/ so the allowlist is evaluated per path.
+FIRST_ACTIVE_FAILURE_4 = Session Handoff Contract evaluated valid changed paths as unreported.
+ROOT_CAUSE_4 = check-session-handoff-contract.mjs split git diff output with a regex matching literal backslashes rather than actual line separators.
+REPAIR_4 = 721f09c963bf6200086d37afad71453fe4051e30 corrected the diff split to /\r?\n/.
+
+PRODUCT_HARDENING_5 = Reports Center still had a fixed primary reportJobId and could resurrect a historical report after a later run of the same source.
+REPAIR_5 = a796dac1ebbd1bcee1563198c4d1e972fe0ca5e7 resolves the primary Smart Report from the authoritative source-hash catalog, uses the latest catalog job, scopes the primary card to the resolved job, and clears stale sessionStorage when no authoritative report is read.
+
+LIVE_SOURCE_CHECK = Supabase currently shows one completed job for company 99e33354-cc45-4317-8eb3-0d486b6c5932 with source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313: job 16709d80-e012-40ef-9c12-6fd8255897f8. The same physical source hash exists in another tenant as job c42fb0e1-75f2-4727-8c3e-470ae1a804fa; tenant-scoped catalog selection prevents cross-tenant contamination.
 
 REAL_SOURCE = تقارير ادارية.xlsx
 REAL_SOURCE_JOB = 16709d80-e012-40ef-9c12-6fd8255897f8
@@ -39,7 +44,7 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = Exact product deployment at 721 lineage remains based on the 24e9/a4ed repair chain; Vercel deployment a4ed31ff was READY and its deployed HTML reports aghbari-source-sha=a4ed31ff8fdb0ea121f4eafefb4ee13236ce3a19. Product Build Gate 399 on 24e9 succeeded; Commercial Product Creation 4323 on 24e9 succeeded. The real inventory/open-report database facts remain evidence-linked.
-WHAT_IS_NOT_YET_PROVEN = exact-head authenticated Smart Report Chromium readback after the latest fixes; complete Decision -> Approval -> Work -> Outcome -> Learning; source-bound Benchmark; real-source 48/48; final certification; production promotion; sale readiness.
-DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening of trust/security/browser gates; no stale-SHA PASS reuse; no generic report/job without source context.
-NEXT_EXACT_ACTION = Consume the new 721-cycle Product Build, Full Product Browser, Device-Independent Browser, Phase-F and Final Certification results. Fix only the first newly proven product failure, then certify the real Smart Report and full business journey on the resulting exact product head.
+WHAT_IS_PROVEN = Product Build Gate run 399 and Commercial Product Creation E2E run 4323 succeeded on 24e9. Vercel deployment for a4ed reached READY and its served HTML contained exact SHA a4ed31ff8fdb0ea121f4eafefb4ee13236ce3a19. Supabase current source binding is verified and source-bound selection logic was hardened again at a796.
+WHAT_IS_NOT_YET_PROVEN = exact-head a796 authenticated browser readback; exact-head Product Build/Browser/Device-Independent/Final Certification terminal evidence; full Decision -> Approval -> Work -> Outcome -> Learning; source-bound Benchmark; real-source 48/48; production promotion; sale readiness.
+DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
+NEXT_EXACT_ACTION = Consume any Actions run created for the a796 checkpoint. If unavailable, use the next workflow-triggering checkpoint result. Fix only the first newly proven failure, then certify Smart Report readback and the full business journey on the exact product head.
