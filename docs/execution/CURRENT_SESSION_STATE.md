@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T21:59:00+03:00
-CURRENT_EXACT_HEAD = 974c7df52e6181cb6d8c57533f15863f3c53b7f7
-CURRENT_EXACT_PRODUCT_HEAD = bd21908b17a49dd02a5b8d72fb64978656662544
+UPDATED_AT = 2026-10-06T22:04:00+03:00
+CURRENT_EXACT_HEAD = 667ca0b635c3b69b0a1766dc82ffd009928c8a5c
+CURRENT_EXACT_PRODUCT_HEAD = e18d3f5405663244e30014049e8de580ea354b48
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
@@ -47,9 +47,9 @@ OPEN_REPORT_CANONICAL_COMMITTED = 6776
 WHAT_IS_PROVEN = Tenant f68 report c42 remains generic:inventory across report/import/canonical/rendered/evidence layers, 342/342, Passport VERIFIED/ACCEPTED/READY/FULL. Import-domain truth is now enforced client-side, server-side after authoritative parse, and in recovery rendering.
 CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
-WHAT_IS_NOT_YET_PROVEN = Current-head Product Build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, customer-sale readiness.
+WHAT_IS_NOT_YET_PROVEN = Fresh product-build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume the corrected handoff plus current Product Build, Browser, Final Certification, and Netlify terminals. Fix only the first product/build failure.
+NEXT_EXACT_ACTION = Consume fresh Product Build, Session Handoff, Netlify Preview and browser/certification terminals for e18d. Fix only the first new terminal failure.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -86,3 +86,5 @@ CURRENT_IMPORT_DOMAIN_GUARD_14CAA = Server persists authoritative inferred domai
 CURRENT_UI_CLEANUP_20261006 = Removed visible N/A technical placeholders from Report Intelligence drivers; translated Smart Report status keys and Trust/Evidence hero labels into business Arabic; replaced raw decision activity identifiers with business-readable labels while preserving audit records.
 
 HANDOFF_SYNC_20261006_974C = Programmer report checkpoint now covers the ExecutiveReportPage source-binding repair; the current exact head is the checkpoint commit above and product head remains bd21908.
+
+TYPECHECK_CLOSURE_667 = Product Build's reported TypeScript failures are corrected in product head e18d; current exact session checkpoint is this commit.
