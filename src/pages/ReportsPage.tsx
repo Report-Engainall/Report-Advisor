@@ -129,7 +129,6 @@ function useOptionalSourceReport() {
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
   return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
-const PRIMARY_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
 const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 
 function withDeadline<T>(promise: Promise<T>, label: string, milliseconds: number): Promise<T> {
@@ -164,15 +163,21 @@ export function ReportsCenterPage() {
 
     // Customer-visible truth has priority. Start all reads together, but publish
     // each source as soon as it settles instead of waiting for the slowest read.
-    const primaryPromise = fetchSmartReport(
-      PRIMARY_SMART_REPORT_JOB_ID,
-      PRIMARY_SMART_REPORT_SOURCE_HASH,
-      { signal: AbortSignal.timeout(15000) },
-    );
     const catalogPromise = fetchSmartReportCatalog(
       60,
       { signal: AbortSignal.timeout(12000) },
     );
+    const primaryPromise = catalogPromise.then(async (catalogResult) => {
+      const authoritative = catalogResult.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH)
+        ?? catalogResult[0]
+        ?? null;
+      if (!authoritative) return null;
+      return fetchSmartReport(
+        authoritative.jobId,
+        authoritative.sourceHash,
+        { signal: AbortSignal.timeout(15000) },
+      );
+    });
     const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
 
     let primary: SmartReportDetail | null = null;
@@ -222,7 +227,7 @@ export function ReportsCenterPage() {
         catalog = result;
         catalogSettled = true;
         const selected = primary
-          ?? result.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID)
+          ?? result.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH)
           ?? result[0]
           ?? null;
         if (selected) {
@@ -269,13 +274,13 @@ export function ReportsCenterPage() {
       window.sessionStorage.setItem('aghbari:last-smart-report-job', finalPrimary.jobId);
       window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', finalPrimary.sourceHash);
     } else if (finalCatalog.length > 0) {
-      const selected = finalCatalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID) ?? finalCatalog[0];
+      const selected = finalCatalog.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH) ?? finalCatalog[0];
       window.sessionStorage.setItem('aghbari:last-smart-report-job', selected.jobId);
       window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selected.sourceHash);
     } else {
-      // Keep the buyer path deterministic even before a network read succeeds.
-      window.sessionStorage.setItem('aghbari:last-smart-report-job', PRIMARY_SMART_REPORT_JOB_ID);
-      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', PRIMARY_SMART_REPORT_SOURCE_HASH);
+      // No authoritative report was read. Do not resurrect an old browser session.
+      window.sessionStorage.removeItem('aghbari:last-smart-report-job');
+      window.sessionStorage.removeItem('aghbari:last-smart-report-source-hash');
     }
 
     // Terminal fallback: never leave the customer in an infinite spinner.
@@ -488,7 +493,7 @@ export function ReportsCenterPage() {
               return (
                 <Link
                   key={report.jobId + ':' + report.sourceHash}
-                  data-testid={report.jobId === PRIMARY_SMART_REPORT_JOB_ID ? 'primary-real-smart-report-card' : undefined}
+                  data-testid={report.jobId === primarySmartReport?.jobId ? 'primary-real-smart-report-card' : undefined}
                   to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
                   className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm"
                 >
