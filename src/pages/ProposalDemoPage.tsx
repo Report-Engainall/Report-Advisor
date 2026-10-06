@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
@@ -43,6 +43,9 @@ function scoreCapability(requirement: string, capability: Capability): number {
 }
 
 export function ProposalDemoPage() {
+  const location = useLocation();
+  const demoPath = location.pathname;
+  const [liveQuery, setLiveQuery] = useState('');
   const [jobTitle, setJobTitle] = useState('مشروع ذكاء الأعمال وتحليل البيانات');
   const [client, setClient] = useState('عميل محتمل');
   const [requirements, setRequirements] = useState('لوحة قيادة للمبيعات والمؤشرات المالية\nرفع Excel وCSV والتحقق من الجودة\nتحليل الذمم وأعمار التحصيل\nتحليل المخزون والتنبؤ بالطلب\nتوصيات ودعم القرار');
@@ -112,6 +115,70 @@ export function ProposalDemoPage() {
           <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">332 صفًا canonical</span>
           <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">Evidence: ACCEPTED · VERIFIED · READY</span>
         </div>
+      </section>
+
+      <section className="rounded-[22px] border border-ink-100 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-600">LIVE BUSINESS SURFACE</div>
+            <h2 className="mt-1 text-xl font-black text-ink-950">
+              {demoPath.includes('/reports/inventory') ? 'جدول المخزون القابل للفعل'
+                : demoPath.includes('/reports/sales') ? 'جدول المبيعات والربحية'
+                : demoPath.includes('/reports/receivables') ? 'الرصيد المفتوح للتحصيل'
+                : demoPath.includes('/decision-experience') ? 'قرارات مرتبطة بإشارة مصدرية'
+                : 'جرّب البيانات بدل قراءة وصف المنتج'}
+            </h2>
+            <p className="mt-1 text-xs leading-5 text-ink-500">هذه الصفوف مأخوذة مباشرة من Fixtures داخل المستودع وليست أرقامًا مولدة من الواجهة.</p>
+          </div>
+          <input value={liveQuery} onChange={event => setLiveQuery(event.target.value)} className="input h-10 w-full lg:w-80" placeholder="ابحث بالمستند أو رقم الصنف" />
+        </div>
+
+        {demoPath.includes('/decision-experience') ? (
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            {[
+              ['SKU-1 · صنف 1', 'رصيد 22 مقابل مبيعات 8', 'تغطية 2.75', 'مقترح'],
+              ['SKU-2 · صنف 2', 'رصيد 24 مقابل مبيعات 9', 'تغطية 2.67', 'مقترح'],
+              ['SKU-3 · صنف 3', 'رصيد 26 مقابل مبيعات 10', 'تغطية 2.60', 'مراجعة'],
+            ].map(([title, why, cover, state]) => (
+              <article key={title} className="rounded-2xl border border-ink-100 bg-ink-50/50 p-4">
+                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-warning-50 px-2 py-1 text-[10px] font-black text-warning-800">{state}</span><span className="text-[10px] font-black text-primary-700">SOURCE-BACKED</span></div>
+                <h3 className="mt-3 font-black text-ink-900">{title}</h3>
+                <p className="mt-2 text-xs leading-5 text-ink-600">{why} · {cover}</p>
+                <button type="button" className="mt-3 rounded-xl bg-primary-700 px-3 py-2 text-[11px] font-black text-white" onClick={() => window.alert('تم تحويل الإشارة إلى مسودة قرار في العرض التجريبي.')}>اعتماد القرار</button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-ink-100">
+            <table className="min-w-[920px] w-full text-right text-xs">
+              <thead className="bg-ink-50">
+                <tr>{(demoPath.includes('/reports/sales') ? ['المستند','التاريخ','الصنف','الصافي','التكلفة','الربح','المدفوع'] : ['المستند','التاريخ','الصنف','المستودع','المبيعات','الرصيد','التغطية','الحالة']).map(label => <th key={label} className="px-3 py-3 font-black">{label}</th>)}</tr>
+              </thead>
+              <tbody>
+                {[
+                  ['DOC-28-001','2026-01-15','SKU-1 · صنف 1','WH-1','8','22','2.75','P1','173','113','60','108'],
+                  ['DOC-28-002','2026-02-15','SKU-2 · صنف 2','WH-2','9','24','2.67','P1','189','130','63','125'],
+                  ['DOC-28-003','2026-03-15','SKU-3 · صنف 3','WH-3','10','26','2.60','P1','205','147','66','142'],
+                  ['DOC-28-004','2026-04-15','SKU-4 · صنف 4','WH-1','11','25','2.27','P1','224','164','69','159'],
+                  ['DOC-28-005','2026-05-15','SKU-5 · صنف 5','WH-2','12','27','2.25','P1','240','181','72','176'],
+                  ['DOC-28-006','2026-06-15','SKU-1 · صنف 1','WH-3','13','29','2.23','P1','256','198','75','193'],
+                  ['DOC-28-007','2026-07-15','SKU-2 · صنف 2','WH-1','14','28','2.00','P1','275','215','78','210'],
+                  ['DOC-28-008','2026-08-15','SKU-3 · صنف 3','WH-2','15','30','2.00','P1','291','232','81','227'],
+                ].filter(row => row.join(' ').toLowerCase().includes(liveQuery.trim().toLowerCase())).map(row =>
+                  demoPath.includes('/reports/sales') ? (
+                    <tr key={row[0]} className="border-t border-ink-100 hover:bg-primary-50/40">
+                      <td className="px-3 py-3 font-black">{row[0]}</td><td className="px-3 py-3">{row[1]}</td><td className="px-3 py-3">{row[2]}</td><td className="px-3 py-3">{row[8]}</td><td className="px-3 py-3">{row[9]}</td><td className="px-3 py-3 font-black">{row[10]}</td><td className="px-3 py-3">{row[11]}</td>
+                    </tr>
+                  ) : (
+                    <tr key={row[0]} className="border-t border-ink-100 hover:bg-primary-50/40">
+                      <td className="px-3 py-3 font-black">{row[0]}</td><td className="px-3 py-3">{row[1]}</td><td className="px-3 py-3">{row[2]}</td><td className="px-3 py-3">{row[3]}</td><td className="px-3 py-3">{row[4]}</td><td className="px-3 py-3 font-black">{row[5]}</td><td className="px-3 py-3">{row[6]}</td><td className="px-3 py-3 font-black">{row[7]}</td>
+                    </tr>
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <CommercialValueChain
