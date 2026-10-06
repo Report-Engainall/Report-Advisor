@@ -194,8 +194,8 @@ function PublicOrAuthenticatedWorkspace() {
     && host !== 'aghbari-report-advisor.netlify.app'
     && host !== 'main--aghbari-report-advisor.netlify.app';
   const demoQuery = new URLSearchParams(location.search).get('demo') === '1';
-  if (demoQuery) return <ProposalDemoPage />;
-  return isNetlifyPreview ? <AppShell /> : <AuthGate><AppShell /></AuthGate>;
+  if (demoQuery || isNetlifyPreview) return <ProposalDemoPage />;
+  return <AuthGate><AppShell /></AuthGate>;
 }
 
 export default function App() { return <LanguageProvider><BrowserRouter basename={import.meta.env.BASE_URL}><AppErrorBoundary><Routes><Route path="/proposal-demo" element={<ProposalDemoPage />} /><Route path="*" element={<PublicOrAuthenticatedWorkspace />} /></Routes></AppErrorBoundary></BrowserRouter></LanguageProvider>; }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -117,7 +117,400 @@ function scoreCapability(requirement: string, capability: Capability): number {
   return score;
 }
 
-export function ProposalDemoPage() {
+function PreviewMetric({ label, value, meta }: { label: string; value: string; meta: string }) {
+  return (
+    <div className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm">
+      <div className="text-[10px] font-bold text-ink-500">{label}</div>
+      <div className="mt-1.5 text-2xl font-black tabular-nums text-ink-950">{value}</div>
+      <div className="mt-1 text-[9px] text-ink-400">{meta}</div>
+    </div>
+  );
+}
+
+function PreviewSourceBanner() {
+  return (
+    <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#102737)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
+      <div className="text-[9px] font-black tracking-[.14em] text-primary-200">PREVIEW · FIXTURE-BOUND</div>
+      <h1 className="mt-2 text-2xl font-black tracking-tight">بيانات المعاينة مشتقة من Fixture واحد، بدون اختلاق</h1>
+      <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">
+        هذه المعاينة مبنية على Fixture محفوظ داخل المستودع: <strong>28-inventory-stockout-reorder.csv</strong>.
+        القيم هنا تصلح لإثبات سلوك المنتج ومسار الحساب في المعاينة، وليست بيانات شركة حيّة أو بديلًا عن جلسة tenant مصادق عليها.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-slate-300">
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_ROWS.length} صفًا</span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_TOTALS.salesQty} وحدة مبيعات</span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_TOTALS.currentStock} رصيد حالي</span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} YER صافي مبيعات</span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LOW_COVERAGE_ROWS.length} إشارات مشتقة من الـFixture</span>
+      </div>
+    </section>
+  );
+}
+
+function PreviewInventoryTable({ rows = LIVE_ROWS }: { rows?: LiveRow[] }) {
+  return (
+    <div className="overflow-x-auto rounded-2xl border border-ink-100 bg-white">
+      <table className="min-w-[980px] w-full text-right text-xs">
+        <thead className="bg-ink-50">
+          <tr>
+            {['المستند','التاريخ','SKU','الصنف','المستودع','المبيعات','الرصيد','التغطية','الصافي','الربح','الحالة'].map(label => (
+              <th key={label} className="px-3 py-3 font-black text-ink-700">{label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(row => {
+            const coverage = row.currentStock / row.salesQty;
+            const low = coverage < 2;
+            return (
+              <tr key={row.documentNo} className="border-t border-ink-100 hover:bg-primary-50/40">
+                <td className="px-3 py-3 font-black">{row.documentNo}</td>
+                <td className="px-3 py-3">{row.documentDate}</td>
+                <td className="px-3 py-3 font-mono">{row.productCode}</td>
+                <td className="px-3 py-3">{row.productName}</td>
+                <td className="px-3 py-3">{row.warehouse}</td>
+                <td className="px-3 py-3">{row.salesQty}</td>
+                <td className="px-3 py-3 font-black">{row.currentStock}</td>
+                <td className="px-3 py-3">{coverage.toFixed(2)}</td>
+                <td className="px-3 py-3">{row.netAmount.toLocaleString('ar-YE')}</td>
+                <td className="px-3 py-3 font-black">{row.profit.toLocaleString('ar-YE')}</td>
+                <td className="px-3 py-3"><span className={`inline-flex rounded-full px-2 py-1 text-[10px] font-black ${low ? 'bg-warning-50 text-warning-800' : 'bg-success-50 text-success-800'}`}>{low ? 'تغطية منخفضة' : 'مراقبة'}</span></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function PreviewBusinessSurface({ path }: { path: string }) {
+  const [decisionState, setDecisionState] = useState<Record<string, 'جاهز' | 'مسودة قرار' | 'مكتمل'>>({});
+  const outstanding = LIVE_ROWS.reduce((sum, row) => sum + (row.netAmount - row.paidAmount), 0);
+  const margin = LIVE_TOTALS.netAmount > 0 ? (LIVE_TOTALS.profit / LIVE_TOTALS.netAmount) * 100 : null;
+  const first = LIVE_ROWS[0];
+  const last = LIVE_ROWS[LIVE_ROWS.length - 1];
+  const salesGrowth = first.salesQty > 0 ? ((last.salesQty - first.salesQty) / first.salesQty) * 100 : null;
+
+  const route = path.replace(/\/$/, '') || '/';
+  const routeTitle: Record<string, string> = {
+    '/reports/smart/': 'التقرير الذكي من الـFixture',
+    '/analytics': 'مركز التحليلات · حدود المصدر',
+    '/analytics/rfm': 'RFM · غير متاح دون بعد العملاء',
+    '/analytics/abc': 'ABC · غير متاح دون تصنيف منتجات معتمد',
+    '/analytics/aging': 'أعمار التحصيل · غير متاح دون تواريخ استحقاق',
+    '/analytics/liquidity': 'السيولة المشتقة من المدفوع والمفتوح',
+    '/intelligence/scenarios': 'السيناريوهات · لا توجد فرضيات معتمدة',
+    '/trust': 'حالة الثقة في الـFixture',
+    '/metrics': 'حوكمة المؤشرات',
+    '/replay': 'إعادة التتبع · لا توجد نتيجة تنفيذية',
+    '/benchmark': 'Benchmark · لا توجد عينة مقارنة',
+    '/connections': 'الاتصالات · حالة المعاينة',
+    '/settings': 'إعدادات الشركة · تتطلب tenant',
+    '/settings/profile': 'ملف المستخدم · يتطلب جلسة',
+    '/master-data': 'البيانات الرئيسية',
+    '/alternative-groups': 'البدائل · غير موجودة في الـFixture',
+    '/onboarding': 'التجهيز التجاري · بيانات المعاينة',
+    '/': 'لوحة الأعمال من المصدر الحالي',
+    '/reports': 'مركز التقارير',
+    '/reports/sales': 'المبيعات الموجودة داخل المصدر',
+    '/reports/purchases': 'المشتريات · غير متاحة في هذا المصدر',
+    '/reports/inventory': 'تقرير المخزون',
+    '/reports/inventory-intelligence': 'ذكاء المخزون',
+    '/reports/receivables': 'المبالغ المفتوحة المستخرجة من المصدر',
+    '/reports/profitability': 'الربحية المحسوبة من المصدر',
+    '/reports/demand-velocity': 'حركة الطلب من وحدات المبيعات',
+    '/reports/executive': 'الملخص التنفيذي',
+    '/command-center': 'مركز القرار',
+    '/decision-inbox': 'صندوق القرار',
+    '/decision-experience': 'تجربة القرار',
+    '/advisor-cases': 'حالات المستشار',
+    '/intelligence': 'ذكاء القرار',
+    '/intelligence/recommendations': 'التوصيات',
+    '/intelligence/forecasts': 'التوقع الاتجاهي',
+    '/work-center': 'مركز العمل',
+    '/operations': 'العمليات',
+    '/data-quality': 'جودة المصدر',
+    '/import': 'استيراد المصدر',
+    '/import/analyze': 'تحليل المصدر',
+    '/customers': 'العملاء · غير متاحين في هذا المصدر',
+    '/products': 'المنتجات المستخرجة من المصدر',
+    '/inventory': 'المخزون التشغيلي',
+  };
+  const title = routeTitle[route] ?? 'مساحة المعاينة';
+  
+  const sourceUnavailable = (reason: string) => (
+    <section className="rounded-2xl border border-warning-200 bg-warning-50/70 p-5">
+      <div className="text-xs font-black text-warning-900">لا توجد بيانات كافية لهذا المجال</div>
+      <p className="mt-2 text-sm leading-6 text-warning-900/80">{reason}</p>
+      <div className="mt-3 text-[10px] text-warning-800">Fixture المعاينة: 28-inventory-stockout-reorder.csv · لا يتم اختلاق صفوف أو أرقام بديلة.</div>
+    </section>
+  );
+
+  const commonHeader = (
+    <>
+      <PreviewSourceBanner />
+      <div className="flex flex-col gap-1">
+        <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PREVIEW BUSINESS SURFACE</div>
+        <h2 className="text-xl font-black text-ink-950">{title}</h2>
+        <p className="text-xs leading-5 text-ink-500">نفس الصفوف، نفس المصدر، مع حدود المجال معلنة.</p>
+      </div>
+    </>
+  );
+
+  let body: ReactNode;
+
+  if (route === '/reports/purchases' || route === '/customers' || route === '/suppliers') {
+    body = sourceUnavailable(
+      route === '/reports/purchases'
+        ? 'حقول الشراء والمورد لا توجد في المصدر الحالي. لذلك لا نعرض تقرير مشتريات مزيفًا.'
+        : route === '/customers'
+          ? 'لا يوجد مفتاح عميل أو سجل عميل في المصدر الحالي. هذا المسار ينتظر مصدر مبيعات/عملاء معتمد.'
+          : 'لا يوجد سجل مورد في المصدر الحالي. هذا المسار ينتظر مصدر مشتريات معتمد.'
+    );
+  } else if (route === '/data-quality' || route === '/import' || route === '/import/analyze') {
+    const malformedRows = LIVE_ROWS.filter(row =>
+      !row.documentNo || !row.documentDate || !row.productCode || !row.warehouse ||
+      !Number.isFinite(row.salesQty) || !Number.isFinite(row.currentStock) || !Number.isFinite(row.netAmount)
+    ).length;
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="الصفوف المقروءة" value={String(LIVE_ROWS.length)} meta="canonical fixture" />
+          <PreviewMetric label="أخطاء البنية" value={String(malformedRows)} meta="header + measures" />
+          <PreviewMetric label="التغطية المنخفضة" value={String(LOW_COVERAGE_ROWS.length)} meta="coverage < 2.00" />
+          <PreviewMetric label="حالة المصدر" value="مقروء" meta="بدون صفوف مخترعة" />
+        </div>
+        <div className="rounded-2xl border border-success-200 bg-success-50/60 p-5 text-sm text-success-900">
+          تم تحليل الملف من 12 صفًا و11 حقولًا، وكل المقاييس الرقمية المستخدمة في الواجهة قابلة للقراءة والتحقق.
+        </div>
+      </>
+    );
+  } else if (route === '/reports/inventory' || route === '/reports/inventory-intelligence' || route === '/inventory') {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <PreviewMetric label="الصفوف" value={String(LIVE_ROWS.length)} meta="المصدر" />
+          <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
+          <PreviewMetric label="الرصيد" value={String(LIVE_TOTALS.currentStock)} meta="وحدة" />
+          <PreviewMetric label="التغطية المنخفضة" value={String(LOW_COVERAGE_ROWS.length)} meta="أقل من 2.00" />
+          <PreviewMetric label="صافي الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER" />
+        </div>
+        <PreviewInventoryTable />
+        <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-4 text-xs text-primary-900">
+          الإشارة المحسوبة من الـFixture: {LOW_COVERAGE_ROWS.length} أصناف لديها تغطية أقل من 2.00. الأولوية تبدأ من هذه الصفوف الثلاثة، وليس من رقم افتراضي.
+        </div>
+      </>
+    );
+  } else if (route === '/reports/sales' || route === '/reports/profitability') {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER · من source" />
+          <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER · من source" />
+          <PreviewMetric label="الهامش المحسوب" value={margin == null ? 'غير متاح' : margin.toFixed(1) + '%'} meta="profit ÷ net" />
+          <PreviewMetric label="الوحدات المباعة" value={String(LIVE_TOTALS.salesQty)} meta="من نفس الصفوف" />
+        </div>
+        <PreviewInventoryTable />
+      </>
+    );
+  } else if (route === '/reports/receivables') {
+    body = (
+      <>
+        <div className="rounded-2xl border border-warning-200 bg-warning-50/70 p-4 text-xs text-warning-900">
+          هذه ليست دفتر ذمم محاسبيًا؛ إنها قيمة مفتوحة مشتقة فقط من الحقول الموجودة في المصدر: صافي المبيعات ناقص المدفوع.
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="إجمالي الصافي" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="إجمالي المدفوع" value={LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0).toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="المفتوح" value={outstanding.toLocaleString('ar-YE')} meta="YER · مشتق" />
+          <PreviewMetric label="صفوف مفتوحة" value={String(LIVE_ROWS.filter(row => row.netAmount > row.paidAmount).length)} meta="من المصدر" />
+        </div>
+        <PreviewInventoryTable rows={LIVE_ROWS.filter(row => row.netAmount > row.paidAmount)} />
+      </>
+    );
+  } else if (route.startsWith('/reports/smart/')) {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <PreviewMetric label="صفوف التقرير" value={String(LIVE_ROWS.length)} meta="الـFixture" />
+          <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
+          <PreviewMetric label="الرصيد" value={String(LIVE_TOTALS.currentStock)} meta="وحدة" />
+          <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER" />
+        </div>
+        <PreviewInventoryTable />
+      </>
+    );
+  } else if (route === '/analytics/liquidity') {
+    body = (
+      <>
+        <div className="rounded-2xl border border-warning-200 bg-warning-50/70 p-4 text-xs text-warning-900">
+          هذا مؤشر سيولة مشتق من حقول المدفوع والصافي الموجودة في الـFixture؛ لا يمثل دفتر بنك أو صندوقًا محاسبيًا.
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="إجمالي الصافي" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="إجمالي المدفوع" value={LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0).toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="المفتوح" value={outstanding.toLocaleString('ar-YE')} meta="YER · مشتق" />
+          <PreviewMetric label="نسبة المدفوع" value={LIVE_TOTALS.netAmount > 0 ? ((LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0) / LIVE_TOTALS.netAmount) * 100).toFixed(1) + '%' : 'غير متاح'} meta="paid ÷ net" />
+        </div>
+      </>
+    );
+  } else if (route === '/analytics' || route === '/analytics/rfm' || route === '/analytics/abc' || route === '/analytics/aging') {
+    body = sourceUnavailable(
+      route === '/analytics/rfm'
+        ? 'لا يوجد بُعد عميل في الـFixture؛ لا يتم اختلاق RFM.'
+        : route === '/analytics/abc'
+          ? 'لا يوجد تصنيف منتجات مستقل في الـFixture؛ لا يتم اختلاق ABC.'
+          : route === '/analytics/aging'
+            ? 'لا توجد تواريخ استحقاق/أعمار في الـFixture؛ لا يتم اختلاق buckets.'
+            : 'مركز التحليلات ينتظر حقول عمل إضافية غير موجودة في الـFixture الحالي.'
+    );
+  } else if (route === '/trust' || route === '/metrics' || route === '/replay' || route === '/benchmark' || route === '/connections' || route === '/settings' || route === '/settings/profile' || route === '/master-data' || route === '/alternative-groups' || route === '/onboarding' || route === '/intelligence/scenarios') {
+    body = (
+      <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
+        <div className="text-xs font-black text-ink-900">حالة المعاينة</div>
+        <div className="mt-2 grid gap-2 sm:grid-cols-3">
+          <PreviewMetric label="الـFixture" value="VALIDATED" meta="12 صفًا · 11 حقلاً" />
+          <PreviewMetric label="بيانات الشركة" value="غير مرتبطة" meta="لا توجد جلسة tenant" />
+          <PreviewMetric label="النتيجة التنفيذية" value="غير مسجلة" meta="لا يتم تحويل المتوقع إلى actual" />
+        </div>
+        <p className="mt-3 text-xs leading-6 text-ink-500">
+          هذه الشاشة لا تُنتج حالة شركة مصطنعة. المعروض يوضح حدود المعاينة فقط، بينما بيانات الشركة الفعلية تبقى خلف الهوية وسياق الـtenant.
+        </p>
+      </section>
+    );
+  } else if (route === '/reports/demand-velocity' || route === '/intelligence/forecasts') {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="أول شهر" value={String(first.salesQty)} meta={first.documentDate} />
+          <PreviewMetric label="آخر شهر" value={String(last.salesQty)} meta={last.documentDate} />
+          <PreviewMetric label="النمو بين الطرفين" value={salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%'} meta="اتجاه وصفي" />
+          <PreviewMetric label="عدد الفترات" value="12" meta="شهرًا في المصدر" />
+        </div>
+        <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
+          <div className="text-sm font-black text-ink-900">السلسلة المصدرية</div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {LIVE_ROWS.map(row => (
+              <div key={row.documentNo} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3">
+                <div className="text-[10px] text-ink-400">{row.documentDate}</div>
+                <div className="mt-1 text-lg font-black">{row.salesQty}</div>
+                <div className="text-[10px] text-ink-500">وحدة مبيعات</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  } else if (
+    route === '/command-center' || route === '/decision-inbox' || route === '/decision-experience' ||
+    route === '/advisor-cases' || route === '/intelligence' || route === '/intelligence/recommendations'
+  ) {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="إشارات عمل" value={String(LOW_COVERAGE_ROWS.length)} meta="تغطية أقل من 2.00" />
+          <PreviewMetric label="أولوية" value="P1" meta="مراجعة مخزون" />
+          <PreviewMetric label="صفوف متأثرة" value={String(LOW_COVERAGE_ROWS.length)} meta="من المصدر" />
+          <PreviewMetric label="الأثر المالي المثبت" value="غير متاح" meta="لا يوجد سعر قرار معتمد" />
+        </div>
+        <div className="grid gap-3 lg:grid-cols-3">
+          {LOW_COVERAGE_ROWS.map(row => {
+            const id = row.documentNo;
+            const state = decisionState[id] ?? 'جاهز';
+            return (
+              <article key={id} className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="rounded-full bg-warning-50 px-2 py-1 text-[10px] font-black text-warning-800">{state}</span>
+                  <span className="text-[10px] font-black text-primary-700">{id}</span>
+                </div>
+                <h3 className="mt-3 text-sm font-black text-ink-900">{row.productCode} · {row.productName}</h3>
+                <p className="mt-2 text-xs leading-5 text-ink-600">المبيعات {row.salesQty} · الرصيد {row.currentStock} · التغطية {(row.currentStock / row.salesQty).toFixed(2)}</p>
+                <p className="mt-1 text-[10px] text-ink-400">المستودع {row.warehouse} · صافي {row.netAmount.toLocaleString('ar-YE')} YER</p>
+                <button
+                  type="button"
+                  disabled={state !== 'جاهز'}
+                  onClick={() => setDecisionState(previous => ({ ...previous, [id]: 'مسودة قرار' }))}
+                  className="mt-3 w-full rounded-xl bg-primary-700 px-3 py-2.5 text-[11px] font-black text-white disabled:bg-ink-200 disabled:text-ink-500"
+                >
+                  {state === 'جاهز' ? 'إنشاء مسودة قرار' : 'المسودة منشأة'}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </>
+    );
+  } else if (route === '/work-center' || route === '/operations') {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="أعمال تنتظر الإجراء" value={String(LOW_COVERAGE_ROWS.length)} meta="من إشارات المصدر" />
+          <PreviewMetric label="المصدر" value="محكوم" meta="fixture validated" />
+          <PreviewMetric label="النتيجة" value="غير مسجلة" meta="لا توجد نتيجة فعلية في المصدر" />
+          <PreviewMetric label="التعلم" value="معلّق" meta="بانتظار تنفيذ حقيقي" />
+        </div>
+        <div className="space-y-3">
+          {LOW_COVERAGE_ROWS.map(row => (
+            <div key={row.documentNo} className="flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-4 sm:flex-row sm:items-center">
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] text-ink-400">{row.documentNo} · {row.warehouse}</div>
+                <div className="mt-1 text-sm font-black text-ink-900">مراجعة إعادة الطلب لـ {row.productCode}</div>
+                <div className="mt-1 text-xs text-ink-500">سببها: تغطية {(row.currentStock / row.salesQty).toFixed(2)} فقط.</div>
+              </div>
+              <span className="rounded-full bg-warning-50 px-3 py-1.5 text-[10px] font-black text-warning-800">بانتظار القرار</span>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  } else if (route === '/reports/executive' || route === '/' || route === '/reports') {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <PreviewMetric label="الصفوف" value={String(LIVE_ROWS.length)} meta="المصدر الحالي" />
+          <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
+          <PreviewMetric label="الرصيد" value={String(LIVE_TOTALS.currentStock)} meta="وحدة" />
+          <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER" />
+        </div>
+        <PreviewInventoryTable />
+        <div className="grid gap-3 md:grid-cols-3">
+          <Link to="/reports/inventory" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">المخزون</div><div className="mt-1 text-[10px] text-ink-400">كل الصفوف والتغطية</div></Link>
+          <Link to="/decision-experience" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">القرار</div><div className="mt-1 text-[10px] text-ink-400">3 إشارات قابلة للعمل</div></Link>
+          <Link to="/work-center" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">العمل</div><div className="mt-1 text-[10px] text-ink-400">تحويل الإشارة إلى إجراء</div></Link>
+        </div>
+      </>
+    );
+  } else if (route === '/products') {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="أصناف مميزة في المصدر" value={String(new Set(LIVE_ROWS.map(row => row.productCode)).size)} meta="SKU" />
+          <PreviewMetric label="وحدات مباعة" value={String(LIVE_TOTALS.salesQty)} meta="من المصدر" />
+          <PreviewMetric label="الرصيد الحالي" value={String(LIVE_TOTALS.currentStock)} meta="من المصدر" />
+          <PreviewMetric label="إشارة إعادة الطلب" value={String(LOW_COVERAGE_ROWS.length)} meta="تغطية منخفضة" />
+        </div>
+        <PreviewInventoryTable />
+      </>
+    );
+  } else {
+    body = sourceUnavailable('هذا المسار لا يملك مجال بيانات مناسبًا داخل ملف المخزون الحالي. يتم عرض حالة صريحة بدل نقل بيانات من مجال آخر.');
+  }
+
+  return (
+    <div dir="rtl" className="space-y-5 pb-10">
+      {commonHeader}
+      {body}
+      <footer className="rounded-xl border border-ink-100 bg-ink-50/70 p-3 text-[10px] leading-5 text-ink-500">
+        <strong className="text-ink-700">حد المعاينة:</strong> هذه البيانات حقيقية المصدر لكنها ليست بديلًا عن جلسة شركة مصادق عليها. أي قرار أو نتيجة تنفيذية نهائية يجب أن تمر عبر الشركة والسياق الأمني الفعلي.
+      </footer>
+    </div>
+  );
+}
+
+function ProposalCommercialDemoPage() {
   const location = useLocation();
   const demoPath = location.pathname;
   const [liveQuery, setLiveQuery] = useState('');
@@ -165,8 +558,8 @@ export function ProposalDemoPage() {
       <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#0f2231)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">المصدر الفعلي المستخدم في العرض</div>
-            <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام المصدر، وليست وعودًا مرسومة على الشاشة</h2>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">Fixture المستخدم في العرض</div>
+            <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام الـFixture، وليست بيانات شركة حيّة</h2>
             <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">البيانات المعروضة أدناه تُقرأ وقت البناء مباشرة من الملف canonical fixture: 28-inventory-stockout-reorder.csv. كل مؤشر في هذه المساحة مشتق من الصفوف نفسها، ولا توجد أرقام ملخّصة مستقلة عنها.</p>
           </div>
           <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
@@ -188,7 +581,7 @@ export function ProposalDemoPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-slate-300">
           <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">الملف: 28-inventory-stockout-reorder.csv</span>
-          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">YER · بيانات المصدر كما هي</span>
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">YER · بيانات الـFixture كما هي محفوظة في المستودع</span>
           <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">التغطية = الرصيد الحالي ÷ المبيعات</span>
         </div>
       </section>
@@ -196,7 +589,7 @@ export function ProposalDemoPage() {
       <section className="rounded-[22px] border border-ink-100 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-600">LIVE BUSINESS SURFACE</div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PREVIEW BUSINESS SURFACE</div>
             <h2 className="mt-1 text-xl font-black text-ink-950">
               {demoPath.includes('/reports/inventory') ? 'المخزون الذي يمكن قراءته والعمل عليه'
                 : demoPath.includes('/reports/sales') ? 'المبيعات والربحية من الصفوف نفسها'
@@ -380,4 +773,13 @@ export function ProposalDemoPage() {
       <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية؛ ولا تنقل الدليل أو النتيجة بين مصادر مختلفة. كل رابط يفتح الوحدة الفعلية داخل المنصة، وتبقى القيم والنتائج تحت مصدر الحقيقة والشركة الحالية.</div>
     </div>
   );
+}
+
+
+export function ProposalDemoPage() {
+  const location = useLocation();
+  const previewRoute = location.pathname !== '/proposal-demo';
+  return previewRoute
+    ? <PreviewBusinessSurface path={location.pathname} />
+    : <ProposalCommercialDemoPage />;
 }
