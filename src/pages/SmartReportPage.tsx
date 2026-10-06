@@ -456,7 +456,18 @@ function statusTone(value: string | null): string {
 function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDetail; initialSearch?: string }) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const definitionColumns = useMemo(() => normalizedDatasetColumns(report), [report, dataset]);
-  const rows = useMemo(() => report.canonicalRows.map((row) => row.data), [report.canonicalRows]);
+  const rows = useMemo(
+    () => report.canonicalRows
+      .map((row) => row.data)
+      .filter((row) => {
+        if (!row) return false;
+        return Object.entries(row).some(([key, value]) => {
+          if (/^(page_number|line_number|visual_cell_\d+)$/i.test(key)) return false;
+          return value !== null && value !== undefined && String(value).trim() !== '';
+        });
+      }),
+    [report.canonicalRows],
+  );
   const discoveredColumns = useMemo(() => {
     const technical = /^(page_number|line_number|visual_cell_\\d+)$/i;
     const businessColumns = uniqueBusinessColumns(definitionColumns, rows);
@@ -653,7 +664,10 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
           </label>
         )}
         <button type="button" onClick={() => setShowColumns((value) => !value)} aria-expanded={showColumns} className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2 text-[10px] font-bold text-ink-700 hover:bg-ink-50"><Columns3 size={14}/> الأعمدة ({visibleColumns.length}/{discoveredColumns.length})</button>
-        <div className="mr-auto text-[10px] text-ink-500">{formatNumber(orderedRows.length)} صف مطابق · {formatNumber(rows.length)} صف كانونـي</div>
+        <div className="mr-auto text-[10px] text-ink-500">
+          {formatNumber(orderedRows.length)} صف قابل للعرض · {formatNumber(report.canonicalRows.length)} صف كانونـي
+          {report.canonicalRows.length > rows.length ? ' · ' + formatNumber(report.canonicalRows.length - rows.length) + ' صف فارغ مستبعد من العرض' : ''}
+        </div>
       </div>
 
       {groupColumn && (
