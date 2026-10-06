@@ -7,6 +7,7 @@ import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
+import { KernelDecisionSurface } from '@/components/KernelDecisionSurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
@@ -936,6 +937,15 @@ export function SmartReportPage() {
     </section>
 
     
+
+    <KernelDecisionSurface
+      kernel={report.intelligence.kernel}
+      calculations={report.intelligence.calculations}
+      archetypeState={output.archetypeState == null ? null : String(output.archetypeState)}
+      calculationPersistenceStatus={output.calculationPersistenceStatus == null ? null : String(output.calculationPersistenceStatus)}
+      calculationPersistedCount={output.calculationPersistedCount == null ? null : Number(output.calculationPersistedCount)}
+      calculationReadBackCount={output.calculationReadBackCount == null ? null : Number(output.calculationReadBackCount)}
+    />
 
     <section id="decision-chain" data-testid="smart-report-decision-chain" className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
