@@ -140,9 +140,19 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
         : 'open';
   const sourcePath = '/reports/smart/' + encodeURIComponent(report.jobId) +
     '?sourceHash=' + encodeURIComponent(report.sourceHash) + '#decision-evidence-inspector';
+  const reportContextQuery =
+    '?reportJobId=' + encodeURIComponent(report.jobId) +
+    '&sourceHash=' + encodeURIComponent(report.sourceHash);
   const recommendationQuery = decision.recommendationId
     ? '&recommendationId=' + encodeURIComponent(decision.recommendationId)
     : '';
+  const decisionPath = '/decision-experience?stage=decision&reportJobId=' +
+    encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash) + recommendationQuery;
+  const approvalPath = '/decision-experience?stage=approval&reportJobId=' +
+    encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash) + recommendationQuery;
+  const outcomePath = '/decision-experience?stage=outcome&reportJobId=' +
+    encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash) + recommendationQuery;
+  const workPath = '/work-center' + reportContextQuery + (decision.recommendationId ? '&recommendationId=' + encodeURIComponent(decision.recommendationId) : '');
   return (
     <section className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-5" aria-label="استمرار الرحلة">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -154,18 +164,18 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
         <Link to={sourcePath} className="btn-secondary text-[10px]">العودة إلى المصدر والدليل</Link>
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-        <Link to={'/decision-experience?stage=decision' + recommendationQuery} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
+        <Link to={decisionPath} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
           <div className="text-[9px] font-black text-primary-800">القرار</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.status)}</div>
           <div className="mt-1 text-[9px] text-ink-500">الدليل → التوصية → القرار</div>
         </Link>
-        <Link to={'/decision-experience?stage=approval' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة الموافقة">
+        <Link to={approvalPath} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة الموافقة">
           <div className="text-[9px] font-black text-ink-600">APPROVAL</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.approvalStatus)}</div>
           <div className="mt-1 text-[9px] text-ink-500">الحالة المحفوظة</div>
         </Link>
         {decision.workItemId ? (
-          <Link to={'/work-center?decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
+          <Link to={workPath + '&decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
             <div className="text-[9px] font-black text-ink-600">WORK</div>
             <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.workItemStatus)}</div>
             <div className="mt-1 text-[9px] text-ink-500">عنصر عمل مرتبط</div>
@@ -177,7 +187,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
             <div className="mt-1 text-[9px] text-warning-900">ينتظر الاعتماد الموثق</div>
           </div>
         )}
-        <Link to={'/decision-experience?stage=outcome' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
+        <Link to={outcomePath} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
           <div className="text-[9px] font-black text-ink-600">النتيجة والتعلّم</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.outcomeStatus)}</div>
           <div className="mt-1 text-[9px] text-ink-500">النتيجة والتعلم</div>
@@ -306,7 +316,26 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
   };
   const title = labels[report.specialty ?? ''] ? 'تقرير ' + labels[report.specialty ?? ''] : 'تقرير أعمال ذكي';
   return (
-    <section className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1424] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.9)]">
+    <>
+      {!report.isCurrentForSource && report.currentSourceReportJobId && (
+        <section className="rounded-[18px] border border-warning-300 bg-warning-50 p-4 shadow-sm" role="status">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black text-warning-950">هذا إصدار تاريخي لنفس المصدر</div>
+              <p className="mt-1 text-[10px] leading-5 text-warning-900">
+                التقرير الحالي لهذا الملف هو الأحدث، بينما هذه الصفحة تحافظ على الإصدار الذي طلبته دون خلط lineage.
+              </p>
+            </div>
+            <Link
+              to={'/reports/smart/' + report.currentSourceReportJobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
+              className="shrink-0 rounded-xl bg-warning-900 px-3.5 py-2.5 text-[10px] font-black text-white"
+            >
+              فتح التقرير الحالي
+            </Link>
+          </div>
+        </section>
+      )}
+      <section className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1424] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.9)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="text-[9px] font-black tracking-[.16em] text-amber-200">REPORT ADVISOR</div>
@@ -324,6 +353,7 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
         </div>
       </div>
     </section>
+    </>
   );
 }
 
@@ -908,7 +938,9 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
     setError(null);
     try {
       const hash = expectedSourceHash?.trim() ?? '';
-      const next = await fetchSmartReport(jobId, hash);
+      const next = await fetchSmartReport(jobId, hash, {
+        surfaceReadback: mode === 'decision' || mode === 'work',
+      });
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
       if (expectedSourceHash && next.sourceHash !== expectedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
       setReport(next);
@@ -922,7 +954,9 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
   useEffect(() => {
     let active = true;
     const hash = expectedSourceHash?.trim() ?? '';
-    void fetchSmartReport(jobId, hash).then((next) => {
+    void fetchSmartReport(jobId, hash, {
+      surfaceReadback: mode === 'decision' || mode === 'work',
+    }).then((next) => {
       if (!active) return;
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
       if (hash && next.sourceHash !== hash) throw new Error('INVALID_REPORT_CONTEXT');

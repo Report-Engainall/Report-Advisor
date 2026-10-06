@@ -164,7 +164,7 @@ export function AdvisorCasesPage() {
                   <div className="mt-3 grid gap-2 sm:grid-cols-3">
                     <CaseField label="OWNER" value={item.owner} />
                     <CaseField label="RECOMMENDATION" value={item.recommendation} />
-                    <CaseField label="PROOF" value={item.evidence[0] ?? 'الدليل غير متاح'} mono />
+                    <CaseField label="الدليل" value={item.evidence[0] ?? 'الدليل غير متاح'} mono />
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-2">

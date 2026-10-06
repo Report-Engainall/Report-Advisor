@@ -34,6 +34,8 @@ function WorkCenterGeneralPage() {
   const [filter, setFilter] = useState<FilterKey>('all');
   const [decisionWorkFilter, setDecisionWorkFilter] = useState<DecisionWorkFilter>('all');
   const [workParams] = useSearchParams();
+  const sourceJobIdParam = workParams.get('reportJobId')?.trim() ?? '';
+  const sourceHashParam = workParams.get('sourceHash')?.trim() ?? '';
   useEffect(() => {
     const requested = workParams.get('decisionWorkFilter');
     if (requested === 'all' || requested === 'open' || requested === 'in_progress' || requested === 'completed' || requested === 'overdue') {
@@ -123,17 +125,24 @@ function WorkCenterGeneralPage() {
     Date.parse(item.dueAt as string) < Date.now() &&
     item.status !== 'COMPLETED';
 
-  const filteredDecisionWork = useMemo(() => decisionWorkItems.filter((item) =>
-    decisionWorkFilter === 'all'
-      ? true
-      : decisionWorkFilter === 'open'
-        ? item.status === 'OPEN'
-        : decisionWorkFilter === 'in_progress'
-          ? item.status === 'IN_PROGRESS'
-          : decisionWorkFilter === 'completed'
-            ? item.status === 'COMPLETED'
-            : isOverdue(item)
-  ), [decisionWorkItems, decisionWorkFilter]);
+  const filteredDecisionWork = useMemo(() => decisionWorkItems
+    .filter((item) => {
+      if (!sourceJobIdParam && !sourceHashParam) return true;
+      const jobMatches = sourceJobIdParam && item.sourceReportJobId === sourceJobIdParam;
+      const hashMatches = sourceHashParam && item.sourceHash === sourceHashParam;
+      return Boolean(jobMatches || hashMatches);
+    })
+    .filter((item) =>
+      decisionWorkFilter === 'all'
+        ? true
+        : decisionWorkFilter === 'open'
+          ? item.status === 'OPEN'
+          : decisionWorkFilter === 'in_progress'
+            ? item.status === 'IN_PROGRESS'
+            : decisionWorkFilter === 'completed'
+              ? item.status === 'COMPLETED'
+              : isOverdue(item)
+    ), [decisionWorkItems, decisionWorkFilter, sourceJobIdParam, sourceHashParam]);
 
   const decisionWorkCounts = useMemo(() => ({
     open: decisionWorkItems.filter(item => item.status === 'OPEN').length,
@@ -155,7 +164,9 @@ function WorkCenterGeneralPage() {
   };
   const queueEmptyState = rows.length === 0
     ? { title: 'لا توجد عمليات تشغيل مثبتة', message: 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن؛ ابدأ بالمصدر الموحد لبناء أول دورة تشغيل قابلة للتتبع.' }
-    : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
+    : sourceJobIdParam || sourceHashParam
+      ? { title: 'لا يوجد عمل مرتبط بهذا التقرير', message: 'تم تقييد مركز العمل بالمصدر الحالي؛ لا توجد عناصر عمل موثقة تحمل نفس reportJobId أو sourceHash.' }
+      : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
   const counts = useMemo(() => ({
     active: rows.filter(r => r.status === 'queued' || r.status === 'processing').length,
     review: rows.filter(r => r.status === 'partial' || (r.invalid_rows ?? 0) > 0 || (r.quarantined_rows ?? 0) > 0).length,
@@ -189,7 +200,25 @@ function WorkCenterGeneralPage() {
   if (loading) return <LoadingState message="جارٍ تحميل حالة العمليات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
+  const sourceScoped = Boolean(sourceJobIdParam || sourceHashParam);
   return <div dir="rtl" className="ag-work-center-surface space-y-5 animate-fade-in pb-10">
+    {sourceScoped && (
+      <section className="rounded-[18px] border border-primary-200 bg-primary-50/70 p-4 shadow-sm" aria-label="سياق مصدر العمل">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE-SCOPED WORK</div>
+            <h1 className="mt-1 text-sm font-black text-ink-950">مركز العمل لهذا التقرير فقط</h1>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">تم حصر عناصر العمل على نفس reportJobId أو sourceHash لمنع خلط أعمال تقارير أخرى.</p>
+          </div>
+          <Link
+            to={'/reports/smart/' + encodeURIComponent(sourceJobIdParam) + (sourceHashParam ? '?sourceHash=' + encodeURIComponent(sourceHashParam) : '')}
+            className="btn-secondary shrink-0 text-[10px]"
+          >
+            العودة للتقرير
+          </Link>
+        </div>
+      </section>
+    )}
     <PageHeader
       title="مركز العمل"
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."

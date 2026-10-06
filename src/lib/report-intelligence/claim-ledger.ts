@@ -1,4 +1,4 @@
-import type { CanonicalField } from './canonical-schema';
+import type { CanonicalField } from './canonical-schema.ts';
 
 export type ClaimStatus = 'OBSERVED' | 'DERIVED' | 'INFERRED' | 'RECOMMENDED' | 'DECISION' | 'OUTCOME';
 export type ClaimState = 'VALID' | 'REVIEW_REQUIRED' | 'INSUFFICIENT_SAMPLE' | 'NOT_AVAILABLE' | 'BLOCKED';

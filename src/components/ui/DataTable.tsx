@@ -16,15 +16,41 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   onRowClick?: (row: T) => void;
   pageSize?: number;
+  searchable?: boolean;
+  sortable?: boolean;
+  searchPlaceholder?: string;
 }
 
-export function DataTable<T extends object>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick, pageSize }: DataTableProps<T>) {
+export function DataTable<T extends object>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick, pageSize, searchable = false, sortable = false, searchPlaceholder = 'ابحث داخل الجدول…' }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
+  const [query, setQuery] = useState('');
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const effectivePageSize = Number.isInteger(pageSize) && (pageSize ?? 0) > 0 ? pageSize! : 0;
-  const pageCount = effectivePageSize ? Math.max(1, Math.ceil(data.length / effectivePageSize)) : 1;
+  const filteredRows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized || !searchable) return data;
+    return data.filter((row) => Object.values(row as Record<string, unknown>).some((value) => String(value ?? '').toLowerCase().includes(normalized)));
+  }, [data, query, searchable]);
+
+  const sortedRows = useMemo(() => {
+    if (!sortable || !sortKey) return filteredRows;
+    return [...filteredRows].sort((a, b) => {
+      const av = (a as Record<string, unknown>)[sortKey];
+      const bv = (b as Record<string, unknown>)[sortKey];
+      const an = typeof av === 'number' ? av : Number(String(av ?? '').replace(/,/g, ''));
+      const bn = typeof bv === 'number' ? bv : Number(String(bv ?? '').replace(/,/g, ''));
+      if (Number.isFinite(an) && Number.isFinite(bn)) return sortDirection === 'asc' ? an - bn : bn - an;
+      const as = String(av ?? '');
+      const bs = String(bv ?? '');
+      return sortDirection === 'asc' ? as.localeCompare(bs, 'ar') : bs.localeCompare(as, 'ar');
+    });
+  }, [filteredRows, sortDirection, sortKey, sortable]);
+
+  const pageCount = effectivePageSize ? Math.max(1, Math.ceil(sortedRows.length / effectivePageSize)) : 1;
   const visibleRows = useMemo(
-    () => effectivePageSize ? data.slice(page * effectivePageSize, (page + 1) * effectivePageSize) : data,
-    [data, effectivePageSize, page],
+    () => effectivePageSize ? sortedRows.slice(page * effectivePageSize, (page + 1) * effectivePageSize) : sortedRows,
+    [sortedRows, effectivePageSize, page],
   );
 
   useEffect(() => {
@@ -36,10 +62,42 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
 
   return (
     <div className="ag-data-table data-table-shell overflow-auto rounded-[12px]" role="region" aria-label="جدول البيانات">
+      {(searchable || sortable) && (
+        <div className="flex flex-wrap items-center gap-2 border-b border-ink-100 bg-white p-3">
+          {searchable && (
+            <label className="flex min-w-[220px] flex-1 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50/50 px-3 py-2">
+              <span aria-hidden="true">⌕</span>
+              <input
+                value={query}
+                onChange={(event) => { setQuery(event.target.value); setPage(0); }}
+                placeholder={searchPlaceholder}
+                className="min-w-0 flex-1 bg-transparent text-[11px] font-bold text-ink-800 outline-none placeholder:text-ink-400"
+                aria-label={searchPlaceholder}
+              />
+              {query && <button type="button" onClick={() => { setQuery(''); setPage(0); }} className="text-[10px] font-black text-ink-400 hover:text-ink-700" aria-label="مسح البحث">مسح</button>}
+            </label>
+          )}
+          <span className="text-[10px] font-bold text-ink-400">{filteredRows.length.toLocaleString('ar-YE')} نتيجة</span>
+        </div>
+      )}
       <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={visibleRows.length + 1} aria-colcount={columns.length} aria-busy={Boolean(loading)}>
         <thead>
           <tr>
-            {columns.map(col => <th key={col.key} scope="col" className={'sticky top-0 z-10 border-b border-ink-200 bg-ink-50/95 px-4 py-2.5 text-[10px] font-black tracking-wide text-ink-500 backdrop-blur ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
+            {columns.map(col => <th key={col.key} scope="col" className={'sticky top-0 z-10 border-b border-ink-200 bg-ink-50/95 px-4 py-2.5 text-[10px] font-black tracking-wide text-ink-500 backdrop-blur ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>
+              {sortable ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (sortKey === col.key) setSortDirection((current) => current === 'asc' ? 'desc' : 'asc');
+                    else { setSortKey(col.key); setSortDirection('asc'); }
+                    setPage(0);
+                  }}
+                  className="inline-flex items-center gap-1 font-black hover:text-ink-900"
+                >
+                  {col.label}<span aria-hidden="true">{sortKey === col.key ? (sortDirection === 'asc' ? '↑' : '↓') : '↕'}</span>
+                </button>
+              ) : col.label}
+            </th>)}
           </tr>
         </thead>
         <tbody>
@@ -53,7 +111,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
       </table>
       {effectivePageSize > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 bg-ink-50/60 px-4 py-2.5 text-[11px] text-ink-500" role="navigation" aria-label="تنقّل الجدول">
-          <span aria-live="polite">الصفحة {page + 1} من {pageCount} · عرض {page * effectivePageSize + 1}–{Math.min((page + 1) * effectivePageSize, data.length)} من {data.length}</span>
+          <span aria-live="polite">الصفحة {page + 1} من {pageCount} · عرض {sortedRows.length ? page * effectivePageSize + 1 : 0}–{Math.min((page + 1) * effectivePageSize, sortedRows.length)} من {sortedRows.length}</span>
           <div className="flex items-center gap-2">
             <button
               type="button"

@@ -1,14 +1,28 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
-import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
+import { resolveReportEvidenceStatus, resolveReportTrustState } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
+import { persistAndReadBackCalculations, type CalculationPersistenceResult } from './report-intelligence/calculation-persistence.ts';
+import type { CalculationResult } from './report-intelligence/calculation-capability-registry.ts';
+import type { AghbariIntelligenceKernelResult } from './report-intelligence/aghbari-intelligence-kernel.ts';
 
-export type ReportRequestOptions = { signal?: AbortSignal };
+export type ReportRequestOptions = {
+  signal?: AbortSignal;
+  surfaceReadback?: boolean;
+};
 
 function maybeAbort<T>(query: T, signal?: AbortSignal): T {
   if (!signal) return query;
   return (query as T & { abortSignal: (value: AbortSignal) => T }).abortSignal(signal);
 }
+
+type SmartReportReadCacheEntry = {
+  expiresAt: number;
+  detail: SmartReportDetail;
+};
+
+const SMART_REPORT_READ_CACHE_TTL_MS = 30_000;
+const smartReportReadCache = new Map<string, SmartReportReadCacheEntry>();
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -33,8 +47,17 @@ export type SmartReportCatalogItem = {
   completedAt: string | null;
 };
 
+type SmartReportIntelligence = ReportIntelligence & {
+  calculations?: CalculationResult[];
+  kernel?: AghbariIntelligenceKernelResult;
+  limitations?: string[];
+};
+
 export type SmartReportDetail = SmartReportCatalogItem & {
   tenantId: string;
+  isCurrentForSource: boolean;
+  currentSourceReportJobId: string | null;
+  currentSourceReportCompletedAt: string | null;
   importId: string | null;
   checkpointStage: string | null;
   renderedOutput: Record<string, unknown>;
@@ -63,11 +86,12 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
-  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR';
+  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR' | 'READBACK_ONLY';
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
-  intelligence: ReportIntelligence;
+  intelligence: SmartReportIntelligence;
+  calculationPersistence: CalculationPersistenceResult | null;
   runtimeWarnings?: string[];
 };
 
@@ -117,14 +141,15 @@ function normalizeBusinessField(value: unknown): string | null {
     ['quantity',['quantity','qty','الكمية','العدد']],
     ['daily_sales_rate',['daily_sales_rate','dailysalesrate','معدل البيع اليومي','معدل البيع ليومي','معدل البيعيومي','متوسط البيع اليومي']],
     ['annual_sales_rate',['annual_sales_rate','annualsalesrate','معدل البيع العام','معدل البيع السنوي']],
-    ['sales_qty',['sales_qty','salesqty','كمية المبيعات','الكميةالمباعة','صافي المبيعات','صافيالمبيعات']],
+    ['sales_qty',['sales_qty','salesqty','net_sales','netsales','net sales','كمية المبيعات','الكميةالمباعة','صافي المبيعات','صافيالمبيعات']],
     ['stockout_days',['stockout_days','stockoutdays','أيام النفاد','فترة النفاد','الفترة المتوقعة لنفاد الكمية','الفترةالمتوقعةلنفادالكمية']],
     ['stock_age_days',['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
     ['stock_age_period_days',['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
     ['opening_stock',['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
     ['incoming',['incoming','inbound','الوارد','الـوارد']],
     ['net_inbound',['net_inbound','netinbound','صافي الوارد','صافيوارد']],
-    ['transfers_pending',['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
+    ['warehouse',['warehouse','store','location','مخزن','المخزن','المستودع','الموقع']],
+     ['transfers_pending',['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
   ];
   for (const [canonical, candidates] of aliases) {
     if (candidates.some((candidate) => candidate.toLowerCase().normalize('NFKC').replace(/[\s_-]+/g,'') === key)) return canonical;
@@ -467,7 +492,32 @@ export async function fetchSmartReportCatalog(limit = 500, options: ReportReques
     })
     .filter((item): item is SmartReportCatalogItem => Boolean(item && item.sourceHash));
 
-  return catalog.slice(0, limit);}
+  // One physical source can have multiple historical jobs. The customer-facing
+  // catalog shows only the latest completed run for each source hash; history
+  // remains reachable by its explicit job URL.
+  const latestBySourceHash = new Map<string, SmartReportCatalogItem>();
+  for (const item of catalog) {
+    const key = item.sourceHash.trim();
+    const previous = latestBySourceHash.get(key);
+    if (!previous) {
+      latestBySourceHash.set(key, item);
+      continue;
+    }
+    const nextTime = Date.parse(item.completedAt ?? '');
+    const previousTime = Date.parse(previous.completedAt ?? '');
+    if (Number.isFinite(nextTime) && (!Number.isFinite(previousTime) || nextTime > previousTime)) {
+      latestBySourceHash.set(key, item);
+    }
+  }
+
+  return [...latestBySourceHash.values()]
+    .sort((a, b) => {
+      const aTime = Date.parse(a.completedAt ?? '');
+      const bTime = Date.parse(b.completedAt ?? '');
+      return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0);
+    })
+    .slice(0, limit);
+  }
 function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   const owner =
     specialty === 'inventory' ? 'مسؤول المخزون' :
@@ -516,6 +566,49 @@ function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   };
 }
 
+export async function fetchLatestSmartReportBySourceHash(
+  sourceHash: string,
+  options: ReportRequestOptions = {},
+): Promise<SmartReportDetail | null> {
+  const normalizedSourceHash = sourceHash.trim();
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(normalizedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
+
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const companyId = await resolveCurrentCompanyId(options.signal);
+      if (!companyId) throw new Error('TENANT_REQUIRED');
+
+      const latestJobQuery = supabase
+        .from('report_execution_jobs')
+        .select('id,completed_at')
+        .eq('company_id', companyId)
+        .eq('source_hash', normalizedSourceHash)
+        .eq('status', 'completed')
+        .like('job_key', 'canonical-import:generic:%')
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const { data: latestJob, error: latestJobError } = await maybeAbort(latestJobQuery, options.signal);
+      if (latestJobError) throw latestJobError;
+      if (!latestJob?.id) return null;
+
+      return await fetchSmartReport(String(latestJob.id), normalizedSourceHash, options);
+    } catch (cause) {
+      lastError = cause;
+      const message = cause instanceof Error ? cause.message : String(cause);
+      const retryable =
+        message.includes('TENANT_REQUIRED') ||
+        message.includes('Failed to fetch') ||
+        message.includes('REPORT_UI_TIMEOUT');
+      if (!retryable || attempt === 3) throw cause;
+      await new Promise((resolve) => setTimeout(resolve, 700 * attempt));
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('SMART_REPORT_SOURCE_READ_FAILED');
+}
+
 export function fetchSmartReport(jobId: string, expectedSourceHash: string): Promise<SmartReportDetail | null>;
 export function fetchSmartReport(jobId: string, expectedSourceHash: string, options?: ReportRequestOptions): Promise<SmartReportDetail | null>;
 export async function fetchSmartReport(jobId: string, expectedSourceHash: string, options: ReportRequestOptions = {}): Promise<SmartReportDetail | null> {
@@ -526,21 +619,77 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const companyId = await resolveCurrentCompanyId(options.signal);
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
+  const readMode = options.surfaceReadback ? 'surface' : 'full';
+
   const jobQuery = supabase
     .from('report_execution_jobs')
     .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
     .eq('id', normalizedJobId)
     .maybeSingle();
-  const { data: job, error: jobError } = await maybeAbort(jobQuery, options.signal);
+  const { data: requestedJob, error: jobError } = await maybeAbort(jobQuery, options.signal);
 
   if (jobError) throw jobError;
+
+  let job = requestedJob;
+  let jobResolvedFromSourceFallback = false;
+  if (!job && normalizedSourceHash) {
+    const fallbackQuery = supabase
+      .from('report_execution_jobs')
+      .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', normalizedSourceHash)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: fallbackJob, error: fallbackError } = await maybeAbort(fallbackQuery, options.signal);
+    if (fallbackError) throw fallbackError;
+    if (fallbackJob) {
+      job = fallbackJob;
+      jobResolvedFromSourceFallback = true;
+    }
+  }
+
   if (!job || job.status !== 'completed') throw new Error('INVALID_REPORT_CONTEXT');
   const resolvedSourceHash = String(job.source_hash ?? '').trim();
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(resolvedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
   if (normalizedSourceHash && resolvedSourceHash !== normalizedSourceHash) throw new Error('INVALID_REPORT_CONTEXT');
 
+  const cacheKey = companyId + ':' + String(job.id) + ':' + normalizedSourceHash + ':' + readMode;
+  const cached = smartReportReadCache.get(cacheKey);
+  if (cached) {
+    if (cached.expiresAt > Date.now()) return cached.detail;
+    smartReportReadCache.delete(cacheKey);
+  }
+
+  // A physical source can be imported more than once. Keep historical jobs
+  // readable, but explicitly identify the newest completed job for this exact
+  // source hash so customer-facing navigation cannot mistake a superseded job
+  // for the current report.
+  const latestSourceQuery = supabase
+    .from('report_execution_jobs')
+    .select('id,completed_at')
+    .eq('company_id', companyId)
+    .eq('source_hash', resolvedSourceHash)
+    .eq('status', 'completed')
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const { data: latestSourceJob, error: latestSourceError } = await maybeAbort(latestSourceQuery, options.signal);
+  const currentSourceReportJobId = latestSourceJob?.id == null ? null : String(latestSourceJob.id);
+  const currentSourceReportCompletedAt = latestSourceJob?.completed_at == null ? null : String(latestSourceJob.completed_at);
+  const isCurrentForSource = currentSourceReportJobId == null || currentSourceReportJobId === String(job.id);
   const runtimeWarnings: string[] = [];
+  if (jobResolvedFromSourceFallback) {
+    runtimeWarnings.push('تم تصحيح رابط التقرير إلى أحدث تشغيل متاح لهذا المصدر في مساحة الشركة الحالية.');
+  }
+  if (!isCurrentForSource) {
+    runtimeWarnings.push('هذا التقرير إصدار تاريخي لنفس المصدر؛ التقرير الأحدث محفوظ تحت jobId=' + currentSourceReportJobId + '.');
+  }
+  if (latestSourceError) {
+    runtimeWarnings.push('تعذر تحديد أحدث إصدار لنفس المصدر؛ بقيت الحالة مرتبطة بهذا job فقط.');
+  }
   const renderedOutput = renderedOutputOf(job.evidence);
   if (!renderedOutput) {
     runtimeWarnings.push('لم تُحفظ renderedOutput لهذا التقرير؛ تم بناء العرض من المصدر الكانوني ولقطة التحليل المتاحة دون اختلاق مخرجات سابقة.');
@@ -624,6 +773,18 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   if (effectiveRendered.qualityScore == null && analysis?.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
   if (effectiveRendered.sourceFormat == null && analysis?.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
 
+  const sourceAnalysis = analysis ? {
+    id: String(analysis.id),
+    importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
+    sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
+    analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
+    qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
+    rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
+    columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
+    createdAt: analysis.created_at == null ? null : String(analysis.created_at),
+    datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
+  } : null;
+
   const currentPassportLineage =
     currentPassport?.lineage && typeof currentPassport.lineage === 'object'
       ? currentPassport.lineage as Record<string, unknown>
@@ -641,6 +802,129 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // Smart-report intelligence must inspect the canonical source, not an arbitrary preview.
   // Supabase REST can cap a single response; page deterministically until the full source
   // is consumed (with a defensive ceiling so a pathological source cannot freeze the browser).
+  if (options.surfaceReadback) {
+    const surfaceCommitQuery = supabase
+      .from('canonical_import_commits')
+      .select('committed_count')
+      .eq('company_id', companyId)
+      .eq('source_hash', resolvedSourceHash)
+      .order('committed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: surfaceCommit, error: surfaceCommitError } = await maybeAbort(surfaceCommitQuery, options.signal);
+
+    const surfaceCommittedCount = Number(surfaceCommit?.committed_count ?? NaN);
+    const surfaceCommitGap =
+      Number.isFinite(surfaceCommittedCount) && sourceRowCount != null
+        ? Math.max(0, sourceRowCount - surfaceCommittedCount)
+        : null;
+    const surfaceCanonicalCommitVerified =
+      currentPassport?.verification_status === 'VERIFIED' &&
+      currentPassport?.decision_readiness === 'READY' &&
+      currentPassport?.acceptance_status === 'ACCEPTED' &&
+      Number.isFinite(surfaceCommittedCount) &&
+      sourceRowCount != null &&
+      surfaceCommittedCount === sourceRowCount &&
+      canonicalCommitLineageCount != null &&
+      canonicalCommitLineageCount === surfaceCommittedCount &&
+      !surfaceCommitError;
+
+    const surfaceEvidenceStatus = resolveReportEvidenceStatus(
+      effectiveRendered,
+      surfaceCanonicalCommitVerified,
+    );
+    const surfaceTrustState = resolveReportTrustState(
+      effectiveRendered,
+      currentPassport,
+      surfaceEvidenceStatus,
+      surfaceCanonicalCommitVerified,
+    );
+    const surfaceSpecialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
+    const catalogItem = mapCatalogItem(job as Record<string, unknown>, sourceAnalysis);
+    if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
+
+    const surfaceWarnings = [
+      ...runtimeWarnings,
+      'تم فتح سطح القرار/العمل بقراءة Readback خفيفة؛ الصفوف الكانونية التفصيلية لا تُعاد قراءتها هنا لأنها لا تُحتاج لبناء حالة القرار/العمل.',
+      ...(surfaceCommitError ? ['تعذر قراءة canonical_import_commits في سطح القرار/العمل؛ بقيت الحالة في المراجعة دون ترقية مصطنعة.'] : []),
+    ];
+
+    const surfaceIntelligence = emptyReportIntelligence(surfaceSpecialty);
+    surfaceIntelligence.advisorBrief = {
+      ...surfaceIntelligence.advisorBrief,
+      headline: 'سطح القرار/العمل مبني على سجل التقرير والدليل المحفوظ؛ التحليل الصفّي الكامل يبقى داخل التقرير الذكي.',
+      recommendedAction: 'استخدم التقرير الذكي لقراءة الصفوف والإشارات التفصيلية، ثم تابع القرار والعمل من هذا السطح.',
+      proofRequirement: surfaceCanonicalCommitVerified
+        ? 'تم إثبات Passport + قبول الدليل + عدد الصفوف المعتمد لهذا المصدر نفسه.'
+        : 'لم يكتمل إثبات الاعتماد الكانوني الكامل لهذا السطح؛ لا تتم ترقية الحالة تلقائيًا.',
+    };
+
+    const surfaceRendered = {
+      ...effectiveRendered,
+      sourceSpecialty: surfaceSpecialty ?? effectiveRendered.sourceSpecialty ?? null,
+      trustState: surfaceTrustState,
+      archetypeId: typeof effectiveRendered.archetypeId === 'string' ? effectiveRendered.archetypeId : null,
+      archetypeVersion: effectiveRendered.archetypeVersion == null ? null : Number(effectiveRendered.archetypeVersion),
+      archetypeState: typeof effectiveRendered.archetypeState === 'string' ? effectiveRendered.archetypeState : 'REVIEW_REQUIRED',
+      signalStatus: typeof effectiveRendered.signalStatus === 'string' ? effectiveRendered.signalStatus : 'NO_EXCEPTIONAL_SIGNALS',
+      intelligenceStatus: typeof effectiveRendered.intelligenceStatus === 'string' ? effectiveRendered.intelligenceStatus : 'REVIEW_REQUIRED',
+      calculationPersistenceStatus: typeof effectiveRendered.calculationPersistenceStatus === 'string' ? effectiveRendered.calculationPersistenceStatus : 'NOT_RUN',
+    };
+
+    const detail: SmartReportDetail = {
+      ...catalogItem,
+      jobId: String(job.id),
+      tenantId: companyId,
+      isCurrentForSource,
+      currentSourceReportJobId,
+      currentSourceReportCompletedAt,
+      sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
+      sourceHash: String(job.source_hash ?? ''),
+      entityType: entityTypeFrom(String(job.job_key ?? '')),
+      rowCount: sourceRowCount,
+      qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+      trustState: surfaceTrustState,
+      specialty: surfaceSpecialty,
+      canonicalRows: [],
+      intelligence: surfaceIntelligence,
+      evidenceStatus: surfaceEvidenceStatus,
+      completedAt: job.completed_at == null ? null : String(job.completed_at),
+      importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),
+      checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
+      renderedOutput: surfaceRendered,
+      calculationPersistence: null,
+      sourceAnalysis,
+      authoritativeCurrentRowCount: Number.isFinite(surfaceCommittedCount) ? surfaceCommittedCount : null,
+      canonicalCommitGap: surfaceCommitGap,
+      canonicalCommitCount: Number.isFinite(surfaceCommittedCount) ? surfaceCommittedCount : 0,
+      canonicalCommitVerified: surfaceCanonicalCommitVerified,
+      canonicalAnalysisScope: 'READBACK_ONLY',
+      sourceTrustState: surfaceTrustState,
+      reportVerificationState: surfaceCanonicalCommitVerified
+        ? 'VERIFIED'
+        : surfaceCommitGap != null && surfaceCommitGap > 0
+          ? 'GAP_DETECTED'
+          : 'PARTIAL_ANALYSIS',
+      runtimeWarnings: surfaceWarnings,
+      stages: (stages ?? []).map((row) => ({
+        ordinal: Number(row.ordinal),
+        stage: String(row.stage),
+        status: String(row.status),
+        attempt: Number(row.attempt ?? 0),
+        startedAt: row.started_at == null ? null : String(row.started_at),
+        completedAt: row.completed_at == null ? null : String(row.completed_at),
+        lastError: row.last_error && typeof row.last_error === 'object' ? row.last_error as Record<string, unknown> : {},
+        evidence: row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {},
+      })),
+    };
+
+    smartReportReadCache.set(cacheKey, {
+      expiresAt: Date.now() + SMART_REPORT_READ_CACHE_TTL_MS,
+      detail,
+    });
+    return detail;
+  }
+
   const canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }> = [];
   const canonicalFetchPageSize = 1000;
   const canonicalFetchLimit = 50000;
@@ -699,6 +983,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   if (canonicalCommitQueryFailed) {
     runtimeWarnings.push('تعذر قراءة سجل الاعتماد الكانوني؛ تم فصل فشل القراءة عن فجوة البيانات وعدم إصدار فجوة رقمية مصطنعة.');
   }
+
 
   if (canonicalResolvedFromCommit) {
     runtimeWarnings.push('تم ربط التقرير بالاستيراد الكانوني الفعلي من سجل الاعتماد لنفس بصمة المصدر؛ معرف تنفيذ التقرير مختلف عن معرف الاستيراد الكانوني.');
@@ -776,25 +1061,20 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalCommitLineageCount === actualCanonicalRowCount &&
     !canonicalRowsPartial;
 
+  const evidenceStatus = resolveReportEvidenceStatus(effectiveRendered, canonicalCommitVerified);
+  const runtimeTrustState = resolveReportTrustState(
+    effectiveRendered,
+    currentPassport,
+    evidenceStatus,
+    canonicalCommitVerified,
+  );
+
   if (canonicalCommitLineageCount != null && canonicalCommitLineageCount !== actualCanonicalRowCount) {
     runtimeWarnings.push(
       `تعارض في تغطية المصدر: Passport يثبت ${canonicalCommitLineageCount} صفًا بينما القراءة الكانونية الفعلية أعادت ${actualCanonicalRowCount} صفًا. تم خفض الاعتماد على Passport وعدم اعتبار التقرير مكتمل التغطية.`,
     );
   }
 
-  const sourceAnalysis = analysis ? {
-    id: String(analysis.id),
-    importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
-    sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
-    analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
-    qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
-    rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
-    columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
-    createdAt: analysis.created_at == null ? null : String(analysis.created_at),
-    datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
-  } : null;
-
-  const evidenceStatus = resolveReportEvidenceStatus(effectiveRendered, canonicalCommitVerified);
   const specialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
   const sourceAnalysisDatasets = Array.isArray(analysis?.datasets)
     ? analysis.datasets.filter((dataset): dataset is Record<string, unknown> => Boolean(dataset) && typeof dataset === 'object')
@@ -900,26 +1180,72 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   );
   if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
 
-  const availableFields = [...new Set(sourceColumnDescriptors(sourceAnalysis, canonicalRows).flatMap((column) => {
+  const descriptors = sourceColumnDescriptors(sourceAnalysis, canonicalRows);
+  const availableFields = [...new Set(descriptors.flatMap((column) => {
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
     const name = String(column.name ?? '').trim();
     return [mapped, name].filter(Boolean);
   }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
 
+  // Schema presence is not evidence of usable data. A field that is 100% blank
+  // must not qualify an archetype or generate a model-specific recommendation.
+  const usableFields = [...new Set(descriptors.filter((column) => {
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    const name = String(column.name ?? '').trim();
+    if (!mapped && !name) return false;
+    return canonicalRows.some((row) => Object.entries(row.data ?? {}).some(([key, value]) => {
+      const keyMapped = normalizeBusinessField(key);
+      const matches = (mapped && keyMapped === mapped) || key === name || key === mapped;
+      return matches && value !== null && value !== undefined && String(value).trim() !== '';
+    }));
+  }).flatMap((column) => {
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    const name = String(column.name ?? '').trim();
+    return [mapped, name].filter(Boolean);
+  }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+
+  const intelligenceAvailableFields = usableFields.length > 0 ? usableFields : availableFields;
+
   const detectedArchetype = detectReportArchetype({
     sourcePath: String(job.source_path ?? ''),
     specialty,
-    availableFields,
+    availableFields: intelligenceAvailableFields,
   });
 
-  let intelligence: ReportIntelligence = baseIntelligence;
+  let intelligence: SmartReportIntelligence = baseIntelligence;
   let archetypeState = detectedArchetype.state;
+  let calculationPersistence: CalculationPersistenceResult | null = null;
 
   if (!intelligenceEligible) {
     archetypeState = 'REVIEW_REQUIRED';
     intelligence = emptyReportIntelligence(specialty);
   } else if (detectedArchetype.profile) {
     try {
+      const { runCalculationRegistry } = await import('./report-intelligence/calculation-capability-registry.ts');
+      const calculationRegistryResults = runCalculationRegistry({
+        rows: canonicalRows,
+        archetypeId: detectedArchetype.profile.id,
+        includeUnavailable: true,
+      });
+      const { runAghbariIntelligenceKernel, compileKernelReportIntegration } = await import('./report-intelligence/aghbari-intelligence-kernel.ts');
+      const kernel: AghbariIntelligenceKernelResult = runAghbariIntelligenceKernel({
+        rows: canonicalRows,
+        specialty: detectedArchetype.profile.adapterSpecialty,
+        qualityScore: Number((sourceAnalysis as { qualityScore?: unknown } | null | undefined)?.qualityScore ?? 100),
+        canonicalRowsComplete: true,
+        evidenceReady: Boolean(effectiveRendered.evidenceSnapshotId || effectiveRendered.evidencePassportId),
+        provenance: {
+          tenantId: companyId,
+          sourceHash: String(job.source_hash ?? ''),
+          reportExecutionJobId: String(job.id),
+          evidenceSnapshotId: typeof effectiveRendered.evidenceSnapshotId === 'string' ? effectiveRendered.evidenceSnapshotId : null,
+          evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
+        },
+      });
+      const kernelIntegration = compileKernelReportIntegration(kernel, {
+        domain: detectedArchetype.profile.domain,
+        recommendationFocus: detectedArchetype.profile.recommendationFocus,
+      });
       const archetypeRun = runReportArchetype({
         intelligence: baseIntelligence,
         provenance: {
@@ -930,10 +1256,14 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
           sourceVersionId: typeof effectiveRendered.sourceVersionId === 'string' ? effectiveRendered.sourceVersionId : null,
         },
-        availableFields,
+        availableFields: intelligenceAvailableFields,
+
         sampleSize: effectiveRendered.rowCount == null ? 0 : Number(effectiveRendered.rowCount),
         archetypeId: detectedArchetype.profile.id,
         profileVersion: detectedArchetype.profile.version,
+        calculations: calculationRegistryResults,
+        kernel,
+        kernelIntegration,
         report: {
           specialty,
           rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
@@ -944,15 +1274,60 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       });
 
       archetypeState = archetypeRun.state;
-      intelligence = archetypeRun.state === 'SUPPORTED'
-        ? archetypeRun.intelligence
-        : {
-            ...baseIntelligence,
-            advisorBrief: {
-              ...baseIntelligence.advisorBrief,
-              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح دون اعتماد النموذج المتخصص.',
-            },
-          };
+      const archetypeIntelligence = archetypeRun.intelligence as SmartReportIntelligence;
+      if (archetypeRun.state === 'SUPPORTED') {
+        intelligence = archetypeIntelligence;
+      } else {
+        // Fail closed: do not expose model-specific findings/recommendations
+        // when the selected archetype is not actually supported by usable data.
+        intelligence = {
+          ...baseIntelligence,
+          advisorBrief: {
+            ...baseIntelligence.advisorBrief,
+            health: 'REVIEW_REQUIRED',
+            headline: 'النموذج المتخصص يحتاج مراجعة؛ تم إبقاء الحقائق والإشارات المصدرية فقط دون توصية نموذجية غير مثبتة.',
+          },
+        };
+      };
+
+      const calculations = intelligence.calculations ?? calculationRegistryResults;
+      const calculationsForPersistence = calculations.map((calculation) => ({
+        ...calculation,
+        details: {
+          ...(calculation.details ?? {}),
+          kernel: intelligence.kernel ? {
+            version: intelligence.kernel.version,
+            status: intelligence.kernel.status,
+            quality: intelligence.kernel.quality,
+            anomalyCount: intelligence.kernel.anomalies.length,
+            scenarioCount: intelligence.kernel.scenarios.length,
+            sensitivityCount: intelligence.kernel.sensitivity.length,
+            blindSpot: intelligence.kernel.blindSpot,
+            trace: intelligence.kernel.trace.map((entry) => ({ stage: entry.stage, status: entry.status, output: entry.output })),
+          } : null,
+        },
+      }));
+      if (calculationsForPersistence.length > 0) {
+        calculationPersistence = await persistAndReadBackCalculations({
+          tenantId: companyId,
+          reportExecutionJobId: String(job.id),
+          sourceHash: String(job.source_hash ?? ''),
+          evidenceSnapshotId: typeof effectiveRendered.evidenceSnapshotId === 'string' ? effectiveRendered.evidenceSnapshotId : null,
+          evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
+          archetypeId: detectedArchetype.profile.id,
+          profileVersion: detectedArchetype.profile.version,
+          calculations: calculationsForPersistence,
+        });
+
+        if (calculationPersistence.status !== 'VERIFIED') {
+          archetypeState = 'REVIEW_REQUIRED';
+          runtimeWarnings.push(
+            'تعذر إثبات حفظ نتائج Calculation Capability أو قراءتها مرة أخرى: ' +
+            calculationPersistence.status +
+            (calculationPersistence.mismatches.length ? ' — ' + calculationPersistence.mismatches.join(', ') : ''),
+          );
+        }
+      }
     } catch (error) {
       runtimeWarnings.push('تعذر تشغيل النموذج المتخصص لهذا المصدر؛ تم الإبقاء على الذكاء المصدرّي المتاح وحالة المراجعة.');
       console.error('[SmartReport] runReportArchetype failed', error);
@@ -993,6 +1368,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     // Persisted renderedOutput may carry a stale specialty from the original
     // execution. The runtime source analysis is authoritative for classification.
     sourceSpecialty: specialty ?? effectiveRendered.sourceSpecialty ?? null,
+    trustState: runtimeTrustState,
     archetypeId: detectedArchetype.profile?.id ?? null,
     archetypeVersion: detectedArchetype.profile?.version ?? null,
     profileVersion: detectedArchetype.profile?.version ?? null,
@@ -1000,21 +1376,27 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     archetypeReason: detectedArchetype.reason,
     signalStatus: runtimeSignalStatus,
     intelligenceStatus: runtimeIntelligenceStatus,
+    calculationPersistenceStatus: calculationPersistence?.status ?? 'NOT_RUN',
+    calculationPersistedCount: calculationPersistence?.persistedCount ?? 0,
+    calculationReadBackCount: calculationPersistence?.readBackCount ?? 0,
   };
 
-  return {
+  const detail: SmartReportDetail = {
     ...catalogItem,
     archetypeState,
     archetypeId: detectedArchetype.profile?.id ?? null,
     archetypeVersion: detectedArchetype.profile?.version ?? null,
     jobId: String(job.id),
     tenantId: companyId,
+    isCurrentForSource,
+    currentSourceReportJobId,
+    currentSourceReportCompletedAt,
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
     rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
-    trustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    trustState: runtimeTrustState,
     specialty,
     canonicalRows,
     intelligence,
@@ -1023,13 +1405,14 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: runtimeRendered,
+    calculationPersistence,
     sourceAnalysis,
     authoritativeCurrentRowCount,
     canonicalCommitGap,
     canonicalCommitCount,
     canonicalCommitVerified,
     canonicalAnalysisScope,
-    sourceTrustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    sourceTrustState: runtimeTrustState,
     reportVerificationState: canonicalCommitQueryFailed || !canonicalRowsComplete || canonicalRowsPartial
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
@@ -1049,4 +1432,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       evidence: row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {},
     })),
   };
+
+  smartReportReadCache.set(cacheKey, {
+    expiresAt: Date.now() + SMART_REPORT_READ_CACHE_TTL_MS,
+    detail,
+  });
+  return detail;
 }

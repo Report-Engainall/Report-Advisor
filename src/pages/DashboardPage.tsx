@@ -11,17 +11,14 @@ import { LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/
 const TrendChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.TrendChart })));
 const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.CategoryPieChart })));
 const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.HorizontalBarChart })));
-import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
+import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
+import { fetchLatestSmartReportBySourceHash, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
-import type {
-  DashboardKPIs,
-  MonthlyTrend,
-  TopEntity,
-  CategoryBreakdown,
-  AgingDashboard,
-} from '@/lib/dashboard-canonical';
+import type { ReportRecommendation } from '@/lib/report-intelligence/report-smart-insights';
 import { readWorkspacePreferences, type WorkspacePreferences } from '@/lib/workspace-mode';
+
+const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 
 const TREND_RANGES = [
   { value: 3, label: '3 أشهر' },
@@ -57,12 +54,14 @@ function PulseMetric({
   detail,
   icon,
   status,
+  valueUnit = 'currency',
 }: {
   label: string;
   value: number | null;
   detail?: string;
   icon: ReactNode;
   status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
+  valueUnit?: 'currency' | 'percent' | 'number';
 }) {
   const stateLabel = status === 'CONFIRMED' ? 'مثبت' : status === 'CALCULATED' ? 'محسوب' : 'غير كافٍ';
   const stateTone = status === 'CONFIRMED'
@@ -79,7 +78,15 @@ function PulseMetric({
       </div>
       <div className="mt-2 flex items-end justify-between gap-2">
         <div className="min-w-0">
-          <div className="truncate text-[18px] font-black tabular-nums text-ink-950">{value === null ? 'غير متاح' : formatCurrency(value)}</div>
+          <div className="truncate text-[18px] font-black tabular-nums text-ink-950">
+            {value === null
+              ? 'غير متاح'
+              : valueUnit === 'percent'
+                ? value.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '%'
+                : valueUnit === 'number'
+                  ? value.toLocaleString('ar-YE', { maximumFractionDigits: 0 })
+                  : formatCurrency(value)}
+          </div>
           {detail && <div className="mt-0.5 truncate text-[10px] text-ink-400">{detail}</div>}
         </div>
         <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + stateTone}>{stateLabel}</span>
@@ -103,6 +110,8 @@ export function DashboardPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [workspacePreferences, setWorkspacePreferences] = useState<WorkspacePreferences>(readWorkspacePreferences);
+  const [primaryReport, setPrimaryReport] = useState<SmartReportDetail | null>(null);
+  const [smartRecommendations, setSmartRecommendations] = useState<ReportRecommendation[]>([]);
 
   const load = useCallback(async (silent = false) => {
     try {
@@ -110,38 +119,74 @@ export function DashboardPage() {
       else setLoading(true);
       setError(null);
 
-      const [
-        {
-          kpis: nextKpis,
-          trend: nextTrend,
-          topCustomers: customers,
-          topProducts: products,
-          categories: nextCategories,
-          aging: nextAging,
-          asOf: nextAsOf,
-        },
-        intelligence,
-      ] = await Promise.all([
-        fetchDashboardSnapshot(trendMonths),
-        fetchDashboardIntelligence(),
-      ]);
+      // The landing surface is evidence-first. Read the designated current
+      // source directly instead of building a broad customer-facing catalog first.
+      // This avoids a large multi-query catalog fan-out during browser auth/session
+      // convergence and keeps the first customer screen bound to one real source.
+      let nextPrimaryReport = null;
+      let lastSourceReadError: unknown = null;
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        try {
+          nextPrimaryReport = await fetchLatestSmartReportBySourceHash(
+            PRIMARY_SMART_REPORT_SOURCE_HASH,
+            { signal: AbortSignal.timeout(25000) },
+          );
+          lastSourceReadError = null;
+          break;
+        } catch (cause) {
+          lastSourceReadError = cause;
+          if (attempt < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 700 * attempt));
+          }
+        }
+      }
 
-      setKpis(nextKpis);
-      setSnapshotAsOf(nextAsOf);
-      setTrend(nextTrend);
-      setTopCustomers(customers.slice(0, 5));
-      setTopProducts(products.slice(0, 5));
-      setCategories(nextCategories);
-      setAging(nextAging);
-      setRecommendations(intelligence.recommendations);
-      setAlerts(intelligence.alerts);
+      if (nextPrimaryReport) {
+        const sourceKpis: DashboardKPIs = {
+          totalSales: null,
+          totalCost: null,
+          grossProfit: null,
+          grossMargin: null,
+          totalReceivables: null,
+          overdueReceivables: null,
+          totalPayables: null,
+          inventoryValue: null,
+          totalCustomers: null,
+          activeCustomers: null,
+          totalProducts: null,
+          invoiceCount: null,
+          avgInvoiceValue: null,
+          collectionRate: null,
+          status: 'INSUFFICIENT_DATA',
+        };
+        setKpis(sourceKpis);
+        setSnapshotAsOf(null);
+        setTrend([]);
+        setTopCustomers([]);
+        setTopProducts([]);
+        setCategories([]);
+        setAging({
+          rows: [],
+          totalAmount: null,
+          unknownRows: 0,
+          status: 'NO_DATA',
+        });
+        setRecommendations([]);
+        setSmartRecommendations(nextPrimaryReport.intelligence?.recommendations ?? []);
+        setAlerts([]);
+        setPrimaryReport(nextPrimaryReport);
+        return;
+      }
+
+      throw new Error('لا يوجد تقرير مصدر حقيقي صالح للعرض ضمن سياق المؤسسة الحالية.');
     } catch (cause) {
+      console.error('[Dashboard] source-bound landing load failed', cause);
       setError(cause instanceof Error ? cause.message : 'فشل تحميل لوحة الأعمال');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [trendMonths]);
+  }, []);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -180,6 +225,22 @@ export function DashboardPage() {
   }, [recommendations]);
 
   const dashboardNextAction = useMemo(() => {
+    if (primaryReport) {
+      if (smartRecommendations[0]) {
+        return {
+          to: '/reports/smart/' + encodeURIComponent(primaryReport.jobId) + '?sourceHash=' + encodeURIComponent(primaryReport.sourceHash),
+          label: 'فتح التوصية',
+          title: smartRecommendations[0].title,
+          description: smartRecommendations[0].action,
+        };
+      }
+      return {
+        to: '/reports/smart/' + encodeURIComponent(primaryReport.jobId) + '?sourceHash=' + encodeURIComponent(primaryReport.sourceHash),
+        label: 'فتح التقرير الحقيقي',
+        title: primaryReport.intelligence?.advisorBrief?.headline ?? 'التقرير الحالي موثق وقابل للمراجعة',
+        description: 'افتح التقرير لمراجعة الإشارة والدليل والقيود قبل اعتماد أي قرار.',
+      };
+    }
     if (kpis?.status === 'INSUFFICIENT_DATA') {
       return {
         to: '/data-quality',
@@ -224,6 +285,17 @@ export function DashboardPage() {
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis || !aging) return <DataUnavailableState title="صورة الأعمال غير مكتملة" message="تعذر بناء المؤشرات الأساسية كاملة من المصدر الحالي؛ لا نعرض لوحة فارغة ولا نصنع قيمًا بديلة." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
+  const sourceCalculations = primaryReport?.intelligence?.calculations ?? [];
+  const sourceCalculation = (metricId: string) =>
+    sourceCalculations.find((item) => item.metricId === metricId && item.availabilityState === 'CALCULATED') ?? null;
+  const sourceRowCount = sourceCalculation('row.count')?.value
+    ?? primaryReport?.authoritativeCurrentRowCount
+    ?? primaryReport?.rowCount
+    ?? null;
+  const sourceCompleteness = sourceCalculation('data.completeness')?.value;
+  const sourceOutlierRate = sourceCalculation('data.numeric.outlier.rate')?.value;
+  const sourceDuplicateRate = sourceCalculation('row.duplicate.rate')?.value;
+  const sourceCoverage = typeof sourceCompleteness === 'number' ? Math.round(sourceCompleteness) : Number(primaryReport?.qualityScore ?? NaN);
   const evidenceMetrics = [
     kpis.totalSales,
     kpis.grossProfit,
@@ -234,8 +306,10 @@ export function DashboardPage() {
     kpis.invoiceCount,
     kpis.collectionRate,
   ];
-  const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
-  const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
+  const coverage = primaryReport && Number.isFinite(sourceCoverage)
+    ? sourceCoverage
+    : Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
+  const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA' && !primaryReport
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
     : { to: '/analytics', label: 'فتح التحليل' };
 
@@ -260,8 +334,9 @@ export function DashboardPage() {
           </div>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
-          <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
+          <StatusLine status={primaryReport ? 'CALCULATED' : kpis.status} text={primaryReport ? 'تقرير حقيقي موثق' : (kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام')} />
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية الحقيقة {coverage}%</span>
+          {primaryReport && <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-slate-300">{Number(sourceRowCount ?? 0).toLocaleString('ar-YE')} صفًا مصدرية</span>}
           <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">حتى: {snapshotAsOf ?? 'غير متاح'}</span>
           <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-800 hover:bg-primary-100 disabled:opacity-60">
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
@@ -271,7 +346,52 @@ export function DashboardPage() {
       </section>
 
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
-      
+
+      {primaryReport && (
+        <section data-testid="primary-real-smart-report-card" className="rounded-[20px] border border-[#25334a] bg-[linear-gradient(135deg,#09111f,#142438)] p-5 text-white shadow-[0_26px_70px_-40px_rgba(15,23,42,.95)] lg:p-6" aria-label="التقرير الحقيقي الحالي">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.12em] text-primary-200">
+                <span>مصدر حقيقي · مرتبط بسياق التقرير</span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{primaryReport.trustState === 'VERIFIED' ? 'الدليل موثق' : 'الحالة: ' + primaryReport.trustState}</span>
+              </div>
+              <h2 className="mt-2 text-xl font-black tracking-tight lg:text-2xl">{primaryReport.sourcePath}</h2>
+              <p className="mt-2 text-[11px] leading-6 text-slate-300">التقرير الذي يجب أن يراه صاحب العمل أولًا: {Number(primaryReport.authoritativeCurrentRowCount ?? primaryReport.rowCount ?? 0).toLocaleString('ar-YE')} صفًا موثقًا · جودة المصدر {primaryReport.qualityScore == null ? 'غير متاحة' : Math.round(primaryReport.qualityScore) + '%'} · حالة الدليل {primaryReport.evidenceStatus === 'VERIFIED' ? 'VERIFIED / READY / ACCEPTED' : primaryReport.evidenceStatus}.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link to={'/reports/smart/' + encodeURIComponent(primaryReport.jobId) + '?sourceHash=' + encodeURIComponent(primaryReport.sourceHash)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-[11px] font-black text-[#111827] hover:bg-amber-200">فتح التقرير الحقيقي</Link>
+              <Link to={'/trust?reportJobId=' + encodeURIComponent(primaryReport.jobId) + '&sourceHash=' + encodeURIComponent(primaryReport.sourceHash)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[11px] font-black text-white hover:bg-white/10">الدليل</Link>
+              <Link to={'/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(primaryReport.jobId) + '&sourceHash=' + encodeURIComponent(primaryReport.sourceHash)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[11px] font-black text-white hover:bg-white/10">القرار</Link>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
+              <div className="text-[9px] font-black tracking-[.1em] text-primary-200">الحقيقة</div>
+              <div className="mt-2 text-sm font-black">المصدر معتمد داخل التقرير</div>
+              <div className="mt-1 break-all font-mono text-[9px] leading-5 text-slate-400">{primaryReport.sourceHash}</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
+              <div className="text-[9px] font-black tracking-[.1em] text-primary-200">الإشارة</div>
+              <div className="mt-2 text-sm font-black">{primaryReport.intelligence?.advisorBrief?.headline ?? 'لا توجد إشارة مصدرية جاهزة للعرض.'}</div>
+              <div className="mt-1 text-[10px] leading-5 text-slate-400">لا تُرفع التوصية إلى قرار إلا عبر مسار الدليل والاعتماد.</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
+              <div className="text-[9px] font-black tracking-[.1em] text-primary-200">ما بعد التقرير</div>
+              <div className="mt-2 text-sm font-black">الحقيقة ← الدليل ← الإشارة ← القرار ← العمل</div>
+              <div className="mt-1 text-[10px] leading-5 text-slate-400">السياق محفوظ عبر نفس reportJobId + sourceHash.</div>
+            </div>
+            {smartRecommendations[0] && (
+              <div className="mt-3 rounded-2xl border border-amber-200/20 bg-amber-300/[.07] p-4">
+                <div className="text-[9px] font-black tracking-[.1em] text-amber-200">التوصية المصدرية</div>
+                <div className="mt-2 text-sm font-black text-white">{smartRecommendations[0].title}</div>
+                <div className="mt-1 text-[10px] leading-5 text-slate-300">{smartRecommendations[0].action}</div>
+                <div className="mt-2 text-[9px] leading-5 text-slate-400">الأهمية: {smartRecommendations[0].priority} · المالك المقترح: {smartRecommendations[0].ownerHint} · الأثر: {smartRecommendations[0].impact}</div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       <section className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
         <Card>
           <CardHeader title="ملخص القرار في دقيقة" subtitle="أهم إشارة ثم الخطوة التالية، من الحالة الحية الحالية." />
@@ -295,7 +415,7 @@ export function DashboardPage() {
           </CardBody>
         </Card>
         <Card>
-          <CardHeader title="تغطية الحقيقة والقرار" subtitle="اكتمال الصورة التنفيذية، ومدى جاهزية التوصيات للتنفيذ والمتابعة." />
+          <CardHeader title="تغطية الحقيقة والقرار" subtitle="اكتمال المصدر الحالي، ومدى جاهزية التوصيات للتنفيذ والمتابعة." />
           <CardBody>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -336,10 +456,21 @@ export function DashboardPage() {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US')} /></CardBody></Card>
+        {primaryReport ? (
+          <>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="السجلات المصدرية" value={typeof sourceRowCount === 'number' ? sourceRowCount : null} icon={<FileSearch size={16} />} status={sourceRowCount !== null ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="من المصدر الكانوني الحالي" valueUnit="number" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="اكتمال البيانات" value={typeof sourceCompleteness === 'number' ? sourceCompleteness : null} icon={<CheckCircle2 size={16} />} status={typeof sourceCompleteness === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="محسوب على الحقول الموجودة فعليًا" valueUnit="percent" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="القيم المتطرفة" value={typeof sourceOutlierRate === 'number' ? sourceOutlierRate : null} icon={<CircleAlert size={16} />} status={typeof sourceOutlierRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="شذوذ إحصائي؛ ليس خطأً مثبتًا" valueUnit="percent" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="تكرار الصفوف" value={typeof sourceDuplicateRate === 'number' ? sourceDuplicateRate : null} icon={<BarChart3 size={16} />} status={typeof sourceDuplicateRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="تطابق كامل للحمولة الصفية" valueUnit="percent" /></CardBody></Card>
+          </>
+        ) : (
+          <>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US')} /></CardBody></Card>
+          </>
+        )}
       </section>
 
       <section className="space-y-3">

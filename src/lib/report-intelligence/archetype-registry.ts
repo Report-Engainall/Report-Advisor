@@ -1,8 +1,9 @@
-import { matchCanonicalField, type CanonicalField } from './canonical-schema';
-import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator';
-import { deriveReportIntelligence } from './report-smart-insights';
-import { applyArchetypeRuleSet } from './archetype-evaluator';
-import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map';
+import { matchCanonicalField, type CanonicalField } from './canonical-schema.ts';
+import type { KernelReportIntegration } from './aghbari-intelligence-kernel.ts';
+import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator.ts';
+import { deriveReportIntelligence } from './report-smart-insights.ts';
+import { applyArchetypeRuleSet } from './archetype-evaluator.ts';
+import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map.ts';
 
 export type ArchetypeDomain =
   | 'sales'
@@ -271,6 +272,9 @@ export function runReportArchetype(
     archetypeId: string;
     profileVersion?: number | null;
     report: Parameters<typeof deriveReportIntelligence>[0];
+    kernel?: import('./aghbari-intelligence-kernel').AghbariIntelligenceKernelResult | null;
+    calculations?: import('./calculation-capability-registry').CalculationResult[] | null;
+    kernelIntegration?: KernelReportIntegration | null;
   },
 ): {
   profile: ArchetypeProfile;
@@ -293,13 +297,104 @@ export function runReportArchetype(
   }
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));
   const baseIntelligence = deriveReportIntelligence({ ...input.report, specialty: profile.adapterSpecialty });
-  const intelligence = applyArchetypeRuleSet(profile, { ...input.report, specialty: profile.adapterSpecialty }, baseIntelligence);
+  const legacyIntelligence = applyArchetypeRuleSet(profile, { ...input.report, specialty: profile.adapterSpecialty }, baseIntelligence);
+  const calculations = (input.calculations ?? []).map((item) => ({
+    ...item,
+    details: {
+      ...(item.details ?? {}),
+      archetypeId: profile.id,
+      profileVersion: input.profileVersion ?? profile.version,
+      tenantId: input.provenance.tenantId,
+      reportExecutionJobId: input.provenance.reportExecutionJobId,
+      sourceHash: input.provenance.sourceHash,
+      evidenceSnapshotId: input.provenance.evidenceSnapshotId ?? null,
+      evidencePassportId: input.provenance.evidencePassportId ?? null,
+    },
+  }));
+  const kernel = input.kernel ?? null;
+  const kernelIntegration = input.kernelIntegration ?? {
+    findings: [],
+    risks: [],
+    signals: [],
+    recommendations: [],
+    limitations: [],
+  };
+  const calculated = calculations.filter((item) => item.availabilityState === 'CALCULATED');
+  const riskMetric = (metricId: string, value: unknown): boolean => {
+    const n = typeof value === 'number' ? value : null;
+    if (n == null) return false;
+    return (
+      (metricId === 'inventory.negative.stock.rows' && n > 0) ||
+      (metricId === 'row.duplicate.rate' && n > 0) ||
+      (metricId === 'data.numeric.outlier.rate' && n >= 5) ||
+      (metricId === 'trend.first.last.change' && n <= -10) ||
+      (metricId === 'fulfillment.rate' && n < 80) ||
+      (metricId === 'inventory.coverage.ratio' && n < 1) ||
+      (metricId === 'profit.gross.margin' && n < 10)
+    );
+  };
+  const calculationFindings = calculated.map((item) => ({
+    id: 'calculation:' + item.metricId,
+    kind: riskMetric(item.metricId, item.value) ? 'RISK' as const : 'FINDING' as const,
+    priority: riskMetric(item.metricId, item.value) ? 'high' as const : 'medium' as const,
+    title: item.name,
+    statement: 'القيمة المحسوبة = ' + String(item.value ?? 'غير متاح') + (item.unit ? ' ' + item.unit : '') + '.',
+    value: typeof item.value === 'number' ? item.value : null,
+    unit: item.unit,
+    evidence: [...item.evidence, 'reportExecutionJobId=' + input.provenance.reportExecutionJobId, 'sourceHash=' + input.provenance.sourceHash],
+    limitation: item.limitation,
+    action: profile.recommendationFocus[0] ?? 'راجع المؤشر مع الدليل قبل القرار.',
+  }));
+  const calculationSignals = calculated.slice(0, 12).map((item) => ({
+    id: 'calculation:' + item.metricId,
+    severity: riskMetric(item.metricId, item.value) ? 'high' as const : 'info' as const,
+    title: item.name,
+    message: String(item.value ?? 'غير متاح'),
+    evidence: item.evidence,
+    soWhat: riskMetric(item.metricId, item.value) ? (profile.recommendationFocus[0] ?? 'راجع الإشارة مع الدليل.') : 'مؤشر وصفي يحتاج سياقًا قبل القرار.',
+    impact: item.unit ?? 'غير محدد',
+    ownerHint: profile.domain === 'inventory' ? 'مسؤول المخزون' : 'المسؤول التشغيلي المناسب للمصدر',
+    priority: riskMetric(item.metricId, item.value) ? 'P1' as const : 'P2' as const,
+    priorityReason: ['حساب موحد من Calculation Capability Layer', 'confidence=' + item.confidence],
+  }));
+  const calculationRecommendations = calculationFindings
+    .filter((finding) => finding.kind === 'RISK')
+    .map((finding) => ({
+      id: 'rec:' + finding.id,
+      status: 'PROPOSED' as const,
+      priority: 'high' as const,
+      title: 'معالجة: ' + finding.title,
+      action: finding.action,
+      why: finding.statement,
+      evidence: finding.evidence,
+      ownerHint: 'المسؤول التشغيلي المناسب للمصدر',
+      impact: 'يُقاس الأثر من المؤشر نفسه بعد الإجراء.',
+      expectedOutcome: 'تحسن المؤشر أو إغلاق سبب الانحراف مع نفس lineage.',
+      whyNow: 'تجاوز المؤشر حدًا تحليليًا معلنًا.',
+      measurement: finding.id + ' بعد الإجراء.',
+      risk: 'لا تثبت هذه النتيجة السببية وحدها.',
+      blocker: 'مطابقة الدليل قبل اعتماد القرار.',
+      limitation: finding.limitation,
+    }));
+  const intelligence = {
+    ...legacyIntelligence,
+    findings: [...(input.kernelIntegration?.findings ?? []), ...calculationFindings, ...legacyIntelligence.findings],
+    risks: [...(input.kernelIntegration?.risks ?? []), ...calculationFindings.filter((finding) => finding.kind === 'RISK'), ...legacyIntelligence.risks],
+    signals: [...(input.kernelIntegration?.signals ?? []), ...calculationSignals, ...legacyIntelligence.signals],
+    recommendations: [...(input.kernelIntegration?.recommendations ?? []), ...calculationRecommendations, ...legacyIntelligence.recommendations],
+    calculations,
+    kernel,
+    limitations: [
+      ...(input.kernelIntegration?.limitations ?? []),
+      ...calculations.filter((item) => item.availabilityState !== 'CALCULATED').map((item) => item.metricId + ':' + item.availabilityState),
+    ],
+  };
   const modelSignalPresent = intelligence.signals.some((signal) => signal.id === 'model:' + profile.id);
   const modelRecommendationPresent = intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id);
   const advisory = buildAdvisoryPacket({
     intelligence,
     provenance: input.provenance,
-    availableFields: input.availableFields,
+    availableFields: [...available],
     sampleSize: input.sampleSize,
     scope: input.scope,
     archetypeId: profile.id,

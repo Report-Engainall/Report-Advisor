@@ -96,15 +96,15 @@ function TrustEvidenceGeneralPage() {
     />
     <section className="ag-command-hero overflow-hidden rounded-[1.75rem] p-6 text-white lg:p-8">
       <div className="max-w-4xl">
-        <div className="text-[10px] font-black tracking-[.14em] text-primary-200">TRUTH CONTROL PLANE</div>
+        <div className="text-[10px] font-black tracking-[.14em] text-primary-200">حوكمة الحقيقة</div>
         <h2 className="mt-3 text-2xl font-black lg:text-3xl">لا رقم بلا سياق، ولا قرار بلا دليل.</h2>
         <p className="mt-3 text-sm leading-7 text-slate-300">الواجهة لا ترفع درجة الثقة من تلقاء نفسها. كل حالة مرتبطة بجودة المصدر أو حدود البيانات الفعلية.</p>
       </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-4" role="status" aria-live="polite">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">RECORDS CHECKED</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">الحالة الحالية</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">السجلات المفحوصة</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">المشكلات المرصودة</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">حرجة</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
       </div>
     </section>
 

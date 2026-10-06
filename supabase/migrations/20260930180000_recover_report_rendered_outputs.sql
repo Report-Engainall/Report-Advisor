@@ -67,22 +67,28 @@ begin
   loop
     v_import_id := r.import_job_id;
 
+    -- Source schema beats a stale job_key. Generic sales jobs can contain
+    -- unmistakable inventory layouts (sku + stock balance + movement/aging).
     v_specialty := case
-      when split_part(r.job_key, ':', 3) in ('sales','purchases','inventory','payments','receivables','profitability')
-        then split_part(r.job_key, ':', 3)
-      when split_part(r.job_key, ':', 3) = 'products' then 'inventory'
-      when split_part(r.job_key, ':', 3) = 'customers' then 'receivables'
+      when coalesce(r.datasets::text, '') ~* '("mappedField"\\s*:\\s*"sku"|"canonicalField"\\s*:\\s*"sku")'
+       and coalesce(r.datasets::text, '') ~* '("mappedField"\\s*:\\s*"(balance|current_stock|opening_balance|incoming|warehouse|stockout_days|stock_age_days|daily_sales_rate)"|"canonicalField"\\s*:\\s*"(balance|current_stock|opening_balance|incoming|warehouse|stockout_days|stock_age_days|daily_sales_rate)")'
+        then 'inventory'
+      when coalesce(r.datasets::text, '') ~* '(inventory|warehouse|stock|selling_price|cost_price|stockout_days|stock_age|مخزون|المخزن|الرصيد)'
+       and coalesce(r.datasets::text, '') ~* '(sku|product|opening_balance|incoming|net_sales|كمية|رقم الصنف|اسم الصنف)'
+        then 'inventory'
       when coalesce(r.datasets::text, '') ~* '(supplier|vendor|مورد)' and coalesce(r.datasets::text, '') ~* '(purchase|purchases|شراء|مشتريات)'
         then 'purchases'
       when coalesce(r.datasets::text, '') ~* '(receivable|outstanding|customer_balance|due_date|aging|ذمم|الاجل|آجل)'
         then 'receivables'
+      when coalesce(r.datasets::text, '') ~* '(payment|payments|cash|cashier|transaction|تحصيل|الصراف|الصندوق|مدفوع)'
+        then 'payments'
       when coalesce(r.datasets::text, '') ~* '(sales|net_sales|sales_amount|invoice_number|مبيعات|فواتير)'
         and coalesce(r.datasets::text, '') ~* '(quantity|amount|total|net)'
         then 'sales'
-      when coalesce(r.datasets::text, '') ~* '(payment|payments|cash|cashier|transaction|تحصيل|الصراف|الصندوق|مدفوع)'
-        then 'payments'
-      when coalesce(r.datasets::text, '') ~* '(inventory|warehouse|stock|selling_price|cost_price|quantity|مخزون|المخزن|الرصيد)'
-        then 'inventory'
+      when split_part(r.job_key, ':', 3) in ('sales','purchases','inventory','payments','receivables','profitability')
+        then split_part(r.job_key, ':', 3)
+      when split_part(r.job_key, ':', 3) = 'products' then 'inventory'
+      when split_part(r.job_key, ':', 3) = 'customers' then 'receivables'
       else null
     end;
 
@@ -189,7 +195,7 @@ begin
         'renderedOutput', jsonb_build_object(
           'outputs', v_outputs,
           'importId', v_import_id,
-          'entityType', split_part(r.job_key, ':', 3),
+          'entityType', v_specialty,
           'sourceHash', r.source_hash,
           'sourceBound', true,
           'renderedAt', now(),

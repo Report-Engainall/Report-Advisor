@@ -1,5 +1,6 @@
-import { AlertTriangle, ArrowLeft, FileText, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, FileText, ShieldCheck, Sparkles, TrendingUp, Search, Filter, ArrowUpDown, X, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useMemo, useState } from 'react';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
 import type { SmartReportDetail } from '@/lib/report-smart';
@@ -236,6 +237,171 @@ function contributionRows(report: SmartReportDetail) {
     .slice(0, 6);
 }
 
+
+function InteractiveReportExplorer({ report, topSignal }: { report: SmartReportDetail; topSignal: ReturnType<typeof selectExecutiveSignal> }) {
+  const [mode, setMode] = useState<'data' | 'signals'>('data');
+  const [query, setQuery] = useState('');
+  const [issuesOnly, setIssuesOnly] = useState(false);
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [selectedRow, setSelectedRow] = useState<Record<string, unknown> | null>(null);
+
+  const columns = useMemo(() => reportColumns(report).slice(0, 7), [report]);
+
+  const rows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    const filtered = report.canonicalRows.slice(0, 500).filter((row) => {
+      const values = Object.values(row.data ?? {}).map((value) => String(value ?? '').toLowerCase());
+      if (normalized && !values.some((value) => value.includes(normalized))) return false;
+      if (!issuesOnly) return true;
+      const balance = parseNumeric(rowValue(row.data ?? {}, 'balance'));
+      const stockout = parseNumeric(rowValue(row.data ?? {}, 'stockout_days'));
+      const age = parseNumeric(rowValue(row.data ?? {}, 'age'));
+      return (balance != null && balance <= 0) || (stockout != null && stockout <= 7) || (age != null && age >= 180);
+    });
+
+    return [...filtered].sort((a, b) => {
+      if (!sortField) return (a.row_number ?? 0) - (b.row_number ?? 0);
+      const av = parseNumeric(rowValue(a.data ?? {}, sortField));
+      const bv = parseNumeric(rowValue(b.data ?? {}, sortField));
+      if (av != null && bv != null) return sortDirection === 'asc' ? av - bv : bv - av;
+      const as = String(rowValue(a.data ?? {}, sortField) ?? '');
+      const bs = String(rowValue(b.data ?? {}, sortField) ?? '');
+      return sortDirection === 'asc' ? as.localeCompare(bs, 'ar') : bs.localeCompare(as, 'ar');
+    });
+  }, [report.canonicalRows, query, issuesOnly, sortField, sortDirection]);
+
+  const issueCount = useMemo(
+    () =>
+      report.canonicalRows.slice(0, 500).filter((row) => {
+        const balance = parseNumeric(rowValue(row.data ?? {}, 'balance'));
+        const stockout = parseNumeric(rowValue(row.data ?? {}, 'stockout_days'));
+        const age = parseNumeric(rowValue(row.data ?? {}, 'age'));
+        return (balance != null && balance <= 0) || (stockout != null && stockout <= 7) || (age != null && age >= 180);
+      }).length,
+    [report.canonicalRows],
+  );
+
+  const changeSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection((current) => current === 'asc' ? 'desc' : 'asc');
+      return;
+    }
+    setSortField(field);
+    setSortDirection('desc');
+  };
+
+  return (
+    <section className="rounded-[24px] border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between lg:p-5">
+        <div>
+          <div className="text-[10px] font-black tracking-[.12em] text-indigo-700">مساحة تفاعلية</div>
+          <h2 className="mt-1 text-xl font-black text-slate-950">استكشف التقرير بدل الاكتفاء بقراءته</h2>
+          <p className="mt-1 text-[10px] leading-5 text-slate-500">ابحث داخل المصدر، اعرض الحالات الحرجة، رتّب القيم، ثم افتح أي صف للوصول إلى تفاصيله ومسار إثباته.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setMode('data')} className={'rounded-xl px-4 py-2.5 text-[10px] font-black ' + (mode === 'data' ? 'bg-slate-950 text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50')}>استكشاف البيانات</button>
+          <button type="button" onClick={() => setMode('signals')} className={'rounded-xl px-4 py-2.5 text-[10px] font-black ' + (mode === 'signals' ? 'bg-slate-950 text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50')}>الإشارة والقرار</button>
+        </div>
+      </div>
+
+      {mode === 'signals' ? (
+        <div className="grid gap-3 p-4 md:grid-cols-2 lg:p-5">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-center gap-2 text-[9px] font-black text-amber-800"><AlertTriangle size={14}/> الإشارة الأعلى أولوية</div>
+            <div className="mt-2 text-base font-black text-amber-950">{topSignal?.title ?? 'لا توجد إشارة استثنائية مثبتة'}</div>
+            <p className="mt-2 text-[10px] leading-5 text-amber-900">{topSignal?.message ?? 'المصدر الحالي لا يثبت إشارة أقوى من غيرها.'}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-1.5 rounded-xl bg-amber-950 px-3 py-2 text-[9px] font-black text-white">فتح سياق القرار <ExternalLink size={11}/></Link>
+              <button type="button" onClick={() => setMode('data')} className="rounded-xl border border-amber-200 bg-white px-3 py-2 text-[9px] font-black text-amber-900">افحص الصفوف</button>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+            <div className="text-[9px] font-black text-indigo-800">حالة المصدر</div>
+            <div className="mt-2 text-base font-black text-slate-950">{report.canonicalCommitVerified ? 'البيانات الكانونية موثقة' : 'البيانات تحتاج مراجعة'}</div>
+            <p className="mt-2 text-[10px] leading-5 text-slate-600">يمكن الانتقال من الإشارة إلى الدليل ثم القرار دون فقد سياق التقرير الحالي.</p>
+            <Link to={'/trust?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-[9px] font-black text-indigo-800">افتح الدليل <ExternalLink size={11}/></Link>
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 lg:p-5">
+          <div className="flex flex-col gap-2 md:flex-row">
+            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+              <Search size={15} className="shrink-0 text-slate-400"/>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحث في الصنف، الكود، المستودع أو أي قيمة…" className="min-w-0 flex-1 bg-transparent text-[11px] font-bold text-slate-800 outline-none placeholder:text-slate-400" aria-label="البحث داخل التقرير"/>
+              {query && <button type="button" onClick={() => setQuery('')} aria-label="مسح البحث" className="rounded-lg p-1 text-slate-400 hover:bg-white"><X size={14}/></button>}
+            </label>
+            <button type="button" onClick={() => setIssuesOnly((value) => !value)} className={'inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-[10px] font-black ' + (issuesOnly ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-slate-200 bg-white text-slate-700')}>
+              <Filter size={13}/>{issuesOnly ? 'عرض كل الصفوف' : 'الحالات الحرجة'} <span className="rounded-full bg-slate-100 px-1.5">{formatNumber(issueCount)}</span>
+            </button>
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[9px] text-slate-400">
+            <span>{formatNumber(rows.length)} نتيجة</span><span>·</span><span>من أول 500 صف قابل للاستكشاف</span><span>·</span><span>انقر الصف لفتح التفاصيل</span>
+          </div>
+
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-full text-right text-[10px]">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="whitespace-nowrap px-3 py-3 text-slate-400">الصف</th>
+                  {columns.slice(0, 6).map((column) => (
+                    <th key={column.key} className="whitespace-nowrap px-3 py-3">
+                      <button type="button" onClick={() => changeSort(column.mappedField ?? column.key)} className="inline-flex items-center gap-1 font-black text-slate-600 hover:text-slate-950">
+                        {compactFieldLabel(column.mappedField ?? column.name)} <ArrowUpDown size={11}/>
+                      </button>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.slice(0, 40).map((row) => (
+                  <tr
+                    key={row.row_number}
+                    tabIndex={0}
+                    onClick={() => setSelectedRow(row.data ?? {})}
+                    onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedRow(row.data ?? {}); } }}
+                    className="cursor-pointer border-t border-slate-100 transition hover:bg-indigo-50 focus:bg-indigo-50 focus:outline-none"
+                  >
+                    <td className="whitespace-nowrap px-3 py-3 font-black text-slate-400">#{row.row_number}</td>
+                    {columns.slice(0, 6).map((column) => <td key={column.key} className="max-w-[240px] truncate px-3 py-3 font-bold text-slate-700">{String(rowValue(row.data ?? {}, column.mappedField ?? column.key) ?? 'غير متاح')}</td>)}
+                  </tr>
+                ))}
+                {!rows.length && <tr><td colSpan={Math.max(2, columns.slice(0, 6).length + 1)} className="px-4 py-10 text-center text-slate-500">لا توجد صفوف مطابقة.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+
+          {selectedRow && (
+            <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-3 sm:items-center" role="dialog" aria-modal="true" aria-label="تفاصيل سجل من المصدر">
+              <div className="max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-[24px] bg-white shadow-2xl">
+                <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                  <div><div className="text-[9px] font-black tracking-[.12em] text-indigo-700">سجل المصدر</div><div className="mt-1 text-lg font-black text-slate-950">تفاصيل الصف كاملة</div></div>
+                  <button type="button" onClick={() => setSelectedRow(null)} className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50" aria-label="إغلاق التفاصيل"><X size={17}/></button>
+                </div>
+                <div className="max-h-[64vh] overflow-auto p-5">
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {Object.entries(selectedRow).map(([key, value]) => (
+                      <div key={key} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <div className="text-[9px] font-black text-slate-400">{compactFieldLabel(key)}</div>
+                        <div className="mt-1 break-words text-[11px] font-bold text-slate-800">{String(value ?? 'غير متاح')}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4">
+                  <span className="text-[9px] text-slate-400">الاستكشاف للقراءة فقط؛ لا يتم تعديل المصدر من هنا.</span>
+                  <Link to={'/trust?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-1.5 rounded-xl bg-slate-950 px-3 py-2 text-[10px] font-black text-white">فتح الدليل <ExternalLink size={12}/></Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function CustomerReportSurface({
   report,
   expectedSpecialty,
@@ -285,6 +451,8 @@ export function CustomerReportSurface({
           </div>
         </div>
       </section>
+
+      <InteractiveReportExplorer report={report} topSignal={topSignal} />
 
       {!actualMatches && (
         <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-950">

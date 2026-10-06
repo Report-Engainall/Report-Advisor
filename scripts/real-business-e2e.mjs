@@ -467,7 +467,13 @@ function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_HASH), label + ': source hash missing');
   assert.ok(text.includes(String(CURRENT_REPORT_ROW_COUNT)), label + ': row count missing');
-  assert.ok(text.includes('موثوق') || text.includes('TRUSTED'), label + ': trust state missing');
+  assert.ok(
+    text.includes('موثوق') ||
+    text.includes('موثق') ||
+    text.includes('TRUSTED') ||
+    text.includes('VERIFIED'),
+    label + ': trust state missing'
+  );
 }
 
 async function readCurrentPersistedReport(page, companyId) {
@@ -1010,6 +1016,27 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   assert.ok(workAudit.length > 0, 'WORK_AUDIT_READBACK_MISSING');
   assert.ok(outcomeAudit.length > 0, 'OUTCOME_AUDIT_READBACK_MISSING');
 
+  const learningState =
+    outcomeRows[0].actual_impact != null
+      ? 'OBSERVED'
+      : outcomeRows[0].expected_impact != null
+        ? 'INSUFFICIENT'
+        : 'NOT_AVAILABLE';
+  assert.ok(String(outcomeRows[0].decision_id) === decisionId, 'OUTCOME_LEARNING_DECISION_LINK_MISSING');
+  assert.ok(String(recommendationRows[0].evidence_snapshot_id), 'OUTCOME_LEARNING_EVIDENCE_MISSING');
+  evidence.steps.push({
+    step: 'outcome-learning-readback',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: report.sourceHash,
+    decisionId,
+    outcomeId: String(outcomeRows[0].id),
+    learningState,
+    expectedImpactPresent: outcomeRows[0].expected_impact != null,
+    actualImpactPresent: outcomeRows[0].actual_impact != null,
+    evidenceSnapshotId: String(recommendationRows[0].evidence_snapshot_id),
+  });
+
   await workPage.screenshot({ path: reportDir + '/decision-approval-action-outcome.png', fullPage: true });
   evidence.steps.push({
     step: 'decision-approval-action-outcome',
@@ -1030,6 +1057,28 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   if (workActorContext) await workActorContext.close().catch(() => {});
 }
 
+
+async function proveBenchmarkEligibility(page, report) {
+  const target = baseURL + '/benchmark?reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash);
+  const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
+  assert.ok(response && response.status() < 400, 'benchmark: HTTP ' + (response?.status() ?? 'NO_RESPONSE'));
+  const body = (await page.locator('body').innerText()).trim();
+  assert.ok(body.includes('أهلية المقارنة لهذا التقرير'), 'BENCHMARK_SURFACE_MISSING');
+  assert.ok(body.includes('عينة غير كافية'), 'BENCHMARK_INSUFFICIENT_SAMPLE_STATE_MISSING');
+  assert.ok(body.includes('لا يتم اختلاق متوسط أو ترتيب أو نسبة تفوق'), 'BENCHMARK_NO_FABRICATION_GUARD_MISSING');
+  assert.ok(body.includes(report.reportJobId), 'BENCHMARK_REPORT_JOB_BINDING_MISSING');
+  assert.equal(new URL(page.url()).searchParams.get('reportJobId'), report.reportJobId, 'BENCHMARK_REPORT_JOB_QUERY_MISMATCH');
+  assert.equal(new URL(page.url()).searchParams.get('sourceHash'), report.sourceHash, 'BENCHMARK_SOURCE_HASH_QUERY_MISMATCH');
+  evidence.steps.push({
+    step: 'benchmark-eligibility-source-bound',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: report.sourceHash,
+    networkStatus: 'INSUFFICIENT_SAMPLE',
+    fabricatedRanking: false,
+  });
+  await page.screenshot({ path: reportDir + '/benchmark-eligibility-source-bound.png', fullPage: true });
+}
 
 async function proveContextPreservedSurface(page, report, surface) {
   const target = baseURL + surface.path;
@@ -1110,6 +1159,7 @@ try {
   assert.equal(await pageC.locator('[data-testid="smart-report-source-hash"]').count(), 1, 'CERTIFIED_REPORT_SOURCE_HASH_DOM_PROOF_MISSING_OR_DUPLICATE');
   evidence.steps.push({ step: 'certified-report-final-refresh-readback', status: 'PASS', reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, rowCount: REAL_SMART_REPORT_ROW_COUNT, qualityScore: Number(currentReport.rendered.qualityScore) });
 
+  await proveBenchmarkEligibility(pageC, currentReport);
   await proveTransactionalMutationAndAudit(pageA);
   await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
   await pageA.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });

@@ -1,4 +1,14 @@
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / DURABLE EVIDENCE PASSPORT
+# CURRENT INTELLIGENCE KERNEL CHECKPOINT — 2026-10-06
+- CURRENT PRODUCT CODE HEAD → `0b361737d97da3100085fe1563700f4c28430d8c`.
+- CURRENT BRANCH HEAD → `91190305a06b41d9d8ceb6e9c15def33cc8506f5` (documentation-only state reconciliation).
+- MAIN → `a6d034e05172189d278e689eb01a0c86454f529e`.
+- PR → `#850` / `feat/calculation-capability-engine-20261006`.
+- REAL SOURCE → `تقارير ادارية.xlsx` / job `16709d80-e012-40ef-9c12-6fd8255897f8` / 332 rows / source hash `sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313`.
+- KERNEL PROOF → stock 23075; demand 324250; coverage 0.0711642251; demand+15% coverage 0.0618819349; anomalies 3; scenarios 1; sensitivities 2; financial inventory value NOT_AVAILABLE.
+- PERFORMANCE → critical bundle 863.1KB ≤ 900KB fixed gate.
+- CONTRACTS → PASS locally; authenticated browser business proof and final certification remain OPEN.
+
 - CURRENT EXACT EXECUTION HEAD → 1d1a9aecb236c7a6753c9924518e3a6083e6f244.
 - CONTROL-PLANE WRITEBACK → documentation-only; no product/import rollback.
 - PR #730 → OPEN / MERGEABLE at the execution head before this writeback.

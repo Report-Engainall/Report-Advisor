@@ -1,25 +1,56 @@
 SESSION HANDOFF = READY
-PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
-REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
-REPORT_FOR_HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
-BRANCH = main
-PR = N/A
-UPDATED_AT = 2026-10-05T23:08:00+03:00
+REPORT_FOR_HEAD = 16a2f04ac4abb6bec2026d4eac21624be70d285a
+UPDATED_AT = 2026-10-06T22:36:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue from the exact product head, close proven failures, keep the Smart Report journey source-bound, and produce visible real-business results without rebuilding or fabricating PASS.
 
-WHAT_I_WAS_ASKED_TO_DO = Continue execution until the real report center and Smart Report are customer-visible and proven, not merely route-loaded or test-only.
+WHAT_I_ACTUALLY_DID = Removed the timeout-prone dashboard dependency, made calculation persistence tenant mismatch fail-soft, corrected Smart Report recommendation typing, added bounded tenant-resolution retry, reconciled the dashboard UI contract, and replaced the landing catalog fan-out with a direct source-hash-bound Smart Report read with bounded network/session retries.
+CURRENT_HEAD_CHANGE = 14caa persists the authoritative source-domain upgrade into import_jobs before durable canonical execution. The server now derives generic domain from authoritative parsed columns, upgrades generic:source-data when strongly classified, rejects conflicting generic domains, and records the inferred entity type as authoritative-source-schema metadata.
+FIRST_ACTIVE_FAILURE = Command Center source binding was implemented, then hardened to fail closed instead of reverting to generic dashboard sales data when the real source cannot be read.
+ROOT_CAUSE = The first source-bound Command Center repair still retained a legacy fallback path that could show unrelated sales/receivable data after a source-read failure.
+REPAIR = Command Center now retries the tenant-bound Smart Report read and throws a user-facing source error when no valid report is available; it no longer silently renders the legacy dashboard fallback on this decision surface.
 
-OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
+WHAT_IS_PROVEN = Live f68 inventory source remains internally consistent: generic:inventory job/import/commit/dataset/renderedOutput/Evidence Passport, 342/342, VERIFIED/ACCEPTED/READY/FULL. 940783 client import inference and 20cc5 server import inference now enforce the same source-domain rule.
+NOT_YET_PROVEN = current-head typecheck/build terminal PASS, current-head authenticated browser visual PASS, and customer-sale certification. Vercel is not a dependency and its current build-rate-limit failure is ignored.
 
-WHAT_I_ACTUALLY_DID = Reconciled duplicate source lineage for تقارير ادارية.xlsx; selected the authoritative inventory execution and evidence passport; switched the Reports Center primary binding to job 16709d80-e012-40ef-9c12-6fd8255897f8; changed the Reports Center first customer surface so the source-bound Smart Report is the primary hero instead of generic dashboard KPIs; added a public verified real-report proof block to /proposal-demo and stabilized its commercial hero layout; converted the redundant token-based Vercel Actions workflow to manual-only; aligned browser/business E2E contracts to the same 332-row authoritative report; removed the duplicate SourceBoundReportSurface import; and kept governance synchronized to the current main head.
+DO_NOT_REPEAT = Do not rebuild; do not delete prior work; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale-SHA PASS; do not weaken browser/security/truth contracts.
 
-WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. The product build succeeded on the preceding exact-head CI cycle. The current Vercel production is reachable at report-advisor.vercel.app and is on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd; later main commits are awaiting a fresh deployment because the Vercel free API deployment quota is currently exhausted.
+NEXT_EXACT_ACTION = Consume fresh Product Build and browser/certification terminals for 16a2. Fix only the first new terminal failure, then verify the Netlify preview and the real f68 inventory report surface.
 
-FIRST_ACTIVE_FAILURE = The last newly proven product failure was a duplicate SourceBoundReportSurface import in ExecutiveReportPage.tsx, which caused TypeScript to stop before browser proof. After that, the browser contracts were found to reference the stale 342-row sales job; those contracts are now aligned to the authoritative 332-row inventory job.
+LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
 
-ROOT_CAUSE = The customer path and proof path were both anchored to stale sales lineage instead of the verified inventory lineage, and the Reports Center visual hierarchy still placed generic KPIs above the actual source report.
+LANDING_UNIT_FORMAT_FIX = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51 adds explicit source metric units: row count renders as number; completeness/outlier/duplicate render as percentages, not currency.
 
-NEXT_EXACT_ACTION = Consume terminal CI results for 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1; fix only the first newly proven failure; then consume authenticated Chromium Smart Report evidence, 48/48 evidence, and final certification. Do not declare sale-ready before those same-head gates pass.
 
-CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/full-product-browser-e2e.yml; .github/workflows/github-pages-production.yml; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; scripts/real-business-e2e.mjs; scripts/run-full-product-browser-e2e.mjs; src/App.tsx; src/components/CustomerReportSurface.tsx; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx; src/lib/report-intelligence/report-smart-insights.ts; src/lib/report-smart.ts; src/pages/CanonicalImportPage.tsx; src/pages/ExecutiveReportPage.tsx; src/pages/ReportsPage.tsx; src/pages/SmartReportPage.tsx; vite.config.ts
+CURRENT_PRODUCT_TRUTH_FIX_1010F0A7 = Added net_sales/netsales aliases to sales_qty, added warehouse/store/location aliases, excluded 100%-blank fields from archetype qualification, and fail-closed unsupported archetypes to base source intelligence. This is a product behavior change, not a documentation-only claim.
+
+CURRENT_PRODUCT_CLOSURE_20261006 = Dashboard metric units now render from an initialized valueUnit; executive hero priority uses the same selected signal as the primary recommendation; unsupported/blank data cannot qualify an archetype.
+
+CURRENT_UI_FIX_8DE842 = Main Smart Report evidence pills are humanized; raw technical evidence is shown only inside a collapsible audit section.
+
+CURRENT_CODE_FIX_21C4 = Semantic field aliases are translated to official CanonicalField values without widening the schema type.
+
+CURRENT_RUNTIME_FIX_6CC664 = Reports Center reads PRIMARY_SMART_REPORT_SOURCE_HASH directly through fetchLatestSmartReportBySourceHash; catalog enrichment is non-blocking.
+
+CURRENT_LIVE_REPAIR_20261006 = Exact source hash sha256:587f...d6b313 for tenant f68 was reclassified from generic:sales to generic:inventory across report job, import job, canonical dataset/commit, rendered outputs and Passport lineage. No other tenant/source was touched.
+
+LIVE_DATA_REPAIR_20261006 = Tenant f68 + sourceHash sha256:587f...d6b313 reclassified from generic:sales to generic:inventory with 342 canonical rows. Evidence Passport retained id 07e3cb99-064f-4870-87cc-3d0862263834 and remains VERIFIED/ACCEPTED/READY.
+
+CURRENT_UI_CLEANUP_942F = Kernel implementation title moved to business language; raw calculation ids and Claim Rule/Archetype/Inputs moved to technical proof disclosure. Main customer surface no longer presents these as the primary story.
+
+CURRENT_IMPORT_DOMAIN_GUARD_20CC = Server-side canonical import now validates generic domain against authoritative parsed columns before durable write; mismatches are rejected and generic:source-data is upgraded when the source is strongly classifiable.
+
+CURRENT_IMPORT_DOMAIN_GUARD_14CAA = Source-domain inference is now enforced at client import, server canonical import, and recovery-render stages; import_jobs is upgraded before durable write when generic:source-data is superseded by authoritative schema inference.
+
+CURRENT_UI_CLEANUP_20261006 = Customer-facing technical leakage was reduced on SmartReportPage, ReportIntelligencePanel, TrustEvidencePage, AdvisorCasesPage, and ExecutiveCommandCenterPage; raw audit identifiers remain only where needed for traceability.
+
+EXECUTIVE_REPORT_SOURCE_BINDING_20261006 = /reports/executive now reads the current tenant-bound Smart Report directly by the canonical source hash and reuses its real specialty, evidence, signals, recommendation, and source rows; it no longer depends on the legacy dashboard sales snapshot for the general executive route.
+
+CURRENT_TYPECHECK_CLOSURE_20261006 = Closed the two terminal TypeScript errors reported by Product Build run 476; no other compile failure was present in that run.
+
+COMMAND_CENTER_SOURCE_BINDING_20261006 = /command-center now prefers the tenant-bound Smart Report for the current canonical source; the user-facing surface no longer renders the generic dashboard sales snapshot when the verified inventory report is available.
+
+COMMAND_CENTER_FAIL_CLOSED_20261006 = /command-center now prefers real Smart Report data and fails closed on source-read failure instead of exposing unrelated legacy dashboard metrics.
+
+INTERACTION_SURFACE_CLOSURE_20261006 = Surfaced report source exploration, signal inspection, evidence, and execution from the executive layer; replaced technical hero identifiers with business context; upgraded CustomerReportSurface and DataTable with search/sort/row-detail interactions.
+
+COMMAND_CENTER_ACTION_RAIL_20261006 = Command Center now provides direct source-bound jumps to القضية الآن, البيانات, and التنفيذ; the current report context is preserved in every link.

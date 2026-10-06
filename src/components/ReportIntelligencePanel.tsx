@@ -57,6 +57,32 @@ function number(value: number | null): string {
   return value == null ? 'غير متاح' : new Intl.NumberFormat('ar-YE', { maximumFractionDigits: 2 }).format(value);
 }
 
+function humanizeEvidence(value: string): string {
+  const labels: Record<string, string> = {
+    field: 'الحقل',
+    stockField: 'حقل النفاد',
+    dailySalesField: 'حقل معدل البيع اليومي',
+    affectedRows: 'السجلات المتأثرة',
+    negativeRows: 'السجلات ذات الرصيد السالب',
+    zeroRows: 'السجلات ذات الرصيد الصفري',
+    rows: 'السجلات',
+    duplicateRows: 'السجلات المتكررة',
+    usableRows: 'السجلات الصالحة',
+    sourceTotal: 'إجمالي المصدر',
+    inventoryValue: 'قيمة المخزون المرجعية',
+    productField: 'حقل الصنف',
+    valueShare: 'حصة القيمة',
+    productValue: 'قيمة الصنف المرجعية',
+    assumption: 'الافتراض',
+    deltaCoverage: 'تغير التغطية',
+    scenario_is_non_mutating: 'السيناريو لا يغيّر المصدر',
+  };
+  const [key, ...rest] = value.split('=');
+  if (rest.length === 0) return value;
+  const label = labels[key] ?? key.replace(/([A-Z])/g, ' $1').replace(/^./, (ch) => ch.toUpperCase());
+  return label + ': ' + rest.join('=');
+}
+
 export function ReportIntelligencePanel({ report }: { report: SmartReportDetail }) {
   const intelligence = report.intelligence;
   const [proposalState, setProposalState] = useState<Record<string, string>>({});
@@ -241,7 +267,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-ink-100 bg-ink-50/60 p-2.5">
                 <div className="text-[8px] font-black tracking-[.08em] text-ink-400">{label}</div>
-                <div className="mt-1 text-[9px] font-bold leading-4 text-ink-800">{value}</div>
+                <div className="mt-1 text-[9px] font-bold leading-4 text-ink-800">{label === 'الإثبات' ? humanizeEvidence(String(value)) : value}</div>
               </div>
             ))}
           </div>
@@ -327,22 +353,30 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <span className="text-[9px] font-bold text-ink-600">{driver.value}</span>
         </div>
         <div className="mt-1 grid gap-1 sm:grid-cols-4 text-[8px] text-ink-500">
-          <span>الفعلي: {driver.actual == null ? "N/A" : number(driver.actual)}</span>
-          <span>المتوقع: {driver.expected == null ? "N/A" : number(driver.expected)}</span>
-          <span>النسبة: {driver.share == null ? "N/A" : driver.share.toFixed(1) + "%"}</span>
-          <span>الفترة: {driver.period ?? "N/A"}</span>
+          <span>الفعلي: {driver.actual == null ? "غير متاح" : number(driver.actual)}</span>
+          <span>المتوقع: {driver.expected == null ? "غير متاح" : number(driver.expected)}</span>
+          <span>النسبة: {driver.share == null ? "غير متاح" : driver.share.toFixed(1) + "%"}</span>
+          <span>الفترة: {driver.period ?? "غير متاح"}</span>
         </div>
         <div className="mt-1 text-[8px] leading-4 text-ink-600">{driver.why}</div>
-        <div className="mt-1 flex flex-wrap gap-1">{driver.proof.map((proof) => <span key={proof} className="rounded-full bg-ink-50 px-2 py-1 font-mono text-[7px] text-ink-500">{proof}</span>)}</div>
+        <div className="mt-1 flex flex-wrap gap-1">{driver.proof.map((proof) => <span key={proof} className="rounded-full bg-ink-50 px-2 py-1 text-[7px] text-ink-500">{humanizeEvidence(proof)}</span>)}</div>
       </div>
     ))}
   </div> : null}
 </div>
 <div className="mt-2 flex flex-wrap gap-1.5">
                   {signal.evidence.map((evidence) => (
-                    <span key={evidence} className="rounded-full bg-white/70 px-2 py-1 font-mono text-[8px]">{evidence}</span>
+                    <span key={evidence} className="rounded-full bg-white/70 px-2 py-1 text-[8px]">{humanizeEvidence(evidence)}</span>
                   ))}
                 </div>
+                <details className="mt-2 rounded-lg border border-ink-100 bg-white/50 p-2">
+                  <summary className="cursor-pointer text-[8px] font-black text-ink-500">تفاصيل التدقيق الفني</summary>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {signal.evidence.map((evidence) => (
+                      <span key={'raw-' + evidence} className="rounded bg-ink-50 px-2 py-1 font-mono text-[7px] text-ink-500">{evidence}</span>
+                    ))}
+                  </div>
+                </details>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     type="button"

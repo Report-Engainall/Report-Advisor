@@ -7,6 +7,7 @@ import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
+import { KernelDecisionSurface } from '@/components/KernelDecisionSurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
@@ -455,7 +456,18 @@ function statusTone(value: string | null): string {
 function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDetail; initialSearch?: string }) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const definitionColumns = useMemo(() => normalizedDatasetColumns(report), [report, dataset]);
-  const rows = useMemo(() => report.canonicalRows.map((row) => row.data), [report.canonicalRows]);
+  const rows = useMemo(
+    () => report.canonicalRows
+      .map((row) => row.data)
+      .filter((row) => {
+        if (!row) return false;
+        return Object.entries(row).some(([key, value]) => {
+          if (/^(page_number|line_number|visual_cell_\d+)$/i.test(key)) return false;
+          return value !== null && value !== undefined && String(value).trim() !== '';
+        });
+      }),
+    [report.canonicalRows],
+  );
   const discoveredColumns = useMemo(() => {
     const technical = /^(page_number|line_number|visual_cell_\\d+)$/i;
     const businessColumns = uniqueBusinessColumns(definitionColumns, rows);
@@ -652,7 +664,10 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
           </label>
         )}
         <button type="button" onClick={() => setShowColumns((value) => !value)} aria-expanded={showColumns} className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2 text-[10px] font-bold text-ink-700 hover:bg-ink-50"><Columns3 size={14}/> الأعمدة ({visibleColumns.length}/{discoveredColumns.length})</button>
-        <div className="mr-auto text-[10px] text-ink-500">{formatNumber(orderedRows.length)} صف مطابق · {formatNumber(rows.length)} صف كانونـي</div>
+        <div className="mr-auto text-[10px] text-ink-500">
+          {formatNumber(orderedRows.length)} صف قابل للعرض · {formatNumber(report.canonicalRows.length)} صف كانونـي
+          {report.canonicalRows.length > rows.length ? ' · ' + formatNumber(report.canonicalRows.length - rows.length) + ' صف فارغ مستبعد من العرض' : ''}
+        </div>
       </div>
 
       {groupColumn && (
@@ -851,6 +866,24 @@ export function SmartReportPage() {
           : 'الذكاء المصدرّي متاح · الدليل النهائي غير مثبت';
 
   return <div dir="rtl" className="report-page ag-smart-report-surface space-y-5 animate-fade-in pb-10">
+    {!report.isCurrentForSource && report.currentSourceReportJobId && (
+      <section className="rounded-[18px] border border-warning-300 bg-warning-50 p-4 shadow-sm" role="status">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="text-[10px] font-black text-warning-950">هذا إصدار تاريخي لنفس المصدر</div>
+            <p className="mt-1 text-[10px] leading-5 text-warning-900">
+              هذه الصفحة محفوظة للتدقيق، لكنها ليست أحدث تشغيل لهذا الملف. استخدم التقرير الحالي حتى لا تختلط النتائج بين تشغيلين.
+            </p>
+          </div>
+          <Link
+            to={'/reports/smart/' + report.currentSourceReportJobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
+            className="shrink-0 rounded-xl bg-warning-900 px-3.5 py-2.5 text-[10px] font-black text-white"
+          >
+            فتح التقرير الحالي
+          </Link>
+        </div>
+      </section>
+    )}
     <PageHeader
       title={report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}
       subtitle="تقرير ذكي مربوط بالبصمة الأصلية، وليس نسخة تجريبية أو تقريرًا عامًا."
@@ -882,16 +915,18 @@ export function SmartReportPage() {
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE</div>
+              <div className="text-[8px] font-black tracking-[.12em] text-slate-400">المصدر</div>
               <div className="mt-1 break-words text-[11px] font-bold text-slate-100">{report.sourcePath}</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source-hash">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE HASH</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.sourceHash}</div>
+            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3">
+              <div className="text-[8px] font-black tracking-[.12em] text-slate-400">السجلات</div>
+              <div className="mt-1 text-[18px] font-black text-white">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">من المصدر الكانوني الحالي</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-job-id">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">REPORT JOB ID</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.jobId}</div>
+            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3">
+              <div className="text-[8px] font-black tracking-[.12em] text-slate-400">الثقة</div>
+              <div className="mt-1 text-[18px] font-black text-white">{confidenceLabel}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{sourceIsVerified ? 'المصدر موثق' : 'يحتاج مراجعة'}</div>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -907,6 +942,15 @@ export function SmartReportPage() {
           <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-slate-950">افتح الدليل ثم القرار</Link>
         </div>
       </div>
+      <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.04] p-2">
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => document.getElementById('smart-report-data-explorer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="rounded-xl bg-white px-3 py-2 text-[10px] font-black text-slate-950 hover:bg-slate-100">استكشف الصفوف</button>
+          <button type="button" onClick={() => document.getElementById('decision-chain')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black text-white hover:bg-white/10">افهم الإشارة</button>
+          <button type="button" onClick={() => { const node = document.getElementById('smart-report-details'); if (node instanceof HTMLDetailsElement) node.open = true; node?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black text-white hover:bg-white/10">افتح الأدلة والبيانات</button>
+          <Link to={'/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-[10px] font-black text-amber-100 hover:bg-amber-300/15">انتقل إلى التنفيذ</Link>
+        </div>
+      </div>
+
       <div className="mt-5 grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-700 bg-white/[.035] p-4">
           <div className="text-[9px] font-black text-slate-400">أهم نتيجة</div>
@@ -1047,7 +1091,7 @@ export function SmartReportPage() {
       </div>
     </details>
 
-    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+    <details id="smart-report-details" className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -1109,8 +1153,31 @@ export function SmartReportPage() {
 
     <ReportIntelligencePanel report={report} />
     <SmartReportAdvisorySurface report={report} />
+    <KernelDecisionSurface
+      kernel={report.intelligence.kernel}
+      calculations={report.intelligence.calculations}
+      archetypeState={report.archetypeState}
+      calculationPersistenceStatus={
+        report.calculationPersistence?.status ??
+        (typeof report.renderedOutput.calculationPersistenceStatus === 'string'
+          ? report.renderedOutput.calculationPersistenceStatus
+          : null)
+      }
+      calculationPersistedCount={
+        report.calculationPersistence?.persistedCount ??
+        (typeof report.renderedOutput.calculationPersistedCount === 'number'
+          ? report.renderedOutput.calculationPersistedCount
+          : null)
+      }
+      calculationReadBackCount={
+        report.calculationPersistence?.readBackCount ??
+        (typeof report.renderedOutput.calculationReadBackCount === 'number'
+          ? report.renderedOutput.calculationReadBackCount
+          : null)
+      }
+    />
 
-    <SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''}/>
+    <div id="smart-report-data-explorer"><SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''} /></div>
 
     
 
@@ -1121,11 +1188,11 @@ export function SmartReportPage() {
           <div data-testid="smart-report-job-id" className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
         </div>
         <div>
-          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE HASH</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">بصمة المصدر</div>
           <div data-testid="smart-report-source-hash" className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
         </div>
         <div>
-          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">المصدر</div>
           <div className="mt-1 text-[10px] font-bold text-white">{report.sourcePath}</div>
           <div className="mt-1 text-[9px] text-slate-400">الفترة: غير محددة في المصدر ما لم يثبتها الملف.</div>
         </div>
@@ -1139,7 +1206,7 @@ export function SmartReportPage() {
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {(['evidenceStatus','signalStatus','intelligenceStatus'] as const).map((key) => {
           const value = key === 'evidenceStatus' ? (report.evidenceStatus == null ? null : String(report.evidenceStatus)) : (output[key] == null ? null : String(output[key]));
-          return <div key={key} className={'rounded-xl border p-4 ' + statusTone(value)}><div className="text-[10px] font-black">{key}</div><div className="mt-2 text-sm font-bold">{stateLabel(value)}</div></div>;
+          return <div key={key} className={'rounded-xl border p-4 ' + statusTone(value)}><div className="text-[10px] font-black">{key === 'evidenceStatus' ? 'حالة الدليل' : key === 'signalStatus' ? 'حالة الإشارة' : 'حالة الذكاء'}</div><div className="mt-2 text-sm font-bold">{stateLabel(value)}</div></div>;
         })}
       </div>
     </section>
