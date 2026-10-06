@@ -1,18 +1,18 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
+CURRENT MAIN HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
 REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
-REPORT_FOR_HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
+CURRENT EXECUTION HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
+REPORT_FOR_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
 BRANCH = main
 PR = N/A
 UPDATED_AT = 2026-10-05T23:08:00+03:00
 
-WHAT_I_WAS_ASKED_TO_DO = Continue execution until the real report center and Smart Report are customer-visible and proven, not merely route-loaded or test-only.
+WHAT_I_WAS_ASKED_TO_DO = Continue execution until the customer can operate the real report, not merely read product terminology.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = Reconciled duplicate source lineage for تقارير ادارية.xlsx; selected the authoritative inventory execution and evidence passport; switched the Reports Center primary binding to job 16709d80-e012-40ef-9c12-6fd8255897f8; changed the Reports Center first customer surface so the source-bound Smart Report is the primary hero instead of generic dashboard KPIs; added a public verified real-report proof block to /proposal-demo and stabilized its commercial hero layout; converted the redundant token-based Vercel Actions workflow to manual-only; aligned browser/business E2E contracts to the same 332-row authoritative report; removed the duplicate SourceBoundReportSurface import; and kept governance synchronized to the current main head.
+WHAT_I_ACTUALLY_DID = Converted the report surface from descriptive terminology into a data-first workspace: a live explorer over canonical rows with business-state filters, search, sorting, row selection, field readback, rule explanation, and direct row-to-decision navigation; reused it across CustomerReportSurface and SmartReportPage; kept the source binding and fail-closed evidence rules intact.
 
 WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. The product build succeeded on the preceding exact-head CI cycle. The current Vercel production is reachable at report-advisor.vercel.app and is on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd; later main commits are awaiting a fresh deployment because the Vercel free API deployment quota is currently exhausted.
 
@@ -20,6 +20,6 @@ FIRST_ACTIVE_FAILURE = The last newly proven product failure was a duplicate Sou
 
 ROOT_CAUSE = The customer path and proof path were both anchored to stale sales lineage instead of the verified inventory lineage, and the Reports Center visual hierarchy still placed generic KPIs above the actual source report.
 
-NEXT_EXACT_ACTION = Consume terminal CI results for 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1; fix only the first newly proven failure; then consume authenticated Chromium Smart Report evidence, 48/48 evidence, and final certification. Do not declare sale-ready before those same-head gates pass.
+NEXT_EXACT_ACTION = Consume terminal CI for 6c0b897803975841d99bee838c1def3c7f4adf05; fix only the first newly proven failure; then consume authenticated Chromium evidence and final certification. No sale-ready claim before same-head browser proof.
 
 CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/full-product-browser-e2e.yml; .github/workflows/github-pages-production.yml; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; scripts/real-business-e2e.mjs; scripts/run-full-product-browser-e2e.mjs; src/App.tsx; src/components/CustomerReportSurface.tsx; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx; src/lib/report-intelligence/report-smart-insights.ts; src/lib/report-smart.ts; src/pages/CanonicalImportPage.tsx; src/pages/ExecutiveReportPage.tsx; src/pages/ReportsPage.tsx; src/pages/SmartReportPage.tsx; vite.config.ts
