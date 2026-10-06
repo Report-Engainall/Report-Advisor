@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T21:39:00+03:00
-CURRENT_EXACT_HEAD = 568a834f1bdcd29aaf58615c2f393a8e8fe4284b
-CURRENT_EXACT_PRODUCT_HEAD = 942f807eee11350926fa7ac63d1a6d28a29c09e9
+UPDATED_AT = 2026-10-06T21:46:00+03:00
+CURRENT_EXACT_HEAD = e3445e578438852295f347ba3c9d1acab19faf70
+CURRENT_EXACT_PRODUCT_HEAD = 20cc5cc94ea2b3ac3dc6d17727ed44b89795984a
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
@@ -44,12 +44,12 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = Live tenant f68 report c42 is inventory-aligned end-to-end with 342 canonical rows and Evidence Passport VERIFIED/ACCEPTED/READY/FULL. 940783 imports now infer domain from mapped source fields. 942f hides intelligence implementation identifiers behind technical proof disclosures.
+WHAT_IS_PROVEN = Live tenant f68 report c42 is inventory-aligned across canonical data, commit, report job, renderedOutput and Evidence Passport (342/342, VERIFIED/ACCEPTED/READY/FULL). Client and server import-domain inference now derive generic domain from actual source columns.
 CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
-WHAT_IS_NOT_YET_PROVEN = Current-head Product Build terminal PASS, authenticated browser visual PASS, Full Product Browser terminal PASS, Final Certification terminal PASS, and customer-sale readiness.
+WHAT_IS_NOT_YET_PROVEN = Current-head build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume exact current-head build/browser/certification terminals after docs sync. Fix only first terminal failure, then verify Netlify preview is serving this product head.
+NEXT_EXACT_ACTION = Consume e3445e current-head workflow terminals. Fix only the first terminal failure. Then verify Netlify preview for this branch and final live source readback.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -78,3 +78,5 @@ CURRENT_RUNTIME_FIX_6CC664 = Direct source-hash-bound Smart Report is read indep
 CURRENT_LIVE_REPAIR_20261006 = The sourceHash sha256:587f...d6b313 is now classified consistently as inventory across canonical data, commit, report job, import job, renderedOutput, and Evidence Passport.
 
 CURRENT_UI_CLEANUP_942F = Customer-facing intelligence no longer labels the primary surface as AGHBARI INTELLIGENCE KERNEL or exposes Claim Rule/Archetype/Inputs as primary content; technical details remain available behind proof disclosure.
+
+CURRENT_IMPORT_DOMAIN_GUARD_20CC = Server canonical import validates inferred domain after authoritative parsing; generic source-data is upgraded or conflicting generic domains are rejected before canonical durable write.
