@@ -215,6 +215,22 @@ export function DashboardPage() {
   }, [recommendations]);
 
   const dashboardNextAction = useMemo(() => {
+    if (primaryReport) {
+      if (smartRecommendations[0]) {
+        return {
+          to: '/reports/smart/' + encodeURIComponent(primaryReport.jobId) + '?sourceHash=' + encodeURIComponent(primaryReport.sourceHash),
+          label: 'فتح التوصية',
+          title: smartRecommendations[0].title,
+          description: smartRecommendations[0].action,
+        };
+      }
+      return {
+        to: '/reports/smart/' + encodeURIComponent(primaryReport.jobId) + '?sourceHash=' + encodeURIComponent(primaryReport.sourceHash),
+        label: 'فتح التقرير الحقيقي',
+        title: primaryReport.intelligence?.advisorBrief?.headline ?? 'التقرير الحالي موثق وقابل للمراجعة',
+        description: 'افتح التقرير لمراجعة الإشارة والدليل والقيود قبل اعتماد أي قرار.',
+      };
+    }
     if (kpis?.status === 'INSUFFICIENT_DATA') {
       return {
         to: '/data-quality',
@@ -259,6 +275,17 @@ export function DashboardPage() {
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis || !aging) return <DataUnavailableState title="صورة الأعمال غير مكتملة" message="تعذر بناء المؤشرات الأساسية كاملة من المصدر الحالي؛ لا نعرض لوحة فارغة ولا نصنع قيمًا بديلة." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
+  const sourceCalculations = primaryReport?.intelligence?.calculations ?? [];
+  const sourceCalculation = (metricId: string) =>
+    sourceCalculations.find((item) => item.metricId === metricId && item.availabilityState === 'CALCULATED') ?? null;
+  const sourceRowCount = sourceCalculation('row.count')?.value
+    ?? primaryReport?.authoritativeCurrentRowCount
+    ?? primaryReport?.rowCount
+    ?? null;
+  const sourceCompleteness = sourceCalculation('data.completeness')?.value;
+  const sourceOutlierRate = sourceCalculation('data.numeric.outlier.rate')?.value;
+  const sourceDuplicateRate = sourceCalculation('row.duplicate.rate')?.value;
+  const sourceCoverage = typeof sourceCompleteness === 'number' ? Math.round(sourceCompleteness) : Number(primaryReport?.qualityScore ?? NaN);
   const evidenceMetrics = [
     kpis.totalSales,
     kpis.grossProfit,
@@ -269,8 +296,10 @@ export function DashboardPage() {
     kpis.invoiceCount,
     kpis.collectionRate,
   ];
-  const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
-  const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
+  const coverage = primaryReport && Number.isFinite(sourceCoverage)
+    ? sourceCoverage
+    : Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
+  const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA' && !primaryReport
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
     : { to: '/analytics', label: 'فتح التحليل' };
 
@@ -295,8 +324,9 @@ export function DashboardPage() {
           </div>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
-          <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
+          <StatusLine status={primaryReport ? 'CALCULATED' : kpis.status} text={primaryReport ? 'تقرير حقيقي موثق' : (kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام')} />
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية الحقيقة {coverage}%</span>
+          {primaryReport && <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-slate-300">{Number(sourceRowCount ?? 0).toLocaleString('ar-YE')} صفًا مصدرية</span>}
           <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">حتى: {snapshotAsOf ?? 'غير متاح'}</span>
           <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-800 hover:bg-primary-100 disabled:opacity-60">
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
@@ -375,7 +405,7 @@ export function DashboardPage() {
           </CardBody>
         </Card>
         <Card>
-          <CardHeader title="تغطية الحقيقة والقرار" subtitle="اكتمال الصورة التنفيذية، ومدى جاهزية التوصيات للتنفيذ والمتابعة." />
+          <CardHeader title="تغطية الحقيقة والقرار" subtitle="اكتمال المصدر الحالي، ومدى جاهزية التوصيات للتنفيذ والمتابعة." />
           <CardBody>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -416,10 +446,21 @@ export function DashboardPage() {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US')} /></CardBody></Card>
+        {primaryReport ? (
+          <>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="السجلات المصدرية" value={typeof sourceRowCount === 'number' ? sourceRowCount : null} icon={<FileSearch size={16} />} status={sourceRowCount !== null ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="من المصدر الكانوني الحالي" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="اكتمال البيانات" value={typeof sourceCompleteness === 'number' ? sourceCompleteness : null} icon={<CheckCircle2 size={16} />} status={typeof sourceCompleteness === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="محسوب على الحقول الموجودة فعليًا" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="القيم المتطرفة" value={typeof sourceOutlierRate === 'number' ? sourceOutlierRate : null} icon={<CircleAlert size={16} />} status={typeof sourceOutlierRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="شذوذ إحصائي؛ ليس خطأً مثبتًا" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="تكرار الصفوف" value={typeof sourceDuplicateRate === 'number' ? sourceDuplicateRate : null} icon={<BarChart3 size={16} />} status={typeof sourceDuplicateRate === 'number' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} detail="تطابق كامل للحمولة الصفية" /></CardBody></Card>
+          </>
+        ) : (
+          <>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} /></CardBody></Card>
+            <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US')} /></CardBody></Card>
+          </>
+        )}
       </section>
 
       <section className="space-y-3">
