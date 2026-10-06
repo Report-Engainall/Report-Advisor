@@ -12,7 +12,7 @@ const TrendChart = lazy(() => import('@/components/ui/Charts').then(m => ({ defa
 const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.CategoryPieChart })));
 const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.HorizontalBarChart })));
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
-import { fetchSmartReportCatalog, fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchLatestSmartReportBySourceHash, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type { ReportRecommendation } from '@/lib/report-intelligence/report-smart-insights';
@@ -109,41 +109,24 @@ export function DashboardPage() {
       else setLoading(true);
       setError(null);
 
-      // The landing surface is evidence-first. Do not block the real report
-      // on the heavyweight legacy company dashboard RPC; that RPC has a hard
-      // two-minute PostgreSQL timeout and is not required to render the
-      // source-bound report the customer is here to inspect.
-      let catalog = null;
-      let lastTenantError: unknown = null;
+      // The landing surface is evidence-first. Read the designated current
+      // source directly instead of building a broad customer-facing catalog first.
+      // This avoids a large multi-query catalog fan-out during browser auth/session
+      // convergence and keeps the first customer screen bound to one real source.
+      let nextPrimaryReport = null;
+      let lastSourceReadError: unknown = null;
       for (let attempt = 1; attempt <= 3; attempt += 1) {
         try {
-          catalog = await fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) });
-          lastTenantError = null;
+          nextPrimaryReport = await fetchLatestSmartReportBySourceHash(
+            PRIMARY_SMART_REPORT_SOURCE_HASH,
+            { signal: AbortSignal.timeout(25000) },
+          );
+          lastSourceReadError = null;
           break;
         } catch (cause) {
-          lastTenantError = cause;
-          const message = cause instanceof Error ? cause.message : String(cause);
-          if (!message.includes('TENANT_REQUIRED') || attempt === 3) throw cause;
-          await new Promise((resolve) => setTimeout(resolve, 600 * attempt));
-        }
-      }
-      if (!catalog) throw lastTenantError instanceof Error ? lastTenantError : new Error('TENANT_REQUIRED');
-
-      const selected = catalog.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH) ?? catalog[0] ?? null;
-      let nextPrimaryReport = null;
-      if (selected) {
-        for (let attempt = 1; attempt <= 2; attempt += 1) {
-          try {
-            nextPrimaryReport = await fetchSmartReport(
-              selected.jobId,
-              selected.sourceHash,
-              { signal: AbortSignal.timeout(20000) },
-            );
-            break;
-          } catch (cause) {
-            const message = cause instanceof Error ? cause.message : String(cause);
-            if (!message.includes('TENANT_REQUIRED') || attempt === 2) throw cause;
-            await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+          lastSourceReadError = cause;
+          if (attempt < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 700 * attempt));
           }
         }
       }
