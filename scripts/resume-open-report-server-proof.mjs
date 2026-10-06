@@ -71,8 +71,11 @@ if (!beforeJob) throw new Error('OPEN_REPORT_JOB_NOT_FOUND');
 if (beforeJob.source_path !== EXPECTED_FILE) throw new Error('OPEN_REPORT_SOURCE_PATH_MISMATCH');
 if (beforeJob.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_SOURCE_HASH_MISMATCH');
 
+const alreadyRendered = beforeJob.status === 'completed' && beforeJob.checkpoint?.stage === 'rendered';
+
 console.log(JSON.stringify({
-  phase: 'RESUME_PREFLIGHT',
+  phase: alreadyRendered ? 'RESUME_READBACK_PREFLIGHT' : 'RESUME_PREFLIGHT',
+  resumeRequested: !alreadyRendered,
   jobId: beforeJob.id,
   status: beforeJob.status,
   sourcePath: beforeJob.source_path,
@@ -82,22 +85,24 @@ console.log(JSON.stringify({
   evidence: beforeJob.evidence,
 }, null, 2));
 
-const run = await fetch(BASE_URL + '/api/canonical-import-execute', {
-  method: 'POST',
-  headers: {
-    Authorization: 'Bearer ' + accessToken,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ resumeReportExecutionJobId: JOB_ID }),
-});
-const runText = await run.text();
-let runBody = null;
-try { runBody = runText ? JSON.parse(runText) : null; } catch {}
-if (!run.ok && run.status !== 202) {
-  throw new Error('OPEN_REPORT_RESUME_FAILED_HTTP_' + run.status + ':' + runText.slice(0, 1200));
-}
-if (run.status !== 202 && (runBody?.jobId !== JOB_ID || runBody?.sourceHash !== EXPECTED_HASH || (EXPECTED_ROWS_ENV > 0 && Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS_ENV))) {
-  throw new Error('OPEN_REPORT_RESUME_SYNCHRONOUS_RESPONSE_INVALID');
+if (!alreadyRendered) {
+  const run = await fetch(BASE_URL + '/api/canonical-import-execute', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + accessToken,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ resumeReportExecutionJobId: JOB_ID }),
+  });
+  const runText = await run.text();
+  let runBody = null;
+  try { runBody = runText ? JSON.parse(runText) : null; } catch {}
+  if (!run.ok && run.status !== 202) {
+    throw new Error('OPEN_REPORT_RESUME_FAILED_HTTP_' + run.status + ':' + runText.slice(0, 1200));
+  }
+  if (run.status !== 202 && (runBody?.jobId !== JOB_ID || runBody?.sourceHash !== EXPECTED_HASH || (EXPECTED_ROWS_ENV > 0 && Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS_ENV))) {
+    throw new Error('OPEN_REPORT_RESUME_SYNCHRONOUS_RESPONSE_INVALID');
+  }
 }
 
 const checkpointImportId = Array.isArray(beforeJob.checkpoint?.evidenceKeys)
