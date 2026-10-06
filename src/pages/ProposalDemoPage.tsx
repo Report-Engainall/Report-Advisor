@@ -299,7 +299,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     '/onboarding': 'التجهيز التجاري · بيانات المعاينة',
     '/': 'لوحة الأعمال من الـFixture الحالي',
     '/reports': 'مركز التقارير',
-    '/reports/sales': 'المبيعات الموجودة داخل المصدر',
+    '/reports/sales': 'المبيعات الموجودة داخل الـFixture',
     '/reports/purchases': 'المشتريات · غير متاحة في هذا المصدر',
     '/reports/inventory': 'تقرير المخزون',
     '/reports/inventory-intelligence': 'ذكاء المخزون',
@@ -393,10 +393,10 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     body = (
       <>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER · من source" />
-          <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER · من source" />
+          <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER · من الـFixture" />
+          <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER · من الـFixture" />
           <PreviewMetric label="الهامش المحسوب" value={margin == null ? 'غير متاح' : margin.toFixed(1) + '%'} meta="profit ÷ net" />
-          <PreviewMetric label="الوحدات المباعة" value={String(LIVE_TOTALS.salesQty)} meta="من نفس الصفوف" />
+          <PreviewMetric label="الوحدات المباعة" value={String(LIVE_TOTALS.salesQty)} meta="من نفس الـFixture" />
         </div>
         <PreviewInventoryTable />
       </>
