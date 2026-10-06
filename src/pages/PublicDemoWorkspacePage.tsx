@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 type Row = {
@@ -43,7 +43,7 @@ function Top({ active }: { active: string }) {
   );
 }
 
-function Shell({ title, subtitle, active, children }: { title: string; subtitle: string; active: string; children: React.ReactNode }) {
+function Shell({ title, subtitle, active, children }: { title: string; subtitle: string; active: string; children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f3f5f9] text-ink-950">
       <div className="mx-auto max-w-[1440px] p-3 sm:p-5 lg:p-7">
