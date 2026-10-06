@@ -85,22 +85,22 @@ export function KernelDecisionSurface({
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
           <div className="text-[9px] font-black text-slate-400">حسابات فعلية</div>
-          <div className="mt-1 text-2xl font-black text-white">{numberLabel(calculated.length, 0)}</div>
+          <div data-testid="kernel-calculated-count" className="mt-1 text-2xl font-black text-white">{numberLabel(calculated.length, 0)}</div>
           <div className="mt-1 text-[9px] text-slate-400">مخرجات وصلت إلى قيمة مثبتة.</div>
         </div>
         <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
           <div className="text-[9px] font-black text-slate-400">حسابات غير متاحة</div>
-          <div className="mt-1 text-2xl font-black text-white">{numberLabel(unavailable.length, 0)}</div>
+          <div data-testid="kernel-unavailable-count" className="mt-1 text-2xl font-black text-white">{numberLabel(unavailable.length, 0)}</div>
           <div className="mt-1 text-[9px] text-slate-400">حُجبت فقط عندما غابت الأدلة اللازمة.</div>
         </div>
         <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
           <div className="text-[9px] font-black text-slate-400">إشارات تحليلية</div>
-          <div className="mt-1 text-2xl font-black text-white">{numberLabel(kernel?.anomalies.length ?? 0, 0)}</div>
+          <div data-testid="kernel-anomaly-count" className="mt-1 text-2xl font-black text-white">{numberLabel(kernel?.anomalies.length ?? 0, 0)}</div>
           <div className="mt-1 text-[9px] text-slate-400">إنذارات قابلة للتفسير والمتابعة.</div>
         </div>
         <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
           <div className="text-[9px] font-black text-slate-400">سيناريوهات</div>
-          <div className="mt-1 text-2xl font-black text-white">{numberLabel(scenarios.length, 0)}</div>
+          <div data-testid="kernel-scenario-count" className="mt-1 text-2xl font-black text-white">{numberLabel(scenarios.length, 0)}</div>
           <div className="mt-1 text-[9px] text-slate-400">اختبارات What-if منفصلة عن حقيقة المصدر.</div>
         </div>
       </div>
@@ -160,19 +160,19 @@ export function KernelDecisionSurface({
                 <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">الرصيد الأساس</div>
-                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.stock, 0)}</div>
+                    <div data-testid="kernel-stock-baseline" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.stock, 0)}</div>
                   </div>
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">الطلب الأساس</div>
-                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.demand, 0)}</div>
+                    <div data-testid="kernel-demand-baseline" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.demand, 0)}</div>
                   </div>
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">تغطية الأساس</div>
-                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.coverage, 4)}</div>
+                    <div data-testid="kernel-coverage-baseline" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.coverage, 10)}</div>
                   </div>
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">تغطية +15%</div>
-                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.result.coverage, 4)}</div>
+                    <div data-testid="kernel-coverage-plus-demand" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.result.coverage, 10)}</div>
                   </div>
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-2 text-[9px] text-slate-300">
