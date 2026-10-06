@@ -178,7 +178,7 @@ export function ProposalDemoPage() {
             ['الرصيد الحالي', LIVE_TOTALS.currentStock.toLocaleString('ar-EG'), 'مجموع المصدر'],
             ['صافي المبيعات', LIVE_TOTALS.netAmount.toLocaleString('ar-EG'), 'YER · محسوب'],
             ['الربح', LIVE_TOTALS.profit.toLocaleString('ar-EG'), 'YER · محسوب'],
-          ].map(([value,label,state]) => (
+          ].map(([label,value,state]) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
               <div className="text-2xl font-black tracking-tight">{value}</div>
               <div className="mt-1.5 text-[10px] font-bold text-white">{label}</div>
