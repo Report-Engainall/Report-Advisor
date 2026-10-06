@@ -1,16 +1,16 @@
 SESSION HANDOFF = NOT READY
-REPORT_FOR_HEAD = 88c75d27164c842fc720cffa279d3d6601c7fb9e
+REPORT_FOR_HEAD = ee46edfcfb72fe6eade0bf04348fb792a4877f61
 UPDATED_AT = 2026-10-06
 WHAT_I_WAS_ASKED_TO_DO = Continue from the exact product head, close proven failures, keep the Smart Report journey source-bound, and produce visible real-business results without rebuilding or fabricating PASS.
 
-WHAT_I_ACTUALLY_DID = Removed the timeout-prone dashboard dependency, made calculation persistence tenant mismatch fail-soft, corrected Smart Report recommendation typing, added bounded tenant-resolution retry on the landing Smart Report read, and reconciled the executive dashboard UI contract so it validates the new source-bound landing behavior instead of requiring the retired heavyweight dashboard RPCs.
-CURRENT_HEAD_CHANGE = 88c75d27164c842fc720cffa279d3d6601c7fb9e updates scripts/check-executive-dashboard-ui-contract.mjs only. It requires fetchSmartReportCatalog/fetchSmartReport, the real-report card/data-testid, authoritative row/evidence markers, and explicitly rejects fetchDashboardSnapshot/fetchDashboardIntelligence on the landing.
-FIRST_ACTIVE_FAILURE = Device-independent browser authenticated E2E found the landing Smart Report path failing with TENANT_REQUIRED during a second tenant resolution even though browser Auth/Tenant proof had already passed.
-ROOT_CAUSE = The landing source-bound loader performed one un-retried current-company resolution during an auth/session convergence window; the session itself was valid.
-REPAIR = 56be225 adds bounded retries for TENANT_REQUIRED around Smart Report catalog/detail reads on the landing page only; it does not weaken tenant authority or bypass RLS.
+WHAT_I_ACTUALLY_DID = Removed the timeout-prone dashboard dependency, made calculation persistence tenant mismatch fail-soft, corrected Smart Report recommendation typing, added bounded tenant-resolution retry, reconciled the dashboard UI contract, and replaced the landing catalog fan-out with a direct source-hash-bound Smart Report read with bounded network/session retries.
+CURRENT_HEAD_CHANGE = ee46edfcfb72fe6eade0bf04348fb792a4877f61 adds fetchLatestSmartReportBySourceHash, switches DashboardPage to use it, and updates the UI contract to require direct source-bound landing behavior.
+FIRST_ACTIVE_FAILURE = Exact-head Chromium on 88c75 failed at landing: E2E-REPORT-001 NOT_PROVEN and E2E-CONSOLE-001 FAIL; console error was TypeError: Failed to fetch.
+ROOT_CAUSE = The landing requested a broad 60-item catalog before resolving the one designated source, creating an unnecessary network/convergence failure point.
+REPAIR = ee46edfc introduces direct source-hash lookup for the latest completed report in the authenticated tenant and bounded retries for transient tenant/network/timeout failures.
 
-WHAT_IS_PROVEN = The landing failure on 3513d6 was root-caused to transient TENANT_REQUIRED during a second tenant resolution; 56be225 introduced bounded retries. The previous exact-head browser run proved Auth/Tenant and 30/32 routes, with that landing failure as the sole P1. The stale dashboard UI contract is now repaired on 88c75.
-NOT_YET_PROVEN = 56be225 exact-head Chromium, Full Product Browser terminal evidence, final production promotion, and end-to-end commercial certification.
+WHAT_IS_PROVEN = Artifact 11429020660 contains 35 screenshots; the real Smart Report visibly rendered the Arabic report surface, reportJobId, source hash, 332 rows, truth/evidence context, WHAT/WHY/SO WHAT/IMPACT/WHAT NEXT/PROOF, plus decision/evidence surfaces. Auth, tenant isolation, and workspace interaction passed.
+NOT_YET_PROVEN = ee46edfc exact-head landing proof, terminal browser PASS, production promotion, and complete commercial certification.
 
 DO_NOT_REPEAT = Do not rebuild; do not delete prior work; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale-SHA PASS; do not weaken browser/security/truth contracts.
 
