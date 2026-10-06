@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T22:29:00+03:00
-CURRENT_EXACT_HEAD = 3632b84b19ada94bacf85981b642db6afa3b44c2
-CURRENT_EXACT_PRODUCT_HEAD = bb3ed3140aa2f928c7be089e6ad8f2dd5dfaa9b2
+UPDATED_AT = 2026-10-06T22:37:00+03:00
+CURRENT_EXACT_HEAD = 24e3d47203859dceb0ad6592d826d327f0596f5e
+CURRENT_EXACT_PRODUCT_HEAD = 16a2f04ac4abb6bec2026d4eac21624be70d285a
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
@@ -49,7 +49,7 @@ CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
 WHAT_IS_NOT_YET_PROVEN = Current-head Product Build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume fresh Product Build and browser/certification terminals for bb3. Fix only the first new terminal failure, then verify Netlify preview and the real f68 inventory report surface.
+NEXT_EXACT_ACTION = Consume fresh Product Build and browser/certification terminals for 16a. Fix only the first new terminal failure, then verify Netlify preview and the real f68 inventory report surface.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -94,3 +94,5 @@ COMMAND_CENTER_CLOSURE_08A = Command Center source binding is now part of the cu
 COMMAND_CENTER_FAIL_CLOSED_9D1 = Command Center now fails closed on unavailable source truth; current exact session checkpoint is this commit.
 
 INTERACTION_SURFACE_CLOSURE_20261006 = Executive report now surfaces source exploration, signal/evidence/decision/work actions directly; technical identifiers remain in audit details rather than the hero.
+
+COMMAND_CENTER_ACTION_RAIL_20261006 = Action-first navigation is now surfaced in the source-bound Command Center; current exact session checkpoint is this commit.
