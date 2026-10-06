@@ -1130,17 +1130,17 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       });
 
       archetypeState = archetypeRun.state;
-      intelligence = archetypeRun.state === 'SUPPORTED'
-        ? archetypeRun.intelligence as SmartReportIntelligence
-        : {
-            ...baseIntelligence,
-            calculations: calculationRegistryResults,
-            kernel,
-            advisorBrief: {
-              ...baseIntelligence.advisorBrief,
-              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح والحسابات دون اعتماد القرار المتخصص.',
+      const archetypeIntelligence = archetypeRun.intelligence as SmartReportIntelligence;
+      intelligence = {
+        ...archetypeIntelligence,
+        advisorBrief: archetypeRun.state === 'SUPPORTED'
+          ? archetypeIntelligence.advisorBrief
+          : {
+              ...archetypeIntelligence.advisorBrief,
+              health: archetypeRun.state,
+              headline: 'النموذج لم يجتز بوابة الاعتماد: ' + archetypeRun.state + ' — تم إبقاء الحسابات والإشارات والذكاء المتاح، بينما يظل اعتماد القرار مقيدًا بحالة الدليل والنموذج.',
             },
-          };
+      };
 
       const calculations = intelligence.calculations ?? calculationRegistryResults;
       const calculationsForPersistence = calculations.map((calculation) => ({
