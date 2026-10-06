@@ -200,7 +200,25 @@ function WorkCenterGeneralPage() {
   if (loading) return <LoadingState message="جارٍ تحميل حالة العمليات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
+  const sourceScoped = Boolean(sourceJobIdParam || sourceHashParam);
   return <div dir="rtl" className="ag-work-center-surface space-y-5 animate-fade-in pb-10">
+    {sourceScoped && (
+      <section className="rounded-[18px] border border-primary-200 bg-primary-50/70 p-4 shadow-sm" aria-label="سياق مصدر العمل">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE-SCOPED WORK</div>
+            <h1 className="mt-1 text-sm font-black text-ink-950">مركز العمل لهذا التقرير فقط</h1>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">تم حصر عناصر العمل على نفس reportJobId أو sourceHash لمنع خلط أعمال تقارير أخرى.</p>
+          </div>
+          <Link
+            to={'/reports/smart/' + encodeURIComponent(sourceJobIdParam) + (sourceHashParam ? '?sourceHash=' + encodeURIComponent(sourceHashParam) : '')}
+            className="btn-secondary shrink-0 text-[10px]"
+          >
+            العودة للتقرير
+          </Link>
+        </div>
+      </section>
+    )}
     <PageHeader
       title="مركز العمل"
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."
