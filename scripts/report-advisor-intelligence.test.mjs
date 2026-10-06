@@ -33,6 +33,9 @@ check(sales.advisorBrief.recommendedAction, 'advisor brief needs a concrete acti
 check(sales.advisorBrief.ownerHint === 'مسؤول المبيعات', 'sales owner hint missing');
 check(sales.findings.find((item) => item.id === 'sales:top-party')?.evidence.some((e) => e.includes('customerField=')), 'finding must expose evidence field');
 check(sales.findings.find((item) => item.id === 'sales:top-party')?.limitation, 'finding must expose limitation');
+check(sales.recommendations.some((item) => item.id === 'rec:sales:top-party'), 'sales top-party must become a decision recommendation');
+check(sales.recommendations.find((item) => item.id === 'rec:sales:top-party')?.title.includes('التركيّز'), 'sales recommendation must be decision-oriented');
+
 
 const salesNeedsAttention = deriveReportIntelligence({
   specialty: 'sales',
@@ -98,6 +101,8 @@ check(inventory.risks.some((item) => item.id === 'inventory:negative-balance-ris
 check(inventory.opportunities.some((item) => item.id === 'inventory:value-focus-opportunity'), 'inventory value focus opportunity missing');
 check(inventory.advisorBrief.topRisk?.id === 'inventory:negative-balance-risk', 'inventory advisor brief must surface risk');
 check(inventory.advisorBrief.ownerHint === 'مسؤول المخزون', 'inventory owner hint missing');
+check(inventory.recommendations.some((item) => item.id === 'rec:inventory:position'), 'inventory finding must be available as a decision recommendation');
+
 
 const demandPressure = deriveReportIntelligence({
   specialty: 'inventory',
@@ -142,5 +147,38 @@ check(empty.findings.length === 0, 'empty source must not fabricate findings');
 check(empty.risks.length === 0, 'empty source must not fabricate risks');
 check(empty.opportunities.length === 0, 'empty source must not fabricate opportunities');
 check(empty.advisorBrief.health !== 'REVIEW_REQUIRED', 'empty source health must not claim an unproven business risk');
+
+const receivables = deriveReportIntelligence({
+  specialty: 'receivables',
+  rowCount: 4,
+  sourceAnalysis: { datasets: [{ columns: [
+    { name: 'العميل', mappedField: 'customer' },
+    { name: 'الرصيد المستحق', mappedField: 'balance' },
+  ] }] },
+  canonicalRows: [
+    { row_number: 1, data: { customer: 'عميل أ', balance: 800 } },
+    { row_number: 2, data: { customer: 'عميل أ', balance: 200 } },
+    { row_number: 3, data: { customer: 'عميل ب', balance: 100 } },
+    { row_number: 4, data: { customer: 'عميل ج', balance: 50 } },
+  ],
+});
+check(receivables.recommendations.some((item) => item.id === 'rec:receivables:concentration-risk'), 'receivables concentration must become a decision recommendation');
+
+const profitability = deriveReportIntelligence({
+  specialty: 'profitability',
+  rowCount: 3,
+  sourceAnalysis: { datasets: [{ columns: [
+    { name: 'الإيراد', mappedField: 'revenue' },
+    { name: 'التكلفة', mappedField: 'cost' },
+  ] }] },
+  canonicalRows: [
+    { row_number: 1, data: { revenue: 1000, cost: 950 } },
+    { row_number: 2, data: { revenue: 800, cost: 760 } },
+    { row_number: 3, data: { revenue: 600, cost: 570 } },
+  ],
+});
+check(profitability.recommendations.some((item) => item.id === 'rec:profitability:low-margin-risk'), 'profitability low-margin risk must become a decision recommendation');
+
+console.log('business-finding-decision-recommendations: PASS');
 
 console.log('report-advisor-intelligence: PASS');
