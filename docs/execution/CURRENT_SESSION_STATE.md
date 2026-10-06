@@ -1,8 +1,8 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
-CURRENT_MAIN_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
-CURRENT_EXECUTION_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
+CURRENT_EXACT_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
+CURRENT_MAIN_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
+CURRENT_EXECUTION_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
@@ -39,4 +39,4 @@ ROOT_CAUSE
 - Browser-proof contracts lagged behind the authoritative report lineage.
 - Governance documents were stale relative to mainline changes.
 
-NEXT_EXACT_ACTION = Consume terminal CI for 6c0b897803975841d99bee838c1def3c7f4adf05; fix only the first newly proven failure, then consume same-head browser artifacts and certification. The product surface itself now contains real row-level interaction; do not close the work on terminology-only PASS.
+NEXT_EXACT_ACTION = Consume terminal CI for c0d681efddc18eda5a82a52ffaf8fda2b2e158c9; fix only the first newly proven failure, then consume same-head browser artifacts and certification. The customer report now contains a real row-level workspace, not terminology-only cards.
