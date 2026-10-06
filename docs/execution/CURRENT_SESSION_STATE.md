@@ -1,12 +1,12 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T21:25:00+03:00
-CURRENT_EXACT_HEAD = daafd255ab7ac68c36568d1665202cdf578a25a9
-CURRENT_EXACT_PRODUCT_HEAD = daafd255ab7ac68c36568d1665202cdf578a25a9
+UPDATED_AT = 2026-10-06T21:31:00+03:00
+CURRENT_EXACT_HEAD = a99565b643f11d167fd3fc1e1fd64d281b8f6691
+CURRENT_EXACT_PRODUCT_HEAD = a99565b643f11d167fd3fc1e1fd64d281b8f6691
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_SOURCE_FIRST_BROWSER_CERTIFICATION
+ACTION_STATUS = ACTIVE_EXECUTION_BUILD_BROWSER_CERTIFICATION
 
 FIRST_ACTIVE_FAILURE_1 = Exact-head authenticated Chromium showed the Smart Report itself rendered real data, while the landing route failed to settle because the broad Smart Report catalog read emitted TypeError: Failed to fetch during auth/session convergence.
 ROOT_CAUSE_1 = Landing depended on a 60-item Smart Report catalog fan-out before reading the designated source; transient/network timeout during that fan-out prevented the primary card from painting.
@@ -44,12 +44,12 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = 6cc664 removed catalog dependency from the primary Reports Center source read; 21c fixed CanonicalField semantics. Current-head build and browser gates are not yet terminal.
+WHAT_IS_PROVEN = Live tenant f68 report c42 is now generic:inventory with 342 canonical inventory rows and an ACCEPTED/VERIFIED/READY/FULL Evidence Passport. Migration recovery inference prefers source schema. The only observed code failure on edcb4 was a missing ReportsPage import, fixed in 6a7fc.
 CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
-WHAT_IS_NOT_YET_PROVEN = Current-head Product Build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, and customer-sale readiness.
+WHAT_IS_NOT_YET_PROVEN = a99565 current-head Product Build terminal PASS, authenticated browser visual PASS, Full Product Browser terminal PASS, Final Certification terminal PASS, customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume daafd255 current-head Product Build/Browser/Certification results; fix the first terminal failure only, then verify Preview 855 source-first loading.
+NEXT_EXACT_ACTION = Consume a99565 current-head build/browser/certification results. Fix only the first terminal failure, then keep the live tenant f68 report c42 inventory-aligned.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -74,3 +74,5 @@ CURRENT_UI_FIX_8DE842 = Customer-facing evidence labels are humanized; raw evide
 CURRENT_CODE_FIX_21C4 = Legacy report field names are translated to official CanonicalField schema values only; the union type is not widened.
 
 CURRENT_RUNTIME_FIX_6CC664 = Direct source-hash-bound Smart Report is read independently from the 60-item catalog; catalog is enrichment only.
+
+CURRENT_LIVE_REPAIR_20261006 = The sourceHash sha256:587f...d6b313 is now classified consistently as inventory across canonical data, commit, report job, import job, renderedOutput, and Evidence Passport.
