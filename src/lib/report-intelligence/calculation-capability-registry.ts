@@ -235,7 +235,18 @@ function evaluate(def: CalculationDefinition, rows: Row[], archetypeId: string |
         if (row.data?.[key] == null || s(row.data?.[key]) === '') missing += 1;
       }
       if (!cells) return makeUnavailable(def, rows, 'NOT_AVAILABLE', []);
-      return result(def, { availabilityState: 'CALCULATED', value: Number(((1 - missing / cells) * 100).toFixed(2)), unit: '%', sampleSize: rows.length, usableSample: cells - missing, sourceFields: [], evidence: ['cells=' + cells, 'missingCells=' + missing], confidence: 1, details: { cells, missingCells: missing } });
+      const usableRows = rows.filter((row) => Object.values(row.data ?? {}).some((value) => value != null && s(value) !== '')).length;
+      return result(def, {
+        availabilityState: 'CALCULATED',
+        value: Number(((1 - missing / cells) * 100).toFixed(2)),
+        unit: '%',
+        sampleSize: rows.length,
+        usableSample: Math.min(rows.length, usableRows),
+        sourceFields: [],
+        evidence: ['cells=' + cells, 'missingCells=' + missing, 'usableRows=' + usableRows],
+        confidence: 1,
+        details: { cells, missingCells: missing, usableRows },
+      });
     }
     case 'data.numeric.outlier.rate': {
       const field = (['currentStock','quantity','netAmount','cost','unitPrice'] as CanonicalField[]).map((candidate) => [candidate, resolveFieldKey(rows, candidate, archetypeId)] as const).find(([, key]) => key);
