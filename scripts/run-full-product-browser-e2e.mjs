@@ -304,10 +304,10 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
           Boolean(document.querySelector('[data-testid="kernel-demand-baseline"]')) &&
           Boolean(document.querySelector('[data-testid="kernel-coverage-baseline"]')),
         smartKernelCertifiedValuesPresent:
-          Boolean(document.querySelector('[data-testid="kernel-stock-baseline"]')) &&
-          Boolean(document.querySelector('[data-testid="kernel-demand-baseline"]')) &&
-          document.querySelector('[data-testid="kernel-stock-baseline"]')?.textContent?.includes('23,075') &&
-          document.querySelector('[data-testid="kernel-demand-baseline"]')?.textContent?.includes('324,250'),
+          document.querySelector('[data-testid="kernel-stock-baseline"]')?.getAttribute('data-value') === '23075' &&
+          document.querySelector('[data-testid="kernel-demand-baseline"]')?.getAttribute('data-value') === '324250' &&
+          Boolean(document.querySelector('[data-testid="kernel-coverage-baseline"]')?.getAttribute('data-value')) &&
+          Boolean(document.querySelector('[data-testid="kernel-coverage-plus-demand"]')?.getAttribute('data-value')),
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
         smartJobIdPresent: text.includes(smartReportJobId),
