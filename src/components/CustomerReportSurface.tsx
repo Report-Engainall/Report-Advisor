@@ -4,6 +4,7 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
+import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 
 const SPECIALTY_LABELS: Record<string, string> = {
   sales: 'المبيعات',
@@ -334,6 +335,8 @@ export function CustomerReportSurface({
           {!metrics.length && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 sm:col-span-2 lg:col-span-4">لا يوجد مؤشر مالي أو تشغيلي مكتمل بما يكفي لعرضه كحقيقة رقمية.</div>}
         </div>
       </section>
+
+      <BusinessDataExplorer report={report} />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
