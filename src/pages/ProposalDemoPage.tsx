@@ -194,6 +194,23 @@ function PreviewBusinessSurface({ path }: { path: string }) {
 
   const route = path.replace(/\/$/, '') || '/';
   const routeTitle: Record<string, string> = {
+    '/reports/smart/': 'التقرير الذكي من الـFixture',
+    '/analytics': 'مركز التحليلات · حدود المصدر',
+    '/analytics/rfm': 'RFM · غير متاح دون بعد العملاء',
+    '/analytics/abc': 'ABC · غير متاح دون تصنيف منتجات معتمد',
+    '/analytics/aging': 'أعمار التحصيل · غير متاح دون تواريخ استحقاق',
+    '/analytics/liquidity': 'السيولة المشتقة من المدفوع والمفتوح',
+    '/intelligence/scenarios': 'السيناريوهات · لا توجد فرضيات معتمدة',
+    '/trust': 'حالة الثقة في الـFixture',
+    '/metrics': 'حوكمة المؤشرات',
+    '/replay': 'إعادة التتبع · لا توجد نتيجة تنفيذية',
+    '/benchmark': 'Benchmark · لا توجد عينة مقارنة',
+    '/connections': 'الاتصالات · حالة المعاينة',
+    '/settings': 'إعدادات الشركة · تتطلب tenant',
+    '/settings/profile': 'ملف المستخدم · يتطلب جلسة',
+    '/master-data': 'البيانات الرئيسية',
+    '/alternative-groups': 'البدائل · غير موجودة في الـFixture',
+    '/onboarding': 'التجهيز التجاري · بيانات المعاينة',
     '/': 'لوحة الأعمال من المصدر الحالي',
     '/reports': 'مركز التقارير',
     '/reports/sales': 'المبيعات الموجودة داخل المصدر',
@@ -234,7 +251,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     <>
       <PreviewSourceBanner />
       <div className="flex flex-col gap-1">
-        <div className="text-[9px] font-black tracking-[.14em] text-primary-600">LIVE BUSINESS SURFACE</div>
+        <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PREVIEW BUSINESS SURFACE</div>
         <h2 className="text-xl font-black text-ink-950">{title}</h2>
         <p className="text-xs leading-5 text-ink-500">نفس الصفوف، نفس المصدر، مع حدود المجال معلنة.</p>
       </div>
@@ -281,7 +298,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
         <PreviewInventoryTable />
         <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-4 text-xs text-primary-900">
-          الإشارة الموثقة: {LOW_COVERAGE_ROWS.length} أصناف لديها تغطية أقل من 2.00. الأولوية تبدأ من هذه الصفوف الثلاثة، وليس من رقم افتراضي.
+          الإشارة المحسوبة من الـFixture: {LOW_COVERAGE_ROWS.length} أصناف لديها تغطية أقل من 2.00. الأولوية تبدأ من هذه الصفوف الثلاثة، وليس من رقم افتراضي.
         </div>
       </>
     );
@@ -311,6 +328,57 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
         <PreviewInventoryTable rows={LIVE_ROWS.filter(row => row.netAmount > row.paidAmount)} />
       </>
+    );
+  } else if (route.startsWith('/reports/smart/')) {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <PreviewMetric label="صفوف التقرير" value={String(LIVE_ROWS.length)} meta="الـFixture" />
+          <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
+          <PreviewMetric label="الرصيد" value={String(LIVE_TOTALS.currentStock)} meta="وحدة" />
+          <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER" />
+        </div>
+        <PreviewInventoryTable />
+      </>
+    );
+  } else if (route === '/analytics/liquidity') {
+    body = (
+      <>
+        <div className="rounded-2xl border border-warning-200 bg-warning-50/70 p-4 text-xs text-warning-900">
+          هذا مؤشر سيولة مشتق من حقول المدفوع والصافي الموجودة في الـFixture؛ لا يمثل دفتر بنك أو صندوقًا محاسبيًا.
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="إجمالي الصافي" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="إجمالي المدفوع" value={LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0).toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="المفتوح" value={outstanding.toLocaleString('ar-YE')} meta="YER · مشتق" />
+          <PreviewMetric label="نسبة المدفوع" value={LIVE_TOTALS.netAmount > 0 ? ((LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0) / LIVE_TOTALS.netAmount) * 100).toFixed(1) + '%' : 'غير متاح'} meta="paid ÷ net" />
+        </div>
+      </>
+    );
+  } else if (route === '/analytics' || route === '/analytics/rfm' || route === '/analytics/abc' || route === '/analytics/aging') {
+    body = sourceUnavailable(
+      route === '/analytics/rfm'
+        ? 'لا يوجد بُعد عميل في الـFixture؛ لا يتم اختلاق RFM.'
+        : route === '/analytics/abc'
+          ? 'لا يوجد تصنيف منتجات مستقل في الـFixture؛ لا يتم اختلاق ABC.'
+          : route === '/analytics/aging'
+            ? 'لا توجد تواريخ استحقاق/أعمار في الـFixture؛ لا يتم اختلاق buckets.'
+            : 'مركز التحليلات ينتظر حقول عمل إضافية غير موجودة في الـFixture الحالي.'
+    );
+  } else if (route === '/trust' || route === '/metrics' || route === '/replay' || route === '/benchmark' || route === '/connections' || route === '/settings' || route === '/settings/profile' || route === '/master-data' || route === '/alternative-groups' || route === '/onboarding' || route === '/intelligence/scenarios') {
+    body = (
+      <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
+        <div className="text-xs font-black text-ink-900">حالة المعاينة</div>
+        <div className="mt-2 grid gap-2 sm:grid-cols-3">
+          <PreviewMetric label="الـFixture" value="VALIDATED" meta="12 صفًا · 11 حقلاً" />
+          <PreviewMetric label="بيانات الشركة" value="غير مرتبطة" meta="لا توجد جلسة tenant" />
+          <PreviewMetric label="النتيجة التنفيذية" value="غير مسجلة" meta="لا يتم تحويل المتوقع إلى actual" />
+        </div>
+        <p className="mt-3 text-xs leading-6 text-ink-500">
+          هذه الشاشة لا تُنتج حالة شركة مصطنعة. المعروض يوضح حدود المعاينة فقط، بينما بيانات الشركة الفعلية تبقى خلف الهوية وسياق الـtenant.
+        </p>
+      </section>
     );
   } else if (route === '/reports/demand-velocity' || route === '/intelligence/forecasts') {
     body = (
@@ -490,8 +558,8 @@ function ProposalCommercialDemoPage() {
       <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#0f2231)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">المصدر الفعلي المستخدم في العرض</div>
-            <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام المصدر، وليست وعودًا مرسومة على الشاشة</h2>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">Fixture المستخدم في العرض</div>
+            <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام الـFixture، وليست بيانات شركة حيّة</h2>
             <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">البيانات المعروضة أدناه تُقرأ وقت البناء مباشرة من الملف canonical fixture: 28-inventory-stockout-reorder.csv. كل مؤشر في هذه المساحة مشتق من الصفوف نفسها، ولا توجد أرقام ملخّصة مستقلة عنها.</p>
           </div>
           <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
@@ -513,7 +581,7 @@ function ProposalCommercialDemoPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-slate-300">
           <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">الملف: 28-inventory-stockout-reorder.csv</span>
-          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">YER · بيانات المصدر كما هي</span>
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">YER · بيانات الـFixture كما هي محفوظة في المستودع</span>
           <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">التغطية = الرصيد الحالي ÷ المبيعات</span>
         </div>
       </section>
@@ -521,7 +589,7 @@ function ProposalCommercialDemoPage() {
       <section className="rounded-[22px] border border-ink-100 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-600">LIVE BUSINESS SURFACE</div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PREVIEW BUSINESS SURFACE</div>
             <h2 className="mt-1 text-xl font-black text-ink-950">
               {demoPath.includes('/reports/inventory') ? 'المخزون الذي يمكن قراءته والعمل عليه'
                 : demoPath.includes('/reports/sales') ? 'المبيعات والربحية من الصفوف نفسها'
