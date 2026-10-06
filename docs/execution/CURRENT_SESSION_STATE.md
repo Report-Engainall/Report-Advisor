@@ -1,12 +1,12 @@
 SESSION HANDOFF = NOT READY
-UPDATED_AT = 2026-10-06T18:37:00+03:00
-CURRENT_EXACT_HEAD = a35d6642382b96bdba1c31a26de16d7355e9ed3a
-CURRENT_EXACT_PRODUCT_HEAD = 9e64763f9d2e35322dd58ec76dd3a1cdd90fa4e8
+UPDATED_AT = 2026-10-06T18:50:00+03:00
+CURRENT_EXACT_HEAD = 9474f633beb590d8022bff78224c294c6bd9e6f8
+CURRENT_EXACT_PRODUCT_HEAD = a0760bc72c272ef32cbc03420d516afda9fd264f
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_PRODUCT_EVIDENCE_PENDING
+ACTION_STATUS = ACTIVE_EXECUTION_BROWSER_EVIDENCE_PENDING
 
 FIRST_ACTIVE_FAILURE_1 = Smart Report could mix historical and current jobs for the same physical source and render contradictory specialty/row data.
 ROOT_CAUSE_1 = Completed jobs sharing a source hash existed under different tenant contexts while customer-facing selection had a fixed primary job and stale session state could override it.
@@ -44,7 +44,7 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = Supabase authoritative report binding is verified: تقارير ادارية.xlsx -> job 16709d80-e012-40ef-9c12-6fd8255897f8, 332 rows, quality 98, evidence VERIFIED / READY / ACCEPTED. Product fix 9e64763f9d2e35322dd58ec76dd3a1cdd90fa4e8 adds a visible authoritative report surface to the customer landing screen. Vercel created deployment dpl_5d2ZhnxXTu9TJK41kTbw8sbpabg3 for 9e647 and is building. Full Product Browser E2E #8747 and Product Build Gate #410 were triggered for the exact product commit.
-WHAT_IS_NOT_YET_PROVEN = exact-head browser terminal proof; visual authenticated readback; full Decision -> Approval -> Work -> Outcome -> Learning; source-bound Benchmark; 48/48 real-source matrix; production promotion; sale readiness.
+WHAT_IS_PROVEN = Supabase authoritative report binding is verified: تقارير ادارية.xlsx -> job 16709d80-e012-40ef-9c12-6fd8255897f8, 332 rows, quality 98, evidence VERIFIED / READY / ACCEPTED. Product Build Gate #410 passed for 9e647. Commit a0760bc contains the real-report landing proof and stale actor-contract correction; Vercel deployment for a076 is building.
+WHAT_IS_NOT_YET_PROVEN = exact-head a076 Chromium authenticated browser readback; exact-head Product Build/browser terminal evidence; complete Decision -> Approval -> Work -> Outcome -> Learning; source-bound Benchmark; 48/48 real-source matrix; production promotion; sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume the exact-head Product Build #410 and Full Product Browser E2E #8747 terminal results. Fix only the first newly proven failure. Then verify the deployed landing surface and authenticated Smart Report journey on the exact product head.
+NEXT_EXACT_ACTION = Consume the exact-head Actions and deployment results for a0760bc72c272ef32cbc03420d516afda9fd264f. Fix only the first newly proven failure, then certify the landing -> Smart Report -> Evidence -> Decision -> Work journey on that same product head.
