@@ -290,13 +290,18 @@ assert.match(
 );
 assert.match(
   smartReport,
-  /headline: 'النموذج لم يجتز بوابة الاعتماد: ' \+ archetypeRun\.state \+ ' — تم إبقاء الحسابات والإشارات والذكاء المتاح/,
-  'Archetype review must preserve source intelligence instead of blanking all signals and recommendations',
+  /headline: 'النموذج المتخصص يحتاج مراجعة؛ تم إبقاء الحقائق والإشارات المصدرية فقط دون توصية نموذجية غير مثبتة\.'/,
+  'Archetype review must fail closed on model-specific recommendations while preserving deterministic source intelligence',
+);
+assert.match(
+  smartReport,
+  /intelligence = \{[\s\S]*?\.\.\.baseIntelligence,[\s\S]*?advisorBrief:/,
+  'unsupported archetypes must return base source intelligence instead of leaking unsupported model output',
 );
 assert.doesNotMatch(
   smartReport,
-  /archetypeRun\.state === 'SUPPORTED'[\s\S]*?recommendations: \[\]/,
-  'Archetype review must not erase all source recommendations',
+  /archetypeRun\.state === 'SUPPORTED'[\s\S]*?archetypeIntelligence\.advisorBrief[\s\S]*?REVIEW_REQUIRED/,
+  'unsupported archetype output must not be reused as the customer-facing advisor brief',
 );
 assert.match(
   smartReport,
