@@ -6,7 +6,10 @@ import { persistAndReadBackCalculations, type CalculationPersistenceResult } fro
 import type { CalculationResult } from './report-intelligence/calculation-capability-registry.ts';
 import type { AghbariIntelligenceKernelResult } from './report-intelligence/aghbari-intelligence-kernel.ts';
 
-export type ReportRequestOptions = { signal?: AbortSignal };
+export type ReportRequestOptions = {
+  signal?: AbortSignal;
+  surfaceReadback?: boolean;
+};
 
 function maybeAbort<T>(query: T, signal?: AbortSignal): T {
   if (!signal) return query;
@@ -80,7 +83,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
-  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR';
+  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR' | 'READBACK_ONLY';
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
@@ -544,7 +547,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const companyId = await resolveCurrentCompanyId(options.signal);
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
-  const cacheKey = companyId + ':' + normalizedJobId + ':' + normalizedSourceHash;
+  const readMode = options.surfaceReadback ? 'surface' : 'full';
+  const cacheKey = companyId + ':' + normalizedJobId + ':' + normalizedSourceHash + ':' + readMode;
   const cached = smartReportReadCache.get(cacheKey);
   if (cached) {
     if (cached.expiresAt > Date.now()) return cached.detail;
@@ -723,6 +727,126 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonicalCommitQueryFailed = Boolean(canonicalCommitError);
   if (canonicalCommitQueryFailed) {
     runtimeWarnings.push('تعذر قراءة سجل الاعتماد الكانوني؛ تم فصل فشل القراءة عن فجوة البيانات وعدم إصدار فجوة رقمية مصطنعة.');
+  }
+
+  if (options.surfaceReadback) {
+    const surfaceCommitQuery = supabase
+      .from('canonical_import_commits')
+      .select('committed_count')
+      .eq('company_id', companyId)
+      .eq('source_hash', resolvedSourceHash)
+      .order('committed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: surfaceCommit, error: surfaceCommitError } = await maybeAbort(surfaceCommitQuery, options.signal);
+
+    const surfaceCommittedCount = Number(surfaceCommit?.committed_count ?? NaN);
+    const surfaceCommitGap =
+      Number.isFinite(surfaceCommittedCount) && sourceRowCount != null
+        ? Math.max(0, sourceRowCount - surfaceCommittedCount)
+        : null;
+    const surfaceCanonicalCommitVerified =
+      currentPassport?.verification_status === 'VERIFIED' &&
+      currentPassport?.decision_readiness === 'READY' &&
+      currentPassport?.acceptance_status === 'ACCEPTED' &&
+      Number.isFinite(surfaceCommittedCount) &&
+      sourceRowCount != null &&
+      surfaceCommittedCount === sourceRowCount &&
+      canonicalCommitLineageCount != null &&
+      canonicalCommitLineageCount === surfaceCommittedCount &&
+      !surfaceCommitError;
+
+    const surfaceEvidenceStatus = resolveReportEvidenceStatus(
+      effectiveRendered,
+      surfaceCanonicalCommitVerified,
+    );
+    const surfaceTrustState = resolveReportTrustState(
+      effectiveRendered,
+      currentPassport,
+      surfaceEvidenceStatus,
+      surfaceCanonicalCommitVerified,
+    );
+    const surfaceSpecialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
+    const catalogItem = mapCatalogItem(job as Record<string, unknown>, sourceAnalysis);
+    if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
+
+    const surfaceWarnings = [
+      ...runtimeWarnings,
+      'تم فتح سطح القرار/العمل بقراءة Readback خفيفة؛ الصفوف الكانونية التفصيلية لا تُعاد قراءتها هنا لأنها لا تُحتاج لبناء حالة القرار/العمل.',
+      ...(surfaceCommitError ? ['تعذر قراءة canonical_import_commits في سطح القرار/العمل؛ بقيت الحالة في المراجعة دون ترقية مصطنعة.'] : []),
+    ];
+
+    const surfaceIntelligence = emptyReportIntelligence(surfaceSpecialty);
+    surfaceIntelligence.advisorBrief = {
+      ...surfaceIntelligence.advisorBrief,
+      headline: 'سطح القرار/العمل مبني على سجل التقرير والدليل المحفوظ؛ التحليل الصفّي الكامل يبقى داخل التقرير الذكي.',
+      recommendedAction: 'استخدم التقرير الذكي لقراءة الصفوف والإشارات التفصيلية، ثم تابع القرار والعمل من هذا السطح.',
+      proofRequirement: surfaceCanonicalCommitVerified
+        ? 'تم إثبات Passport + قبول الدليل + عدد الصفوف المعتمد لهذا المصدر نفسه.'
+        : 'لم يكتمل إثبات الاعتماد الكانوني الكامل لهذا السطح؛ لا تتم ترقية الحالة تلقائيًا.',
+    };
+
+    const surfaceRendered = {
+      ...effectiveRendered,
+      sourceSpecialty: surfaceSpecialty ?? effectiveRendered.sourceSpecialty ?? null,
+      trustState: surfaceTrustState,
+      archetypeId: typeof effectiveRendered.archetypeId === 'string' ? effectiveRendered.archetypeId : null,
+      archetypeVersion: effectiveRendered.archetypeVersion == null ? null : Number(effectiveRendered.archetypeVersion),
+      archetypeState: typeof effectiveRendered.archetypeState === 'string' ? effectiveRendered.archetypeState : 'REVIEW_REQUIRED',
+      signalStatus: typeof effectiveRendered.signalStatus === 'string' ? effectiveRendered.signalStatus : 'NO_EXCEPTIONAL_SIGNALS',
+      intelligenceStatus: typeof effectiveRendered.intelligenceStatus === 'string' ? effectiveRendered.intelligenceStatus : 'REVIEW_REQUIRED',
+      calculationPersistenceStatus: typeof effectiveRendered.calculationPersistenceStatus === 'string' ? effectiveRendered.calculationPersistenceStatus : 'NOT_RUN',
+    };
+
+    const detail: SmartReportDetail = {
+      ...catalogItem,
+      jobId: String(job.id),
+      tenantId: companyId,
+      sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
+      sourceHash: String(job.source_hash ?? ''),
+      entityType: entityTypeFrom(String(job.job_key ?? '')),
+      rowCount: sourceRowCount,
+      qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+      trustState: surfaceTrustState,
+      specialty: surfaceSpecialty,
+      canonicalRows: [],
+      intelligence: surfaceIntelligence,
+      evidenceStatus: surfaceEvidenceStatus,
+      completedAt: job.completed_at == null ? null : String(job.completed_at),
+      importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),
+      checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
+      renderedOutput: surfaceRendered,
+      calculationPersistence: null,
+      sourceAnalysis,
+      authoritativeCurrentRowCount: Number.isFinite(surfaceCommittedCount) ? surfaceCommittedCount : null,
+      canonicalCommitGap: surfaceCommitGap,
+      canonicalCommitCount: Number.isFinite(surfaceCommittedCount) ? surfaceCommittedCount : 0,
+      canonicalCommitVerified: surfaceCanonicalCommitVerified,
+      canonicalAnalysisScope: 'READBACK_ONLY',
+      sourceTrustState: surfaceTrustState,
+      reportVerificationState: surfaceCanonicalCommitVerified
+        ? 'VERIFIED'
+        : surfaceCommitGap != null && surfaceCommitGap > 0
+          ? 'GAP_DETECTED'
+          : 'PARTIAL_ANALYSIS',
+      runtimeWarnings: surfaceWarnings,
+      stages: (stages ?? []).map((row) => ({
+        ordinal: Number(row.ordinal),
+        stage: String(row.stage),
+        status: String(row.status),
+        attempt: Number(row.attempt ?? 0),
+        startedAt: row.started_at == null ? null : String(row.started_at),
+        completedAt: row.completed_at == null ? null : String(row.completed_at),
+        lastError: row.last_error && typeof row.last_error === 'object' ? row.last_error as Record<string, unknown> : {},
+        evidence: row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {},
+      })),
+    };
+
+    smartReportReadCache.set(cacheKey, {
+      expiresAt: Date.now() + SMART_REPORT_READ_CACHE_TTL_MS,
+      detail,
+    });
+    return detail;
   }
 
   if (canonicalResolvedFromCommit) {
