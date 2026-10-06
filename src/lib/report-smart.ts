@@ -1,6 +1,6 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
-import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
+import { resolveReportEvidenceStatus, resolveReportTrustState } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 import { persistAndReadBackCalculations, type CalculationPersistenceResult } from './report-intelligence/calculation-persistence.ts';
 import type { CalculationResult } from './report-intelligence/calculation-capability-registry.ts';
@@ -12,6 +12,14 @@ function maybeAbort<T>(query: T, signal?: AbortSignal): T {
   if (!signal) return query;
   return (query as T & { abortSignal: (value: AbortSignal) => T }).abortSignal(signal);
 }
+
+type SmartReportReadCacheEntry = {
+  expiresAt: number;
+  detail: SmartReportDetail;
+};
+
+const SMART_REPORT_READ_CACHE_TTL_MS = 30_000;
+const smartReportReadCache = new Map<string, SmartReportReadCacheEntry>();
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -536,6 +544,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const companyId = await resolveCurrentCompanyId(options.signal);
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
+  const cacheKey = companyId + ':' + normalizedJobId + ':' + normalizedSourceHash;
+  const cached = smartReportReadCache.get(cacheKey);
+  if (cached) {
+    if (cached.expiresAt > Date.now()) return cached.detail;
+    smartReportReadCache.delete(cacheKey);
+  }
+
   const jobQuery = supabase
     .from('report_execution_jobs')
     .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
@@ -785,6 +800,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     actualCanonicalRowCount === Number(effectiveRendered.rowCount) &&
     canonicalCommitLineageCount === actualCanonicalRowCount &&
     !canonicalRowsPartial;
+
+  const runtimeTrustState = resolveReportTrustState(
+    effectiveRendered,
+    currentPassport,
+    evidenceStatus,
+    canonicalCommitVerified,
+  );
 
   if (canonicalCommitLineageCount != null && canonicalCommitLineageCount !== actualCanonicalRowCount) {
     runtimeWarnings.push(
@@ -1071,6 +1093,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     // Persisted renderedOutput may carry a stale specialty from the original
     // execution. The runtime source analysis is authoritative for classification.
     sourceSpecialty: specialty ?? effectiveRendered.sourceSpecialty ?? null,
+    trustState: runtimeTrustState,
     archetypeId: detectedArchetype.profile?.id ?? null,
     archetypeVersion: detectedArchetype.profile?.version ?? null,
     profileVersion: detectedArchetype.profile?.version ?? null,
@@ -1083,7 +1106,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     calculationReadBackCount: calculationPersistence?.readBackCount ?? 0,
   };
 
-  return {
+  const detail: SmartReportDetail = {
     ...catalogItem,
     archetypeState,
     archetypeId: detectedArchetype.profile?.id ?? null,
@@ -1095,7 +1118,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     entityType: entityTypeFrom(String(job.job_key ?? '')),
     rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
-    trustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    trustState: runtimeTrustState,
     specialty,
     canonicalRows,
     intelligence,
@@ -1111,7 +1134,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalCommitCount,
     canonicalCommitVerified,
     canonicalAnalysisScope,
-    sourceTrustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    sourceTrustState: runtimeTrustState,
     reportVerificationState: canonicalCommitQueryFailed || !canonicalRowsComplete || canonicalRowsPartial
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
@@ -1131,4 +1154,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       evidence: row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {},
     })),
   };
+
+  smartReportReadCache.set(cacheKey, {
+    expiresAt: Date.now() + SMART_REPORT_READ_CACHE_TTL_MS,
+    detail,
+  });
+  return detail;
 }

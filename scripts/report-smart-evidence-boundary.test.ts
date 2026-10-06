@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { resolveReportEvidenceStatus } from '../src/lib/report-smart-evidence-status.ts';
+import { resolveReportEvidenceStatus, resolveReportTrustState } from '../src/lib/report-smart-evidence-status.ts';
 
 assert.equal(
   resolveReportEvidenceStatus(
@@ -55,6 +55,51 @@ assert.equal(
   ),
   'BLOCKED',
   'blocked state must remain a real state',
+);
+
+assert.equal(
+  resolveReportTrustState(
+    {},
+    {
+      verification_status: 'VERIFIED',
+      decision_readiness: 'READY',
+      acceptance_status: 'ACCEPTED',
+    },
+    'VERIFIED',
+    true,
+  ),
+  'TRUSTED',
+  'a verified, accepted Passport with full canonical coverage must derive TRUSTED even when the persisted rendered output omitted trustState',
+);
+
+assert.equal(
+  resolveReportTrustState(
+    {},
+    {
+      verification_status: 'VERIFIED',
+      decision_readiness: 'READY',
+      acceptance_status: 'ACCEPTED',
+    },
+    'AWAITING_EVIDENCE_SNAPSHOT',
+    true,
+  ),
+  'AWAITING_EVIDENCE_SNAPSHOT',
+  'missing evidence snapshot must not be promoted to TRUSTED',
+);
+
+assert.equal(
+  resolveReportTrustState(
+    { trustState: 'REVIEW' },
+    {
+      verification_status: 'VERIFIED',
+      decision_readiness: 'READY',
+      acceptance_status: 'ACCEPTED',
+    },
+    'VERIFIED',
+    true,
+  ),
+  'REVIEW',
+  'an explicit persisted trustState remains authoritative when present',
 );
 
 
