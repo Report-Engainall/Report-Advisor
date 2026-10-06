@@ -1137,7 +1137,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           ? archetypeIntelligence.advisorBrief
           : {
               ...archetypeIntelligence.advisorBrief,
-              health: archetypeRun.state,
+              health: 'REVIEW_REQUIRED',
               headline: 'النموذج لم يجتز بوابة الاعتماد: ' + archetypeRun.state + ' — تم إبقاء الحسابات والإشارات والذكاء المتاح، بينما يظل اعتماد القرار مقيدًا بحالة الدليل والنموذج.',
             },
       };
