@@ -115,6 +115,7 @@
     "test:inventory-intelligence-ui": "node scripts/check-inventory-intelligence-ui.mjs",
     "test:proposal-inventory-truth": "node scripts/check-proposal-inventory-truth.mjs",
     "test:preview-route-truth": "node scripts/check-preview-route-truth.mjs",
+    "test:route-aware-preview": "node scripts/check-route-aware-preview.mjs",
     "test:demand-velocity": "node scripts/check-demand-velocity.mjs",
     "test:batch-decision": "node --experimental-strip-types scripts/check-batch-decision-engine.mjs",
     "test:safe-metrics": "node scripts/check-safe-metrics.mjs",
