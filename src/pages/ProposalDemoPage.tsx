@@ -435,6 +435,7 @@ function PreviewInventoryTable({ rows = LIVE_ROWS }: { rows?: LiveRow[] }) {
 }
 
 function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 'receivables' }) {
+  const [decisionState, setDecisionState] = useState<'جاهز' | 'مسودة قرار منشأة'>('جاهز');
   const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
   const outstandingRows = LIVE_ROWS.filter(row => row.netAmount > row.paidAmount);
   const outstandingTotal = outstandingRows.reduce((sum, row) => sum + (row.netAmount - row.paidAmount), 0);
@@ -450,6 +451,9 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
   const model = domain === 'sales'
     ? {
         label: 'مبيعات',
+        recommendation: recentDelta != null && recentDelta < 0
+          ? 'افتح تحليل التغير لآخر فترتين قبل اعتماد خطة مبيعات جديدة.'
+          : 'ثبّت متابعة الصفوف الأعلى قيمة، ثم راقب التغير في الفترة التالية.',
         health: recentDelta != null && recentDelta < 0 ? 'يحتاج تفسيرًا' : 'اتجاه إيجابي يحتاج متابعة',
         issue: recentDelta != null && recentDelta < 0
           ? 'القيمة في أحدث صف أقل من الصف السابق؛ يلزم تفكيك التغير قبل اعتماد خطة مبيعات.'
@@ -465,6 +469,9 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
     : domain === 'profitability'
       ? {
           label: 'ربحية',
+          recommendation: weakestMargin
+            ? `ابدأ بمراجعة ${weakestMargin.documentNo} قبل أي تغيير تسعيري.`
+            : 'أعد حساب الهامش على نفس المصدر قبل اتخاذ قرار تسعير.',
           health: weakestMargin && weakestMargin.margin < 10 ? 'تحتاج مراجعة' : 'قابلة للمتابعة',
           issue: weakestMargin && weakestMargin.margin < 10
             ? `يوجد صف بهامش منخفض يبلغ ${weakestMargin.margin.toFixed(1)}%، ما يستحق فحص السعر والتكلفة قبل التوسع.`
@@ -479,6 +486,9 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
         }
       : {
           label: 'تحصيل',
+          recommendation: outstandingTotal > 0
+            ? 'رتّب الصفوف المفتوحة حسب الرصيد ثم اربطها بعميل وتاريخ استحقاق قبل إجراء التحصيل.'
+            : 'لا تنشئ إجراء تحصيل قبل ظهور رصيد مفتوح مثبت.',
           health: outstandingTotal > 0 ? 'تحتاج أولوية' : 'لا يوجد رصيد مفتوح مثبت',
           issue: outstandingTotal > 0
             ? `يوجد ${outstandingTotal.toLocaleString('ar-YE')} YER رصيد مفتوح مشتق من الصافي ناقص المدفوع.`
@@ -514,6 +524,7 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
           ['الخطوة التالية', model.next],
           ['القياس', model.measure],
           ['العائق', model.blocker],
+          ['التوصية', model.recommendation],
           ['المخاطر', model.risk],
         ].map(([label, value]) => (
           <article key={label} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4">
@@ -523,9 +534,17 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
         ))}
       </div>
       <div className="flex flex-wrap gap-2 border-t border-ink-100 bg-white p-5 lg:p-6">
-        <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">حوّل القضية إلى قرار</Link>
+        <button
+          type="button"
+          onClick={() => setDecisionState('مسودة قرار منشأة')}
+          disabled={decisionState !== 'جاهز'}
+          className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white disabled:bg-success-600 disabled:text-white"
+        >
+          {decisionState === 'جاهز' ? 'إنشاء مسودة قرار' : 'تم إنشاء مسودة القرار'}
+        </button>
+        <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">فتح مساحة القرار</Link>
         <Link to="/work-center" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">افتح مسار العمل</Link>
-        <span className="inline-flex min-h-10 items-center rounded-xl border border-ink-100 bg-ink-50 px-4 py-2.5 text-[10px] font-black text-ink-500">الدليل يبقى مربوطًا بالمصدر</span>
+        <span className="inline-flex min-h-10 items-center rounded-xl border border-ink-100 bg-ink-50 px-4 py-2.5 text-[10px] font-black text-ink-500">المعاينة لا تحفظ قرارًا فعليًا</span>
       </div>
     </section>
   );
@@ -754,7 +773,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
           <PreviewMetric label="أول شهر" value={String(first.salesQty)} meta={first.documentDate} />
           <PreviewMetric label="آخر شهر" value={String(last.salesQty)} meta={last.documentDate} />
           <PreviewMetric label="النمو بين الطرفين" value={salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%'} meta="اتجاه وصفي" />
-          <PreviewMetric label="عدد الفترات" value="12" meta="شهرًا في المصدر" />
+          <PreviewMetric label="عدد الفترات" value={String(LIVE_ROWS.length)} meta="صفًا زمنيًا في المصدر" />
         </div>
         <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
           <div className="text-sm font-black text-ink-900">السلسلة المصدرية</div>
