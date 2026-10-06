@@ -1,6 +1,6 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = ee73ec7a0f712095e0152a1550828ce75d244132
-UPDATED_AT = 2026-10-06T22:14:00+03:00
+REPORT_FOR_HEAD = bb3ed3140aa2f928c7be089e6ad8f2dd5dfaa9b2
+UPDATED_AT = 2026-10-06T22:28:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Continue from the exact product head, close proven failures, keep the Smart Report journey source-bound, and produce visible real-business results without rebuilding or fabricating PASS.
 
 WHAT_I_ACTUALLY_DID = Removed the timeout-prone dashboard dependency, made calculation persistence tenant mismatch fail-soft, corrected Smart Report recommendation typing, added bounded tenant-resolution retry, reconciled the dashboard UI contract, and replaced the landing catalog fan-out with a direct source-hash-bound Smart Report read with bounded network/session retries.
@@ -14,7 +14,7 @@ NOT_YET_PROVEN = current-head typecheck/build terminal PASS, current-head authen
 
 DO_NOT_REPEAT = Do not rebuild; do not delete prior work; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale-SHA PASS; do not weaken browser/security/truth contracts.
 
-NEXT_EXACT_ACTION = Consume the fresh Product Build and browser/certification terminals for ee73. Fix only the first new product/build failure, then verify Netlify preview and live source readback.
+NEXT_EXACT_ACTION = Consume fresh Product Build and browser/certification terminals for bb3. Fix only the first new terminal failure, then verify the Netlify preview and real f68 inventory report surface.
 
 LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
 
@@ -50,3 +50,5 @@ CURRENT_TYPECHECK_CLOSURE_20261006 = Closed the two terminal TypeScript errors r
 COMMAND_CENTER_SOURCE_BINDING_20261006 = /command-center now prefers the tenant-bound Smart Report for the current canonical source; the user-facing surface no longer renders the generic dashboard sales snapshot when the verified inventory report is available.
 
 COMMAND_CENTER_FAIL_CLOSED_20261006 = /command-center now prefers real Smart Report data and fails closed on source-read failure instead of exposing unrelated legacy dashboard metrics.
+
+INTERACTION_SURFACE_CLOSURE_20261006 = Surfaced report source exploration, signal inspection, evidence, and execution from the executive layer; replaced technical hero identifiers with business context; upgraded CustomerReportSurface and DataTable with search/sort/row-detail interactions.
