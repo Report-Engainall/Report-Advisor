@@ -127,6 +127,8 @@ check(demandPressure.signals.some((item) => item.id === 'inventory:demand-pressu
 check(demandPressure.recommendations.some((item) => item.id === 'rec:inventory:demand-pressure-low-coverage'), 'demand-pressure recommendation missing');
 check(demandPressure.advisorBrief.headline.includes('ارتفع متوسط الطلب'), 'advisor headline must explain why now for rising demand');
 check(demandPressure.recommendations.find((item) => item.id === 'rec:inventory:demand-pressure-low-coverage')?.action.includes('مهلة التوريد'), 'recommendation must stop short of inventing a purchase quantity');
+check(demandPressure.recommendations.find((item) => item.id === 'rec:inventory:demand-pressure-low-coverage')?.title.includes('إعادة الطلب'), 'recommendation title must be decision-oriented');
+check(demandPressure.recommendations.find((item) => item.id === 'rec:inventory:demand-pressure-low-coverage')?.risk.includes('شراء زائد'), 'recommendation risk must explain both stockout and overbuying risk');
 check(demandPressure.signals.find((item) => item.id === 'inventory:demand-pressure-low-coverage')?.evidence.some((e) => e.includes('demandAcceleration=')), 'demand acceleration evidence missing');
 
 const empty = deriveReportIntelligence({
