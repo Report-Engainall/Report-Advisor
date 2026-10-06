@@ -326,8 +326,24 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
     if (job.job_type && job.job_type !== entityType && job.job_type !== 'generic:source-data') {
       throw new Error('IMPORT_JOB_ENTITY_TYPE_MISMATCH');
     }
+    if (job.job_type === 'generic:source-data' && entityType !== 'generic:source-data') {
+      const { error: entityUpgradeError } = await serviceClient
+        .from('import_jobs')
+        .update({
+          job_type: entityType,
+          result_summary: {
+            ...(job.result_summary && typeof job.result_summary === 'object' ? job.result_summary : {}),
+            entity_type: entityType.replace(/^generic:/, ''),
+            entity_type_source: 'authoritative_source_schema',
+          },
+        })
+        .eq('id', job.id)
+        .eq('company_id', companyId);
+      if (entityUpgradeError) throw entityUpgradeError;
+    }
 
-    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));    if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
+    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));
+    if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
     if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
       throw new Error(`CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED:${authoritativeQualityScore}`);
     }
