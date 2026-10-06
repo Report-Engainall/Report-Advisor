@@ -1,12 +1,12 @@
 SESSION HANDOFF = NOT READY
 UPDATED_AT = 2026-10-06T19:31:00+03:00
-CURRENT_EXACT_HEAD = ee46edfcfb72fe6eade0bf04348fb792a4877f61
-CURRENT_EXACT_PRODUCT_HEAD = ee46edfcfb72fe6eade0bf04348fb792a4877f61
+CURRENT_EXACT_HEAD = fabf6e60b38e3412d60af12f8b63a1f33e7608a8
+CURRENT_EXACT_PRODUCT_HEAD = fabf6e60b38e3412d60af12f8b63a1f33e7608a8
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_DIRECT_SOURCE_LANDING_REPAIR
+ACTION_STATUS = ACTIVE_EXECUTION_LANDING_DATA_SURFACE_PROOF
 
 FIRST_ACTIVE_FAILURE_1 = Exact-head authenticated Chromium showed the Smart Report itself rendered real data, while the landing route failed to settle because the broad Smart Report catalog read emitted TypeError: Failed to fetch during auth/session convergence.
 ROOT_CAUSE_1 = Landing depended on a 60-item Smart Report catalog fan-out before reading the designated source; transient/network timeout during that fan-out prevented the primary card from painting.
@@ -58,3 +58,5 @@ RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_sn
 PRODUCT_FIX_F292BF63 = Smart Report ReportRecommendation contract is now kept separate from legacy dashboard Recommendation rows; first source recommendation is rendered from the verified report context.
 
 VISUAL_PROOF_88C75 = Artifact 11429020660 contains 35 screenshots; Smart Report route visibly rendered the real report 16709d80-e012-40ef-9c12-6fd8255897f8, source تقارير ادارية.xlsx, 332 rows, evidence/truth context and decision flow, while landing screenshot remained loading.
+
+LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
