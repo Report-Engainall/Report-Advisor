@@ -32,6 +32,26 @@ const numberLabel = (value: unknown, digits = 2): string => {
   return value.toLocaleString('ar-YE', { maximumFractionDigits: digits });
 };
 
+function humanizeEvidence(value: string): string {
+  const labels: Record<string, string> = {
+    field: 'الحقل',
+    stockField: 'حقل النفاد',
+    dailySalesField: 'معدل البيع اليومي',
+    affectedRows: 'السجلات المتأثرة',
+    negativeRows: 'السجلات ذات الرصيد السالب',
+    zeroRows: 'السجلات ذات الرصيد الصفري',
+    rows: 'السجلات',
+    duplicateRows: 'السجلات المتكررة',
+    usableRows: 'السجلات الصالحة',
+    assumption: 'الافتراض',
+    source: 'المصدر',
+    stockField: 'حقل الرصيد',
+  };
+  const [key, ...rest] = value.split('=');
+  if (rest.length === 0) return value;
+  return (labels[key] ?? key) + ': ' + rest.join('=');
+}
+
 export function KernelDecisionSurface({
   kernel,
   calculations = [],
@@ -59,7 +79,7 @@ export function KernelDecisionSurface({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="text-[9px] font-black tracking-[.14em] text-primary-200">AGHBARI INTELLIGENCE KERNEL</div>
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-200">حسابات وتحليلات المصدر</div>
           <h2 className="mt-1 text-xl font-black text-white">ما الذي حسبه النظام فعلًا؟</h2>
           <p className="mt-1 max-w-3xl text-[10px] leading-5 text-slate-300">
             مخرجات الحساب والتحليل من المصدر الحالي، مع إبقاء حدود الثقة والمعلومات غير المتاحة ظاهرة.
@@ -118,7 +138,7 @@ export function KernelDecisionSurface({
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h3 className="truncate text-sm font-black text-white">{item.name}</h3>
-                    <div className="mt-1 text-[9px] text-slate-500">{item.metricId}</div>
+                    <details className="mt-1"><summary className="cursor-pointer text-[8px] text-slate-500">تفاصيل فنية</summary><div className="mt-1 break-all font-mono text-[8px] text-slate-500">{item.metricId}</div></details>
                   </div>
                   <span className="shrink-0 rounded-full bg-emerald-950/70 px-2 py-1 text-[8px] font-black text-emerald-100">محسوب</span>
                 </div>
@@ -145,7 +165,7 @@ export function KernelDecisionSurface({
                     {anomaly.severity === 'high' ? 'مرتفع' : anomaly.severity === 'medium' ? 'متوسط' : 'منخفض'}
                   </span>
                 </div>
-                <div className="mt-2 text-[9px] leading-5 text-slate-300">{anomaly.evidence.join(' · ')}</div>
+                <div className="mt-2 flex flex-wrap gap-1.5 text-[9px] leading-5 text-slate-300">{anomaly.evidence.map((item) => <span key={item} className="rounded-full bg-white/5 px-2 py-1">{humanizeEvidence(item)}</span>)}</div><details className="mt-2"><summary className="cursor-pointer text-[8px] text-slate-500">تفاصيل التدقيق الفني</summary><div className="mt-2 font-mono text-[7px] leading-4 text-slate-500">{anomaly.evidence.join(' · ')}</div></details>
                 <div className="mt-2 text-[9px] leading-5 text-slate-400">الحد: {anomaly.limitation}</div>
               </article>
             ))}
