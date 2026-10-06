@@ -866,6 +866,24 @@ export function SmartReportPage() {
           : 'الذكاء المصدرّي متاح · الدليل النهائي غير مثبت';
 
   return <div dir="rtl" className="report-page ag-smart-report-surface space-y-5 animate-fade-in pb-10">
+    {!report.isCurrentForSource && report.currentSourceReportJobId && (
+      <section className="rounded-[18px] border border-warning-300 bg-warning-50 p-4 shadow-sm" role="status">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="text-[10px] font-black text-warning-950">هذا إصدار تاريخي لنفس المصدر</div>
+            <p className="mt-1 text-[10px] leading-5 text-warning-900">
+              هذه الصفحة محفوظة للتدقيق، لكنها ليست أحدث تشغيل لهذا الملف. استخدم التقرير الحالي حتى لا تختلط النتائج بين تشغيلين.
+            </p>
+          </div>
+          <Link
+            to={'/reports/smart/' + report.currentSourceReportJobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
+            className="shrink-0 rounded-xl bg-warning-900 px-3.5 py-2.5 text-[10px] font-black text-white"
+          >
+            فتح التقرير الحالي
+          </Link>
+        </div>
+      </section>
+    )}
     <PageHeader
       title={report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}
       subtitle="تقرير ذكي مربوط بالبصمة الأصلية، وليس نسخة تجريبية أو تقريرًا عامًا."
