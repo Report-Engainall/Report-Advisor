@@ -192,6 +192,7 @@ export function ReportsCenterPage() {
 
       if (currentPrimary) {
         setPrimarySmartReport(currentPrimary);
+        // Keep session navigation aligned with the current authoritative report.
         window.sessionStorage.setItem('aghbari:last-smart-report-job', currentPrimary.jobId);
         window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', currentPrimary.sourceHash);
       }
@@ -302,9 +303,13 @@ export function ReportsCenterPage() {
   const persistedSmartJobId = typeof window !== 'undefined'
     ? window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? ''
     : '';
-  const firstSmartReport = (persistedSmartJobId
+  const persistedSmartReport = persistedSmartJobId
     ? smartReports.find((report) => report.jobId === persistedSmartJobId) ?? null
-    : null) ?? smartReports[0] ?? null;
+    : null;
+  // A persisted browser choice is not authoritative when the page already loaded
+  // the designated current real report. Never let stale sessionStorage resurrect
+  // an older job for the customer-facing "next report" path.
+  const firstSmartReport = primarySmartReport ?? persistedSmartReport ?? smartReports[0] ?? null;
   const kpis = snapshot?.kpis ?? null;
   const aging = snapshot?.aging ?? null;
   const asOf = snapshot?.asOf ?? null;
