@@ -491,7 +491,32 @@ export async function fetchSmartReportCatalog(limit = 500, options: ReportReques
     })
     .filter((item): item is SmartReportCatalogItem => Boolean(item && item.sourceHash));
 
-  return catalog.slice(0, limit);}
+  // One physical source can have multiple historical jobs. The customer-facing
+  // catalog shows only the latest completed run for each source hash; history
+  // remains reachable by its explicit job URL.
+  const latestBySourceHash = new Map<string, SmartReportCatalogItem>();
+  for (const item of catalog) {
+    const key = item.sourceHash.trim();
+    const previous = latestBySourceHash.get(key);
+    if (!previous) {
+      latestBySourceHash.set(key, item);
+      continue;
+    }
+    const nextTime = Date.parse(item.completedAt ?? '');
+    const previousTime = Date.parse(previous.completedAt ?? '');
+    if (Number.isFinite(nextTime) && (!Number.isFinite(previousTime) || nextTime > previousTime)) {
+      latestBySourceHash.set(key, item);
+    }
+  }
+
+  return [...latestBySourceHash.values()]
+    .sort((a, b) => {
+      const aTime = Date.parse(a.completedAt ?? '');
+      const bTime = Date.parse(b.completedAt ?? '');
+      return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0);
+    })
+    .slice(0, limit);
+  }
 function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   const owner =
     specialty === 'inventory' ? 'مسؤول المخزون' :
