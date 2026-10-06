@@ -721,6 +721,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   } else if (route === '/reports/executive' || route === '/' || route === '/reports') {
     body = (
       <>
+        <PreviewAdvisorReport />
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <PreviewMetric label="الصفوف" value={String(LIVE_ROWS.length)} meta="Fixture الحالي" />
           <PreviewMetric label="المبيعات" value={String(LIVE_TOTALS.salesQty)} meta="وحدة" />
