@@ -35,6 +35,33 @@ function claimStateForProof(provenance: ClaimProvenance): AdvisoryPacket['proofS
 
 type AdvisoryQuestionAnswer = Record<string, unknown>;
 
+function expandCanonicalFieldAliases(fields: CanonicalField[]): CanonicalField[] {
+  const expanded = new Set<CanonicalField>(fields);
+  const add = (field: CanonicalField, ...aliases: string[]) => {
+    if (!expanded.has(field)) return;
+    for (const alias of aliases) expanded.add(alias as CanonicalField);
+  };
+
+  // Inventory sources commonly arrive with generic canonical names while
+  // archetype/business-question contracts intentionally use precise business
+  // vocabulary. Keep the source truth unchanged, but make semantic equivalents
+  // visible to the evaluator instead of incorrectly declaring them unavailable.
+  add('sku', 'productCode');
+  add('name', 'productName');
+  add('product_name', 'productName');
+  add('balance', 'currentStock');
+  add('current_stock', 'currentStock');
+  add('sales_qty', 'salesQty');
+  add('net_sales', 'salesQty');
+  add('daily_sales_rate', 'dailySalesRate');
+  add('stockout_days', 'stockoutDays');
+  add('stock_age_days', 'stockAgeDays');
+  add('stock_age_period_days', 'stockAgePeriodDays');
+  add('warehouse', 'warehouse');
+
+  return [...expanded];
+}
+
 function answerText(value: string): AdvisoryQuestionAnswer {
   return { summary: value };
 }
@@ -62,6 +89,7 @@ function followUpForQuestion(question: BusinessQuestion<AdvisoryQuestionAnswer>)
 }
 
 function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQuestion<AdvisoryQuestionAnswer>[] {
+  const availableFields = expandCanonicalFieldAliases(input.availableFields);
   const signalClaims = claims.filter((claim) => claim.claimId.startsWith('signal:'));
   const recommendationClaims = claims.filter((claim) => claim.claimId.startsWith('recommendation:'));
   const primarySignal = signalClaims[0] ?? null;
@@ -122,7 +150,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 100,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: whatAnswer,
     }),
@@ -132,7 +160,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 95,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: whereAnswer,
     }),
@@ -142,7 +170,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 90,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: contributorsAnswer,
     }),
@@ -152,7 +180,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 85,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: detractorsAnswer,
     }),
@@ -162,7 +190,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 90,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: primarySignal
         ? answerText(primarySignal.statement)
@@ -174,7 +202,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 80,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: whyAnswer,
       reviewRequired: Boolean(primarySignal),
@@ -185,7 +213,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 75,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: soWhatAnswer,
       reviewRequired: Boolean(topRisk || topOpportunity),
@@ -196,7 +224,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 70,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: nextAnswer,
       reviewRequired: Boolean(nextRecommendation || business.advisorBrief?.recommendedAction),
@@ -207,7 +235,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 60,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: claimStateForProof(input.provenance) === 'VERIFIED'
         ? { sourceHash: input.provenance.sourceHash, jobId: input.provenance.reportExecutionJobId, evidenceSnapshotId: input.provenance.evidenceSnapshotId ?? null, passportId: input.provenance.evidencePassportId ?? null }
@@ -219,7 +247,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: [],
       minimumSample: 1,
       priority: 50,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer: null,
     }),
@@ -285,7 +313,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
   };
 
   const definitions = buildBusinessQuestionSet<Record<string, unknown>>(archetypeFamily, evaluateBusinessQuestion, {
-    availableFields: input.availableFields,
+    availableFields,
     sampleSize: input.sampleSize,
     answers: {},
   });
@@ -302,7 +330,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       requiredFields: question.requiredFields,
       minimumSample: question.minimumSample,
       priority: question.priority,
-      availableFields: input.availableFields,
+      availableFields,
       sampleSize: input.sampleSize,
       answer,
     });
@@ -318,7 +346,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
         requiredFields: [],
         minimumSample: 1,
         priority: 110,
-        availableFields: input.availableFields,
+        availableFields,
         sampleSize: input.sampleSize,
         answer: modelFinding
           ? {
