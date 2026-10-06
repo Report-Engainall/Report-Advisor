@@ -1,5 +1,5 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 4353dfdafa53628442f0efbad23bbbe03f11535e
+CURRENT_EXACT_HEAD = b0c023b7e69d1d34e904094f6ac3537dbafd0abf
 CURRENT_EXACT_PRODUCT_HEAD = 16f23f2724c7e570b24a7e46680a6aed558a9886
 BRANCH = feat/calculation-capability-engine-20261006
 PR = #850
@@ -26,15 +26,15 @@ REAL_KERNEL_STATUS = REVIEW_REQUIRED
 REAL_KERNEL_RULE = REVIEW_REQUIRED_IS_NOT_NO_INTELLIGENCE
 TRUST_READBACK_RULE = PASSPORT_BOUND_AND_LINEAGE_CHECKED
 OPEN_REPORT = d074ad5c-70d4-4402-a763-01129786f392 | source=f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10 | completed/rendered/6776 canonical rows in Supabase
-OPEN_REPORT_RESUME_RULE = use TEST_USER_C because certified open report belongs to company f68a7e91-3c7e-46fb-97a8-e339bec04e13
+OPEN_REPORT_RESUME_RULE = use dedicated actor D whose default membership is derived from OPEN_REPORT_EXECUTION_JOB_ID company f68a7e91-3c7e-46fb-97a8-e339bec04e13
 DECISION_WORK_OUTCOME = E2E_PATH_DEFINED_WITH_OUTCOME_LEARNING_READBACK_AND_BENCHMARK_SURFACE_PENDING_EXACT_RUN
 REAL_48_MATRIX = EXACT_HEAD_COMPLETENESS_AND_LINEAGE_GATE_ADDED; FINAL_RESULT_PENDING
 DEPLOYED_PREVIEW = 16f23f2724c7e570b24a7e46680a6aed558a9886 deployed READY; 4353dfdafa53628442f0efbad23bbbe03f11535e deployment pending/building
 BUILD = EXACT_PRODUCT_HEAD_LOCAL_PASS; 4353 CI PRODUCT BUILD PASS
 QUALITY = LOCAL_RELEASE_CORE_PASS; EXACT_FINAL_CI_PENDING
-BROWSER = CANONICAL_HEART_PASS_ON_4353; AUTHENTICATED_SMART_REPORT_PENDING
+BROWSER = previous 48/48 runtime PASS; previous Resume tenant-binding failure fixed on b0c023b7; final re-run pending
 FINAL_CERTIFICATION = CONTRACTS_PASS_ON_16f; FINAL_CERTIFICATION_PENDING
 SESSION_HANDOFF = FAILED_ON_4353_FOR_STALE_REPORT; DOCS_SYNC_BEING_CLOSED
 PRODUCT_COMPLETE = NO_CLAIM
 SALE_READY = NO_CLAIM
-NEXT_EXACT_ACTION = After this governance synchronization, consume the current exact-head Browser/Quality/Certification results; first failure only -> repair -> rerun. Then prove Smart Report refresh/readback, Decision→Approval→Work→Outcome→Learning, Benchmark, exact-head 48/48, final deployed SHA, and final customer-visible browser proof.
+NEXT_EXACT_ACTION = Consume exact-head browser run on b0c023b7e69d1d34e904094f6ac3537dbafd0abf; verify Resume PASS, then Smart Report/Decision→Work→Outcome→Learning, exact-head 48/48 evidence matrix and final certification.
