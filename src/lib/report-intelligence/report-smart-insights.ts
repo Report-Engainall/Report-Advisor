@@ -1326,6 +1326,106 @@ function deriveBusinessFindings(report: ReportInput): {
   };
 }
 
+function deriveFindingRecommendations(business: { findings: BusinessFinding[]; risks: BusinessFinding[]; opportunities: BusinessFinding[] }): ReportRecommendation[] {
+  const items = [...business.risks, ...business.findings, ...business.opportunities];
+  const rank = { high: 3, medium: 2, low: 1 } as const;
+  return items
+    .filter((finding) => finding.priority !== 'low')
+    .sort((a, b) => rank[b.priority] - rank[a.priority] || a.id.localeCompare(b.id))
+    .slice(0, 24)
+    .map((finding) => {
+      const id = finding.id;
+      const isSales = id.startsWith('sales:');
+      const isPurchases = id.startsWith('purchases:');
+      const isReceivables = id.startsWith('receivables:');
+      const isProfitability = id.startsWith('profitability:');
+      const owner = isSales ? 'مسؤول المبيعات' : isPurchases ? 'مسؤول المشتريات' : isReceivables ? 'مسؤول التحصيل' : isProfitability ? 'المدير المالي' : 'المسؤول التشغيلي المناسب للمصدر';
+      let title = 'حوّل هذه القضية إلى إجراء مقترح';
+      let action = finding.action;
+      let whyNow = finding.statement;
+      let expectedOutcome = 'معالجة القضية أو تفسيرها ثم إعادة قياس المؤشر نفسه من نفس المصدر.';
+      let risk = 'خطر اعتماد قرار قبل مراجعة الدليل المرتبط بالقضية.';
+      const blocker = finding.limitation;
+      const limitation = finding.limitation;
+
+      if (id === 'sales:top-party') {
+        title = 'ضع العميل الأعلى مساهمة تحت مراجعة التركّز';
+        action = 'راجع معاملات العميل الأعلى مساهمة، شروطه واتجاه مساهمته قبل اعتبار الاعتماد عليه مستقرًا.';
+        whyNow = 'هذا العميل يمثل الحصة الأكبر من القيمة المحسوبة في المصدر الحالي.';
+        expectedOutcome = 'خطة متابعة واضحة للعميل وتقليل مفاجآت التركّز دون اختلاق توقع إيراد.';
+        risk = 'خطر الاعتماد غير المرئي على عميل واحد إذا كانت الحصة المرتفعة غير مقصودة.';
+      } else if (id === 'sales:period-decline-risk') {
+        title = 'افتح سبب انخفاض المبيعات قبل اعتماد خطة تصحيح';
+        action = 'حدّد العملاء والأصناف التي صنعت الانخفاض ثم اعتمد إجراءً مخصصًا بدل معالجة الإجمالي فقط.';
+        whyNow = finding.statement;
+        expectedOutcome = 'تحديد محرك الانخفاض وتحويله إلى إجراء قابل للقياس.';
+      } else if (id === 'sales:period-growth-opportunity') {
+        title = 'ثبّت محركات نمو المبيعات قبل توسيعها';
+        action = 'حدّد العملاء/الأصناف التي صنعت النمو وراقب استمرارها في الفترة التالية قبل توسيع القرار.';
+        whyNow = finding.statement;
+        expectedOutcome = 'تحويل النمو المرصود إلى متابعة قابلة للقياس دون افتراض استدامته.';
+      } else if (id === 'sales:change-contributor') {
+        title = 'راجع العميل الأكثر تأثيرًا في تغير المبيعات';
+        action = 'افتح معاملات العميل صاحب أكبر تغير وطابق السبب في المصدر قبل اعتماد خطة مبيعات.';
+      } else if (id === 'purchases:top-party') {
+        title = 'ضع المورد الأعلى مساهمة تحت مراجعة التركّز';
+        action = 'راجع أسعار وشروط ومواعيد المورد الأعلى مساهمة قبل زيادة الاعتماد عليه.';
+        whyNow = 'هذا المورد يمثل الحصة الأكبر من القيمة المحسوبة في المصدر الحالي.';
+        expectedOutcome = 'صورة واضحة لتركيز المشتريات وشروط المورد المؤثر.';
+        risk = 'خطر الاعتماد غير المرئي على مورد واحد أو تعرض التكلفة لتغير غير مفسر.';
+      } else if (id === 'purchases:period-decline-risk') {
+        title = 'فسّر انخفاض المشتريات قبل تغيير خطة التوريد';
+        action = 'حدّد الموردين والأصناف التي صنعت الانخفاض وميّز بين تحسن الكفاءة ونقص التوريد.';
+      } else if (id === 'purchases:period-growth-opportunity') {
+        title = 'راجع محركات نمو المشتريات قبل زيادة الالتزام';
+        action = 'حدّد الموردين والأصناف التي صنعت النمو ثم افحص الأسعار والشروط قبل توسيع الالتزام.';
+      } else if (id === 'purchases:change-contributor') {
+        title = 'راجع المورد الأكثر تأثيرًا في تغير المشتريات';
+        action = 'افتح معاملات المورد صاحب أكبر تغير وطابق السبب مع الفواتير والشروط قبل اعتماد الإجراء.';
+      } else if (id === 'receivables:total-balance') {
+        title = 'حوّل الرصيد المستحق إلى قائمة تحصيل ذات أولوية';
+        action = 'قسّم الرصيد حسب العميل والعمر وسلوك السداد، ثم ثبّت أولويات التحصيل بدل التعامل مع الإجمالي ككتلة واحدة.';
+        expectedOutcome = 'قائمة تحصيل مرتبة حسب الرصيد والأولوية المدعومة بالدليل.';
+      } else if (id === 'receivables:concentration-risk') {
+        title = 'ابدأ مراجعة التحصيل من العميل الأعلى تعرضًا';
+        action = 'اربط حصة العميل الأعلى من الرصيد بعمر الدين وأحدث حركة سداد قبل اتخاذ إجراء تحصيلي.';
+        expectedOutcome = 'تحديد ما إذا كان التركّز يحتاج تدخلًا فعليًا أو مجرد متابعة.';
+        risk = 'خطر تركّز الذمم دون معرفة عمر الدين أو سلوك السداد.';
+      } else if (id === 'profitability:margin') {
+        title = 'حوّل الهامش إلى خريطة ربحية حسب المصدر';
+        action = 'قسّم الهامش حسب المنتج والعميل والفئة وحدد أين يتآكل الهامش قبل تعديل السعر أو التكلفة.';
+        expectedOutcome = 'تحديد مصادر الهامش ومصادر التآكل في نفس المصدر.';
+      } else if (id === 'profitability:low-margin-risk') {
+        title = 'افتح أسباب تآكل الهامش قبل قرار التسعير';
+        action = 'اعزل المنتجات والعملاء منخفضي الهامش وطابق الإيراد والتكلفة قبل تغيير الأسعار أو الشروط.';
+        expectedOutcome = 'خطة معالجة للهوامش الضعيفة مبنية على مصدر قابل للتتبع.';
+        risk = 'خطر رفع الأسعار أو خفض التكلفة دون معرفة المحرك الحقيقي لتآكل الهامش.';
+      } else if (id === 'profitability:healthy-margin-opportunity') {
+        title = 'ثبّت مصادر الهامش الجيد وراقب استدامتها';
+        action = 'حدّد المنتجات والعملاء التي تصنع الهامش الجيد ثم راقب استمرارها بدل افتراض استدامة النتيجة.';
+        expectedOutcome = 'خريطة واضحة لما يجب المحافظة عليه ومراقبته.';
+      }
+
+      return {
+        id: 'rec:' + id,
+        status: 'PROPOSED' as const,
+        priority: finding.priority === 'high' ? 'high' : 'medium',
+        title,
+        action,
+        why: finding.statement,
+        evidence: finding.evidence,
+        ownerHint: owner,
+        impact: finding.value == null ? 'الأثر الحالي مثبت على مستوى القضية/السجلات، وليس خسارة أو ربحًا مستقبليًا.' : String(finding.value) + (finding.unit ? ' ' + finding.unit : ''),
+        expectedOutcome,
+        whyNow,
+        measurement: 'أعد قياس نفس المؤشر بعد الإجراء مع الاحتفاظ بنفس sourceHash + jobId.',
+        risk,
+        blocker,
+        limitation,
+      };
+    });
+}
+
 function buildAdvisorBrief(
   report: ReportInput,
   business: { findings: BusinessFinding[]; risks: BusinessFinding[]; opportunities: BusinessFinding[] },
@@ -1428,12 +1528,19 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
   };
 
   const business = deriveBusinessFindings(report);
-  const advisorBrief = buildAdvisorBrief(report, business, signals, recommendations);
+  const findingRecommendations = deriveFindingRecommendations(business);
+  const recommendationsById = new Map<string, ReportRecommendation>();
+  for (const recommendation of findingRecommendations) recommendationsById.set(recommendation.id, recommendation);
+  for (const recommendation of recommendations) {
+    if (!recommendationsById.has(recommendation.id)) recommendationsById.set(recommendation.id, recommendation);
+  }
+  const mergedRecommendations = [...recommendationsById.values()];
+  const advisorBrief = buildAdvisorBrief(report, business, signals, mergedRecommendations);
   return {
     businessQuestion,
     summary,
     signals,
-    recommendations,
+    recommendations: mergedRecommendations,
     forecast: deriveForecast(report),
     guidance,
     findings: business.findings,
