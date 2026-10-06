@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T21:38:00+03:00
-CURRENT_EXACT_HEAD = 618ce1728ec6071d6ea4682b93390575df88e07f
-CURRENT_EXACT_PRODUCT_HEAD = 618ce1728ec6071d6ea4682b93390575df88e07f
+UPDATED_AT = 2026-10-06T21:59:00+03:00
+CURRENT_EXACT_HEAD = 974c7df52e6181cb6d8c57533f15863f3c53b7f7
+CURRENT_EXACT_PRODUCT_HEAD = bd21908b17a49dd02a5b8d72fb64978656662544
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
@@ -49,7 +49,7 @@ CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
 WHAT_IS_NOT_YET_PROVEN = Current-head Product Build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume 618ce current-head workflow terminals. Fix only the first terminal failure. Then verify the latest Netlify preview for 618ce and perform one live f68 inventory report readback.
+NEXT_EXACT_ACTION = Consume the corrected handoff plus current Product Build, Browser, Final Certification, and Netlify terminals. Fix only the first product/build failure.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -84,3 +84,5 @@ CURRENT_IMPORT_DOMAIN_GUARD_20CC = Server canonical import validates inferred do
 CURRENT_IMPORT_DOMAIN_GUARD_14CAA = Server persists authoritative inferred domain into import_jobs before canonical durable execution; conflicts are rejected instead of written.
 
 CURRENT_UI_CLEANUP_20261006 = Removed visible N/A technical placeholders from Report Intelligence drivers; translated Smart Report status keys and Trust/Evidence hero labels into business Arabic; replaced raw decision activity identifiers with business-readable labels while preserving audit records.
+
+HANDOFF_SYNC_20261006_974C = Programmer report checkpoint now covers the ExecutiveReportPage source-binding repair; the current exact head is the checkpoint commit above and product head remains bd21908.
