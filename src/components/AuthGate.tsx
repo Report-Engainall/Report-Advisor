@@ -5,7 +5,7 @@ import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 import { LoginPage } from '@/pages/LoginPage';
 import { AlertTriangle, CheckCircle2, Copy, RefreshCw, ShieldCheck, LogOut, Mail } from 'lucide-react';
 
-interface AuthGateProps { children: ReactNode; }
+interface AuthGateProps { children?: ReactNode; }
 
 type GateState = 'checking' | 'ready' | 'unauthenticated' | 'tenant-missing';
 type TenantBlockingReason = 'NO_MEMBERSHIP' | 'TENANT_CONTEXT_UNRESOLVED';
