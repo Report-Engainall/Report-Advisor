@@ -1177,11 +1177,11 @@ export function SmartReportPage() {
           <div data-testid="smart-report-job-id" className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
         </div>
         <div>
-          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE HASH</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">بصمة المصدر</div>
           <div data-testid="smart-report-source-hash" className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
         </div>
         <div>
-          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">المصدر</div>
           <div className="mt-1 text-[10px] font-bold text-white">{report.sourcePath}</div>
           <div className="mt-1 text-[9px] text-slate-400">الفترة: غير محددة في المصدر ما لم يثبتها الملف.</div>
         </div>
@@ -1195,7 +1195,7 @@ export function SmartReportPage() {
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {(['evidenceStatus','signalStatus','intelligenceStatus'] as const).map((key) => {
           const value = key === 'evidenceStatus' ? (report.evidenceStatus == null ? null : String(report.evidenceStatus)) : (output[key] == null ? null : String(output[key]));
-          return <div key={key} className={'rounded-xl border p-4 ' + statusTone(value)}><div className="text-[10px] font-black">{key}</div><div className="mt-2 text-sm font-bold">{stateLabel(value)}</div></div>;
+          return <div key={key} className={'rounded-xl border p-4 ' + statusTone(value)}><div className="text-[10px] font-black">{key === 'evidenceStatus' ? 'حالة الدليل' : key === 'signalStatus' ? 'حالة الإشارة' : 'حالة الذكاء'}</div><div className="mt-2 text-sm font-bold">{stateLabel(value)}</div></div>;
         })}
       </div>
     </section>
