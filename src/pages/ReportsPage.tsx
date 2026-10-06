@@ -7,7 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState, userFacingE
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchLatestSmartReportBySourceHash, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchLatestSmartReportBySourceHash, fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { CustomerReportSurface } from '@/components/CustomerReportSurface';
