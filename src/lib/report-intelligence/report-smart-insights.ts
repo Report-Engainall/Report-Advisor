@@ -370,6 +370,8 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     const incomingKey = dataKey(incomingColumn);
     const netInboundKey = dataKey(netInboundColumn);
     const netSalesKey = dataKey(netSalesColumn);
+    const dateColumn = findColumn(columns, ['invoice_date', 'date', 'التاريخ']);
+    const dateKey = dataKey(dateColumn);
 
     if (stockKey && rows.length) {
       let negativeStockRows = 0;
@@ -384,6 +386,8 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       let totalStock = 0;
       let totalDailyRate = 0;
       let dailyRateRows = 0;
+      const lowCoverageRows: Array<{ name: string; stock: number; sales: number; coverage: number }> = [];
+      const datedDemandRows: Array<{ date: Date; sales: number }> = [];
       const fastMovingProducts: Array<{ name: string; rate: number }> = [];
       const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
 
@@ -396,7 +400,18 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
 
         const dailyRate = dailyRateKey ? numeric(rowValue(row.data, dailyRateKey)) : null;
         const netSales = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
+        const salesForCoverage = netSales;
         const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
+        if (salesForCoverage != null && salesForCoverage > 0) {
+          const coverage = stock / salesForCoverage;
+          if (Number.isFinite(coverage) && coverage < 2) {
+            lowCoverageRows.push({ name: productName, stock, sales: salesForCoverage, coverage });
+          }
+        }
+        if (dateKey && salesForCoverage != null && salesForCoverage > 0) {
+          const date = parseDateValue(rowValue(row.data, dateKey));
+          if (date) datedDemandRows.push({ date, sales: salesForCoverage });
+        }
         if (dailyRate != null && dailyRate > 0) {
           totalDailyRate += dailyRate;
           dailyRateRows += 1;
@@ -458,6 +473,60 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows],
         zeroStockWithSalesRows,
       );
+      if (lowCoverageRows.length > 0) {
+        const coverageSample = lowCoverageRows
+          .slice()
+          .sort((a, b) => a.coverage - b.coverage)
+          .slice(0, 5)
+          .map(item => item.name + ':' + item.coverage.toFixed(2))
+          .join('، ');
+        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + item.sales, 0);
+        const allSales = rows.reduce((sum, row) => {
+          const value = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
+          return sum + (value != null && value > 0 ? value : 0);
+        }, 0);
+        const affectedSalesShare = allSales > 0 ? Math.round((lowCoverageSales / allSales) * 100) : null;
+        const coverageEvidence = [
+          'stockField=' + stockKey,
+          'salesField=' + (netSalesKey || 'missing'),
+          'threshold=2.00 periods',
+          'affectedRows=' + lowCoverageRows.length,
+          'sample=' + coverageSample,
+          ...(affectedSalesShare == null ? [] : ['affectedSalesShare=' + affectedSalesShare + '%']),
+        ];
+        if (datedDemandRows.length >= 6) {
+          const ordered = datedDemandRows.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
+          const split = Math.max(2, Math.floor(ordered.length / 2));
+          const early = ordered.slice(0, split);
+          const recent = ordered.slice(-split);
+          const earlyAvg = early.reduce((sum, point) => sum + point.sales, 0) / early.length;
+          const recentAvg = recent.reduce((sum, point) => sum + point.sales, 0) / recent.length;
+          if (earlyAvg > 0 && recentAvg / earlyAvg >= 1.25) {
+            const acceleration = Math.round((recentAvg / earlyAvg - 1) * 100);
+            addSignal(
+              signals,
+              'inventory:demand-pressure-low-coverage',
+              'high',
+              'الطلب يرتفع بينما التغطية قصيرة',
+              'ارتفع متوسط الطلب في الجزء الأحدث من السلسلة بنحو ' + acceleration + '% مقارنة بالبداية، وفي الوقت نفسه يوجد ' + lowCoverageRows.length + ' سجلًا بتغطية أقل من فترتين؛ هذا يجعل مراجعة إعادة الطلب أولوية تشغيلية.',
+              [...coverageEvidence, 'earlyAverageSales=' + earlyAvg.toFixed(2), 'recentAverageSales=' + recentAvg.toFixed(2), 'demandAcceleration=' + acceleration + '%'],
+              lowCoverageRows.length,
+            );
+          }
+        }
+        if (!signals.some((signal) => signal.id === 'inventory:demand-pressure-low-coverage')) {
+          addSignal(
+            signals,
+            'inventory:low-coverage',
+            'medium',
+            'أصناف بتغطية أقل من فترتين',
+            'يوجد ' + lowCoverageRows.length + ' سجلًا يملك رصيدًا أقل من ضعفي كمية المبيعات في نفس سجل المصدر؛ مراجعة إعادة الطلب مطلوبة قبل تحويل الإشارة إلى كمية شراء.',
+            coverageEvidence,
+            lowCoverageRows.length,
+          );
+        }
+      }
+
       if (stockoutWithin7Rows > 0) addSignal(
         signals,
         'inventory:imminent-stockout-7d',
@@ -669,8 +738,18 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         signal.affectedRows == null ? 'النطاق المتأثر غير كمي من المصدر الحالي' : 'النطاق المتأثر: ' + signal.affectedRows + ' سجل',
         'قوة الدليل: ' + signal.evidence.length + ' مؤشرات مصدرية',
       ],
-      soWhat: signal.affectedRows == null ? 'تحتاج هذه الإشارة مراجعة مباشرة قبل القرار.' : 'تؤثر الإشارة على ' + signal.affectedRows + ' سجلًا من المصدر.',
-      impact: signal.affectedRows == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا هو نطاق السجلات المتأثرة؛ لا يتم افتراض قيمة مالية.',
+      soWhat: signal.id === 'inventory:demand-pressure-low-coverage'
+        ? 'الخطر التشغيلي هنا ليس رقمًا منخفضًا فقط؛ الطلب يتسارع بينما التغطية تنخفض، لذلك الأولوية هي معالجة إعادة الطلب قبل أن يتحول الضغط إلى نفاد.'
+        : signal.id === 'inventory:low-coverage'
+          ? 'التغطية القصيرة تعني أن بعض الأرصدة قد لا تكفي للدورة التالية بالمعدل الحالي؛ يلزم ترتيب الأولويات قبل الشراء.'
+          : signal.affectedRows == null
+            ? 'تحتاج هذه الإشارة مراجعة مباشرة قبل القرار.'
+            : 'تؤثر الإشارة على ' + signal.affectedRows + ' سجلًا من المصدر.',
+      impact: signal.id === 'inventory:demand-pressure-low-coverage'
+        ? 'الأثر المثبت: ' + signal.affectedRows + ' سجلًا متأثرًا بتغطية قصيرة مع ضغط طلب صاعد؛ لا يتم افتراض خسارة مالية مستقبلية.'
+        : signal.affectedRows == null
+          ? 'الأثر المالي غير مثبت من المصدر الحالي.'
+          : 'الأثر المثبت حاليًا هو نطاق السجلات المتأثرة؛ لا يتم افتراض قيمة مالية.',
     };
   });
   return enriched
@@ -690,7 +769,8 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
     if (signal.id.includes('inventory:stockout')) action = 'افتح قائمة الأصناف بلا رصيد مع مبيعات، راجع الكمية المتاحة والحركات، ثم أنشئ أولوية توريد بعد اعتماد الدليل.';
     else if (signal.id.includes('inventory:imminent-stockout')) action = 'راجع الأصناف المتوقع نفادها خلال 7 أيام وحدد التوريد أو التحويل قبل النفاد، ثم وثّق القرار.';
-    else if (signal.id.includes('inventory:low-coverage')) action = 'رتّب الأصناف ذات التغطية القصيرة حسب سرعة البيع والمسؤول ثم راجع خطة إعادة الطلب.';
+    else if (signal.id.includes('inventory:demand-pressure-low-coverage')) action = 'اجمع الأصناف المتأثرة في مراجعة واحدة لإعادة الطلب، ثبّت المسؤول والموعد، ثم اعتمد كمية الشراء فقط بعد التحقق من مهلة التوريد ونقطة إعادة الطلب.';
+    else if (signal.id.includes('inventory:low-coverage')) action = 'رتّب الأصناف ذات التغطية القصيرة حسب سرعة البيع والمسؤول ثم راجع خطة إعادة الطلب قبل تحديد كمية شراء.';
     else if (signal.id.includes('inventory:negative-stock')) action = 'طابق الأرصدة السالبة مع حركات الوارد والمبيعات والتحويلات قبل تعديل أي رصيد.';
     else if (signal.id.includes('inventory:movement-reconciliation')) action = 'افتح السجلات غير المتطابقة وطابق الرصيد مع الحركة المصدرية قبل اعتماد التقرير.';
     else if (signal.id.includes('inventory:aging-attention')) action = 'راجع الأصناف القديمة منخفضة الحركة وحدد ما يجب إيقاف شرائه أو تصريفه بعد اعتماد الدليل.';

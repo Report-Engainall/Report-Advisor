@@ -99,6 +99,36 @@ check(inventory.opportunities.some((item) => item.id === 'inventory:value-focus-
 check(inventory.advisorBrief.topRisk?.id === 'inventory:negative-balance-risk', 'inventory advisor brief must surface risk');
 check(inventory.advisorBrief.ownerHint === 'مسؤول المخزون', 'inventory owner hint missing');
 
+const demandPressure = deriveReportIntelligence({
+  specialty: 'inventory',
+  rowCount: 12,
+  sourceAnalysis: {
+    datasets: [{
+      columns: [
+        { name: 'التاريخ', mappedField: 'date' },
+        { name: 'SKU', mappedField: 'sku' },
+        { name: 'الرصيد الحالي', mappedField: 'current_stock' },
+        { name: 'المبيعات', mappedField: 'sales_qty' },
+      ],
+    }],
+  },
+  canonicalRows: Array.from({ length: 12 }, (_, index) => ({
+    row_number: index + 1,
+    data: {
+      date: `2026-${String(index + 1).padStart(2, '0')}-15`,
+      sku: 'SKU-' + String((index % 5) + 1),
+      current_stock: 22 + index,
+      sales_qty: 8 + index,
+    },
+  })),
+});
+
+check(demandPressure.signals.some((item) => item.id === 'inventory:demand-pressure-low-coverage'), 'inventory demand-pressure + low-coverage signal missing');
+check(demandPressure.recommendations.some((item) => item.id === 'rec:inventory:demand-pressure-low-coverage'), 'demand-pressure recommendation missing');
+check(demandPressure.advisorBrief.headline.includes('ارتفع متوسط الطلب'), 'advisor headline must explain why now for rising demand');
+check(demandPressure.recommendations.find((item) => item.id === 'rec:inventory:demand-pressure-low-coverage')?.action.includes('مهلة التوريد'), 'recommendation must stop short of inventing a purchase quantity');
+check(demandPressure.signals.find((item) => item.id === 'inventory:demand-pressure-low-coverage')?.evidence.some((e) => e.includes('demandAcceleration=')), 'demand acceleration evidence missing');
+
 const empty = deriveReportIntelligence({
   specialty: 'sales',
   rowCount: 0,
