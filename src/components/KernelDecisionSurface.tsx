@@ -157,10 +157,29 @@ export function KernelDecisionSurface({
             {scenarios.map((scenario) => (
               <article key={scenario.id} className="rounded-xl border border-cyan-900/70 bg-slate-950/60 p-3">
                 <div className="text-sm font-black text-white">{scenario.label}</div>
-                <div className="mt-2 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-lg bg-slate-900 p-2"><div className="text-[8px] text-slate-500">الأساس</div><div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.coverage, 4)}</div></div>
-                  <div className="rounded-lg bg-slate-900 p-2"><div className="text-[8px] text-slate-500">السيناريو</div><div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.result.coverage, 4)}</div></div>
-                  <div className="rounded-lg bg-slate-900 p-2"><div className="text-[8px] text-slate-500">التغير</div><div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.result.coverageDelta, 4)}</div></div>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-lg bg-slate-900 p-2">
+                    <div className="text-[8px] text-slate-500">الرصيد الأساس</div>
+                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.stock, 0)}</div>
+                  </div>
+                  <div className="rounded-lg bg-slate-900 p-2">
+                    <div className="text-[8px] text-slate-500">الطلب الأساس</div>
+                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.demand, 0)}</div>
+                  </div>
+                  <div className="rounded-lg bg-slate-900 p-2">
+                    <div className="text-[8px] text-slate-500">تغطية الأساس</div>
+                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.coverage, 4)}</div>
+                  </div>
+                  <div className="rounded-lg bg-slate-900 p-2">
+                    <div className="text-[8px] text-slate-500">تغطية +15%</div>
+                    <div className="mt-1 text-xs font-black text-white">{numberLabel(scenario.result.coverage, 4)}</div>
+                  </div>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-[9px] text-slate-300">
+                  <div>الرصيد في السيناريو: {numberLabel(scenario.result.stock, 0)}</div>
+                  <div>الطلب في السيناريو: {numberLabel(scenario.result.demand, 0)}</div>
+                  <div>تغير التغطية: {numberLabel(scenario.result.coverageDelta, 4)}</div>
+                  <div>الافتراض: +{numberLabel(scenario.assumptions.demandPct, 0)}% طلب</div>
                 </div>
                 <div className="mt-2 text-[9px] leading-5 text-slate-300">مستوى المخاطر: {scenario.risk === 'high' ? 'مرتفع' : scenario.risk === 'medium' ? 'متوسط' : 'منخفض'} · ثقة السيناريو {numberLabel(scenario.confidence * 100, 0)}%</div>
               </article>
