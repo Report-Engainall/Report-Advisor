@@ -195,11 +195,12 @@ function PublicOrAuthenticatedWorkspace() {
     && host !== 'aghbari-report-advisor.netlify.app'
     && host !== 'main--aghbari-report-advisor.netlify.app';
   const isPrimaryPublicPreview = host === 'aghbari-report-advisor.netlify.app' || host === 'main--aghbari-report-advisor.netlify.app';
+  const isGitHubPagesPublicPreview = host === 'report-engainall.github.io';
   const demoQuery = query.get('demo') === '1';
   const authQuery = query.get('auth') === '1';
 
   if (authQuery) return <AuthGate />;
-  if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview) return <ProposalDemoPage />;
+  if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview) return <ProposalDemoPage />;
   return <AuthGate><AppShell /></AuthGate>;
 }
 
