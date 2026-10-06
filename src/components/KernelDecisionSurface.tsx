@@ -160,19 +160,19 @@ export function KernelDecisionSurface({
                 <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">الرصيد الأساس</div>
-                    <div data-testid="kernel-stock-baseline" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.stock, 0)}</div>
+                    <div data-testid="kernel-stock-baseline" data-value={String(scenario.baseline.stock)} className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.stock, 0)}</div>
                   </div>
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">الطلب الأساس</div>
-                    <div data-testid="kernel-demand-baseline" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.demand, 0)}</div>
+                    <div data-testid="kernel-demand-baseline" data-value={String(scenario.baseline.demand)} className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.demand, 0)}</div>
                   </div>
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">تغطية الأساس</div>
-                    <div data-testid="kernel-coverage-baseline" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.coverage, 10)}</div>
+                    <div data-testid="kernel-coverage-baseline" data-value={String(scenario.baseline.coverage)} className="mt-1 text-xs font-black text-white">{numberLabel(scenario.baseline.coverage, 10)}</div>
                   </div>
                   <div className="rounded-lg bg-slate-900 p-2">
                     <div className="text-[8px] text-slate-500">تغطية +15%</div>
-                    <div data-testid="kernel-coverage-plus-demand" className="mt-1 text-xs font-black text-white">{numberLabel(scenario.result.coverage, 10)}</div>
+                    <div data-testid="kernel-coverage-plus-demand" data-value={String(scenario.result.coverage)} className="mt-1 text-xs font-black text-white">{numberLabel(scenario.result.coverage, 10)}</div>
                   </div>
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-2 text-[9px] text-slate-300">
