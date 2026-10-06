@@ -1,10 +1,10 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 20cc5cc94ea2b3ac3dc6d17727ed44b89795984a
-UPDATED_AT = 2026-10-06T21:45:00+03:00
+REPORT_FOR_HEAD = 14caaacfd962f1de89b4968d5c8be13b389e1796
+UPDATED_AT = 2026-10-06T21:52:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Continue from the exact product head, close proven failures, keep the Smart Report journey source-bound, and produce visible real-business results without rebuilding or fabricating PASS.
 
 WHAT_I_ACTUALLY_DID = Removed the timeout-prone dashboard dependency, made calculation persistence tenant mismatch fail-soft, corrected Smart Report recommendation typing, added bounded tenant-resolution retry, reconciled the dashboard UI contract, and replaced the landing catalog fan-out with a direct source-hash-bound Smart Report read with bounded network/session retries.
-CURRENT_HEAD_CHANGE = 20cc5 adds the final server-side domain truth guard: after authoritative parsing, generic imports are classified from actual mapped source fields; generic:source-data is upgraded to the inferred domain and conflicting generic domains are rejected before canonical write.
+CURRENT_HEAD_CHANGE = 14caa persists the authoritative source-domain upgrade into import_jobs before durable canonical execution. The server now derives generic domain from authoritative parsed columns, upgrades generic:source-data when strongly classified, rejects conflicting generic domains, and records the inferred entity type as authoritative-source-schema metadata.
 FIRST_ACTIVE_FAILURE = No new terminal failure after the previous missing ReportsPage import; current Product Build/Browser/Certification gates are still queued/pending on the latest head.
 ROOT_CAUSE = The wrong domain was previously able to survive because classification was derived from stale job metadata and import callers could supply generic entity type without authoritative schema validation.
 REPAIR = ee46edfc introduces direct source-hash lookup for the latest completed report in the authenticated tenant and bounded retries for transient tenant/network/timeout failures.
@@ -14,7 +14,7 @@ NOT_YET_PROVEN = current-head typecheck/build terminal PASS, current-head authen
 
 DO_NOT_REPEAT = Do not rebuild; do not delete prior work; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale-SHA PASS; do not weaken browser/security/truth contracts.
 
-NEXT_EXACT_ACTION = Consume 20cc5 current-head Product Build Gate, Browser E2E and Certification terminals. Fix only the first terminal failure; then verify Netlify deploy for 20cc5 and run a final source-bound report readback.
+NEXT_EXACT_ACTION = Consume 14caa current-head Product Build, Browser E2E and Final Certification. Fix only first terminal failure. Then verify the latest Netlify Preview for 14caa and perform one live source-bound report readback.
 
 LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
 
@@ -38,3 +38,5 @@ LIVE_DATA_REPAIR_20261006 = Tenant f68 + sourceHash sha256:587f...d6b313 reclass
 CURRENT_UI_CLEANUP_942F = Kernel implementation title moved to business language; raw calculation ids and Claim Rule/Archetype/Inputs moved to technical proof disclosure. Main customer surface no longer presents these as the primary story.
 
 CURRENT_IMPORT_DOMAIN_GUARD_20CC = Server-side canonical import now validates generic domain against authoritative parsed columns before durable write; mismatches are rejected and generic:source-data is upgraded when the source is strongly classifiable.
+
+CURRENT_IMPORT_DOMAIN_GUARD_14CAA = Source-domain inference is now enforced at client import, server canonical import, and recovery-render stages; import_jobs is upgraded before durable write when generic:source-data is superseded by authoritative schema inference.
