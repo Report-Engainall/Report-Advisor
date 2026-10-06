@@ -308,6 +308,12 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
           document.querySelector('[data-testid="kernel-demand-baseline"]')?.getAttribute('data-value') === '324250' &&
           Boolean(document.querySelector('[data-testid="kernel-coverage-baseline"]')?.getAttribute('data-value')) &&
           Boolean(document.querySelector('[data-testid="kernel-coverage-plus-demand"]')?.getAttribute('data-value')),
+        smartKernelReviewStatePresent:
+          document.querySelector('[data-testid="kernel-status"]')?.getAttribute('data-status') === 'REVIEW_REQUIRED',
+        smartKernelExpectedCountsPresent:
+          document.querySelector('[data-testid="kernel-anomaly-count"]')?.getAttribute('data-value') === '3' &&
+          document.querySelector('[data-testid="kernel-scenario-count"]')?.getAttribute('data-value') === '1' &&
+          document.querySelector('[data-testid="kernel-sensitivity-count"]')?.getAttribute('data-value') === '2',
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
         smartJobIdPresent: text.includes(smartReportJobId),
@@ -374,6 +380,8 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       smartKernelSurfacePresent &&
       smartKernelSourceMetricsPresent &&
       smartKernelCertifiedValuesPresent &&
+      smartKernelReviewStatePresent &&
+      smartKernelExpectedCountsPresent &&
       smartDecisionChainPresent &&
       smartDecisionCardsComplete &&
       smartJobIdPresent &&
