@@ -565,6 +565,49 @@ function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   };
 }
 
+export async function fetchLatestSmartReportBySourceHash(
+  sourceHash: string,
+  options: ReportRequestOptions = {},
+): Promise<SmartReportDetail | null> {
+  const normalizedSourceHash = sourceHash.trim();
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(normalizedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
+
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const companyId = await resolveCurrentCompanyId(options.signal);
+      if (!companyId) throw new Error('TENANT_REQUIRED');
+
+      const latestJobQuery = supabase
+        .from('report_execution_jobs')
+        .select('id,completed_at')
+        .eq('company_id', companyId)
+        .eq('source_hash', normalizedSourceHash)
+        .eq('status', 'completed')
+        .like('job_key', 'canonical-import:generic:%')
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const { data: latestJob, error: latestJobError } = await maybeAbort(latestJobQuery, options.signal);
+      if (latestJobError) throw latestJobError;
+      if (!latestJob?.id) return null;
+
+      return await fetchSmartReport(String(latestJob.id), normalizedSourceHash, options);
+    } catch (cause) {
+      lastError = cause;
+      const message = cause instanceof Error ? cause.message : String(cause);
+      const retryable =
+        message.includes('TENANT_REQUIRED') ||
+        message.includes('Failed to fetch') ||
+        message.includes('REPORT_UI_TIMEOUT');
+      if (!retryable || attempt === 3) throw cause;
+      await new Promise((resolve) => setTimeout(resolve, 700 * attempt));
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('SMART_REPORT_SOURCE_READ_FAILED');
+}
+
 export function fetchSmartReport(jobId: string, expectedSourceHash: string): Promise<SmartReportDetail | null>;
 export function fetchSmartReport(jobId: string, expectedSourceHash: string, options?: ReportRequestOptions): Promise<SmartReportDetail | null>;
 export async function fetchSmartReport(jobId: string, expectedSourceHash: string, options: ReportRequestOptions = {}): Promise<SmartReportDetail | null> {
