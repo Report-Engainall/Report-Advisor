@@ -1,31 +1,18 @@
-SESSION HANDOFF = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = 7f4bbfe8b551790a355639fa67906ca8e155e6bd
-UPDATED_AT = 2026-10-06T16:45:00+03:00
-BRANCH = feat/calculation-capability-engine-20261006
-PR = #850
-BASE = a6d034e05172189d278e689eb01a0c86454f529e
-ACTUAL_MAIN_HEAD = 43af0fd3015f7059602e99a594844157e595b433
-CURRENT_PRODUCT_CODE_HEAD = 7f4bbfe8b551790a355639fa67906ca8e155e6bd
+SESSION HANDOFF = NOT READY
+REPORT_FOR_HEAD = 829afd8d3c70b519f31efc6ddcfd4f5ea50594af
+UPDATED_AT = 2026-10-06T17:52:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue from the exact current product head, close the first real failure, keep the product journey source-bound, and prove visible real business data without rebuilding or fabricating PASS.
 
-WHAT_I_WAS_ASKED_TO_DO = Continue from the real current state; close the first failing Resume assertion; preserve Truth/Evidence/Intelligence; expose real payload in the product journey; persist/read back real data; never declare completion from tests alone.
+WHAT_I_ACTUALLY_DID = Corrected Smart Report source identity and historical-job handling; normalized canonical available fields; repaired business-question answers and signal/recommendation evidence pairing; removed empty canonical rows from the visible table; preserved reportJobId/sourceHash through Decision/Approval/Outcome/Work links; added source-scoped Work Center behavior; prevented stale sessionStorage from overriding the authoritative report; kept real inventory and open-report lineage intact. Then repaired the session-handoff documentation contract after it failed on this exact head.
 
-WHAT_I_ACTUALLY_DID = Verified branch/PR state; fixed the Resume failure TEST_USER_A_EMAIL_MISSING by allowing dedicated Actor D credentials; fixed the subsequent AdvisorBrief TypeScript union failure; verified live Supabase truth for the authoritative sources, open report, canonical rows and calculation persistence.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 1379 rejected the persistent report because it required FIRST_ACTIVE_FAILURE while the stale document still used FIRST_ACTIVE_FAILURE_FIXED. The same contract also requires SESSION HANDOFF to be READY or NOT READY.
+ROOT_CAUSE = The persistent execution report remained bound to 7f4bbfe8 after later product commits and was not rebound to the real-data visible-surfaces repair head.
+REPAIR = docs/execution/CURRENT_SESSION_STATE.md and docs/execution/PROGRAMMER_CURRENT_REPORT.md were rebound to the current execution line; the report now uses FIRST_ACTIVE_FAILURE and the required NOT READY handoff state without altering product gates.
 
-FIRST_ACTIVE_FAILURE_FIXED = Resume and prove the real open report failed before execution with TEST_USER_A_EMAIL_MISSING.
-ROOT_CAUSE = Actor D credentials were dynamically written to GITHUB_ENV, but the workflow used expression-context materialization and overrode TEST_USER_A_* with blank values.
-REPAIR = 591520de6093aec0705b070018c3ff596273b015 in scripts/resume-open-report-server-proof.mjs.
-NEXT_FAILURE_FIXED = AdvisorBrief.health received arbitrary ArchetypeRuntimeState values.
-REPAIR_2 = 7f4bbfe8b551790a355639fa67906ca8e155e6bd maps health to REVIEW_REQUIRED while retaining the exact archetype state in the headline.
+WHAT_IS_PROVEN = Product code head 24e9a64b52d00f4668528ff2947349611aad0a22 contains the real-data visible-surface fixes. Vercel status for that exact head is success. Netlify PR preview status is success. Commercial Product Creation E2E run 4323 is success. Live real-source facts remain 332 inventory rows, quality 98, evidence VERIFIED/READY/ACCEPTED; inventory kernel is REVIEW_REQUIRED with stock 23075, demand 324250, baseline coverage 0.0711642251, demand-plus-15 coverage 0.0618819349, anomalies 3, scenarios 1, sensitivities 2. The open sales PDF report is completed/rendered with 6776 canonical committed rows.
 
-REAL_SOURCE = تقارير ادارية.xlsx / job 16709d80-e012-40ef-9c12-6fd8255897f8 / 332 rows / quality 98 / hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313
-OPEN_REPORT = d074ad5c-70d4-4402-a763-01129786f392 / فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf / completed-rendered / 6776 canonical rows / 6776 committed
-CALCULATION_PERSISTENCE = 31 rows / 23 metric IDs / 15 CALCULATED / 16 NOT_AVAILABLE / all 31 evidence-linked
+NOT_YET_PROVEN = Exact-head authenticated Smart Report browser readback; full Decision -> Approval -> Work -> Outcome -> Learning journey; source-bound Benchmark; real-source 48/48 matrix; production promotion; final certification; sale readiness.
 
-PRODUCT_UX_UI_DELTA = No new visual component. Smart Report now retains real review-state calculations, Kernel findings, signals and recommendations instead of replacing them with empty/base intelligence. Browser proof is pending.
-RUNTIME = Product Build run 380 in progress; Full Product Browser E2E run 8686 pending; Final Certification run 17515 queued.
-DATABASE = No schema mutation; read-only live verification only.
+DO_NOT_REPEAT = Do not rebuild from zero; do not delete prior work; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale SHA proof; do not weaken browser/security/truth contracts.
 
-WHAT_IS_PROVEN = Exact-head code repairs committed; live database truth confirmed; no synthetic data or security-gate weakening.
-WHAT_IS_NOT_YET_PROVEN = exact-head authenticated Smart Report readback; Decision->Approval->Work->Outcome->Learning; Benchmark; real-source 48/48; deployed SHA/browser proof; sale readiness.
-DO_NOT_REPEAT = Do not rebuild; do not weaken trust/evidence; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale PASS.
-NEXT_EXACT_ACTION = Consume terminal Product Build and Full Product Browser results for 7f4bbfe8. Fix only the first newly proven failure, then continue Smart Report readback -> Decision -> Approval -> Work -> Outcome -> Learning -> Benchmark -> 48/48 -> Final Certification.
+NEXT_EXACT_ACTION = Consume the current terminal Product Build, Full Product Browser, Device-Independent Browser, Phase-F and Final Certification results. Fix only the first newly proven product failure, then continue the real Smart Report -> Decision -> Approval -> Work -> Outcome -> Learning -> Benchmark path and certify the exact deployed SHA.
