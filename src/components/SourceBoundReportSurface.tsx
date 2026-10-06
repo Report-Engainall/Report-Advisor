@@ -496,8 +496,8 @@ export function BusinessDataExplorer({ report }: { report: SmartReportDetail }) 
           {[
             ['كل السجلات', summary.total, 'all'],
             ['تحتاج انتباهًا', summary.attention, 'attention'],
-            [businessMode ? 'رصيد صفر/سالب' : 'الحالات الحرجة', businessMode ? summary.zero : summary.attention, 'zero'],
-            [businessMode ? 'نفاد خلال 7 أيام' : 'متابعة', businessMode ? summary.soon : summary.attention, 'soon'],
+            [businessMode ? 'رصيد صفر/سالب' : 'الحالات الحرجة', businessMode ? summary.zero : summary.attention, businessMode ? 'zero' : 'attention'],
+            [businessMode ? 'نفاد خلال 7 أيام' : 'كل الصفوف', businessMode ? summary.soon : summary.total, businessMode ? 'soon' : 'all'],
           ].map(([text, value, key]) => (
             <button key={String(key)} type="button" onClick={() => setFilter(key as typeof filter)} className={'rounded-xl border p-3 text-right transition ' + (filter === key ? 'border-primary-400 bg-primary-50' : 'border-ink-100 bg-ink-50 hover:border-primary-200')}>
               <div className="text-[9px] text-ink-500">{text}</div>
