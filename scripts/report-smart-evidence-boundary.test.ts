@@ -290,7 +290,7 @@ assert.match(
 );
 assert.match(
   smartReport,
-  /headline: 'النموذج لم يجتز بوابة التشغيل: ' \+ archetypeRun\.state \+ ' — تم إبقاء الذكاء المصدرّي المتاح/,
+  /headline: 'النموذج لم يجتز بوابة الاعتماد: ' \+ archetypeRun\.state \+ ' — تم إبقاء الحسابات والإشارات والذكاء المتاح/,
   'Archetype review must preserve source intelligence instead of blanking all signals and recommendations',
 );
 assert.doesNotMatch(
@@ -357,6 +357,3 @@ assert.match(smartReport, /const exactCanonicalCommit = authoritativeCurrentRowC
 
 assert.match(smartReport, /(?:const|let) canonicalImportJobId = renderedImportId \|\|/, 'canonical rows must prefer the active import job identity');
 assert.match(smartReport, /canonicalSourceQuery\.eq\('import_job_id', canonicalImportJobId\)/, 'canonical row reads must scope to the active import job');
-
-
-console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback, catalog provenance scope and source-proposal reconciliation remain fail-closed.');
