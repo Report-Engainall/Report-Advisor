@@ -1,4 +1,4 @@
-import { matchCanonicalField, type CanonicalField } from './canonical-schema';
+import { matchCanonicalField, type CanonicalField } from './canonical-schema.ts';
 
 export type KernelStage =
   | 'TRUTH' | 'QUALITY' | 'SEMANTICS' | 'CALCULATION' | 'STATISTICS'
