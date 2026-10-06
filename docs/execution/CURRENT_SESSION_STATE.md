@@ -1,19 +1,23 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 428a7cd465b3cc64eb89f83522c7daab9f7dc60f
-CURRENT_EXACT_PRODUCT_HEAD = 428a7cd465b3cc64eb89f83522c7daab9f7dc60f
+CURRENT_EXACT_HEAD = da30a1e1821e21a64b796bce33e507b44dd80691
+CURRENT_EXACT_PRODUCT_HEAD = da30a1e1821e21a64b796bce33e507b44dd80691
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_EXECUTION_HEAD = 428a7cd465b3cc64eb89f83522c7daab9f7dc60f
+CURRENT_EXECUTION_HEAD = da30a1e1821e21a64b796bce33e507b44dd80691
 BRANCH = feat/calculation-capability-engine-20261006
-CURRENT_PR_HEAD = 428a7cd465b3cc64eb89f83522c7daab9f7dc60f
+CURRENT_PR_HEAD = da30a1e1821e21a64b796bce33e507b44dd80691
 PR = #850
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 ACTION_STATUS = ACTIVE_EXECUTION
-NEXT_EXACT_ACTION = Consume exact-head Full Product Browser E2E on 428a7cd465b3cc64eb89f83522c7daab9f7dc60f; then prove deployed customer-visible Smart Report, Decision and Work routes and close remaining deployment gate.
+E2E_HARNESS = RESTORED_FROM_PARENT_56b32362_WITH_ONLY_CURRENT_COMPANY_BOOTSTRAP_SETTLEMENT_EXCEPTION
+E2E_HARNESS_VALIDATION = IN_PROGRESS
+NEXT_EXACT_ACTION = Consume Quality, Device-Independent Browser E2E, Full Product Browser E2E and Final Certification on da30a1e1821e21a64b796bce33e507b44dd80691; fix only the first newly proven failure, then close Smart Report customer-visible proof and deployed exact-head proof.
 
 REAL_SOURCE_PROOF = تقارير ادارية.xlsx | job=16709d80-e012-40ef-9c12-6fd8255897f8 | rows=332 | sourceHash=sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313
 REAL_KERNEL = stock=23075 | demand=324250 | coverage=0.0711642251 | demand+15%=0.0618819349 | anomalies=3 | scenarios=1 | sensitivity=2 | status=REVIEW_REQUIRED
 PERFORMANCE = critical=863.7KB <= 900KB | largest-js=487.8KB <= 600KB
-CONTRACT_PASS = LOCAL YES
+CONTRACT_PASS = LOCAL YES (prior exact proof; current head re-validation IN_PROGRESS)
 BROWSER_PASS = IN_PROGRESS
-RUNTIME_PROVEN = YES
+RUNTIME_PROVEN = PRIOR_HEAD_ONLY
+DEPLOYED_EXACT_HEAD = NOT_PROVEN
 PRODUCT_COMPLETE = NO
+SALE_READY = NO CLAIM
