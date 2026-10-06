@@ -12,6 +12,7 @@ const TrendChart = lazy(() => import('@/components/ui/Charts').then(m => ({ defa
 const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.CategoryPieChart })));
 const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.HorizontalBarChart })));
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
+import { fetchSmartReportCatalog, fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type {
@@ -22,6 +23,8 @@ import type {
   AgingDashboard,
 } from '@/lib/dashboard-canonical';
 import { readWorkspacePreferences, type WorkspacePreferences } from '@/lib/workspace-mode';
+
+const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 
 const TREND_RANGES = [
   { value: 3, label: '3 أشهر' },
@@ -103,12 +106,23 @@ export function DashboardPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [workspacePreferences, setWorkspacePreferences] = useState<WorkspacePreferences>(readWorkspacePreferences);
+  const [primaryReport, setPrimaryReport] = useState<SmartReportDetail | null>(null);
 
   const load = useCallback(async (silent = false) => {
     try {
       if (silent) setRefreshing(true);
       else setLoading(true);
       setError(null);
+
+      const primaryReportPromise = fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) })
+        .then(async (catalog) => {
+          const selected = catalog.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH) ?? catalog[0] ?? null;
+          return selected ? fetchSmartReport(selected.jobId, selected.sourceHash, { signal: AbortSignal.timeout(15000) }) : null;
+        })
+        .catch((cause) => {
+          console.warn('[Dashboard] primary smart report readback unavailable', cause);
+          return null;
+        });
 
       const [
         {
@@ -121,9 +135,11 @@ export function DashboardPage() {
           asOf: nextAsOf,
         },
         intelligence,
+        nextPrimaryReport,
       ] = await Promise.all([
         fetchDashboardSnapshot(trendMonths),
         fetchDashboardIntelligence(),
+        primaryReportPromise,
       ]);
 
       setKpis(nextKpis);
@@ -135,6 +151,7 @@ export function DashboardPage() {
       setAging(nextAging);
       setRecommendations(intelligence.recommendations);
       setAlerts(intelligence.alerts);
+      setPrimaryReport(nextPrimaryReport);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'فشل تحميل لوحة الأعمال');
     } finally {
@@ -271,7 +288,44 @@ export function DashboardPage() {
       </section>
 
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
-      
+
+      {primaryReport && (
+        <section className="rounded-[20px] border border-[#25334a] bg-[linear-gradient(135deg,#09111f,#142438)] p-5 text-white shadow-[0_26px_70px_-40px_rgba(15,23,42,.95)] lg:p-6" aria-label="التقرير الحقيقي الحالي">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.12em] text-primary-200">
+                <span>مصدر حقيقي · مرتبط بسياق التقرير</span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{primaryReport.trustState === 'VERIFIED' ? 'الدليل موثق' : 'الحالة: ' + primaryReport.trustState}</span>
+              </div>
+              <h2 className="mt-2 text-xl font-black tracking-tight lg:text-2xl">{primaryReport.sourcePath}</h2>
+              <p className="mt-2 text-[11px] leading-6 text-slate-300">التقرير الذي يجب أن يراه صاحب العمل أولًا: {Number(primaryReport.authoritativeCurrentRowCount ?? primaryReport.rowCount ?? 0).toLocaleString('ar-YE')} صفًا موثقًا · جودة المصدر {primaryReport.qualityScore == null ? 'غير متاحة' : Math.round(primaryReport.qualityScore) + '%'} · حالة الدليل {primaryReport.evidenceStatus === 'VERIFIED' ? 'VERIFIED / READY / ACCEPTED' : primaryReport.evidenceStatus}.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link to={'/reports/smart/' + encodeURIComponent(primaryReport.jobId) + '?sourceHash=' + encodeURIComponent(primaryReport.sourceHash)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-[11px] font-black text-[#111827] hover:bg-amber-200">فتح التقرير الحقيقي</Link>
+              <Link to={'/trust?reportJobId=' + encodeURIComponent(primaryReport.jobId) + '&sourceHash=' + encodeURIComponent(primaryReport.sourceHash)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[11px] font-black text-white hover:bg-white/10">الدليل</Link>
+              <Link to={'/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(primaryReport.jobId) + '&sourceHash=' + encodeURIComponent(primaryReport.sourceHash)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[11px] font-black text-white hover:bg-white/10">القرار</Link>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
+              <div className="text-[9px] font-black tracking-[.1em] text-primary-200">الحقيقة</div>
+              <div className="mt-2 text-sm font-black">المصدر معتمد داخل التقرير</div>
+              <div className="mt-1 break-all font-mono text-[9px] leading-5 text-slate-400">{primaryReport.sourceHash}</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
+              <div className="text-[9px] font-black tracking-[.1em] text-primary-200">الإشارة</div>
+              <div className="mt-2 text-sm font-black">{primaryReport.intelligence?.advisorBrief?.headline ?? 'لا توجد إشارة مصدرية جاهزة للعرض.'}</div>
+              <div className="mt-1 text-[10px] leading-5 text-slate-400">لا تُرفع التوصية إلى قرار إلا عبر مسار الدليل والاعتماد.</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
+              <div className="text-[9px] font-black tracking-[.1em] text-primary-200">ما بعد التقرير</div>
+              <div className="mt-2 text-sm font-black">الحقيقة ← الدليل ← الإشارة ← القرار ← العمل</div>
+              <div className="mt-1 text-[10px] leading-5 text-slate-400">السياق محفوظ عبر نفس reportJobId + sourceHash.</div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
         <Card>
           <CardHeader title="ملخص القرار في دقيقة" subtitle="أهم إشارة ثم الخطوة التالية، من الحالة الحية الحالية." />
