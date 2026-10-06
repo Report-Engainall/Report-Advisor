@@ -533,6 +533,7 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
 
 function PreviewBusinessSurface({ path }: { path: string }) {
   const [decisionState, setDecisionState] = useState<Record<string, 'جاهز' | 'مسودة قرار' | 'مكتمل'>>({});
+  const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
   const outstanding = LIVE_ROWS.reduce((sum, row) => sum + (row.netAmount - row.paidAmount), 0);
   const margin = LIVE_TOTALS.netAmount > 0 ? (LIVE_TOTALS.profit / LIVE_TOTALS.netAmount) * 100 : null;
   const first = LIVE_ROWS[0];
