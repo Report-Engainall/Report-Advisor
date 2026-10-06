@@ -1,12 +1,12 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = 0bb827ea2e5b3b2b98ad3f22805e2037d8ce1731
-UPDATED_AT = 2026-10-06T05:50:00+03:00
+REPORT_FOR_HEAD = 541890d2e0ef8b78b256598e88c0ffed7cb8a23f
+UPDATED_AT = 2026-10-06T05:54:00+03:00
 BRANCH = feat/calculation-capability-engine-20261006
 PR = #850
 BASE = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_PRODUCT_CODE_HEAD = 0bb827ea2e5b3b2b98ad3f22805e2037d8ce1731
-CURRENT_BRANCH_HEAD = 0bb827ea2e5b3b2b98ad3f22805e2037d8ce1731
+CURRENT_PRODUCT_CODE_HEAD = 195985cee92810dc5c93852987328183cd052b2f
+CURRENT_BRANCH_HEAD = 541890d2e0ef8b78b256598e88c0ffed7cb8a23f
 ACTION_STATUS = ACTIVE_EXECUTION
 
 WHAT_I_WAS_ASKED_TO_DO = Complete the Aghbari Intelligence Kernel, integrate it into Smart Report, execute real-source proof, close exact-head Browser and Certification, and deliver customer-visible product readiness without fake completeness.
@@ -15,7 +15,7 @@ WHAT_IS_PROVEN = The real source remains تقارير ادارية.xlsx / job 16
 FIRST_ACTIVE_FAILURE = Full Product Browser E2E on 56b32362 marked Smart Report refresh NOT_PROVEN because two current_company_id auth/bootstrap requests remained pending after the UI had fully rendered.
 ROOT_CAUSE = Browser settlement treated authenticated tenant bootstrap RPCs as critical report-data requests during Smart Report refresh.
 FIX = Restored the complete harness and kept only the current_company_id bootstrap request non-blocking for Smart Report refresh. No assertion, route validation, readback, finding aggregation, final-status logic, result.json write, or process.exitCode path was removed.
-CURRENT_VALIDATION = Quality, Device-Independent Browser E2E, Full Product Browser E2E and Final Certification are running on the restored-head lineage. No PASS is claimed yet for the restored parser until the exact-head runs complete.
+CURRENT_VALIDATION = Quality, Device-Independent Browser E2E, Full Product Browser E2E and Final Certification are queued/in progress on the exact calculation-persistence code head 195985cee92810dc5c93852987328183cd052b2f; no PASS is claimed until results are collected. No PASS is claimed yet for the restored parser until the exact-head runs complete.
 CONTRACT_PASS = PRIOR LOCAL YES; EXACT_HEAD_REVALIDATION IN PROGRESS
 BROWSER_PASS = IN PROGRESS
 RUNTIME_PROVEN = PRIOR_HEAD_ONLY
