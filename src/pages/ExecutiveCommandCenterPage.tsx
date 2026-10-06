@@ -295,18 +295,27 @@ export function ExecutiveCommandCenterPage() {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
       let nextSourceReport: SmartReportDetail | null = null;
-      try {
-        nextSourceReport = await fetchLatestSmartReportBySourceHash(
-          'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313',
-          { signal: AbortSignal.timeout(25000) },
-        );
-      } catch {
-        nextSourceReport = null;
+      let lastSourceError: unknown = null;
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        try {
+          nextSourceReport = await fetchLatestSmartReportBySourceHash(
+            'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313',
+            { signal: AbortSignal.timeout(25000) },
+          );
+          lastSourceError = null;
+          break;
+        } catch (cause) {
+          lastSourceError = cause;
+          if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 700 * attempt));
+        }
+      }
+      if (!nextSourceReport) {
+        throw lastSourceError instanceof Error
+          ? lastSourceError
+          : new Error('لا يوجد تقرير مصدر حقيقي صالح لبناء مركز القيادة.');
       }
 
-      const [snapshot, intelligence, nextWorkItems, nextOutcomes, nextPendingApprovals, nextRecentActivity] = await Promise.all([
-        nextSourceReport ? Promise.resolve(null) : fetchDashboardSnapshot(months),
-        nextSourceReport ? Promise.resolve(null) : fetchDashboardIntelligence(),
+      const [nextWorkItems, nextOutcomes, nextPendingApprovals, nextRecentActivity] = await Promise.all([
         fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
         fetchPendingDecisionApprovals(),
@@ -314,19 +323,11 @@ export function ExecutiveCommandCenterPage() {
       ]);
 
       setSourceReport(nextSourceReport);
-      if (nextSourceReport) {
-        setKpis(null);
-        setAsOf(null);
-        setTrend([]);
-        setAlerts([]);
-        setRecommendations([]);
-      } else if (snapshot && intelligence) {
-        setKpis(snapshot.kpis);
-        setAsOf(snapshot.asOf);
-        setTrend(snapshot.trend);
-        setAlerts(intelligence.alerts.filter((item) => !item.is_read));
-        setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));
-      }
+      setKpis(null);
+      setAsOf(null);
+      setTrend([]);
+      setAlerts([]);
+      setRecommendations([]);
       setWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes.slice(-20).reverse());
       setPendingApprovals(nextPendingApprovals);
