@@ -127,6 +127,11 @@ export function selectExecutiveRecommendation(
   if (signal) {
     const matching = intelligence.recommendations.find((item) => item.id === 'rec:' + signal.id);
     if (matching) return matching;
+    const signalEvidence = new Set(signal.evidence ?? []);
+    const evidenceMatch = intelligence.recommendations.find((item) =>
+      (item.evidence ?? []).some((evidence) => signalEvidence.has(evidence)),
+    );
+    if (evidenceMatch) return evidenceMatch;
   }
   return [...(intelligence.recommendations ?? [])].sort((a, b) => {
     const rank: Record<ReportRecommendation['priority'], number> = { urgent: 4, high: 3, medium: 2, low: 1 };
