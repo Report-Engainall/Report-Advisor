@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T21:00:00+03:00
-CURRENT_EXACT_HEAD = efacfec33b7646c609d9a22e66188e1fdbd07fb9
-CURRENT_EXACT_PRODUCT_HEAD = efacfec33b7646c609d9a22e66188e1fdbd07fb9
+UPDATED_AT = 2026-10-06T21:08:00+03:00
+CURRENT_EXACT_HEAD = 8de8420541b95f5692aedc097bd4cd6d94debe7d
+CURRENT_EXACT_PRODUCT_HEAD = 8de8420541b95f5692aedc097bd4cd6d94debe7d
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
@@ -44,12 +44,12 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = Netlify deploy 6ac534afa403080008010e23 for efacf is READY. Tenant f68 report job c42fb0e1-75f2-4727-8c3e-470ae1a804fa is completed/rendered with 342 canonical committed rows and an ACCEPTED/VERIFIED/READY Evidence Passport. efacf CI is currently running.
+WHAT_IS_PROVEN = Netlify preview 855 for the preceding exact product head is READY. Tenant f68 report job c42fb0e1-75f2-4727-8c3e-470ae1a804fa has 342 canonical committed rows and an ACCEPTED/VERIFIED/READY Evidence Passport. 8de842 adds the customer-facing evidence presentation fix; its CI wave is pending/running.
 CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
-WHAT_IS_NOT_YET_PROVEN = Current-head Product Build terminal PASS, current-head authenticated browser visual PASS, Full Product Browser E2E terminal PASS, Final Certification terminal PASS, and customer-sale readiness.
+WHAT_IS_NOT_YET_PROVEN = 8de842 Product Build terminal PASS, authenticated browser visual PASS, Full Product Browser terminal PASS, Final Certification terminal PASS, and customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume efacf CI terminal results; fix only the first terminal customer-visible failure, then certify the exact Netlify preview 855 against tenant f68 job c42fb0e1-75f2-4727-8c3e-470ae1a804fa.
+NEXT_EXACT_ACTION = Consume 8de842 CI terminal results; fix the first terminal failure only, then inspect preview 855 for the humanized evidence cards plus source-bound intelligence and business questions.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -68,3 +68,5 @@ CURRENT_PRODUCT_FIX_65471FD = truth-field aliases + blank-field archetype gating
 
 CURRENT_PRODUCT_FIX_488FA = Semantic aliases now bridge real source fields to business-question canonical vocabulary.
 CURRENT_PRODUCT_FIX_EFACF = Unsupported archetype output fails closed; evidence-boundary contract updated to protect that behavior; Netlify preview 855 is READY.
+
+CURRENT_UI_FIX_8DE842 = Customer-facing evidence labels are humanized; raw evidence strings are kept behind a technical audit disclosure.
