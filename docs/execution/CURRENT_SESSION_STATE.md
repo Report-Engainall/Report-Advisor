@@ -1,22 +1,17 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 43af0fd3015f7059602e99a594844157e595b433
-CURRENT_MAIN_HEAD = 43af0fd3015f7059602e99a594844157e595b433
-CURRENT_EXECUTION_HEAD = 43af0fd3015f7059602e99a594844157e595b433
+CURRENT_EXACT_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
+CURRENT_MAIN_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
+CURRENT_EXECUTION_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
 
 WHAT_ACTUALLY_HAPPENED
-- Rebound the Reports Center primary Smart Report from stale sales execution job c42fb0e1-75f2-4727-8c3e-470ae1a804fa to authoritative inventory execution job 16709d80-e012-40ef-9c12-6fd8255897f8 for تقارير ادارية.xlsx.
-- Confirmed the same source hash has two canonical variants: stale sales (342 rows, quality 87) and authoritative inventory (332 rows, quality 98, VERIFIED/READY).
-- Corrected the primary customer path and redesigned the Reports Center first paint so the source-bound Smart Report is the hero surface; generic sales/receivables KPIs no longer displace the active inventory report.
-- Added a public commercial proof section to /proposal-demo using verified source-bound inventory findings: 332 rows, quality 98, 140 zero/negative-stock rows with sales, 44 stockout-within-7-days rows, 155 old-stock rows with daily movement, 15 negative-stock rows, and 12 explicit-incoming reconciliation gaps.
-- Stabilized the commercial hero layout so the proof sequence and print action remain balanced from mobile through desktop.
-- Converted the redundant token-based Vercel GitHub Actions deployment workflow to manual-only because the Vercel project already deploys from GitHub directly and the CI secrets are intentionally unavailable.
-- Corrected browser/business proof contracts from the stale 342-row sales job to the authoritative 332-row inventory execution.
-- Removed the duplicate SourceBoundReportSurface import that previously failed TypeScript.
-- Rebound session governance documents to this exact head.
+- Reworked the source-bound report customer surface so it no longer stops at descriptive cards: it now exposes a live row-level business data explorer built from the current canonical report rows.
+- Added real interactions: search across row values, business-state filters, sortable columns, row selection, field-level detail readback, rule explanation, and direct handoff of the selected row into the decision workspace.
+- Reused the same explorer inside CustomerReportSurface and SmartReportPage so both the domain report surfaces and the Smart Report show the underlying rows that produce the displayed findings.
+- Preserved fail-closed behavior: no fabricated totals, outcomes, benchmarks, or decisions are created by the new UI.
 
 WHAT_IS_PROVEN
 - Supabase real report execution job 16709d80-e012-40ef-9c12-6fd8255897f8 is completed for تقارير ادارية.xlsx.
@@ -27,13 +22,11 @@ WHAT_IS_PROVEN
 - GitHub Pages artifact generation has been proven; public Pages publication remains unavailable because repository Pages is not enabled.
 
 CURRENT_OPEN_GATES
-- Session Handoff Contract on this exact head.
-- Product Build Gate on this exact head.
-- Full Product Browser E2E on this exact head, including authenticated Chromium Smart Report proof.
-- 48/48 archetype evidence gate on this exact head.
-- Final Certification Gate on this exact head.
-- Customer-side screenshots remain unproven until the exact-head browser job produces artifacts.
-- Latest customer-facing UI commit is not yet deployed to the public Vercel URL because of the free deployment limit.
+- Fresh Product Build Gate for 6c0b897803975841d99bee838c1def3c7f4adf05.
+- Fresh Full Product Browser E2E for 6c0b897803975841d99bee838c1def3c7f4adf05.
+- 48/48 intelligence evidence gate and Final Certification for 6c0b897803975841d99bee838c1def3c7f4adf05.
+- Customer visual proof remains unproven until same-head browser artifacts are produced.
+- Public deployment of this exact head is not claimed.
 
 CURRENT_ACTIVE_FAILURE
 - Previous exact-head failure: duplicate SourceBoundReportSurface import in ExecutiveReportPage.tsx. Fixed.
@@ -46,4 +39,4 @@ ROOT_CAUSE
 - Browser-proof contracts lagged behind the authoritative report lineage.
 - Governance documents were stale relative to mainline changes.
 
-NEXT_EXACT_ACTION = Consume terminal CI results for 43af0fd3015f7059602e99a594844157e595b433; fix only the first newly proven failure, then consume same-head Chromium Smart Report evidence and certification. No sale-ready claim before same-head browser proof plus 48/48 plus final certification.
+NEXT_EXACT_ACTION = Consume terminal CI for 6c0b897803975841d99bee838c1def3c7f4adf05; fix only the first newly proven failure, then consume same-head browser artifacts and certification. The product surface itself now contains real row-level interaction; do not close the work on terminology-only PASS.
