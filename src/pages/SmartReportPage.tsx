@@ -11,6 +11,7 @@ import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
+import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 
 function textValue(value: unknown): string {
   if (value == null || value === '') return 'غير متاح';
@@ -934,6 +935,8 @@ export function SmartReportPage() {
         ))}
       </div>
     </section>
+
+      <BusinessDataExplorer report={report} />
 
     
 
