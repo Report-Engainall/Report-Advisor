@@ -1,20 +1,20 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 6a7fc975842715e37f0a2b27a2817fb899101e40
-UPDATED_AT = 2026-10-06T21:30:00+03:00
+REPORT_FOR_HEAD = 942f807eee11350926fa7ac63d1a6d28a29c09e9
+UPDATED_AT = 2026-10-06T21:38:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Continue from the exact product head, close proven failures, keep the Smart Report journey source-bound, and produce visible real-business results without rebuilding or fabricating PASS.
 
 WHAT_I_ACTUALLY_DID = Removed the timeout-prone dashboard dependency, made calculation persistence tenant mismatch fail-soft, corrected Smart Report recommendation typing, added bounded tenant-resolution retry, reconciled the dashboard UI contract, and replaced the landing catalog fan-out with a direct source-hash-bound Smart Report read with bounded network/session retries.
-CURRENT_HEAD_CHANGE = 6a7fc975 fixes the Reports Center TypeScript regression by retaining fetchSmartReport for linked source-bound report contexts while keeping the new direct source-first load for the primary report. The live tenant source was reclassified deterministically from generic:sales to generic:inventory across canonical lineage and Evidence Passport.
-FIRST_ACTIVE_FAILURE = Product Build Gate on edcb4 failed because ReportsPage.tsx still referenced fetchSmartReport after the import was removed during the source-first catalog fix.
-ROOT_CAUSE = The source-first refactor removed an import used by the optional linked-report loader. Separately, the live report had been classified as sales by stale recovery metadata even though its source schema is an inventory layout.
+CURRENT_HEAD_CHANGE = 942f807 completes the customer-facing language cleanup for the intelligence surfaces: the kernel header is business-facing and raw metric ids are audit-only; claim Rule/Archetype/Inputs and supporting-evidence syntax are behind the technical proof disclosure. 940783 also makes future imports infer generic inventory/purchases/receivables/sales from actual mapped source fields instead of defaulting every source to generic:source-data.
+FIRST_ACTIVE_FAILURE = The last terminal Product Build failure on edcb4 was a missing fetchSmartReport import after the source-first Reports Center refactor; 6a7fc fixed it. The current 942f wave has no terminal failure yet.
+ROOT_CAUSE = The product had accumulated two classes of truth leakage: stale domain metadata from recovery/job keys and implementation-level intelligence identifiers presented as customer-facing copy.
 REPAIR = ee46edfc introduces direct source-hash lookup for the latest completed report in the authenticated tenant and bounded retries for transient tenant/network/timeout failures.
 
-WHAT_IS_PROVEN = Live source c42fb0e1-75f2-4727-8c3e-470ae1a804fa is now generic:inventory with 342 inventory canonical rows, inventory canonical commit, and Evidence Passport VERIFIED/ACCEPTED/READY/FULL. inventory-intelligence-truth passed on edcb4. Migration recovery logic now prefers source-schema inventory signals over job_key. 19/20 release-readiness stages previously passed; only build failed for the missing import.
+WHAT_IS_PROVEN = Live tenant f68 source c42 is now consistently generic:inventory across report job, import job, canonical dataset, canonical commit, renderedOutput and Evidence Passport; 342/342 rows and Passport VERIFIED/ACCEPTED/READY/FULL. inventory-intelligence-truth passed on edcb4. Previous release readiness had 19/20 stages pass before the missing import was fixed. Current 942f browser/build/certification are queued/running.
 NOT_YET_PROVEN = current-head typecheck/build terminal PASS, current-head authenticated browser visual PASS, and customer-sale certification. Vercel is not a dependency and its current build-rate-limit failure is ignored.
 
 DO_NOT_REPEAT = Do not rebuild; do not delete prior work; do not fabricate unavailable metrics; do not turn REVIEW_REQUIRED into decision-ready; do not reuse stale-SHA PASS; do not weaken browser/security/truth contracts.
 
-NEXT_EXACT_ACTION = Consume 6a7fc CI terminals. If build passes, inspect Device-Independent Browser and Full Product Browser. Fix only the first terminal customer-visible failure. Keep the live source classification invariant: inventory, 342/342, Passport VERIFIED/READY.
+NEXT_EXACT_ACTION = Consume 942f current-head Product Build Gate, inventory-intelligence-truth, Browser E2E, Full Product Browser and Final Certification. Fix only the first terminal failure. Then inspect the current Netlify Preview once its deploy status points to 942f.
 
 LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
 
@@ -32,3 +32,7 @@ CURRENT_CODE_FIX_21C4 = Semantic field aliases are translated to official Canoni
 CURRENT_RUNTIME_FIX_6CC664 = Reports Center reads PRIMARY_SMART_REPORT_SOURCE_HASH directly through fetchLatestSmartReportBySourceHash; catalog enrichment is non-blocking.
 
 CURRENT_LIVE_REPAIR_20261006 = Exact source hash sha256:587f...d6b313 for tenant f68 was reclassified from generic:sales to generic:inventory across report job, import job, canonical dataset/commit, rendered outputs and Passport lineage. No other tenant/source was touched.
+
+LIVE_DATA_REPAIR_20261006 = Tenant f68 + sourceHash sha256:587f...d6b313 reclassified from generic:sales to generic:inventory with 342 canonical rows. Evidence Passport retained id 07e3cb99-064f-4870-87cc-3d0862263834 and remains VERIFIED/ACCEPTED/READY.
+
+CURRENT_UI_CLEANUP_942F = Kernel implementation title moved to business language; raw calculation ids and Claim Rule/Archetype/Inputs moved to technical proof disclosure. Main customer surface no longer presents these as the primary story.
