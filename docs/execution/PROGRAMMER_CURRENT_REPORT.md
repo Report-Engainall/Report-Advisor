@@ -1,9 +1,9 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
+CURRENT MAIN HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
 REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
-REPORT_FOR_HEAD = 6c0b897803975841d99bee838c1def3c7f4adf05
+CURRENT EXECUTION HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
+REPORT_FOR_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
 BRANCH = main
 PR = N/A
 UPDATED_AT = 2026-10-05T23:08:00+03:00
@@ -20,6 +20,6 @@ FIRST_ACTIVE_FAILURE = The last newly proven product failure was a duplicate Sou
 
 ROOT_CAUSE = The customer path and proof path were both anchored to stale sales lineage instead of the verified inventory lineage, and the Reports Center visual hierarchy still placed generic KPIs above the actual source report.
 
-NEXT_EXACT_ACTION = Consume terminal CI for 6c0b897803975841d99bee838c1def3c7f4adf05; fix only the first newly proven failure; then consume authenticated Chromium evidence and final certification. No sale-ready claim before same-head browser proof.
+NEXT_EXACT_ACTION = Consume terminal CI for c0d681efddc18eda5a82a52ffaf8fda2b2e158c9; fix only the first newly proven failure; then consume same-head browser artifacts and final certification. No terminology-only PASS.
 
 CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/full-product-browser-e2e.yml; .github/workflows/github-pages-production.yml; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; scripts/real-business-e2e.mjs; scripts/run-full-product-browser-e2e.mjs; src/App.tsx; src/components/CustomerReportSurface.tsx; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx; src/lib/report-intelligence/report-smart-insights.ts; src/lib/report-smart.ts; src/pages/CanonicalImportPage.tsx; src/pages/ExecutiveReportPage.tsx; src/pages/ReportsPage.tsx; src/pages/SmartReportPage.tsx; vite.config.ts
