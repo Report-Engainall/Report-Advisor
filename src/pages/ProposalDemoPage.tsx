@@ -434,6 +434,103 @@ function PreviewInventoryTable({ rows = LIVE_ROWS }: { rows?: LiveRow[] }) {
   );
 }
 
+function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 'receivables' }) {
+  const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
+  const outstandingRows = LIVE_ROWS.filter(row => row.netAmount > row.paidAmount);
+  const outstandingTotal = outstandingRows.reduce((sum, row) => sum + (row.netAmount - row.paidAmount), 0);
+  const collectionRate = LIVE_TOTALS.netAmount > 0 ? (paidTotal / LIVE_TOTALS.netAmount) * 100 : null;
+  const rowMargins = LIVE_ROWS
+    .filter(row => row.netAmount > 0)
+    .map(row => ({ ...row, margin: (row.profit / row.netAmount) * 100 }))
+    .sort((a, b) => a.margin - b.margin);
+  const weakestMargin = rowMargins[0] ?? null;
+  const topSalesRow = [...LIVE_ROWS].sort((a, b) => b.netAmount - a.netAmount)[0] ?? null;
+  const recentDelta = LIVE_ROWS.length >= 2 ? LIVE_ROWS[LIVE_ROWS.length - 1].netAmount - LIVE_ROWS[LIVE_ROWS.length - 2].netAmount : null;
+
+  const model = domain === 'sales'
+    ? {
+        label: 'مبيعات',
+        health: recentDelta != null && recentDelta < 0 ? 'يحتاج تفسيرًا' : 'اتجاه إيجابي يحتاج متابعة',
+        issue: recentDelta != null && recentDelta < 0
+          ? 'القيمة في أحدث صف أقل من الصف السابق؛ يلزم تفكيك التغير قبل اعتماد خطة مبيعات.'
+          : 'المصدر يثبت قيمة مبيعات قابلة للقراءة، مع اختلافات بين الصفوف يمكن تحويلها إلى متابعة تشغيلية.',
+        why: topSalesRow ? `أعلى صف قيمة هو ${topSalesRow.documentNo} بقيمة ${topSalesRow.netAmount.toLocaleString('ar-YE')} YER، لذلك يبدأ الفحص من مصدر القيمة الأعلى.` : 'القيمة الكلية متاحة من المصدر.',
+        soWhat: 'الرقم الإجمالي وحده لا يشرح سبب الحركة؛ المطلوب معرفة أي أصناف/فترات صنعت التغير ثم تحويلها إلى متابعة.',
+        next: 'راجع الصفوف الأعلى قيمة، ثم قارن آخر الفترات قبل تثبيت خطة المبيعات.',
+        owner: 'مسؤول المبيعات',
+        measure: 'أعد قياس صافي المبيعات في الفترة التالية مع الاحتفاظ بنفس تعريف الحقل والمصدر.',
+        blocker: 'لا يوجد بُعد عميل في هذا الـFixture، لذلك لا يتم اختلاق تركّز العملاء أو RFM.',
+        risk: 'خطر اتخاذ خطة مبيعات على الإجمالي فقط دون معرفة محرك التغير.',
+      }
+    : domain === 'profitability'
+      ? {
+          label: 'ربحية',
+          health: weakestMargin && weakestMargin.margin < 10 ? 'تحتاج مراجعة' : 'قابلة للمتابعة',
+          issue: weakestMargin && weakestMargin.margin < 10
+            ? `يوجد صف بهامش منخفض يبلغ ${weakestMargin.margin.toFixed(1)}%، ما يستحق فحص السعر والتكلفة قبل التوسع.`
+            : 'الهامش المحسوب من المصدر متاح، ولا تظهر من هذا الـFixture وحده قضية هامش حرجة مثبتة.',
+          why: weakestMargin ? `أضعف صف من حيث الهامش هو ${weakestMargin.documentNo} عند ${weakestMargin.margin.toFixed(1)}%.` : 'الهامش محسوب من الربح ÷ صافي المبيعات.',
+          soWhat: 'الهامش المنخفض لا يثبت السبب؛ يجب عزل السعر والتكلفة على مستوى الصف قبل أي قرار تسعير.',
+          next: 'افتح الصفوف الأقل هامشًا، وطابق السعر والتكلفة مع المصدر الأصلي، ثم حدد الإجراء.',
+          owner: 'المدير المالي / مسؤول التسعير',
+          measure: 'أعد حساب الهامش بعد الإجراء من نفس الحقول وبنفس المصدر.',
+          blocker: 'لا توجد فئة منتج مستقلة أو تكلفة معيارية خارج الحقول الحالية؛ لذلك لا يتم اختلاق سبب الهامش.',
+          risk: 'خطر تعديل السعر أو التكلفة بناءً على هامش إجمالي دون معرفة مصدر التآكل.',
+        }
+      : {
+          label: 'تحصيل',
+          health: outstandingTotal > 0 ? 'تحتاج أولوية' : 'لا يوجد رصيد مفتوح مثبت',
+          issue: outstandingTotal > 0
+            ? `يوجد ${outstandingTotal.toLocaleString('ar-YE')} YER رصيد مفتوح مشتق من الصافي ناقص المدفوع.`
+            : 'لا يظهر رصيد مفتوح من الحقول الحالية.',
+          why: outstandingRows.length ? `يوجد ${outstandingRows.length} صفوف مفتوحة؛ الأولوية تبدأ من الصفوف ذات الرصيد الأعلى.` : 'لا يوجد صف مفتوح مثبت.',
+          soWhat: 'هذا مؤشر مفتوح مشتق وليس دفتر ذمم محاسبيًا؛ لا يمكن إثبات عمر الدين أو العميل من هذا المصدر.',
+          next: 'رتّب الصفوف المفتوحة حسب الرصيد، ثم اربطها بعميل وتاريخ استحقاق قبل إجراء التحصيل.',
+          owner: 'مسؤول التحصيل',
+          measure: 'أعد قياس الرصيد المفتوح ونسبة المدفوع بعد الإجراء من نفس المصدر.',
+          blocker: 'لا يوجد مفتاح عميل أو تاريخ استحقاق في الـFixture؛ لذلك لا يتم اختلاق أعمار أو أولويات عميل.',
+          risk: 'خطر معاملة الرصيد المفتوح كذمم قابلة للتحصيل دون التحقق من طبيعتها واستحقاقها.',
+        };
+
+  return (
+    <section className="overflow-hidden rounded-[22px] border border-primary-200 bg-white shadow-sm">
+      <div className="bg-[linear-gradient(135deg,#07151c,#102b30)] p-5 text-white lg:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-200">ADVISOR · {model.label.toUpperCase()}</div>
+            <h3 className="mt-1 text-2xl font-black tracking-tight">{model.health}</h3>
+            <p className="mt-2 max-w-3xl text-xs leading-6 text-slate-300">{model.issue}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/[.06] px-4 py-3 text-right">
+            <div className="text-[9px] text-slate-400">المالك</div>
+            <div className="mt-1 text-sm font-black text-white">{model.owner}</div>
+          </div>
+        </div>
+      </div>
+      <div className="grid gap-3 p-5 md:grid-cols-2 lg:grid-cols-3 lg:p-6">
+        {[
+          ['لماذا الآن؟', model.why],
+          ['ماذا يعني؟', model.soWhat],
+          ['الخطوة التالية', model.next],
+          ['القياس', model.measure],
+          ['العائق', model.blocker],
+          ['المخاطر', model.risk],
+        ].map(([label, value]) => (
+          <article key={label} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4">
+            <div className="text-[9px] font-black text-primary-700">{label}</div>
+            <div className="mt-2 text-[11px] leading-5 font-semibold text-ink-800">{value}</div>
+          </article>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2 border-t border-ink-100 bg-white p-5 lg:p-6">
+        <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">حوّل القضية إلى قرار</Link>
+        <Link to="/work-center" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">افتح مسار العمل</Link>
+        <span className="inline-flex min-h-10 items-center rounded-xl border border-ink-100 bg-ink-50 px-4 py-2.5 text-[10px] font-black text-ink-500">الدليل يبقى مربوطًا بالمصدر</span>
+      </div>
+    </section>
+  );
+}
+
 function PreviewBusinessSurface({ path }: { path: string }) {
   const [decisionState, setDecisionState] = useState<Record<string, 'جاهز' | 'مسودة قرار' | 'مكتمل'>>({});
   const outstanding = LIVE_ROWS.reduce((sum, row) => sum + (row.netAmount - row.paidAmount), 0);
@@ -554,15 +651,29 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
       </>
     );
-  } else if (route === '/reports/sales' || route === '/reports/profitability') {
+  } else if (route === '/reports/sales') {
+    body = (
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER · من الـFixture" />
+          <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER · من الـFixture" />
+          <PreviewMetric label="معدل التحصيل المشتق" value={LIVE_TOTALS.netAmount > 0 ? ((paidTotal / LIVE_TOTALS.netAmount) * 100).toFixed(1) + '%' : 'غير متاح'} meta="paid ÷ net" />
+          <PreviewMetric label="الوحدات المباعة" value={String(LIVE_TOTALS.salesQty)} meta="من نفس الـFixture" />
+        </div>
+        <PreviewDomainAdvisor domain="sales" />
+        <PreviewInventoryTable />
+      </>
+    );
+  } else if (route === '/reports/profitability') {
     body = (
       <>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <PreviewMetric label="صافي المبيعات" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER · من الـFixture" />
           <PreviewMetric label="الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER · من الـFixture" />
           <PreviewMetric label="الهامش المحسوب" value={margin == null ? 'غير متاح' : margin.toFixed(1) + '%'} meta="profit ÷ net" />
-          <PreviewMetric label="الوحدات المباعة" value={String(LIVE_TOTALS.salesQty)} meta="من نفس الـFixture" />
+          <PreviewMetric label="أضعف هامش صفّي" value={rowMargins[0] ? rowMargins[0].margin.toFixed(1) + '%' : 'غير متاح'} meta="أفضل/أضعف صف" />
         </div>
+        <PreviewDomainAdvisor domain="profitability" />
         <PreviewInventoryTable />
       </>
     );
@@ -574,10 +685,11 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <PreviewMetric label="إجمالي الصافي" value={LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} meta="YER" />
-          <PreviewMetric label="إجمالي المدفوع" value={LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0).toLocaleString('ar-YE')} meta="YER" />
+          <PreviewMetric label="إجمالي المدفوع" value={paidTotal.toLocaleString('ar-YE')} meta="YER" />
           <PreviewMetric label="المفتوح" value={outstanding.toLocaleString('ar-YE')} meta="YER · مشتق" />
-          <PreviewMetric label="صفوف مفتوحة" value={String(LIVE_ROWS.filter(row => row.netAmount > row.paidAmount).length)} meta="من الـFixture" />
+          <PreviewMetric label="نسبة المدفوع" value={LIVE_TOTALS.netAmount > 0 ? ((paidTotal / LIVE_TOTALS.netAmount) * 100).toFixed(1) + '%' : 'غير متاح'} meta="paid ÷ net" />
         </div>
+        <PreviewDomainAdvisor domain="receivables" />
         <PreviewInventoryTable rows={LIVE_ROWS.filter(row => row.netAmount > row.paidAmount)} />
       </>
     );
