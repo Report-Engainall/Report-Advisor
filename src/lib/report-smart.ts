@@ -619,12 +619,6 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
   const readMode = options.surfaceReadback ? 'surface' : 'full';
-  const cacheKey = companyId + ':' + normalizedJobId + ':' + normalizedSourceHash + ':' + readMode;
-  const cached = smartReportReadCache.get(cacheKey);
-  if (cached) {
-    if (cached.expiresAt > Date.now()) return cached.detail;
-    smartReportReadCache.delete(cacheKey);
-  }
 
   const jobQuery = supabase
     .from('report_execution_jobs')
@@ -632,13 +626,41 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .eq('company_id', companyId)
     .eq('id', normalizedJobId)
     .maybeSingle();
-  const { data: job, error: jobError } = await maybeAbort(jobQuery, options.signal);
+  const { data: requestedJob, error: jobError } = await maybeAbort(jobQuery, options.signal);
 
   if (jobError) throw jobError;
+
+  let job = requestedJob;
+  let jobResolvedFromSourceFallback = false;
+  if (!job && normalizedSourceHash) {
+    const fallbackQuery = supabase
+      .from('report_execution_jobs')
+      .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', normalizedSourceHash)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: fallbackJob, error: fallbackError } = await maybeAbort(fallbackQuery, options.signal);
+    if (fallbackError) throw fallbackError;
+    if (fallbackJob) {
+      job = fallbackJob;
+      jobResolvedFromSourceFallback = true;
+    }
+  }
+
   if (!job || job.status !== 'completed') throw new Error('INVALID_REPORT_CONTEXT');
   const resolvedSourceHash = String(job.source_hash ?? '').trim();
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(resolvedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
   if (normalizedSourceHash && resolvedSourceHash !== normalizedSourceHash) throw new Error('INVALID_REPORT_CONTEXT');
+
+  const cacheKey = companyId + ':' + String(job.id) + ':' + normalizedSourceHash + ':' + readMode;
+  const cached = smartReportReadCache.get(cacheKey);
+  if (cached) {
+    if (cached.expiresAt > Date.now()) return cached.detail;
+    smartReportReadCache.delete(cacheKey);
+  }
 
   // A physical source can be imported more than once. Keep historical jobs
   // readable, but explicitly identify the newest completed job for this exact
@@ -656,8 +678,11 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const { data: latestSourceJob, error: latestSourceError } = await maybeAbort(latestSourceQuery, options.signal);
   const currentSourceReportJobId = latestSourceJob?.id == null ? null : String(latestSourceJob.id);
   const currentSourceReportCompletedAt = latestSourceJob?.completed_at == null ? null : String(latestSourceJob.completed_at);
-  const isCurrentForSource = currentSourceReportJobId == null || currentSourceReportJobId === normalizedJobId;
+  const isCurrentForSource = currentSourceReportJobId == null || currentSourceReportJobId === String(job.id);
   const runtimeWarnings: string[] = [];
+  if (jobResolvedFromSourceFallback) {
+    runtimeWarnings.push('تم تصحيح رابط التقرير إلى أحدث تشغيل متاح لهذا المصدر في مساحة الشركة الحالية.');
+  }
   if (!isCurrentForSource) {
     runtimeWarnings.push('هذا التقرير إصدار تاريخي لنفس المصدر؛ التقرير الأحدث محفوظ تحت jobId=' + currentSourceReportJobId + '.');
   }
