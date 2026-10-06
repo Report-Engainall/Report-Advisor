@@ -1134,13 +1134,16 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         ? archetypeRun.intelligence as SmartReportIntelligence
         : {
             ...baseIntelligence,
+            calculations: calculationRegistryResults,
+            kernel,
+            limitations: baseIntelligence.limitations ?? [],
             advisorBrief: {
               ...baseIntelligence.advisorBrief,
-              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح دون اعتماد النموذج المتخصص.',
+              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الحسابات والذكاء المصدرّي المتاح دون اعتماد القرار المتخصص.',
             },
           };
 
-      const calculations = intelligence.calculations ?? [];
+      const calculations = intelligence.calculations ?? calculationRegistryResults;
       const calculationsForPersistence = calculations.map((calculation) => ({
         ...calculation,
         details: {
@@ -1157,7 +1160,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           } : null,
         },
       }));
-      if (archetypeRun.state === 'SUPPORTED' && calculationsForPersistence.length > 0) {
+      if (calculationsForPersistence.length > 0) {
         calculationPersistence = await persistAndReadBackCalculations({
           tenantId: companyId,
           reportExecutionJobId: String(job.id),
