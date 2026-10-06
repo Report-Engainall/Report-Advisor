@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
+import inventoryCsv from '../../tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv?raw';
 
 type LiveRow = {
   documentNo: string;
@@ -19,20 +20,65 @@ type LiveRow = {
   paidAmount: number;
 };
 
-const LIVE_ROWS: LiveRow[] = [
-  { documentNo: 'DOC-28-001', documentDate: '2026-01-15', productCode: 'SKU-1', productName: 'صنف 1', warehouse: 'WH-1', salesQty: 8, currentStock: 22, netAmount: 173, cost: 113, profit: 60, paidAmount: 108 },
-  { documentNo: 'DOC-28-002', documentDate: '2026-02-15', productCode: 'SKU-2', productName: 'صنف 2', warehouse: 'WH-2', salesQty: 9, currentStock: 24, netAmount: 189, cost: 130, profit: 63, paidAmount: 125 },
-  { documentNo: 'DOC-28-003', documentDate: '2026-03-15', productCode: 'SKU-3', productName: 'صنف 3', warehouse: 'WH-3', salesQty: 10, currentStock: 26, netAmount: 205, cost: 147, profit: 66, paidAmount: 142 },
-  { documentNo: 'DOC-28-004', documentDate: '2026-04-15', productCode: 'SKU-4', productName: 'صنف 4', warehouse: 'WH-1', salesQty: 11, currentStock: 25, netAmount: 224, cost: 164, profit: 69, paidAmount: 159 },
-  { documentNo: 'DOC-28-005', documentDate: '2026-05-15', productCode: 'SKU-5', productName: 'صنف 5', warehouse: 'WH-2', salesQty: 12, currentStock: 27, netAmount: 240, cost: 181, profit: 72, paidAmount: 176 },
-  { documentNo: 'DOC-28-006', documentDate: '2026-06-15', productCode: 'SKU-1', productName: 'صنف 1', warehouse: 'WH-3', salesQty: 13, currentStock: 29, netAmount: 256, cost: 198, profit: 75, paidAmount: 193 },
-  { documentNo: 'DOC-28-007', documentDate: '2026-07-15', productCode: 'SKU-2', productName: 'صنف 2', warehouse: 'WH-1', salesQty: 14, currentStock: 28, netAmount: 275, cost: 215, profit: 78, paidAmount: 210 },
-  { documentNo: 'DOC-28-008', documentDate: '2026-08-15', productCode: 'SKU-3', productName: 'صنف 3', warehouse: 'WH-2', salesQty: 15, currentStock: 30, netAmount: 291, cost: 232, profit: 81, paidAmount: 227 },
-  { documentNo: 'DOC-28-009', documentDate: '2026-09-15', productCode: 'SKU-4', productName: 'صنف 4', warehouse: 'WH-3', salesQty: 16, currentStock: 32, netAmount: 307, cost: 249, profit: 84, paidAmount: 244 },
-  { documentNo: 'DOC-28-010', documentDate: '2026-10-15', productCode: 'SKU-5', productName: 'صنف 5', warehouse: 'WH-1', salesQty: 17, currentStock: 31, netAmount: 326, cost: 266, profit: 87, paidAmount: 261 },
-  { documentNo: 'DOC-28-011', documentDate: '2026-11-15', productCode: 'SKU-1', productName: 'صنف 1', warehouse: 'WH-2', salesQty: 18, currentStock: 33, netAmount: 342, cost: 283, profit: 90, paidAmount: 278 },
-  { documentNo: 'DOC-28-012', documentDate: '2026-12-15', productCode: 'SKU-2', productName: 'صنف 2', warehouse: 'WH-3', salesQty: 19, currentStock: 35, netAmount: 358, cost: 300, profit: 93, paidAmount: 295 },
-];
+const CSV_HEADERS = ['documentNo','documentDate','productCode','productName','warehouse','salesQty','currentStock','netAmount','cost','profit','paidAmount'] as const;
+
+function parseInventoryFixture(source: string): LiveRow[] {
+  const lines = source.trim().split(/\r?\n/).filter(Boolean);
+  const header = lines.shift();
+  if (header !== CSV_HEADERS.join(',')) {
+    throw new Error('Inventory fixture header does not match the expected canonical schema.');
+  }
+
+  return lines.map((line, index) => {
+    const cells = line.split(',');
+    if (cells.length !== CSV_HEADERS.length) {
+      throw new Error(`Inventory fixture row ${index + 2} has ${cells.length} columns; expected ${CSV_HEADERS.length}.`);
+    }
+
+    const [
+      documentNo,
+      documentDate,
+      productCode,
+      productName,
+      warehouse,
+      salesQty,
+      currentStock,
+      netAmount,
+      cost,
+      profit,
+      paidAmount,
+    ] = cells;
+
+    const numeric = [salesQty, currentStock, netAmount, cost, profit, paidAmount].map(Number);
+    if (numeric.some(value => !Number.isFinite(value))) {
+      throw new Error(`Inventory fixture row ${index + 2} contains a non-numeric measure.`);
+    }
+
+    return {
+      documentNo,
+      documentDate,
+      productCode,
+      productName,
+      warehouse,
+      salesQty: numeric[0],
+      currentStock: numeric[1],
+      netAmount: numeric[2],
+      cost: numeric[3],
+      profit: numeric[4],
+      paidAmount: numeric[5],
+    };
+  });
+}
+
+const LIVE_ROWS = parseInventoryFixture(inventoryCsv);
+const LIVE_TOTALS = LIVE_ROWS.reduce((totals, row) => ({
+  salesQty: totals.salesQty + row.salesQty,
+  currentStock: totals.currentStock + row.currentStock,
+  netAmount: totals.netAmount + row.netAmount,
+  profit: totals.profit + row.profit,
+}), { salesQty: 0, currentStock: 0, netAmount: 0, profit: 0 });
+
+const LOW_COVERAGE_ROWS = LIVE_ROWS.filter(row => row.salesQty > 0 && row.currentStock / row.salesQty < 2);
 
 type Capability = {
   id: string;
@@ -121,17 +167,17 @@ export function ProposalDemoPage() {
           <div>
             <div className="text-[9px] font-black tracking-[.14em] text-primary-200">المصدر الفعلي المستخدم في العرض</div>
             <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام المصدر، وليست وعودًا مرسومة على الشاشة</h2>
-            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">البيانات المعروضة أدناه مأخوذة من Fixture المخزون في المستودع: 12 صفًا، مع حساب المؤشرات مباشرة من هذه الصفوف. لا نعرض 140 أو 44 أو 155 كأنها نتائج مصدر لم نقرأه هنا.</p>
+            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">البيانات المعروضة أدناه تُقرأ وقت البناء مباشرة من الملف canonical fixture: 28-inventory-stockout-reorder.csv. كل مؤشر في هذه المساحة مشتق من الصفوف نفسها، ولا توجد أرقام ملخّصة مستقلة عنها.</p>
           </div>
           <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {[
-            ['12','صفًا من المصدر','مقروء'],
-            ['162','وحدة مبيعات','مجموع source'],
-            ['342','وحدة رصيد حالي','مجموع source'],
-            ['3,186','صافي المبيعات','مجموع source'],
-            ['708','الربح','صافي من source'],
+            ['عدد الصفوف', LIVE_ROWS.length.toLocaleString('ar-EG'), 'من الملف'],
+            ['وحدات المبيعات', LIVE_TOTALS.salesQty.toLocaleString('ar-EG'), 'مجموع المصدر'],
+            ['الرصيد الحالي', LIVE_TOTALS.currentStock.toLocaleString('ar-EG'), 'مجموع المصدر'],
+            ['صافي المبيعات', LIVE_TOTALS.netAmount.toLocaleString('ar-EG'), 'YER · محسوب'],
+            ['الربح', LIVE_TOTALS.profit.toLocaleString('ar-EG'), 'YER · محسوب'],
           ].map(([value,label,state]) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
               <div className="text-2xl font-black tracking-tight">{value}</div>
@@ -168,11 +214,11 @@ export function ProposalDemoPage() {
         {(() => {
           const query = liveQuery.trim().toLowerCase();
           const filtered = LIVE_ROWS.filter(row => [row.documentNo, row.productCode, row.productName, row.warehouse, row.documentDate].join(' ').toLowerCase().includes(query));
-          const totalSales = LIVE_ROWS.reduce((sum, row) => sum + row.salesQty, 0);
-          const totalStock = LIVE_ROWS.reduce((sum, row) => sum + row.currentStock, 0);
-          const totalNet = LIVE_ROWS.reduce((sum, row) => sum + row.netAmount, 0);
-          const totalProfit = LIVE_ROWS.reduce((sum, row) => sum + row.profit, 0);
-          const lowCoverage = LIVE_ROWS.filter(row => row.salesQty > 0 && row.currentStock / row.salesQty < 2);
+          const totalSales = LIVE_TOTALS.salesQty;
+          const totalStock = LIVE_TOTALS.currentStock;
+          const totalNet = LIVE_TOTALS.netAmount;
+          const totalProfit = LIVE_TOTALS.profit;
+          const lowCoverage = LOW_COVERAGE_ROWS;
           const decisionRows = lowCoverage.slice(0, 3);
           return (
             <>
@@ -254,7 +300,7 @@ export function ProposalDemoPage() {
               <div className="mt-4 flex flex-col gap-2 rounded-xl border border-primary-100 bg-primary-50/50 p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="text-xs font-black text-primary-900">إشارة قابلة للعمل</div>
-                  <div className="mt-0.5 text-[10px] text-primary-700">{lowCoverage.length} صفوف من أصل {LIVE_ROWS.length} لديها تغطية أقل من 2.00 بناءً على الرصيد ÷ المبيعات.</div>
+                  <div className="mt-0.5 text-[10px] text-primary-700">{LOW_COVERAGE_ROWS.length} صفوف من أصل {LIVE_ROWS.length} لديها تغطية أقل من 2.00 بناءً على الرصيد ÷ المبيعات.</div>
                 </div>
                 <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[10px] font-black text-primary-800">{filtered.length} صف ظاهر</span>
               </div>
@@ -331,7 +377,7 @@ export function ProposalDemoPage() {
         </CardBody>
       </Card>
 
-      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية، ولا تنقل الدليل أو النتيجة بين مصادر مختلفة. كل رابط يفتح الوحدة الفعلية داخل المنصة، وتبقى القيم والنتائج تحت مصدر الحقيقة والشركة الحالية.</div>
+      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية؛ ولا تنقل الدليل أو النتيجة بين مصادر مختلفة. كل رابط يفتح الوحدة الفعلية داخل المنصة، وتبقى القيم والنتائج تحت مصدر الحقيقة والشركة الحالية.</div>
     </div>
   );
 }
