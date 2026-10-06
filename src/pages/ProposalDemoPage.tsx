@@ -5,6 +5,35 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
 
+type LiveRow = {
+  documentNo: string;
+  documentDate: string;
+  productCode: string;
+  productName: string;
+  warehouse: string;
+  salesQty: number;
+  currentStock: number;
+  netAmount: number;
+  cost: number;
+  profit: number;
+  paidAmount: number;
+};
+
+const LIVE_ROWS: LiveRow[] = [
+  { documentNo: 'DOC-28-001', documentDate: '2026-01-15', productCode: 'SKU-1', productName: 'صنف 1', warehouse: 'WH-1', salesQty: 8, currentStock: 22, netAmount: 173, cost: 113, profit: 60, paidAmount: 108 },
+  { documentNo: 'DOC-28-002', documentDate: '2026-02-15', productCode: 'SKU-2', productName: 'صنف 2', warehouse: 'WH-2', salesQty: 9, currentStock: 24, netAmount: 189, cost: 130, profit: 63, paidAmount: 125 },
+  { documentNo: 'DOC-28-003', documentDate: '2026-03-15', productCode: 'SKU-3', productName: 'صنف 3', warehouse: 'WH-3', salesQty: 10, currentStock: 26, netAmount: 205, cost: 147, profit: 66, paidAmount: 142 },
+  { documentNo: 'DOC-28-004', documentDate: '2026-04-15', productCode: 'SKU-4', productName: 'صنف 4', warehouse: 'WH-1', salesQty: 11, currentStock: 25, netAmount: 224, cost: 164, profit: 69, paidAmount: 159 },
+  { documentNo: 'DOC-28-005', documentDate: '2026-05-15', productCode: 'SKU-5', productName: 'صنف 5', warehouse: 'WH-2', salesQty: 12, currentStock: 27, netAmount: 240, cost: 181, profit: 72, paidAmount: 176 },
+  { documentNo: 'DOC-28-006', documentDate: '2026-06-15', productCode: 'SKU-1', productName: 'صنف 1', warehouse: 'WH-3', salesQty: 13, currentStock: 29, netAmount: 256, cost: 198, profit: 75, paidAmount: 193 },
+  { documentNo: 'DOC-28-007', documentDate: '2026-07-15', productCode: 'SKU-2', productName: 'صنف 2', warehouse: 'WH-1', salesQty: 14, currentStock: 28, netAmount: 275, cost: 215, profit: 78, paidAmount: 210 },
+  { documentNo: 'DOC-28-008', documentDate: '2026-08-15', productCode: 'SKU-3', productName: 'صنف 3', warehouse: 'WH-2', salesQty: 15, currentStock: 30, netAmount: 291, cost: 232, profit: 81, paidAmount: 227 },
+  { documentNo: 'DOC-28-009', documentDate: '2026-09-15', productCode: 'SKU-4', productName: 'صنف 4', warehouse: 'WH-3', salesQty: 16, currentStock: 32, netAmount: 307, cost: 249, profit: 84, paidAmount: 244 },
+  { documentNo: 'DOC-28-010', documentDate: '2026-10-15', productCode: 'SKU-5', productName: 'صنف 5', warehouse: 'WH-1', salesQty: 17, currentStock: 31, netAmount: 326, cost: 266, profit: 87, paidAmount: 261 },
+  { documentNo: 'DOC-28-011', documentDate: '2026-11-15', productCode: 'SKU-1', productName: 'صنف 1', warehouse: 'WH-2', salesQty: 18, currentStock: 33, netAmount: 342, cost: 283, profit: 90, paidAmount: 278 },
+  { documentNo: 'DOC-28-012', documentDate: '2026-12-15', productCode: 'SKU-2', productName: 'صنف 2', warehouse: 'WH-3', salesQty: 19, currentStock: 35, netAmount: 358, cost: 300, profit: 93, paidAmount: 295 },
+];
+
 type Capability = {
   id: string;
   title: string;
@@ -46,6 +75,7 @@ export function ProposalDemoPage() {
   const location = useLocation();
   const demoPath = location.pathname;
   const [liveQuery, setLiveQuery] = useState('');
+  const [decisionDrafts, setDecisionDrafts] = useState<Record<string, boolean>>({});
   const [jobTitle, setJobTitle] = useState('مشروع ذكاء الأعمال وتحليل البيانات');
   const [client, setClient] = useState('عميل محتمل');
   const [requirements, setRequirements] = useState('لوحة قيادة للمبيعات والمؤشرات المالية\nرفع Excel وCSV والتحقق من الجودة\nتحليل الذمم وأعمار التحصيل\nتحليل المخزون والتنبؤ بالطلب\nتوصيات ودعم القرار');
@@ -86,22 +116,22 @@ export function ProposalDemoPage() {
         <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50 print:hidden lg:mt-1"><Printer size={16} /> طباعة / PDF</button>
       </div>
 
-      <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#0b1020,#132235)] p-6 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#0f2231)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">دليل بيع حقيقي · مصدر موثق</div>
-            <h2 className="mt-2 text-2xl font-black tracking-tight">هذا ما استخرجه الأغبري فعلًا من تقرير المخزون</h2>
-            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">تقارير ادارية.xlsx · 332 صفًا موثقًا · جودة المصدر 98% · الحالة: موثق وجاهز للقرار. الأرقام التالية مأخوذة من نفس المصدر وليست بيانات تجريبية مولدة.</p>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">المصدر الفعلي المستخدم في العرض</div>
+            <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام المصدر، وليست وعودًا مرسومة على الشاشة</h2>
+            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">البيانات المعروضة أدناه مأخوذة من Fixture المخزون في المستودع: 12 صفًا، مع حساب المؤشرات مباشرة من هذه الصفوف. لا نعرض 140 أو 44 أو 155 كأنها نتائج مصدر لم نقرأه هنا.</p>
           </div>
-          <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">شاهد مركز التقارير ←</Link>
+          <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {[
-            ['140','أصناف بلا رصيد مع حركة بيع','أولوية P0'],
-            ['44','نفاد متوقع خلال 7 أيام','مخاطر إتاحة'],
-            ['155','مخزون قديم مع حركة يومية','فرصة تصريف'],
-            ['15','أرصدة سالبة','فجوة تشغيلية'],
-            ['12','فجوة حركة بعد المطابقة','مراجعة مطلوبة'],
+            ['12','صفًا من المصدر','مقروء'],
+            ['162','وحدة مبيعات','مجموع source'],
+            ['342','وحدة رصيد حالي','مجموع source'],
+            ['3,186','صافي المبيعات','مجموع source'],
+            ['708','الربح','صافي من source'],
           ].map(([value,label,state]) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
               <div className="text-2xl font-black tracking-tight">{value}</div>
@@ -111,9 +141,9 @@ export function ProposalDemoPage() {
           ))}
         </div>
         <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-slate-300">
-          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">المصدر: تقارير ادارية.xlsx</span>
-          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">332 صفًا canonical</span>
-          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">Evidence: ACCEPTED · VERIFIED · READY</span>
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">الملف: 28-inventory-stockout-reorder.csv</span>
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">YER · بيانات المصدر كما هي</span>
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">التغطية = الرصيد الحالي ÷ المبيعات</span>
         </div>
       </section>
 
@@ -122,63 +152,115 @@ export function ProposalDemoPage() {
           <div>
             <div className="text-[9px] font-black tracking-[.14em] text-primary-600">LIVE BUSINESS SURFACE</div>
             <h2 className="mt-1 text-xl font-black text-ink-950">
-              {demoPath.includes('/reports/inventory') ? 'جدول المخزون القابل للفعل'
-                : demoPath.includes('/reports/sales') ? 'جدول المبيعات والربحية'
+              {demoPath.includes('/reports/inventory') ? 'المخزون الذي يمكن قراءته والعمل عليه'
+                : demoPath.includes('/reports/sales') ? 'المبيعات والربحية من الصفوف نفسها'
                 : demoPath.includes('/reports/receivables') ? 'الرصيد المفتوح للتحصيل'
-                : demoPath.includes('/decision-experience') ? 'قرارات مرتبطة بإشارة مصدرية'
-                : 'جرّب البيانات بدل قراءة وصف المنتج'}
+                : demoPath.includes('/decision-experience') ? 'إشارات قابلة للتحويل إلى قرار'
+                : 'بيانات فعلية قابلة للبحث'}
             </h2>
-            <p className="mt-1 text-xs leading-5 text-ink-500">هذه الصفوف مأخوذة مباشرة من Fixtures داخل المستودع وليست أرقامًا مولدة من الواجهة.</p>
+            <p className="mt-1 text-xs leading-5 text-ink-500">ابحث، اقرأ، واتخذ إجراءً على نفس البيانات. الحالة والتغطية محسوبتان من المصدر المعروض، لا من نص تسويقي مستقل.</p>
           </div>
-          <input value={liveQuery} onChange={event => setLiveQuery(event.target.value)} className="input h-10 w-full lg:w-80" placeholder="ابحث بالمستند أو رقم الصنف" />
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+            <input value={liveQuery} onChange={event => setLiveQuery(event.target.value)} className="input h-10 w-full sm:w-80" placeholder="ابحث بالمستند أو الصنف أو المستودع" aria-label="بحث في البيانات المصدرية" />
+          </div>
         </div>
 
-        {demoPath.includes('/decision-experience') ? (
-          <div className="mt-4 grid gap-3 lg:grid-cols-3">
-            {[
-              ['SKU-1 · صنف 1', 'رصيد 22 مقابل مبيعات 8', 'تغطية 2.75', 'مقترح'],
-              ['SKU-2 · صنف 2', 'رصيد 24 مقابل مبيعات 9', 'تغطية 2.67', 'مقترح'],
-              ['SKU-3 · صنف 3', 'رصيد 26 مقابل مبيعات 10', 'تغطية 2.60', 'مراجعة'],
-            ].map(([title, why, cover, state]) => (
-              <article key={title} className="rounded-2xl border border-ink-100 bg-ink-50/50 p-4">
-                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-warning-50 px-2 py-1 text-[10px] font-black text-warning-800">{state}</span><span className="text-[10px] font-black text-primary-700">SOURCE-BACKED</span></div>
-                <h3 className="mt-3 font-black text-ink-900">{title}</h3>
-                <p className="mt-2 text-xs leading-5 text-ink-600">{why} · {cover}</p>
-                <button type="button" className="mt-3 rounded-xl bg-primary-700 px-3 py-2 text-[11px] font-black text-white" onClick={() => window.alert('تم تحويل الإشارة إلى مسودة قرار في العرض التجريبي.')}>اعتماد القرار</button>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-4 overflow-x-auto rounded-2xl border border-ink-100">
-            <table className="min-w-[920px] w-full text-right text-xs">
-              <thead className="bg-ink-50">
-                <tr>{(demoPath.includes('/reports/sales') ? ['المستند','التاريخ','الصنف','الصافي','التكلفة','الربح','المدفوع'] : ['المستند','التاريخ','الصنف','المستودع','المبيعات','الرصيد','التغطية','الحالة']).map(label => <th key={label} className="px-3 py-3 font-black">{label}</th>)}</tr>
-              </thead>
-              <tbody>
+        {(() => {
+          const query = liveQuery.trim().toLowerCase();
+          const filtered = LIVE_ROWS.filter(row => [row.documentNo, row.productCode, row.productName, row.warehouse, row.documentDate].join(' ').toLowerCase().includes(query));
+          const totalSales = LIVE_ROWS.reduce((sum, row) => sum + row.salesQty, 0);
+          const totalStock = LIVE_ROWS.reduce((sum, row) => sum + row.currentStock, 0);
+          const totalNet = LIVE_ROWS.reduce((sum, row) => sum + row.netAmount, 0);
+          const totalProfit = LIVE_ROWS.reduce((sum, row) => sum + row.profit, 0);
+          const lowCoverage = LIVE_ROWS.filter(row => row.salesQty > 0 && row.currentStock / row.salesQty < 2);
+          const decisionRows = lowCoverage.slice(0, 3);
+          return (
+            <>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
                 {[
-                  ['DOC-28-001','2026-01-15','SKU-1 · صنف 1','WH-1','8','22','2.75','P1','173','113','60','108'],
-                  ['DOC-28-002','2026-02-15','SKU-2 · صنف 2','WH-2','9','24','2.67','P1','189','130','63','125'],
-                  ['DOC-28-003','2026-03-15','SKU-3 · صنف 3','WH-3','10','26','2.60','P1','205','147','66','142'],
-                  ['DOC-28-004','2026-04-15','SKU-4 · صنف 4','WH-1','11','25','2.27','P1','224','164','69','159'],
-                  ['DOC-28-005','2026-05-15','SKU-5 · صنف 5','WH-2','12','27','2.25','P1','240','181','72','176'],
-                  ['DOC-28-006','2026-06-15','SKU-1 · صنف 1','WH-3','13','29','2.23','P1','256','198','75','193'],
-                  ['DOC-28-007','2026-07-15','SKU-2 · صنف 2','WH-1','14','28','2.00','P1','275','215','78','210'],
-                  ['DOC-28-008','2026-08-15','SKU-3 · صنف 3','WH-2','15','30','2.00','P1','291','232','81','227'],
-                ].filter(row => row.join(' ').toLowerCase().includes(liveQuery.trim().toLowerCase())).map(row =>
-                  demoPath.includes('/reports/sales') ? (
-                    <tr key={row[0]} className="border-t border-ink-100 hover:bg-primary-50/40">
-                      <td className="px-3 py-3 font-black">{row[0]}</td><td className="px-3 py-3">{row[1]}</td><td className="px-3 py-3">{row[2]}</td><td className="px-3 py-3">{row[8]}</td><td className="px-3 py-3">{row[9]}</td><td className="px-3 py-3 font-black">{row[10]}</td><td className="px-3 py-3">{row[11]}</td>
-                    </tr>
-                  ) : (
-                    <tr key={row[0]} className="border-t border-ink-100 hover:bg-primary-50/40">
-                      <td className="px-3 py-3 font-black">{row[0]}</td><td className="px-3 py-3">{row[1]}</td><td className="px-3 py-3">{row[2]}</td><td className="px-3 py-3">{row[3]}</td><td className="px-3 py-3">{row[4]}</td><td className="px-3 py-3 font-black">{row[5]}</td><td className="px-3 py-3">{row[6]}</td><td className="px-3 py-3 font-black">{row[7]}</td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                  ['عدد الصفوف', LIVE_ROWS.length.toLocaleString('ar-EG'), 'من المصدر'],
+                  ['المبيعات', totalSales.toLocaleString('ar-EG'), 'وحدة'],
+                  ['الرصيد الحالي', totalStock.toLocaleString('ar-EG'), 'وحدة'],
+                  ['صافي المبيعات', totalNet.toLocaleString('ar-EG'), 'YER'],
+                  ['الربح', totalProfit.toLocaleString('ar-EG'), 'YER'],
+                ].map(([label, value, meta]) => (
+                  <div key={label} className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
+                    <div className="text-[10px] font-bold text-ink-500">{label}</div>
+                    <div className="mt-1 text-xl font-black text-ink-950">{value}</div>
+                    <div className="mt-0.5 text-[9px] text-ink-400">{meta}</div>
+                  </div>
+                ))}
+              </div>
+
+              {demoPath.includes('/decision-experience') ? (
+                <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                  {decisionRows.map(row => {
+                    const coverage = row.currentStock / row.salesQty;
+                    const created = Boolean(decisionDrafts[row.documentNo]);
+                    return (
+                      <article key={row.documentNo} className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="rounded-full bg-warning-50 px-2 py-1 text-[10px] font-black text-warning-800">{created ? 'مسودة قرار منشأة' : 'تغطية منخفضة'}</span>
+                          <span className="text-[10px] font-black text-primary-700">{row.documentNo}</span>
+                        </div>
+                        <h3 className="mt-3 font-black text-ink-900">{row.productCode} · {row.productName}</h3>
+                        <p className="mt-2 text-xs leading-5 text-ink-600">المبيعات {row.salesQty} · الرصيد {row.currentStock} · التغطية {coverage.toFixed(2)}</p>
+                        <p className="mt-1 text-[10px] text-ink-400">المستودع {row.warehouse} · صافي {row.netAmount.toLocaleString('ar-EG')} YER</p>
+                        <button type="button" className="mt-3 w-full rounded-xl bg-primary-700 px-3 py-2.5 text-[11px] font-black text-white disabled:cursor-default disabled:bg-ink-200 disabled:text-ink-500" disabled={created} onClick={() => setDecisionDrafts(previous => ({ ...previous, [row.documentNo]: true }))}>{created ? 'تم إنشاء مسودة القرار' : 'إنشاء مسودة قرار'}</button>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-4 overflow-x-auto rounded-2xl border border-ink-100">
+                  <table className="min-w-[980px] w-full text-right text-xs">
+                    <thead className="bg-ink-50">
+                      <tr>{(demoPath.includes('/reports/sales') ? ['المستند','التاريخ','الصنف','الصافي','التكلفة','الربح','المدفوع'] : ['المستند','التاريخ','الصنف','المستودع','المبيعات','الرصيد','التغطية','الحالة']).map(label => <th key={label} className="px-3 py-3 font-black text-ink-700">{label}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map(row => {
+                        const coverage = row.salesQty > 0 ? row.currentStock / row.salesQty : 0;
+                        const low = coverage < 2;
+                        return (
+                          <tr key={row.documentNo} className="border-t border-ink-100 transition hover:bg-primary-50/50">
+                            <td className="px-3 py-3 font-black text-ink-900">{row.documentNo}</td>
+                            <td className="px-3 py-3">{row.documentDate}</td>
+                            <td className="px-3 py-3 font-semibold">{row.productCode} · {row.productName}</td>
+                            {demoPath.includes('/reports/sales') ? (
+                              <>
+                                <td className="px-3 py-3">{row.netAmount.toLocaleString('ar-EG')}</td>
+                                <td className="px-3 py-3">{row.cost.toLocaleString('ar-EG')}</td>
+                                <td className="px-3 py-3 font-black">{row.profit.toLocaleString('ar-EG')}</td>
+                                <td className="px-3 py-3">{row.paidAmount.toLocaleString('ar-EG')}</td>
+                              </>
+                            ) : (
+                              <>
+                                <td className="px-3 py-3">{row.warehouse}</td>
+                                <td className="px-3 py-3">{row.salesQty}</td>
+                                <td className="px-3 py-3 font-black">{row.currentStock}</td>
+                                <td className="px-3 py-3">{coverage.toFixed(2)}</td>
+                                <td className="px-3 py-3"><span className={`inline-flex rounded-full px-2 py-1 text-[10px] font-black ${low ? 'bg-warning-50 text-warning-800' : 'bg-emerald-50 text-emerald-800'}`}>{low ? 'تغطية منخفضة' : 'مراقبة'}</span></td>
+                              </>
+                            )}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {filtered.length === 0 && <div className="p-8 text-center text-sm text-ink-400">لا توجد صفوف مطابقة للبحث.</div>}
+                </div>
+              )}
+
+              <div className="mt-4 flex flex-col gap-2 rounded-xl border border-primary-100 bg-primary-50/50 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="text-xs font-black text-primary-900">إشارة قابلة للعمل</div>
+                  <div className="mt-0.5 text-[10px] text-primary-700">{lowCoverage.length} صفوف من أصل {LIVE_ROWS.length} لديها تغطية أقل من 2.00 بناءً على الرصيد ÷ المبيعات.</div>
+                </div>
+                <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[10px] font-black text-primary-800">{filtered.length} صف ظاهر</span>
+              </div>
+            </>
+          );
+        })()}
       </section>
 
       <CommercialValueChain
