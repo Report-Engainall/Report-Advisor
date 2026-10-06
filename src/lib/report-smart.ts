@@ -614,10 +614,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const currentSourceReportJobId = latestSourceJob?.id == null ? null : String(latestSourceJob.id);
   const currentSourceReportCompletedAt = latestSourceJob?.completed_at == null ? null : String(latestSourceJob.completed_at);
   const isCurrentForSource = currentSourceReportJobId == null || currentSourceReportJobId === normalizedJobId;
-  const runtimeWarnings: string[] = [
-    ...(isCurrentForSource ? [] : ['هذا التقرير إصدار تاريخي لنفس المصدر؛ التقرير الأحدث محفوظ تحت jobId=' + currentSourceReportJobId + '.']),
-    ...(latestSourceError ? ['تعذر تحديد أحدث إصدار لنفس المصدر؛ بقيت الحالة مرتبطة بهذا job فقط.'] : []),
-  ];
+  const runtimeWarnings: string[] = [];
+  if (!isCurrentForSource) {
+    runtimeWarnings.push('هذا التقرير إصدار تاريخي لنفس المصدر؛ التقرير الأحدث محفوظ تحت jobId=' + currentSourceReportJobId + '.');
+  }
+  if (latestSourceError) {
+    runtimeWarnings.push('تعذر تحديد أحدث إصدار لنفس المصدر؛ بقيت الحالة مرتبطة بهذا job فقط.');
+  }
   const renderedOutput = renderedOutputOf(job.evidence);
   if (!renderedOutput) {
     runtimeWarnings.push('لم تُحفظ renderedOutput لهذا التقرير؛ تم بناء العرض من المصدر الكانوني ولقطة التحليل المتاحة دون اختلاق مخرجات سابقة.');
