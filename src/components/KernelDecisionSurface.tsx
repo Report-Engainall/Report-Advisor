@@ -66,7 +66,11 @@ export function KernelDecisionSurface({
           </p>
         </div>
         <div className="flex flex-wrap gap-2 text-[9px] font-black">
-          <span className="rounded-full bg-primary-900/60 px-3 py-1.5 text-primary-100">
+          <span
+            data-testid="kernel-status"
+            data-status={kernel?.status ?? ''}
+            className="rounded-full bg-primary-900/60 px-3 py-1.5 text-primary-100"
+          >
             النواة: {stateLabel(kernel?.status)}
           </span>
           {archetypeState ? (
@@ -95,12 +99,12 @@ export function KernelDecisionSurface({
         </div>
         <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
           <div className="text-[9px] font-black text-slate-400">إشارات تحليلية</div>
-          <div data-testid="kernel-anomaly-count" className="mt-1 text-2xl font-black text-white">{numberLabel(kernel?.anomalies.length ?? 0, 0)}</div>
+          <div data-testid="kernel-anomaly-count" data-value={String(kernel?.anomalies.length ?? 0)} className="mt-1 text-2xl font-black text-white">{numberLabel(kernel?.anomalies.length ?? 0, 0)}</div>
           <div className="mt-1 text-[9px] text-slate-400">إنذارات قابلة للتفسير والمتابعة.</div>
         </div>
         <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
           <div className="text-[9px] font-black text-slate-400">سيناريوهات</div>
-          <div data-testid="kernel-scenario-count" className="mt-1 text-2xl font-black text-white">{numberLabel(scenarios.length, 0)}</div>
+          <div data-testid="kernel-scenario-count" data-value={String(scenarios.length)} className="mt-1 text-2xl font-black text-white">{numberLabel(scenarios.length, 0)}</div>
           <div className="mt-1 text-[9px] text-slate-400">اختبارات What-if منفصلة عن حقيقة المصدر.</div>
         </div>
       </div>
@@ -190,7 +194,7 @@ export function KernelDecisionSurface({
 
       {sensitivity.length > 0 ? (
         <div className="mt-5 rounded-2xl border border-amber-900/70 bg-amber-950/25 p-4">
-          <div className="text-[9px] font-black tracking-[.08em] text-amber-200">حساسية القرار</div>
+          <div className="text-[9px] font-black tracking-[.08em] text-amber-200">حساسية القرار <span data-testid="kernel-sensitivity-count" data-value={String(sensitivity.length)} className="mr-2 rounded-full bg-amber-950 px-2 py-1 text-[8px]">{numberLabel(sensitivity.length, 0)}</span></div>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {sensitivity.map((item, index) => (
               <article key={item.variable + ':' + index} className="rounded-xl border border-amber-900/70 bg-slate-950/60 p-3">
