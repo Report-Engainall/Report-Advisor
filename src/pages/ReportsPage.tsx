@@ -419,7 +419,7 @@ export function ReportsCenterPage() {
           </div>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {smartReports.map((report) => {
+            {smartReports.map((report, reportIndex) => {
               const modelLabel = report.archetypeState === 'SUPPORTED'
                 ? 'تحليل متخصص جاهز'
                 : report.archetypeState === 'REVIEW_REQUIRED'
@@ -428,7 +428,7 @@ export function ReportsCenterPage() {
               return (
                 <Link
                   key={report.jobId + ':' + report.sourceHash}
-                  data-testid={report.jobId === PRIMARY_SMART_REPORT_JOB_ID ? 'primary-real-smart-report-card' : undefined}
+                  data-testid={reportIndex === 0 ? 'primary-real-smart-report-card' : undefined}
                   to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
                   className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm"
                 >
