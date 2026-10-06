@@ -130,18 +130,18 @@ function PreviewMetric({ label, value, meta }: { label: string; value: string; m
 function PreviewSourceBanner() {
   return (
     <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#102737)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
-      <div className="text-[9px] font-black tracking-[.14em] text-primary-200">PREVIEW · SOURCE-BOUND</div>
-      <h1 className="mt-2 text-2xl font-black tracking-tight">بيانات عمل حقيقية من نفس المصدر، بدون تخمين</h1>
+      <div className="text-[9px] font-black tracking-[.14em] text-primary-200">PREVIEW · FIXTURE-BOUND</div>
+      <h1 className="mt-2 text-2xl font-black tracking-tight">بيانات المعاينة مشتقة من Fixture واحد، بدون اختلاق</h1>
       <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">
-        هذه معاينة شراء مبنية على <strong>28-inventory-stockout-reorder.csv</strong> نفسه.
-        لا تُعرض أرقام من مجال غير موجود في المصدر، وتبقى التغطية والإشارات مشتقة مباشرة من الصفوف المقروءة.
+        هذه المعاينة مبنية على Fixture محفوظ داخل المستودع: <strong>28-inventory-stockout-reorder.csv</strong>.
+        القيم هنا تصلح لإثبات سلوك المنتج ومسار الحساب في المعاينة، وليست بيانات شركة حيّة أو بديلًا عن جلسة tenant مصادق عليها.
       </p>
       <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-slate-300">
         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_ROWS.length} صفًا</span>
         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_TOTALS.salesQty} وحدة مبيعات</span>
         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_TOTALS.currentStock} رصيد حالي</span>
         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LIVE_TOTALS.netAmount.toLocaleString('ar-YE')} YER صافي مبيعات</span>
-        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">3 إشارات تغطية منخفضة</span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{LOW_COVERAGE_ROWS.length} إشارات مشتقة من الـFixture</span>
       </div>
     </section>
   );
@@ -226,7 +226,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     <section className="rounded-2xl border border-warning-200 bg-warning-50/70 p-5">
       <div className="text-xs font-black text-warning-900">لا توجد بيانات كافية لهذا المجال</div>
       <p className="mt-2 text-sm leading-6 text-warning-900/80">{reason}</p>
-      <div className="mt-3 text-[10px] text-warning-800">المصدر الحالي: 28-inventory-stockout-reorder.csv · لا يتم اختلاق صفوف أو أرقام بديلة.</div>
+      <div className="mt-3 text-[10px] text-warning-800">Fixture المعاينة: 28-inventory-stockout-reorder.csv · لا يتم اختلاق صفوف أو أرقام بديلة.</div>
     </section>
   );
 
@@ -442,7 +442,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   );
 }
 
-export function ProposalDemoPage() {
+function ProposalCommercialDemoPage() {
   const location = useLocation();
   const demoPath = location.pathname;
   const [liveQuery, setLiveQuery] = useState('');
@@ -705,4 +705,13 @@ export function ProposalDemoPage() {
       <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية؛ ولا تنقل الدليل أو النتيجة بين مصادر مختلفة. كل رابط يفتح الوحدة الفعلية داخل المنصة، وتبقى القيم والنتائج تحت مصدر الحقيقة والشركة الحالية.</div>
     </div>
   );
+}
+
+
+export function ProposalDemoPage() {
+  const location = useLocation();
+  const previewRoute = location.pathname !== '/proposal-demo';
+  return previewRoute
+    ? <PreviewBusinessSurface path={location.pathname} />
+    : <ProposalCommercialDemoPage />;
 }
