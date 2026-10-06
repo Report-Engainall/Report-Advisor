@@ -20,6 +20,10 @@ for (const required of [
   '/work-center',
   '/data-quality',
   '/products',
+  '/reports/smart/',
+  '/analytics/liquidity',
+  '/trust',
+  '/replay',
 ]) {
   assert.match(preview, new RegExp(required.replaceAll('/', '\\/')), `route surface missing: ${required}`);
 }
@@ -28,5 +32,7 @@ assert.match(preview, /28-inventory-stockout-reorder\.csv/);
 assert.match(preview, /LIVE_TOTALS\.profit/);
 assert.match(preview, /LOW_COVERAGE_ROWS/);
 assert.match(preview, /حد المعاينة/);
+assert.match(preview, /بيانات شركة حيّة/);
+assert.match(preview, /FIXTURE-BOUND/);
 
 console.log('PASS route-aware preview contract: customer routes use the canonical fixture with domain-safe unavailable states.');
