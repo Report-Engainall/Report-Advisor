@@ -1,12 +1,12 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 47b4364cb8751d739b09afcf725612a74de320fb
-UPDATED_AT = 2026-10-06T07:18:00+03:00
+REPORT_FOR_HEAD = 9e12e6b3ce34c5f29824811949f27055eb989948
+UPDATED_AT = 2026-10-06T07:27:00+03:00
 BRANCH = feat/calculation-capability-engine-20261006
 PR = #850
 BASE = a6d034e05172189d278e689eb01a0c86454f529e
 CURRENT_PRODUCT_CODE_HEAD = 16f23f2724c7e570b24a7e46680a6aed558a9886
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_BRANCH_HEAD = 47b4364cb8751d739b09afcf725612a74de320fb
+CURRENT_BRANCH_HEAD = 9e12e6b3ce34c5f29824811949f27055eb989948
 
 WHAT_I_WAS_ASKED_TO_DO = Complete the current product without rebuilding it: close the first failing Resume assertion, keep the Intelligence Kernel/calculation/evidence lineage centralized, expose intelligence in UI, prove persistence/readback, Smart Report, Decision/Work/Outcome/Learning, 48 archetypes, browser and production evidence, and preserve exact-head resumption state.
 
@@ -36,6 +36,6 @@ REMAINING_OPEN = Browser Resume; authenticated Smart Report proof; refresh/readb
 
 DO_NOT_REPEAT = Do not revert to Actor C for the open report, do not hide missing credentials with synthetic defaults, and do not classify the product complete from CI PASS alone. The real tenant must continue to be derived from OPEN_REPORT_EXECUTION_JOB_ID.
 
-NEXT_EXACT_ACTION = Consume the newest Full Product Browser E2E on the exact branch head. First failure only -> repair -> rerun; then continue through Smart Report, Decision/Work/Outcome/Learning, Benchmark, 48/48 and final certification.
+NEXT_EXACT_ACTION = Consume the newest exact-head Full Product Browser E2E. First failure only -> repair -> rerun; then continue through Smart Report, Decision/Work/Outcome/Learning, Benchmark, 48/48 and final certification.
 
 UPDATED_AT = 2026-10-06T07:14:00+03:00
