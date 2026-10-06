@@ -1,24 +1,41 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = b0c023b7e69d1d34e904094f6ac3537dbafd0abf
-UPDATED_AT = 2026-10-06T06:48:00+03:00
+REPORT_FOR_HEAD = 4052adb9756ec59b48260a6a8207b35be3f05602
+UPDATED_AT = 2026-10-06T07:14:00+03:00
 BRANCH = feat/calculation-capability-engine-20261006
 PR = #850
 BASE = a6d034e05172189d278e689eb01a0c86454f529e
 CURRENT_PRODUCT_CODE_HEAD = 16f23f2724c7e570b24a7e46680a6aed558a9886
-CURRENT_BRANCH_HEAD_AT_REPORT_GENERATION = acb3a4d03bf6d3237d8fb5dc6975a831ab3dcb81
+CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
+CURRENT_BRANCH_HEAD = 4052adb9756ec59b48260a6a8207b35be3f05602
 
-WHAT_I_WAS_ASKED_TO_DO = Repair the exact-head calculation capability branch without rebuilding the product; restore the browser harness; retain calculation/evidence lineage during REVIEW_REQUIRED; expose real kernel intelligence; prove Smart Report, Decision, Work, Outcome/Learning, 48/48 and deployed runtime with exact-head evidence.
-WHAT_I_ACTUALLY_DID = Restored the truncated Full Product Browser E2E harness from parent 56b323620c4abc64c0ee179c32dec3b441e7df75 and preserved only the current_company_id Smart Report auth/bootstrap settlement exception; fixed its TDZ; separated calculation persistence from SUPPORTED; preserved source intelligence under REVIEW_REQUIRED; added the customer-visible Kernel Decision Surface and deterministic browser selectors; made the 48/48 source matrix exact-head and lineage-blocking; added Outcome→Learning and source-bound Benchmark proof; and corrected the real-open-report CI wiring so its resume proof uses actor C, whose membership is the certified f68a7e91 tenant.
-WHAT_IS_PROVEN = Direct Supabase recomputation of تقارير ادارية.xlsx proves 332 rows, stock 23075, demand 324250, baseline coverage 0.07116422513492675405 and demand+15% coverage 0.06188193489993630787. Evidence Passport for job 16709d80-e012-40ef-9c12-6fd8255897f8 and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313 is VERIFIED/READY/ACCEPTED with evidence snapshot 01e41830-fa44-41a3-9790-cb5cd8202d6a. The separate open report d074ad5c-70d4-4402-a763-01129786f392 is completed/rendered with 6776 canonical rows, matching import and analyzed source snapshot.
-FIRST_ACTIVE_FAILURE = Full Product Browser Resume failed because the resume actor was bound to Smart Report tenant 99e33354 while the open report job belongs to f68a7e91; the source data itself was healthy.
-ROOT_CAUSE = Actor C is intentionally defaulted to the certified Smart Report company 99e33354. Reusing C for the open report was a tenant-context error. The fix creates actor D and derives D's default tenant from OPEN_REPORT_EXECUTION_JOB_ID itself.
-REPAIR_PROOF = b0c023b7 adds dedicated actor D, derives its tenant from the exact open report job, validates sourceHash binding, provisions D as default for that tenant, and wires Resume to D credentials.
-TRUST_PROOF_RULE = Runtime trust must be derived from a lineage-matching Evidence Passport when effective renderedOutput trustState is absent; contradictions remain REVIEW/PENDING/BLOCKED, never synthetic TRUSTED.
-PERSISTENCE_PROOF_RULE = calculation persistence/readback no longer depends on archetypeRun.state === SUPPORTED.
-REAL_48_PROOF_RULE = Every one of the 48 archetypes must yield an exact-head matrix row with an explicit runtime state and lineage; NOT_PROVEN requires a reason, supported/review/insufficient/blocked require source/job/evidence lineage. Registry presence alone is insufficient.
-CURRENT_VALIDATION = Prior c7 Browser run proved 48/48 runtime PASS and failed only at Resume due tenant actor binding. b0c023b7 fixes that wiring; exact-head re-run pending.
-DEPLOYED_RUNTIME = Netlify preview 6ac46a30c857e90008c4220e is READY for 16f23f2724c7e570b24a7e46680a6aed558a9886. PC01 Edge verified the preview DOM source SHA, Arabic RTL shell and product title for that exact code head.
-DECISION_WORK_OUTCOME = Contract/E2E paths exist for Decision→Approval→Work→Outcome and now classify Outcome→Learning without inventing impact; exact customer-run evidence is still pending.
-PRODUCT_COMPLETE = NO
-SALE_READY = NO
-NEXT_EXACT_ACTION = Consume the b0c023b7 exact-head Full Product Browser E2E. First failure only -> repair -> rerun. On Resume PASS, consume Smart Report refresh/readback, Decision→Approval→Work→Outcome→Learning, Benchmark, exact-head 48/48 matrix, and final certification/deployed SHA proof.
+WHAT_I_WAS_ASKED_TO_DO = Complete the current product without rebuilding it: close the first failing Resume assertion, keep the Intelligence Kernel/calculation/evidence lineage centralized, expose intelligence in UI, prove persistence/readback, Smart Report, Decision/Work/Outcome/Learning, 48 archetypes, browser and production evidence, and preserve exact-head resumption state.
+
+WHAT_I_ACTUALLY_DID = Verified main=a6d034e05172189d278e689eb01a0c86454f529e and active PR #850. Read the exact-head Full Product Browser failure. The first failing assertion was TEST_USER_A_EMAIL_MISSING in scripts/resume-open-report-server-proof.mjs. Traced it to scripts/provision-e2e-actors.mjs: Actor D was correctly created and assigned to the open-report tenant, but persistActorCredentials() routed D into TEST_APPROVER_* because D had no explicit branch. Patched that mapping and added contract assertions covering TEST_USER_D_* plus the workflow handoff.
+
+WHAT_IS_ALREADY_PROVEN = Direct Supabase recomputation of تقارير ادارية.xlsx: 332 rows, stock 23075, demand 324250, baseline coverage 0.07116422513492675405, demand+15% coverage 0.06188193489993630787. Evidence Passport for job 16709d80-e012-40ef-9c12-6fd8255897f8 and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313 is VERIFIED/READY/ACCEPTED. Open report d074ad5c-70d4-4402-a763-01129786f392 is completed/rendered with 6776 canonical rows and source hash sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10.
+
+FIRST_FAILURE = Run 37410218572, step "Resume and prove the real open report", failed before authenticated report readback because TEST_USER_A_EMAIL was empty.
+
+ROOT_CAUSE = Credential-state propagation defect between actor provisioning and the next workflow step. The tenant/data binding for Actor D was already correct; the credential variables were not.
+
+REPAIR_PROOF = Commit 3addb06ab0c158d62f22e52717cf166c4a5cfc2a explicitly persists D to TEST_USER_D_EMAIL / TEST_USER_D_PASSWORD. Commit 4052adb9756ec59b48260a6a8207b35be3f05602 adds executable contract assertions for the D handoff. No product calculation or customer data path was altered.
+
+PRODUCT / UX / UI DELTA = This first-failure repair does not change customer-facing UI. The existing current product head 16f23f27 includes the customer-visible Kernel Decision Surface and Smart Report intelligence preservation under REVIEW_REQUIRED; browser proof of that mirror remains pending after the resume gate.
+
+FILES / MIGRATIONS = scripts/provision-e2e-actors.mjs; scripts/e2e-actor-provisioning-contract.test.mjs. No DB migration required for this failure.
+
+RUNTIME / DEPLOYMENT = New exact-head Full Product Browser E2E run 37412726635 is pending on 4052adb9756ec59b48260a6a8207b35be3f05602. Final deployment SHA must be reconfirmed after the browser/certification chain completes.
+
+BROWSER = Previous run passed canonical-heart regressions and 48-archetype runtime contract, then failed first at Resume credential handoff. The next run is the authoritative test of this repair.
+
+DATABASE = Open-report tenant/source binding is f68a7e91-3c7e-46fb-97a8-e339bec04e13 with source hash sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10. No schema/data mutation was needed for this CI defect.
+
+WHAT_IS_NOT_YET_PROVEN = Customer-authenticated browser Smart Report readback on the final head; Decision->Approval->Work->Outcome->Learning exact business run; source-bound Benchmark final proof; exact-head real-source 48/48 evidence matrix; final deployed SHA/browser proof; final sale-readiness certification.
+
+REMAINING_OPEN = Browser Resume; authenticated Smart Report proof; refresh/readback; Decision/Approval/Work/Outcome/Learning; Benchmark; exact-head 48/48 real-source matrix; final certification; exact deployed runtime.
+
+DO_NOT_REPEAT = Do not revert to Actor C for the open report, do not hide missing credentials with synthetic defaults, and do not classify the product complete from CI PASS alone. The real tenant must continue to be derived from OPEN_REPORT_EXECUTION_JOB_ID.
+
+NEXT_EXACT_ACTION = Consume Full Product Browser E2E for 4052adb9756ec59b48260a6a8207b35be3f05602. First failure only -> repair -> rerun. On Resume PASS, continue through Smart Report browser proof, Decision/Approval/Work/Outcome/Learning, Benchmark, exact-head 48/48 evidence matrix, deployed SHA and final certification.
+
+UPDATED_AT = 2026-10-06T07:14:00+03:00
