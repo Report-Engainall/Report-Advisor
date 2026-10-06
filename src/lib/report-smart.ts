@@ -55,6 +55,9 @@ type SmartReportIntelligence = ReportIntelligence & {
 
 export type SmartReportDetail = SmartReportCatalogItem & {
   tenantId: string;
+  isCurrentForSource: boolean;
+  currentSourceReportJobId: string | null;
+  currentSourceReportCompletedAt: string | null;
   importId: string | null;
   checkpointStage: string | null;
   renderedOutput: Record<string, unknown>;
@@ -569,7 +572,27 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(resolvedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
   if (normalizedSourceHash && resolvedSourceHash !== normalizedSourceHash) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const runtimeWarnings: string[] = [];
+  // A physical source can be imported more than once. Keep historical jobs
+  // readable, but explicitly identify the newest completed job for this exact
+  // source hash so customer-facing navigation cannot mistake a superseded job
+  // for the current report.
+  const latestSourceQuery = supabase
+    .from('report_execution_jobs')
+    .select('id,completed_at')
+    .eq('company_id', companyId)
+    .eq('source_hash', resolvedSourceHash)
+    .eq('status', 'completed')
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const { data: latestSourceJob, error: latestSourceError } = await maybeAbort(latestSourceQuery, options.signal);
+  const currentSourceReportJobId = latestSourceJob?.id == null ? null : String(latestSourceJob.id);
+  const currentSourceReportCompletedAt = latestSourceJob?.completed_at == null ? null : String(latestSourceJob.completed_at);
+  const isCurrentForSource = currentSourceReportJobId == null || currentSourceReportJobId === normalizedJobId;
+  const runtimeWarnings: string[] = [
+    ...(isCurrentForSource ? [] : ['هذا التقرير إصدار تاريخي لنفس المصدر؛ التقرير الأحدث محفوظ تحت jobId=' + currentSourceReportJobId + '.']),
+    ...(latestSourceError ? ['تعذر تحديد أحدث إصدار لنفس المصدر؛ بقيت الحالة مرتبطة بهذا job فقط.'] : []),
+  ];
   const renderedOutput = renderedOutputOf(job.evidence);
   if (!renderedOutput) {
     runtimeWarnings.push('لم تُحفظ renderedOutput لهذا التقرير؛ تم بناء العرض من المصدر الكانوني ولقطة التحليل المتاحة دون اختلاق مخرجات سابقة.');
@@ -755,6 +778,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       ...catalogItem,
       jobId: String(job.id),
       tenantId: companyId,
+      isCurrentForSource,
+      currentSourceReportJobId,
+      currentSourceReportCompletedAt,
       sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
       sourceHash: String(job.source_hash ?? ''),
       entityType: entityTypeFrom(String(job.job_key ?? '')),
