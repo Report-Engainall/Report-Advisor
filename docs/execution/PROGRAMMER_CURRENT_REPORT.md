@@ -1,41 +1,35 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 9e12e6b3ce34c5f29824811949f27055eb989948
-UPDATED_AT = 2026-10-06T07:27:00+03:00
+REPORT_FOR_HEAD = 3804246cb47e1082bfbacea03f00bbe2ca71f0e9
+UPDATED_AT = 2026-10-06T08:12:00+03:00
 BRANCH = feat/calculation-capability-engine-20261006
 PR = #850
 BASE = a6d034e05172189d278e689eb01a0c86454f529e
 CURRENT_PRODUCT_CODE_HEAD = 16f23f2724c7e570b24a7e46680a6aed558a9886
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_BRANCH_HEAD = 9e12e6b3ce34c5f29824811949f27055eb989948
+CURRENT_BRANCH_HEAD = 3804246cb47e1082bfbacea03f00bbe2ca71f0e9
 
-WHAT_I_WAS_ASKED_TO_DO = Complete the current product without rebuilding it: close the first failing Resume assertion, keep the Intelligence Kernel/calculation/evidence lineage centralized, expose intelligence in UI, prove persistence/readback, Smart Report, Decision/Work/Outcome/Learning, 48 archetypes, browser and production evidence, and preserve exact-head resumption state.
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing product from the exact current head without rebuilding it; close only the first proven failure, preserve the real-source intelligence/calculation/evidence chain, expose the result in the customer journey, and keep exact-head proof truthful.
 
-WHAT_I_ACTUALLY_DID = Verified main=a6d034e05172189d278e689eb01a0c86454f529e and active PR #850. Read the exact-head Full Product Browser failure. The first failing assertion was TEST_USER_A_EMAIL_MISSING in scripts/resume-open-report-server-proof.mjs. Traced it to scripts/provision-e2e-actors.mjs: Actor D was correctly created and assigned to the open-report tenant, but persistActorCredentials() routed D into TEST_APPROVER_* because D had no explicit branch. Patched that mapping and added contract assertions covering TEST_USER_D_* plus the workflow handoff.
+WHAT_I_ACTUALLY_DID = On the current branch, repaired two browser-harness false failures without changing the source-of-truth product model: Smart Report kernel settlement assertions are now scoped to the Smart Report route (94523bf502421ef0fcce432317637dcd01122554), and the persisted trust assertion now accepts the product's valid VERIFIED label alongside TRUSTED (3804246cb47e1082bfbacea03f00bbe2ca71f0e9). The earlier calculation-capability registry repair remains covered by its canonical regression. Exact-head run 37416063515 is now the authoritative Full Product Browser run for 3804246cb and was still in progress at this handoff.
 
-WHAT_IS_PROVEN = Direct Supabase recomputation of تقارير ادارية.xlsx: 332 rows, stock 23075, demand 324250, baseline coverage 0.07116422513492675405, demand+15% coverage 0.06188193489993630787. Evidence Passport for job 16709d80-e012-40ef-9c12-6fd8255897f8 and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313 is VERIFIED/READY/ACCEPTED. Open report d074ad5c-70d4-4402-a763-01129786f392 is completed/rendered with 6776 canonical rows and source hash sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10.
+WHAT_IS_PROVEN = Direct real-source evidence for تقارير ادارية.xlsx remains: job 16709d80-e012-40ef-9c12-6fd8255897f8, source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313, 332 rows, quality 98, stock 23075, demand 324250, baseline coverage 0.07116422513492675405, demand+15% coverage 0.06188193489993630787, Evidence Passport VERIFIED/READY/ACCEPTED. Open report d074ad5c-70d4-4402-a763-01129786f392 is completed/rendered with 6776 canonical rows. Calculation registry truth remains fail-closed where cost evidence is absent: inventory stock value and amount sum are NOT_AVAILABLE.
 
-FIRST_ACTIVE_FAILURE = Run 37410218572, step "Resume and prove the real open report", failed before authenticated report readback because TEST_USER_A_EMAIL was empty.
+FIRST_ACTIVE_FAILURE = Exact-head run 37416063770, Session Handoff Contract, step "Validate persistent session handoff": stale report; unreported files included .github/workflows/full-product-browser-e2e.yml, package.json, scripts/real-business-e2e.mjs, scripts/run-full-product-browser-e2e.mjs, scripts/calculation-capability-registry-contract.test.mjs, and src/lib/report-intelligence/calculation-capability-registry.ts.
 
-ROOT_CAUSE = Credential-state propagation defect between actor provisioning and the next workflow step. The tenant/data binding for Actor D was already correct; the credential variables were not.
+ROOT_CAUSE = The persisted programmer report still pointed at 9e12e6b3 while the active branch had advanced through the browser-harness repair commits to 3804246cb. The handoff contract intentionally rejects a report that does not cover the current exact head.
 
-REPAIR_PROOF = Commit 3addb06ab0c158d62f22e52717cf166c4a5cfc2a explicitly persists D to TEST_USER_D_EMAIL / TEST_USER_D_PASSWORD. Commit 4052adb9756ec59b48260a6a8207b35be3f05602 adds executable contract assertions for the D handoff. No product calculation or customer data path was altered.
+REPAIR_PROOF = This report refresh is docs-only and sets REPORT_FOR_HEAD to 3804246cb. No application logic, database schema, customer data, calculation authority, tenant isolation, or UI business logic is changed by this repair. The companion CURRENT_SESSION_STATE refresh will follow as a second docs-only commit so the final head remains covered by the handoff contract.
 
-PRODUCT / UX / UI DELTA = This first-failure repair does not change customer-facing UI. The existing current product head 16f23f27 includes the customer-visible Kernel Decision Surface and Smart Report intelligence preservation under REVIEW_REQUIRED; browser proof of that mirror remains pending after the resume gate.
+OTHER_CURRENT_GATES = Exact-head run 37416063515 (Full Product Browser E2E) is in progress. On the same head, Product Build Gate, canonical/truth/security contracts, Commercial Product Creation E2E, Evidence Passport Gate Live Proof, inventory intelligence truth, semantic/runtime contracts and related gates are passing. Separate Device-Independent Browser E2E and Phase-F live resilience runs are currently failed; they will be treated after the first current-head failure is consumed, not mixed into this first-failure repair.
 
-FILES / MIGRATIONS = scripts/provision-e2e-actors.mjs; scripts/e2e-actor-provisioning-contract.test.mjs. No DB migration required for this failure.
+PRODUCT_UX_UI_DELTA = No customer-facing UI code changed in the two browser-harness fixes. Existing Smart Report Kernel Decision Surface, persisted intelligence, evidence/readback and executive flow remain the product surface under proof.
 
-RUNTIME / DEPLOYMENT = New exact-head Full Product Browser E2E run 37412726635 is pending on 4052adb9756ec59b48260a6a8207b35be3f05602. Final deployment SHA must be reconfirmed after the browser/certification chain completes.
+DATABASE = No schema/data mutation is part of this handoff repair. Existing certified real-source bindings remain authoritative.
 
-BROWSER = Previous run passed canonical-heart regressions and 48-archetype runtime contract, then failed first at Resume credential handoff. The next run is the authoritative test of this repair.
+WHAT_IS_NOT_YET_PROVEN = Customer-authenticated browser Smart Report/readback on the final exact head; Decision->Approval->Work->Outcome->Learning business run; source-bound Benchmark proof; exact-head real-source 48/48 matrix; final deployed SHA/browser proof; final sale-readiness certification.
 
-DATABASE = Open-report tenant/source binding is f68a7e91-3c7e-46fb-97a8-e339bec04e13 with source hash sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10. No schema/data mutation was needed for this CI defect.
+REMAINING_OPEN = Consume Full Product Browser E2E 37416063515; repair first new failure only; then continue authenticated Smart Report, refresh/readback, Decision/Approval/Work/Outcome/Learning, Benchmark, 48/48 real-source evidence matrix, and final certification/deployment proof.
 
-WHAT_IS_NOT_YET_PROVEN = Customer-authenticated browser Smart Report readback on the final head; Decision->Approval->Work->Outcome->Learning exact business run; source-bound Benchmark final proof; exact-head real-source 48/48 evidence matrix; final deployed SHA/browser proof; final sale-readiness certification.
+DO_NOT_REPEAT = Do not rebuild from zero, do not substitute synthetic report data, do not weaken trust/evidence checks, do not hide missing states with defaults, and do not declare sale-ready from contract PASS alone.
 
-REMAINING_OPEN = Browser Resume; authenticated Smart Report proof; refresh/readback; Decision/Approval/Work/Outcome/Learning; Benchmark; exact-head 48/48 real-source matrix; final certification; exact deployed runtime.
-
-DO_NOT_REPEAT = Do not revert to Actor C for the open report, do not hide missing credentials with synthetic defaults, and do not classify the product complete from CI PASS alone. The real tenant must continue to be derived from OPEN_REPORT_EXECUTION_JOB_ID.
-
-NEXT_EXACT_ACTION = Consume the newest exact-head Full Product Browser E2E. First failure only -> repair -> rerun; then continue through Smart Report, Decision/Work/Outcome/Learning, Benchmark, 48/48 and final certification.
-
-UPDATED_AT = 2026-10-06T07:14:00+03:00
+NEXT_EXACT_ACTION = Close this handoff-coverage commit, consume run 37416063515 on exact head 3804246cb, and take only its first newly proven failure.
