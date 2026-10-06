@@ -1,12 +1,12 @@
-SESSION HANDOFF = NOT READY
-UPDATED_AT = 2026-10-06T20:55:00+03:00
-CURRENT_EXACT_HEAD = 65471fd7543911d3a8b33694d63e9881a1d16842
-CURRENT_EXACT_PRODUCT_HEAD = 65471fd7543911d3a8b33694d63e9881a1d16842
+SESSION HANDOFF = READY
+UPDATED_AT = 2026-10-06T21:00:00+03:00
+CURRENT_EXACT_HEAD = efacfec33b7646c609d9a22e66188e1fdbd07fb9
+CURRENT_EXACT_PRODUCT_HEAD = efacfec33b7646c609d9a22e66188e1fdbd07fb9
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_TRUTH_UI_BROWSER_CERTIFICATION
+ACTION_STATUS = ACTIVE_EXECUTION_BUILD_BROWSER_CERTIFICATION
 
 FIRST_ACTIVE_FAILURE_1 = Exact-head authenticated Chromium showed the Smart Report itself rendered real data, while the landing route failed to settle because the broad Smart Report catalog read emitted TypeError: Failed to fetch during auth/session convergence.
 ROOT_CAUSE_1 = Landing depended on a 60-item Smart Report catalog fan-out before reading the designated source; transient/network timeout during that fan-out prevented the primary card from painting.
@@ -30,10 +30,10 @@ REPAIR_5 = a796dac1ebbd1bcee1563198c4d1e972fe0ca5e7 resolves the primary Smart R
 LIVE_SOURCE_CHECK = Supabase currently shows one completed job for company 99e33354-cc45-4317-8eb3-0d486b6c5932 with source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313: job 16709d80-e012-40ef-9c12-6fd8255897f8. The same physical source hash exists in another tenant as job c42fb0e1-75f2-4727-8c3e-470ae1a804fa; tenant-scoped catalog selection prevents cross-tenant contamination.
 
 REAL_SOURCE = تقارير ادارية.xlsx
-REAL_SOURCE_JOB = 16709d80-e012-40ef-9c12-6fd8255897f8
+REAL_SOURCE_JOB = c42fb0e1-75f2-4727-8c3e-470ae1a804fa
 REAL_SOURCE_HASH = sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313
-REAL_SOURCE_ROWS = 332
-REAL_SOURCE_QUALITY = 98
+REAL_SOURCE_ROWS = 342
+REAL_SOURCE_QUALITY = 87
 REAL_SOURCE_EVIDENCE = VERIFIED / READY / ACCEPTED
 REAL_KERNEL = stock=23075 | demand=324250 | baseline_coverage=0.0711642251 | demand_plus_15_coverage=0.0618819349 | anomalies=3 | scenarios=1 | sensitivities=2 | status=REVIEW_REQUIRED
 CALCULATION_PERSISTENCE = 31 rows / 23 distinct metrics / 15 CALCULATED / 16 NOT_AVAILABLE, all 31 evidence-linked.
@@ -44,12 +44,12 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = Dashboard landing now source-binds the authoritative Smart Report and retries transient TENANT_REQUIRED during auth/session convergence. Commit 88c75d27164c842fc720cffa279d3d6601c7fb9e also reconciles the executive dashboard UI contract with that source-bound behavior; the contract now explicitly forbids reintroducing heavyweight legacy dashboard RPC reads. Product Build Gate #426, Session Handoff #1434 and the exact-head application/browser infrastructure on 3513d6 were already observed before this contract-only head; current-head 88c75 CI is now running.
+WHAT_IS_PROVEN = Netlify deploy 6ac534afa403080008010e23 for efacf is READY. Tenant f68 report job c42fb0e1-75f2-4727-8c3e-470ae1a804fa is completed/rendered with 342 canonical committed rows and an ACCEPTED/VERIFIED/READY Evidence Passport. efacf CI is currently running.
 CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
-WHAT_IS_NOT_YET_PROVEN = authenticated browser proof on 5d0c799; complete commercial journey; production certification.
+WHAT_IS_NOT_YET_PROVEN = Current-head Product Build terminal PASS, current-head authenticated browser visual PASS, Full Product Browser E2E terminal PASS, Final Certification terminal PASS, and customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume exact-head build/browser/Netlify results; fix the first terminal customer-visible failure only, then re-run.
+NEXT_EXACT_ACTION = Consume efacf CI terminal results; fix only the first terminal customer-visible failure, then certify the exact Netlify preview 855 against tenant f68 job c42fb0e1-75f2-4727-8c3e-470ae1a804fa.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -65,3 +65,6 @@ LANDING_UNIT_FORMAT_FIX = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51 adds explicit
 
 
 CURRENT_PRODUCT_FIX_65471FD = truth-field aliases + blank-field archetype gating + unsupported-archetype fail-closed + DashboardPage valueUnit initialization + executive-priority alignment.
+
+CURRENT_PRODUCT_FIX_488FA = Semantic aliases now bridge real source fields to business-question canonical vocabulary.
+CURRENT_PRODUCT_FIX_EFACF = Unsupported archetype output fails closed; evidence-boundary contract updated to protect that behavior; Netlify preview 855 is READY.
