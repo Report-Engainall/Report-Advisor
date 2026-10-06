@@ -45,7 +45,6 @@ function humanizeEvidence(value: string): string {
     usableRows: 'السجلات الصالحة',
     assumption: 'الافتراض',
     source: 'المصدر',
-    stockField: 'حقل الرصيد',
   };
   const [key, ...rest] = value.split('=');
   if (rest.length === 0) return value;
