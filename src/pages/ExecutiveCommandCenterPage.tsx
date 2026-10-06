@@ -16,6 +16,41 @@ import { fetchDecisionWorkItems, fetchPendingDecisionApprovals, fetchRecentDecis
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import type { Alert, Recommendation } from '@/lib/types';
 
+function activityActionLabel(value: string | null | undefined): string {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  const labels: Record<string, string> = {
+    created: 'إنشاء',
+    updated: 'تحديث',
+    completed: 'إكمال',
+    approved: 'اعتماد',
+    rejected: 'رفض',
+    submitted: 'إرسال',
+    viewed: 'عرض',
+    deleted: 'حذف',
+  };
+  if (labels[normalized]) return labels[normalized];
+  if (normalized.includes('create')) return 'إنشاء';
+  if (normalized.includes('update')) return 'تحديث';
+  if (normalized.includes('complete')) return 'إكمال';
+  if (normalized.includes('approv')) return 'اعتماد';
+  if (normalized.includes('reject')) return 'رفض';
+  return 'إجراء مسجل';
+}
+
+function activityEntityLabel(value: string | null | undefined): string {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  const labels: Record<string, string> = {
+    report_execution_jobs: 'تقرير',
+    decision_work_items: 'مهمة عمل',
+    decision_proposals: 'قرار مقترح',
+    decision_approvals: 'اعتماد',
+    recommendations: 'توصية',
+    reports: 'تقرير',
+    imports: 'مصدر',
+  };
+  return labels[normalized] ?? (normalized.includes('report') ? 'تقرير' : normalized.includes('decision') ? 'مسار قرار' : normalized.includes('work') ? 'مهمة عمل' : 'نشاط أعمال');
+}
+
 const PERIODS = [
   { value: 3, label: '3 أشهر' },
   { value: 6, label: '6 أشهر' },
@@ -327,12 +362,12 @@ export function ExecutiveCommandCenterPage() {
               {recentActivity.map((event) => (
                 <div key={event.id} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-white px-2 py-1 text-[8px] font-black text-ink-700">{event.action}</span>
+                    <span className="rounded-full bg-white px-2 py-1 text-[8px] font-black text-ink-700">{activityActionLabel(event.action)}</span>
                     <span className="mr-auto text-[8px] text-ink-400">{new Date(event.createdAt).toLocaleTimeString('ar-YE')}</span>
                   </div>
-                  <div className="mt-2 text-[9px] font-bold text-ink-800">{event.entityType}</div>
-                  <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{event.entityId}</div>
-                  <div className="mt-1 text-[8px] text-ink-500">المصدر: {event.source ?? 'غير متاح'}</div>
+                  <div className="mt-2 text-[9px] font-bold text-ink-800">{activityEntityLabel(event.entityType)}</div>
+                  <div className="mt-1 text-[8px] text-ink-400">تفاصيل السجل محفوظة في مصدر النشاط.</div>
+                  <div className="mt-1 text-[8px] text-ink-500">مصدر النشاط: السجل الكانوني</div>
                 </div>
               ))}
             </div>
