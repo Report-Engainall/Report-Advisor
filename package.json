@@ -155,6 +155,7 @@
     "test:executive-report-product-contract": "node scripts/check-executive-report-product-contract.mjs",
     "test:intelligence-product-contract": "node scripts/check-intelligence-product-contract.mjs",
     "test:product-wow-ui": "node scripts/check-product-wow-ui-contract.mjs",
+    "test:public-preview-smoke": "node scripts/public-preview-smoke.mjs",
     "test:connections-language-ui": "node scripts/check-connections-language-ui.mjs",
     "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs",
     "test:report-row-coverage-contract": "node scripts/check-report-row-coverage-contract.mjs",

@@ -3,9 +3,15 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+/**
+ * Public/demo routes must be renderable without database credentials.
+ * Protected data access still requires the real environment variables; the
+ * placeholder client only prevents module evaluation from blanking the whole
+ * application before a protected route can establish its auth boundary.
+ */
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+const browserSupabaseUrl = supabaseUrl || 'https://placeholder.invalid';
+const browserSupabaseAnonKey = supabaseAnonKey || 'placeholder-anon-key';
 
 /**
  * Canonical browser client.
@@ -13,7 +19,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
  * resolved consistently across navigation/reloads. RLS and the database
  * current_company_id() resolver remain the authoritative security boundary.
  */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(browserSupabaseUrl, browserSupabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
