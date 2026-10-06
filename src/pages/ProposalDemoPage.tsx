@@ -538,6 +538,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   const first = LIVE_ROWS[0];
   const last = LIVE_ROWS[LIVE_ROWS.length - 1];
   const salesGrowth = first.salesQty > 0 ? ((last.salesQty - first.salesQty) / first.salesQty) * 100 : null;
+  const rowMargins = LIVE_ROWS.filter(row => row.netAmount > 0).map(row => ({ ...row, margin: (row.profit / row.netAmount) * 100 })).sort((a, b) => a.margin - b.margin);
 
   const route = path.replace(/\/$/, '') || '/';
   const routeTitle: Record<string, string> = {
