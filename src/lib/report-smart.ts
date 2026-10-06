@@ -653,6 +653,18 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   if (effectiveRendered.qualityScore == null && analysis?.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
   if (effectiveRendered.sourceFormat == null && analysis?.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
 
+  const sourceAnalysis = analysis ? {
+    id: String(analysis.id),
+    importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
+    sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
+    analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
+    qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
+    rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
+    columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
+    createdAt: analysis.created_at == null ? null : String(analysis.created_at),
+    datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
+  } : null;
+
   const currentPassportLineage =
     currentPassport?.lineage && typeof currentPassport.lineage === 'object'
       ? currentPassport.lineage as Record<string, unknown>
@@ -939,18 +951,6 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       `تعارض في تغطية المصدر: Passport يثبت ${canonicalCommitLineageCount} صفًا بينما القراءة الكانونية الفعلية أعادت ${actualCanonicalRowCount} صفًا. تم خفض الاعتماد على Passport وعدم اعتبار التقرير مكتمل التغطية.`,
     );
   }
-
-  const sourceAnalysis = analysis ? {
-    id: String(analysis.id),
-    importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
-    sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
-    analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
-    qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
-    rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
-    columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
-    createdAt: analysis.created_at == null ? null : String(analysis.created_at),
-    datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
-  } : null;
 
   const specialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
   const sourceAnalysisDatasets = Array.isArray(analysis?.datasets)
