@@ -344,9 +344,8 @@ jobs:
           set -euo pipefail
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-48-archetype-runtime-contract.mjs
 
-      - name: Diagnostic — resume legacy open report proof (non-blocking)
+      - name: Resume and prove the real open report
         if: ${{ always() }}
-        continue-on-error: true
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
