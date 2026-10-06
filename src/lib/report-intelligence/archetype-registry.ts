@@ -394,7 +394,7 @@ export function runReportArchetype(
   const advisory = buildAdvisoryPacket({
     intelligence,
     provenance: input.provenance,
-    availableFields: input.availableFields,
+    availableFields: [...available],
     sampleSize: input.sampleSize,
     scope: input.scope,
     archetypeId: profile.id,
