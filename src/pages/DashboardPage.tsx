@@ -54,6 +54,7 @@ function PulseMetric({
   detail,
   icon,
   status,
+  valueUnit = 'currency',
 }: {
   label: string;
   value: number | null;
