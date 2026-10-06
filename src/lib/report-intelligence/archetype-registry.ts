@@ -4,6 +4,7 @@ import { deriveReportIntelligence } from './report-smart-insights';
 import { applyArchetypeRuleSet } from './archetype-evaluator';
 import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map';
 import { runCalculationRegistry } from './calculation-capability-registry';
+import { runAghbariIntelligenceKernel } from './aghbari-intelligence-kernel';
 
 export type ArchetypeDomain =
   | 'sales'
@@ -312,6 +313,84 @@ export function runReportArchetype(
       evidencePassportId: input.provenance.evidencePassportId ?? null,
     },
   }));
+  const kernel = runAghbariIntelligenceKernel({
+    rows: input.report.canonicalRows ?? [],
+    specialty: profile.adapterSpecialty,
+    qualityScore: Number((input.report.sourceAnalysis as { qualityScore?: unknown } | null | undefined)?.qualityScore ?? 100),
+    canonicalRowsComplete: true,
+    evidenceReady: Boolean(input.provenance.evidenceSnapshotId || input.provenance.evidencePassportId),
+    provenance: input.provenance,
+  });
+  const kernelFindings = kernel.anomalies.map((anomaly) => ({
+    id: 'kernel:' + anomaly.kind,
+    kind: 'RISK' as const,
+    priority: anomaly.severity === 'high' ? 'high' as const : 'medium' as const,
+    title: anomaly.message,
+    statement: anomaly.message,
+    value: anomaly.score,
+    unit: 'evidence score',
+    evidence: anomaly.evidence,
+    limitation: anomaly.limitation,
+    action: profile.recommendationFocus[0] ?? 'مراجعة الإشارة مقابل الدليل المصدرّي.',
+  }));
+  const kernelScenarioSignals = kernel.scenarios.map((scenario) => ({
+    id: 'kernel:scenario:' + scenario.id,
+    severity: scenario.risk === 'high' ? 'high' as const : scenario.risk === 'medium' ? 'medium' as const : 'info' as const,
+    title: scenario.label,
+    message: 'سيناريو الطلب +15%: التغطية تنتقل من ' + String(scenario.baseline.coverage.toFixed(4)) + ' إلى ' + String(Number(scenario.result.coverage ?? 0).toFixed(4)) + '.',
+    evidence: scenario.evidence,
+    soWhat: scenario.risk === 'high' ? 'التغطية تبقى دون 1 وتحتاج مراجعة قرار المخزون.' : 'اختبر القرار قبل التنفيذ؛ السيناريو لا يغيّر الحقيقة الأصلية.',
+    impact: 'تغير نسبة التغطية تحت فرضية معلنة.',
+    ownerHint: 'مسؤول المخزون',
+    priority: scenario.risk === 'high' ? 'P1' as const : 'P2' as const,
+    priorityReason: ['Aghbari Intelligence Kernel', 'scenario=' + scenario.id],
+  }));
+  const kernelSignals = [
+    ...kernel.anomalies.map((anomaly) => ({
+      id: 'kernel:anomaly:' + anomaly.kind,
+      severity: anomaly.severity === 'high' ? 'high' as const : anomaly.severity === 'medium' ? 'medium' as const : 'low' as const,
+      title: anomaly.message,
+      message: anomaly.message,
+      evidence: anomaly.evidence,
+      soWhat: anomaly.limitation,
+      impact: 'Evidence score=' + anomaly.score,
+      ownerHint: profile.domain === 'inventory' ? 'مسؤول المخزون' : 'المسؤول التشغيلي المناسب للمصدر',
+      priority: anomaly.severity === 'high' ? 'P1' as const : 'P2' as const,
+      priorityReason: ['Aghbari Intelligence Kernel', 'anomaly=' + anomaly.kind],
+    })),
+    ...kernelScenarioSignals,
+    ...(kernel.quality.decisionEligible ? [] : [{
+      id: 'kernel:quality-gate',
+      severity: 'medium' as const,
+      title: 'بوابة جودة العقل تتطلب مراجعة قبل القرار',
+      message: kernel.quality.blockers.join('، ') || 'هناك قيد جودة غير قابل للتجاوز.',
+      evidence: Object.entries(kernel.quality.checks).map(([key, value]) => key + '=' + value),
+      soWhat: 'التحليل قد يكون صالحًا وصفيًا لكن القرار التنفيذي غير مؤهل بعد.',
+      impact: 'خفض الجاهزية التنفيذية حتى إغلاق العائق.',
+      ownerHint: 'مسؤول البيانات/التقارير',
+      priority: 'P1' as const,
+      priorityReason: ['quality gate', 'decisionEligible=false'],
+    }]),
+  ];
+  const kernelRecommendations = kernel.anomalies
+    .filter((anomaly) => anomaly.severity === 'high')
+    .map((anomaly) => ({
+      id: 'rec:kernel:' + anomaly.kind,
+      status: 'PROPOSED' as const,
+      priority: 'urgent' as const,
+      title: 'إغلاق إنذار ' + anomaly.kind,
+      action: 'راجع الحركة/الكيان المرتبط بالدليل ثم صحح المصدر أو الإجراء دون افتراض سبب غير مثبت.',
+      why: anomaly.message,
+      evidence: anomaly.evidence,
+      ownerHint: profile.domain === 'inventory' ? 'مسؤول المخزون' : 'المسؤول التشغيلي المناسب للمصدر',
+      impact: 'خفض التعرض للانحراف المرصود؛ الأثر النهائي يقاس بعد الإجراء.',
+      expectedOutcome: 'إغلاق الإنذار أو تثبيت تفسير موثق له.',
+      whyNow: 'تجاوز الإنذار حدًا عالي الخطورة.',
+      measurement: 'إعادة تشغيل نفس Kernel trace بعد الإجراء.',
+      risk: 'الإنذار لا يثبت السببية وحده.',
+      blocker: 'مراجعة الدليل المصدرّي قبل اعتماد السبب.',
+      limitation: anomaly.limitation,
+    }));
   const calculated = calculations.filter((item) => item.availabilityState === 'CALCULATED');
   const riskMetric = (metricId: string, value: unknown): boolean => {
     const n = typeof value === 'number' ? value : null;
@@ -371,12 +450,16 @@ export function runReportArchetype(
     }));
   const intelligence = {
     ...legacyIntelligence,
-    findings: [...calculationFindings, ...legacyIntelligence.findings],
-    risks: [...calculationFindings.filter((finding) => finding.kind === 'RISK'), ...legacyIntelligence.risks],
-    signals: [...calculationSignals, ...legacyIntelligence.signals],
-    recommendations: [...calculationRecommendations, ...legacyIntelligence.recommendations],
+    findings: [...kernelFindings, ...calculationFindings, ...legacyIntelligence.findings],
+    risks: [...kernelFindings, ...calculationFindings.filter((finding) => finding.kind === 'RISK'), ...legacyIntelligence.risks],
+    signals: [...kernelSignals, ...calculationSignals, ...legacyIntelligence.signals],
+    recommendations: [...kernelRecommendations, ...calculationRecommendations, ...legacyIntelligence.recommendations],
     calculations,
-    limitations: calculations.filter((item) => item.availabilityState !== 'CALCULATED').map((item) => item.metricId + ':' + item.availabilityState),
+    kernel,
+    limitations: [
+      ...kernel.unknowns.map((item) => 'kernel:' + item),
+      ...calculations.filter((item) => item.availabilityState !== 'CALCULATED').map((item) => item.metricId + ':' + item.availabilityState),
+    ],
   };
   const modelSignalPresent = intelligence.signals.some((signal) => signal.id === 'model:' + profile.id);
   const modelRecommendationPresent = intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id);

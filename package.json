@@ -205,6 +205,8 @@
     "test:commercial-onboarding-experience": "node scripts/commercial-onboarding-experience.test.mjs",
     "test:commercial-login-value-surface": "node scripts/commercial-login-value-surface.test.mjs",
     "test:real-48-source-matrix": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs",
-    "test:real-48-source-matrix-contract": "node scripts/real-48-source-matrix-contract.test.mjs"
+    "test:real-48-source-matrix-contract": "node scripts/real-48-source-matrix-contract.test.mjs",
+    "test:aghbari-intelligence-kernel-contract": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-aghbari-intelligence-kernel-contract.mjs",
+    "test:aghbari-intelligence-kernel-real-source": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-aghbari-intelligence-kernel-real-source.mjs"
   }
 }

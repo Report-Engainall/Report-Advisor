@@ -4,6 +4,7 @@ import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 import { persistAndReadBackCalculations, type CalculationPersistenceResult } from './report-intelligence/calculation-persistence.ts';
 import type { CalculationResult } from './report-intelligence/calculation-capability-registry.ts';
+import type { AghbariIntelligenceKernelResult } from './report-intelligence/aghbari-intelligence-kernel.ts';
 
 export type ReportRequestOptions = { signal?: AbortSignal };
 
@@ -37,6 +38,7 @@ export type SmartReportCatalogItem = {
 
 type SmartReportIntelligence = ReportIntelligence & {
   calculations?: CalculationResult[];
+  kernel?: AghbariIntelligenceKernelResult;
   limitations?: string[];
 };
 
@@ -964,7 +966,23 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           };
 
       const calculations = intelligence.calculations ?? [];
-      if (archetypeRun.state === 'SUPPORTED' && calculations.length > 0) {
+      const calculationsForPersistence = calculations.map((calculation) => ({
+        ...calculation,
+        details: {
+          ...(calculation.details ?? {}),
+          kernel: intelligence.kernel ? {
+            version: intelligence.kernel.version,
+            status: intelligence.kernel.status,
+            quality: intelligence.kernel.quality,
+            anomalyCount: intelligence.kernel.anomalies.length,
+            scenarioCount: intelligence.kernel.scenarios.length,
+            sensitivityCount: intelligence.kernel.sensitivity.length,
+            blindSpot: intelligence.kernel.blindSpot,
+            trace: intelligence.kernel.trace.map((entry) => ({ stage: entry.stage, status: entry.status, output: entry.output })),
+          } : null,
+        },
+      }));
+      if (archetypeRun.state === 'SUPPORTED' && calculationsForPersistence.length > 0) {
         calculationPersistence = await persistAndReadBackCalculations({
           tenantId: companyId,
           reportExecutionJobId: String(job.id),
@@ -973,7 +991,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
           archetypeId: detectedArchetype.profile.id,
           profileVersion: detectedArchetype.profile.version,
-          calculations,
+          calculations: calculationsForPersistence,
         });
 
         if (calculationPersistence.status !== 'VERIFIED') {
