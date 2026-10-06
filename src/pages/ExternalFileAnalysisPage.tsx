@@ -9,12 +9,77 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
+import { deriveReportIntelligence, type ReportIntelligence } from '@/lib/report-intelligence/report-smart-insights';
 
 function fileIcon(format: FileFormat) {
   if (['xlsx','xls','xlsm','csv','tsv','ods'].includes(format)) return <FileSpreadsheet size={18}/>;
   if (['pdf','docx','doc','rtf','txt','markdown'].includes(format)) return <FileText size={18}/>;
   if (['jpg','jpeg','png','webp','tiff','bmp'].includes(format)) return <FileImage size={18}/>;
   return <FileText size={18}/>;
+}
+
+function inferSpecialty(dataset: Dataset): 'inventory' | 'sales' | 'purchases' | 'receivables' | 'payments' | undefined {
+  const mapped = new Set(dataset.columns.map((column) => column.mappedField).filter(Boolean));
+  if (mapped.has('current_stock') || mapped.has('stockout_days') || mapped.has('daily_sales_rate')) return 'inventory';
+  if (mapped.has('supplier_name') && (mapped.has('total') || mapped.has('net_amount'))) return 'purchases';
+  if (mapped.has('balance') && (mapped.has('paid_amount') || mapped.has('credit'))) return 'receivables';
+  if (mapped.has('paid_amount') && !mapped.has('total') && !mapped.has('net_amount')) return 'payments';
+  if (mapped.has('customer_name') && (mapped.has('total') || mapped.has('net_amount') || mapped.has('sales_qty'))) return 'sales';
+  if (mapped.has('sales_qty') && (mapped.has('product_name') || mapped.has('sku'))) return 'inventory';
+  return undefined;
+}
+
+function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
+  const specialty = inferSpecialty(dataset);
+  return deriveReportIntelligence({
+    specialty,
+    rowCount: dataset.rowCount,
+    sourceAnalysis: { datasets: [dataset] },
+    canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
+  });
+}
+
+function PreviewIntelligenceCard({ intelligence }: { intelligence: ReportIntelligence }) {
+  const brief = intelligence.advisorBrief;
+  const healthLabel = brief.health === 'REVIEW_REQUIRED' ? 'يحتاج تدخلًا' : brief.health === 'ATTENTION' ? 'انتباه' : 'مستقر';
+  const top = brief.topRisk ?? brief.topFinding ?? brief.topOpportunity;
+  return <Card className="border-emerald-200 bg-emerald-50/40">
+    <CardHeader
+      title="التقرير الاستشاري الأولي"
+      subtitle="النتيجة مشتقة مباشرة من صفوف الملف نفسه؛ لا توجد أرقام ملخصة خارج المصدر."
+      action={<Badge variant={brief.health === 'REVIEW_REQUIRED' ? 'danger' : brief.health === 'ATTENTION' ? 'warning' : 'success'}>{healthLabel}</Badge>}
+    />
+    <CardBody>
+      <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]">
+        <div className="rounded-2xl border border-ink-100 bg-white p-5">
+          <div className="text-[10px] font-black tracking-[.08em] text-primary-700">EXECUTIVE JUDGMENT</div>
+          <h3 className="mt-2 text-lg font-black text-ink-950">{brief.headline}</h3>
+          <p className="mt-2 text-sm leading-6 text-ink-600">{intelligence.businessQuestion}</p>
+          {top && <div className="mt-4 rounded-xl border border-ink-100 bg-ink-50/50 p-4">
+            <div className="text-xs font-black text-ink-700">{top.title}</div>
+            <p className="mt-1 text-sm leading-6 text-ink-700">{top.statement}</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+              {top.evidence.slice(0, 3).map((evidence) => <span key={evidence} className="rounded-lg bg-white px-2.5 py-1.5 text-ink-500">{evidence}</span>)}
+            </div>
+          </div>}
+        </div>
+        <div className="space-y-3">
+          <div className="rounded-2xl border border-primary-100 bg-primary-50 p-4">
+            <div className="text-xs font-black text-primary-900">ماذا نفعل الآن؟</div>
+            <p className="mt-1 text-sm leading-6 text-primary-900">{brief.recommendedAction ?? 'لا توجد توصية تنفيذية كافية من الحقول المتاحة.'}</p>
+          </div>
+          <div className="rounded-2xl border border-ink-100 bg-white p-4 text-sm">
+            <div><span className="font-black">المالك:</span> {brief.ownerHint}</div>
+            <div className="mt-2"><span className="font-black">القياس:</span> {brief.measurement ?? 'يحتاج تعريف مؤشر قبل اعتماد القرار.'}</div>
+            <div className="mt-2"><span className="font-black">المتوقع:</span> {brief.expectedOutcome ?? 'لا توجد نتيجة متوقعة مثبتة.'}</div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+        <b>حد الدليل:</b> {brief.proofRequirement} {intelligence.guidance.boundary}
+      </div>
+    </CardBody>
+  </Card>;
 }
 
 function downloadCsv(dataset: Dataset) {
@@ -62,6 +127,7 @@ export function ExternalFileAnalysisPage() {
   }
 
   const dataset = datasets[active] ?? null;
+  const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
     unmapped: dataset.columns.filter(c => !c.mappedField).length,
@@ -99,6 +165,7 @@ export function ExternalFileAnalysisPage() {
         </button>
       </div>
     </CardBody></Card>}
+    {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {datasets.length > 1 && <Card><CardBody><div className="flex gap-2 overflow-x-auto">{datasets.map((d,i)=><button key={`${d.id}-${i}`} type="button" aria-pressed={i===active} onClick={()=>setActive(i)} className={`whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-semibold ${i===active?'border-primary-500 bg-primary-50 text-primary-700':'border-ink-200 bg-white text-ink-600'}`}>ورقة/مجموعة {i+1}: {d.name}</button>)}</div></CardBody></Card>}
     {dataset && <>
