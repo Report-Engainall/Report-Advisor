@@ -1,12 +1,12 @@
 SESSION HANDOFF = READY
-UPDATED_AT = 2026-10-06T21:19:00+03:00
-CURRENT_EXACT_HEAD = 21c4ff3d48eba39c5da59dffdd33aca1105c825f
-CURRENT_EXACT_PRODUCT_HEAD = 21c4ff3d48eba39c5da59dffdd33aca1105c825f
+UPDATED_AT = 2026-10-06T21:25:00+03:00
+CURRENT_EXACT_HEAD = daafd255ab7ac68c36568d1665202cdf578a25a9
+CURRENT_EXACT_PRODUCT_HEAD = daafd255ab7ac68c36568d1665202cdf578a25a9
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
 PR_BASE = a6d034e05172189d278e689eb01a0c86454f529e
 BRANCH = fix/real-data-visible-surfaces-20261006
 PR = #855
-ACTION_STATUS = ACTIVE_EXECUTION_BUILD_BROWSER_CERTIFICATION
+ACTION_STATUS = ACTIVE_EXECUTION_SOURCE_FIRST_BROWSER_CERTIFICATION
 
 FIRST_ACTIVE_FAILURE_1 = Exact-head authenticated Chromium showed the Smart Report itself rendered real data, while the landing route failed to settle because the broad Smart Report catalog read emitted TypeError: Failed to fetch during auth/session convergence.
 ROOT_CAUSE_1 = Landing depended on a 60-item Smart Report catalog fan-out before reading the designated source; transient/network timeout during that fan-out prevented the primary card from painting.
@@ -44,12 +44,12 @@ OPEN_REPORT_DB_STATE = completed / rendered
 OPEN_REPORT_CANONICAL_ROWS = 6776
 OPEN_REPORT_CANONICAL_COMMITTED = 6776
 
-WHAT_IS_PROVEN = CanonicalField typing regression is fixed in 21c4. Netlify preview status is successful for the PR lineage. Current Product Build and browser gates are still in progress/queued.
+WHAT_IS_PROVEN = 6cc664 removed catalog dependency from the primary Reports Center source read; 21c fixed CanonicalField semantics. Current-head build and browser gates are not yet terminal.
 CHANGED_FILES_88C75 = scripts/check-executive-dashboard-ui-contract.mjs
 CHANGE_88C75 = Replaced stale assertions requiring fetchDashboardSnapshot/fetchDashboardIntelligence with source-bound Smart Report contract assertions and explicit negative assertions against those legacy calls.
-WHAT_IS_NOT_YET_PROVEN = Current-head Product Build terminal PASS, current-head authenticated browser visual PASS, Full Product Browser terminal PASS, Final Certification terminal PASS, customer-sale readiness.
+WHAT_IS_NOT_YET_PROVEN = Current-head Product Build PASS, authenticated browser visual PASS, Full Product Browser PASS, Final Certification PASS, and customer-sale readiness.
 DO_NOT_REPEAT = No rebuild; no synthetic truth; no weakening trust/security/browser contracts; no stale-SHA PASS reuse; no generic source/job selection.
-NEXT_EXACT_ACTION = Consume 21c current-head Build/Browser/Certification terminals; fix the first terminal failure only, then update the report/state to the new exact head.
+NEXT_EXACT_ACTION = Consume daafd255 current-head Product Build/Browser/Certification results; fix the first terminal failure only, then verify Preview 855 source-first loading.
 
 
 RUNTIME_REPAIR_6DBD674 = Dashboard landing no longer depends on get_dashboard_snapshot; Calculation Persistence tenant mismatch is fail-soft and remains database/RLS constrained.
@@ -72,3 +72,5 @@ CURRENT_PRODUCT_FIX_EFACF = Unsupported archetype output fails closed; evidence-
 CURRENT_UI_FIX_8DE842 = Customer-facing evidence labels are humanized; raw evidence strings are kept behind a technical audit disclosure.
 
 CURRENT_CODE_FIX_21C4 = Legacy report field names are translated to official CanonicalField schema values only; the union type is not widened.
+
+CURRENT_RUNTIME_FIX_6CC664 = Direct source-hash-bound Smart Report is read independently from the 60-item catalog; catalog is enrichment only.
