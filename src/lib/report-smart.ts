@@ -2,6 +2,9 @@ import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
+import { persistAndReadBackCalculations, type CalculationPersistenceResult } from './report-intelligence/calculation-persistence.ts';
+import type { CalculationResult } from './report-intelligence/calculation-capability-registry.ts';
+import type { AghbariIntelligenceKernelResult } from './report-intelligence/aghbari-intelligence-kernel.ts';
 
 export type ReportRequestOptions = { signal?: AbortSignal };
 
@@ -31,6 +34,12 @@ export type SmartReportCatalogItem = {
   outcomeStatus: string | null;
   learningStatus: string | null;
   completedAt: string | null;
+};
+
+type SmartReportIntelligence = ReportIntelligence & {
+  calculations?: CalculationResult[];
+  kernel?: AghbariIntelligenceKernelResult;
+  limitations?: string[];
 };
 
 export type SmartReportDetail = SmartReportCatalogItem & {
@@ -67,7 +76,8 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
-  intelligence: ReportIntelligence;
+  intelligence: SmartReportIntelligence;
+  calculationPersistence: CalculationPersistenceResult | null;
   runtimeWarnings?: string[];
 };
 
@@ -912,14 +922,40 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     availableFields,
   });
 
-  let intelligence: ReportIntelligence = baseIntelligence;
+  let intelligence: SmartReportIntelligence = baseIntelligence;
   let archetypeState = detectedArchetype.state;
+  let calculationPersistence: CalculationPersistenceResult | null = null;
 
   if (!intelligenceEligible) {
     archetypeState = 'REVIEW_REQUIRED';
     intelligence = emptyReportIntelligence(specialty);
   } else if (detectedArchetype.profile) {
     try {
+      const { runCalculationRegistry } = await import('./report-intelligence/calculation-capability-registry.ts');
+      const calculationRegistryResults = runCalculationRegistry({
+        rows: canonicalRows,
+        archetypeId: detectedArchetype.profile.id,
+        includeUnavailable: true,
+      });
+      const { runAghbariIntelligenceKernel, compileKernelReportIntegration } = await import('./report-intelligence/aghbari-intelligence-kernel.ts');
+      const kernel: AghbariIntelligenceKernelResult = runAghbariIntelligenceKernel({
+        rows: canonicalRows,
+        specialty: detectedArchetype.profile.adapterSpecialty,
+        qualityScore: Number((sourceAnalysis as { qualityScore?: unknown } | null | undefined)?.qualityScore ?? 100),
+        canonicalRowsComplete: true,
+        evidenceReady: Boolean(effectiveRendered.evidenceSnapshotId || effectiveRendered.evidencePassportId),
+        provenance: {
+          tenantId: companyId,
+          sourceHash: String(job.source_hash ?? ''),
+          reportExecutionJobId: String(job.id),
+          evidenceSnapshotId: typeof effectiveRendered.evidenceSnapshotId === 'string' ? effectiveRendered.evidenceSnapshotId : null,
+          evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
+        },
+      });
+      const kernelIntegration = compileKernelReportIntegration(kernel, {
+        domain: detectedArchetype.profile.domain,
+        recommendationFocus: detectedArchetype.profile.recommendationFocus,
+      });
       const archetypeRun = runReportArchetype({
         intelligence: baseIntelligence,
         provenance: {
@@ -934,6 +970,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         sampleSize: effectiveRendered.rowCount == null ? 0 : Number(effectiveRendered.rowCount),
         archetypeId: detectedArchetype.profile.id,
         profileVersion: detectedArchetype.profile.version,
+        calculations: calculationRegistryResults,
+        kernel,
+        kernelIntegration,
         report: {
           specialty,
           rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
@@ -945,7 +984,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
       archetypeState = archetypeRun.state;
       intelligence = archetypeRun.state === 'SUPPORTED'
-        ? archetypeRun.intelligence
+        ? archetypeRun.intelligence as SmartReportIntelligence
         : {
             ...baseIntelligence,
             advisorBrief: {
@@ -953,6 +992,45 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
               headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح دون اعتماد النموذج المتخصص.',
             },
           };
+
+      const calculations = intelligence.calculations ?? [];
+      const calculationsForPersistence = calculations.map((calculation) => ({
+        ...calculation,
+        details: {
+          ...(calculation.details ?? {}),
+          kernel: intelligence.kernel ? {
+            version: intelligence.kernel.version,
+            status: intelligence.kernel.status,
+            quality: intelligence.kernel.quality,
+            anomalyCount: intelligence.kernel.anomalies.length,
+            scenarioCount: intelligence.kernel.scenarios.length,
+            sensitivityCount: intelligence.kernel.sensitivity.length,
+            blindSpot: intelligence.kernel.blindSpot,
+            trace: intelligence.kernel.trace.map((entry) => ({ stage: entry.stage, status: entry.status, output: entry.output })),
+          } : null,
+        },
+      }));
+      if (archetypeRun.state === 'SUPPORTED' && calculationsForPersistence.length > 0) {
+        calculationPersistence = await persistAndReadBackCalculations({
+          tenantId: companyId,
+          reportExecutionJobId: String(job.id),
+          sourceHash: String(job.source_hash ?? ''),
+          evidenceSnapshotId: typeof effectiveRendered.evidenceSnapshotId === 'string' ? effectiveRendered.evidenceSnapshotId : null,
+          evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
+          archetypeId: detectedArchetype.profile.id,
+          profileVersion: detectedArchetype.profile.version,
+          calculations: calculationsForPersistence,
+        });
+
+        if (calculationPersistence.status !== 'VERIFIED') {
+          archetypeState = 'REVIEW_REQUIRED';
+          runtimeWarnings.push(
+            'تعذر إثبات حفظ نتائج Calculation Capability أو قراءتها مرة أخرى: ' +
+            calculationPersistence.status +
+            (calculationPersistence.mismatches.length ? ' — ' + calculationPersistence.mismatches.join(', ') : ''),
+          );
+        }
+      }
     } catch (error) {
       runtimeWarnings.push('تعذر تشغيل النموذج المتخصص لهذا المصدر؛ تم الإبقاء على الذكاء المصدرّي المتاح وحالة المراجعة.');
       console.error('[SmartReport] runReportArchetype failed', error);
@@ -1000,6 +1078,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     archetypeReason: detectedArchetype.reason,
     signalStatus: runtimeSignalStatus,
     intelligenceStatus: runtimeIntelligenceStatus,
+    calculationPersistenceStatus: calculationPersistence?.status ?? 'NOT_RUN',
+    calculationPersistedCount: calculationPersistence?.persistedCount ?? 0,
+    calculationReadBackCount: calculationPersistence?.readBackCount ?? 0,
   };
 
   return {
@@ -1023,6 +1104,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: runtimeRendered,
+    calculationPersistence,
     sourceAnalysis,
     authoritativeCurrentRowCount,
     canonicalCommitGap,
