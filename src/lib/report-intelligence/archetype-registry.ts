@@ -1,9 +1,9 @@
-import { matchCanonicalField, type CanonicalField } from './canonical-schema';
-import type { KernelReportIntegration } from './aghbari-intelligence-kernel';
-import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator';
-import { deriveReportIntelligence } from './report-smart-insights';
-import { applyArchetypeRuleSet } from './archetype-evaluator';
-import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map';
+import { matchCanonicalField, type CanonicalField } from './canonical-schema.ts';
+import type { KernelReportIntegration } from './aghbari-intelligence-kernel.ts';
+import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator.ts';
+import { deriveReportIntelligence } from './report-smart-insights.ts';
+import { applyArchetypeRuleSet } from './archetype-evaluator.ts';
+import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map.ts';
 
 export type ArchetypeDomain =
   | 'sales'
