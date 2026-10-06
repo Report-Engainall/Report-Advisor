@@ -1,24 +1,24 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = da322226e144672faae61ae243711aa77c23905b
-UPDATED_AT = 2026-10-06T08:25:00+03:00
+REPORT_FOR_HEAD = 9e1d781053b9f3b105cbf4b6b0ac713da2e8dd0a
+UPDATED_AT = 2026-10-06T08:33:00+03:00
 BRANCH = feat/calculation-capability-engine-20261006
 PR = #850
 BASE = a6d034e05172189d278e689eb01a0c86454f529e
 CURRENT_PRODUCT_CODE_HEAD = 16f23f2724c7e570b24a7e46680a6aed558a9886
 CURRENT_MAIN_HEAD = a6d034e05172189d278e689eb01a0c86454f529e
-CURRENT_BRANCH_HEAD = da322226e144672faae61ae243711aa77c23905b
+CURRENT_BRANCH_HEAD = 9e1d781053b9f3b105cbf4b6b0ac713da2e8dd0a
 
 WHAT_I_WAS_ASKED_TO_DO = Continue the existing product from the exact current head without rebuilding it; close only the first proven failure, preserve the real-source intelligence/calculation/evidence chain, expose the result in the customer journey, and keep exact-head proof truthful.
 
-WHAT_I_ACTUALLY_DID = Fixed the first newly proven Smart Report refresh-readback gap by isolating browser telemetry per page. The existing trust-label and route-settlement harness repairs remain intact; calculation-registry correction remains covered by the canonical regression.
+WHAT_I_ACTUALLY_DID = After fixing browser telemetry per page, consumed the product-level evidence and repaired the Smart Report assembly contract so REVIEW_REQUIRED no longer erases real Kernel/calculation intelligence.
 
 WHAT_IS_PROVEN = Direct real-source evidence for تقارير ادارية.xlsx remains: job 16709d80-e012-40ef-9c12-6fd8255897f8, source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313, 332 rows, quality 98, stock 23075, demand 324250, baseline coverage 0.07116422513492675405, demand+15% coverage 0.06188193489993630787, Evidence Passport VERIFIED/READY/ACCEPTED. Open report d074ad5c-70d4-4402-a763-01129786f392 is completed/rendered with 6776 canonical rows. Calculation registry truth remains fail-closed where cost evidence is absent: inventory stock value and amount sum are NOT_AVAILABLE.
 
-FIRST_ACTIVE_FAILURE = Exact-head Full Product Browser run 37416063515 exposed E2E-REPORT-014: Smart Report refresh readback reported NOT_PROVEN although the initial Smart Report settlement rendered all required surfaces and had zero pending requests.
+FIRST_ACTIVE_FAILURE = Exact-head Smart Report browser proof exposed a real product readback defect: runReportArchetype produced calculation/kernel intelligence while report-smart.ts discarded it whenever archetypeState was not SUPPORTED.
 
-ROOT_CAUSE = scripts/run-full-product-browser-e2e.mjs stored pendingDataRequests and dataRequestsSeen globally while the browser proof uses multiple concurrent Playwright pages. Requests from another page could contaminate the Smart Report page's refresh settlement window, making the page-level readback gate non-deterministic.
+ROOT_CAUSE = src/lib/report-smart.ts replaced archetypeRun.intelligence with baseIntelligence for REVIEW_REQUIRED/INSUFFICIENT_SAMPLE/other non-SUPPORTED states, hiding real calculations, kernel findings, signals and recommendations even though runReportArchetype had produced them.
 
-REPAIR_PROOF = Commit da322226e144672faae61ae243711aa77c23905b moves pending-request and request-count state into WeakMaps keyed by Playwright Page and updates route/readback baselines to use the target page only. No product truth, calculation authority, database schema, tenant binding, or customer data was changed.
+REPAIR_PROOF = Commit 9e1d781053b9f3b105cbf4b6b0ac713da2e8dd0a now preserves archetypeRun.intelligence for every real execution state and changes only the advisor headline/health for non-SUPPORTED states. Decision eligibility remains separate from intelligence availability; no synthetic trust or weakened E2E was introduced.
 
 OTHER_CURRENT_GATES = Exact-head run 37416063515 (Full Product Browser E2E) is in progress. On the same head, Product Build Gate, canonical/truth/security contracts, Commercial Product Creation E2E, Evidence Passport Gate Live Proof, inventory intelligence truth, semantic/runtime contracts and related gates are passing. Separate Device-Independent Browser E2E and Phase-F live resilience runs are currently failed; they will be treated after the first current-head failure is consumed, not mixed into this first-failure repair.
 
@@ -32,4 +32,4 @@ REMAINING_OPEN = Consume Full Product Browser E2E 37416063515; repair first new 
 
 DO_NOT_REPEAT = Do not rebuild from zero, do not substitute synthetic report data, do not weaken trust/evidence checks, do not hide missing states with defaults, and do not declare sale-ready from contract PASS alone.
 
-NEXT_EXACT_ACTION = Consume the new exact-head Full Product Browser E2E on da322226. First failure only; then continue through authenticated Smart Report/readback, Decision/Approval/Work/Outcome/Learning, Benchmark, exact-head 48/48 real-source matrix and final certification.
+NEXT_EXACT_ACTION = Consume the new exact-head Browser E2E on 9e1d781; verify the Smart Report after refresh shows source, calculations, Kernel, signals/recommendations and truthful trust/readiness; then consume the first remaining failure toward Decision/Work/Outcome/Learning, Benchmark, 48/48 and certification.
