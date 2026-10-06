@@ -149,6 +149,15 @@ function SourceBoundCommandCenter({
         </div>
       </section>
 
+      <div className="sticky top-3 z-20 rounded-[18px] border border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur" aria-label="تنقل مركز القيادة">
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => document.getElementById('command-focus')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="rounded-xl bg-slate-950 px-3 py-2 text-[10px] font-black text-white">القضية الآن</button>
+          <button type="button" onClick={() => document.getElementById('command-data')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black text-slate-700 hover:bg-slate-50">البيانات</button>
+          <button type="button" onClick={() => document.getElementById('command-work')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black text-slate-700 hover:bg-slate-50">التنفيذ</button>
+          <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mr-auto rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-[10px] font-black text-indigo-800">فتح القرار</Link>
+        </div>
+      </div>
+
       <div className="ag-decision-strip" aria-label="ملخص الحقيقة الحالية">
         <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{formatNumber(rowCount)}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الرصيد المصدرّي</span><span className="ag-decision-value">{stock == null ? 'غير متاح' : formatNumber(stock)}</span></div>
@@ -172,7 +181,7 @@ function SourceBoundCommandCenter({
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+      <section id="command-focus" className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
         <Card variant="action">
           <CardHeader kicker="أهم قضية الآن" title={signal?.title ?? 'لا توجد إشارة استثنائية مثبتة'} subtitle={signal?.message ?? 'لا توجد إشارة أعمال أقوى مثبتة من المصدر الحالي.'} />
           <CardBody>
@@ -220,7 +229,7 @@ function SourceBoundCommandCenter({
         <Card><CardBody><div className="text-[9px] text-ink-400">نتائج مسجلة</div><div className="mt-1 text-2xl font-black">{outcomes.length}</div><div className="mt-2 text-[10px] text-ink-500">{outcomes[0]?.notes ?? 'لا توجد نتيجة فعلية مثبتة بعد.'}</div></CardBody></Card>
       </section>
 
-      <section className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <section id="command-work" className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
         <div className="flex items-center justify-between gap-3"><div><div className="section-kicker">من الانتباه إلى الإجراء</div><h2 className="mt-1 text-lg font-black">الأعمال المرتبطة بالقضية</h2></div><Link to="/work-center" className="btn-ghost text-[10px]">فتح كل الأعمال <ArrowUpLeft size={13}/></Link></div>
         <div className="mt-4">
           {actionWorkItems.length === 0
@@ -237,7 +246,7 @@ function SourceBoundCommandCenter({
         </div>
       </section>
 
-      <section className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card">
+      <section id="command-data" className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><div className="section-kicker">عينة المصدر</div><h2 className="mt-1 text-lg font-black">صفوف حقيقية من التقرير</h2></div><Link to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">عرض كل الصفوف <ArrowUpLeft size={13}/></Link></div>
         <div className="mt-3 overflow-x-auto rounded-xl border border-ink-200">
           {report.canonicalRows.slice(0, 6).length > 0 ? (
