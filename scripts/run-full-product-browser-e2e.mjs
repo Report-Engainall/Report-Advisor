@@ -298,6 +298,16 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         busy,
         smartSignalSurfacePresent: text.includes('الإشارات'),
         smartAdvisorSurfacePresent: text.includes('المستشار'),
+        smartKernelSurfacePresent: Boolean(document.querySelector('[data-testid="aghbari-intelligence-kernel-surface"]')),
+        smartKernelSourceMetricsPresent:
+          Boolean(document.querySelector('[data-testid="kernel-stock-baseline"]')) &&
+          Boolean(document.querySelector('[data-testid="kernel-demand-baseline"]')) &&
+          Boolean(document.querySelector('[data-testid="kernel-coverage-baseline"]')),
+        smartKernelCertifiedValuesPresent:
+          Boolean(document.querySelector('[data-testid="kernel-stock-baseline"]')) &&
+          Boolean(document.querySelector('[data-testid="kernel-demand-baseline"]')) &&
+          document.querySelector('[data-testid="kernel-stock-baseline"]')?.textContent?.includes('23,075') &&
+          document.querySelector('[data-testid="kernel-demand-baseline"]')?.textContent?.includes('324,250'),
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
         smartJobIdPresent: text.includes(smartReportJobId),
@@ -343,6 +353,9 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       (state.textLength > 120 && state.realReportSourcePresent);
     const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
     const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
+    const smartKernelSurfacePresent = !isSmartReport || state.smartKernelSurfacePresent;
+    const smartKernelSourceMetricsPresent = !isSmartReport || state.smartKernelSourceMetricsPresent;
+    const smartKernelCertifiedValuesPresent = !isSmartReport || state.smartKernelCertifiedValuesPresent;
     const smartDecisionChainPresent = !isSmartReport || state.smartDecisionChainPresent;
     const smartDecisionCardsComplete = !isSmartReport || state.smartDecisionCards.length === 6;
     const smartJobIdPresent = !isSmartReport || state.smartJobIdPresent;
@@ -358,6 +371,9 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       !state.busy &&
       smartSignalSurfacePresent &&
       smartAdvisorSurfacePresent &&
+      smartKernelSurfacePresent &&
+      smartKernelSourceMetricsPresent &&
+      smartKernelCertifiedValuesPresent &&
       smartDecisionChainPresent &&
       smartDecisionCardsComplete &&
       smartJobIdPresent &&
