@@ -1245,12 +1245,33 @@ function buildAdvisorBrief(
 ): AdvisorBrief {
   const specialty = text(report.specialty);
   const executiveSignal = selectExecutiveSignal({ signals });
-  const topFinding = business.findings.find((finding) => {
+  const executiveRecommendation = selectExecutiveRecommendation({ signals, recommendations }, executiveSignal);
+
+  // The executive brief must have one authority for priority. Previously the
+  // headline used selectExecutiveSignal while topFinding/topRisk came from
+  // independently ordered business arrays, producing contradictory cards.
+  const signalFinding: BusinessFinding | null = executiveSignal
+    ? {
+        id: 'executive:' + executiveSignal.id,
+        kind: executiveSignal.severity === 'critical' || executiveSignal.severity === 'high' ? 'RISK' : 'FINDING',
+        priority: executiveSignal.severity === 'critical' || executiveSignal.severity === 'high' ? 'high' : 'medium',
+        title: executiveSignal.title,
+        statement: executiveSignal.message,
+        value: executiveSignal.affectedRows ?? null,
+        unit: executiveSignal.affectedRows != null ? 'سجلات' : null,
+        evidence: executiveSignal.evidence ?? [],
+        limitation: 'هذه إشارة تحليلية للمراجعة وليست إثباتًا سببيًا.',
+        action: executiveRecommendation?.action ?? 'راجع الدليل المرتبط قبل اعتماد الإجراء.',
+      }
+    : null;
+
+  const fallbackFinding = business.findings.find((finding) => {
     const evidence = finding.evidence ?? [];
     const haystack = [finding.title, finding.statement, ...evidence].join(' ');
     return !(/غير محدد/.test(haystack) && evidence.some((item) => /^dimensionField=|^dimensionValue=/.test(item)));
   }) ?? null;
-  const topRisk = business.risks[0] ?? null;
+  const topFinding = signalFinding ?? fallbackFinding;
+  const topRisk = signalFinding?.kind === 'RISK' ? signalFinding : business.risks[0] ?? null;
   const topOpportunity = business.opportunities[0] ?? null;
   const highImpactSignal = signals.some((signal) => signal.severity === 'critical' || signal.severity === 'high');
   const materialReviewSignal = signals.some((signal) => {
@@ -1267,7 +1288,6 @@ function buildAdvisorBrief(
         : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
           ? 'ATTENTION'
           : 'HEALTHY';
-  const executiveRecommendation = selectExecutiveRecommendation({ signals, recommendations }, executiveSignal);
   const recommendedAction = executiveRecommendation?.action ?? topRisk?.action ?? topFinding?.action ?? topOpportunity?.action ?? null;
   const headline = executiveSignal?.message
     ?? topRisk?.statement
