@@ -586,7 +586,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     const dates = findColumn(columns, ['invoice_date', 'date', 'التاريخ']);
     if (!amount) addSignal(signals, specialty + ':amount-missing', 'high', 'القيمة المالية الأساسية غير واضحة', 'لا يوجد حقل مالي موثّق بما يكفي لإصدار إجمالي آمن.', ['amountField=missing']);
     if (!dates) addSignal(signals, specialty + ':date-missing', 'medium', 'الفترة الزمنية غير مثبتة', 'لا يوجد حقل تاريخ واضح؛ لذلك لا يصح بناء اتجاه زمني من هذا المصدر وحده.', ['dateField=missing']);
-    if (!person) addSignal(signals, specialty + ':party-missing', 'medium', specialty === 'sales' ? 'هوية العميل غير متاحة' : 'هوية المورد غير متاحة', specialty === 'sales' ? 'لا يمكن توزيع التركّز على العملاء دون حقل عميل.' : 'لا يمكن تقييم تركّز المشتريات دون هوية مورد.', ['partyField=missing']);
+    if (!person) addSignal(signals, specialty + ':party-missing', 'medium', specialty === 'sales' ? 'هوية العميل غير متاحة' : 'هوية المورد غير متاحة', specialty === 'sales' ? 'لا يمكن توزيع التركيّز على العملاء دون حقل عميل.' : 'لا يمكن تقييم تركّز المشتريات دون هوية مورد.', ['partyField=missing']);
   } else if (specialty === 'receivables') {
     const balance = findColumn(columns, ['outstanding_balance', 'balance', 'receivable', 'الرصيد المستحق', 'المتبقي']);
     const age120 = findColumn(columns, ['age_over_120', 'over_120', '120']);
@@ -788,7 +788,7 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
     const recommendationTitle = isDemandPressure
       ? 'أعد ترتيب أولوية إعادة الطلب قبل قرار الشراء'
       : isSalesConcentration
-        ? 'أعد تقييم التركّز في المبيعات قبل اعتماد خطة النمو'
+        ? 'أعد تقييم التركيّز في المبيعات قبل اعتماد خطة النمو'
         : isPurchasesConcentration
           ? 'أعد تقييم تركّز المشتريات قبل اعتماد خطة التوريد'
           : 'راجع: ' + signal.title;
@@ -1022,8 +1022,8 @@ function deriveBusinessFindings(report: ReportInput): {
           evidence: [(specialty === 'sales' ? 'customerField=' : 'supplierField=') + partyKey, 'dimensionField=' + partyKey, 'valueField=' + amountKey, 'dimensionValue=' + top.dimension, 'dimensionValueTotal=' + top.value.toFixed(2), 'sourceTotal=' + total.toFixed(2)],
           limitation: 'التركيز الحسابي لا يثبت خطرًا تجاريًا بحد ذاته؛ يحتاج إلى تفسير حسب سياسة الشركة وتوزيع باقي القيمة.',
           action: specialty === 'sales'
-            ? 'راجع هذا العميل أولًا ضمن خطة المحافظة على الإيراد ومخاطر التركّز.'
-            : 'راجع هذا المورد أولًا ضمن خطة التركّز والشروط والأسعار والتوريد.',
+            ? 'راجع هذا العميل أولًا ضمن خطة المحافظة على الإيراد ومخاطر التركيّز.'
+            : 'راجع هذا المورد أولًا ضمن خطة التركيّز والشروط والأسعار والتوريد.',
         });
       }
     }
@@ -1355,10 +1355,10 @@ function deriveFindingRecommendations(business: { findings: BusinessFinding[]; r
       const limitation = finding.limitation;
 
       if (id === 'sales:top-party') {
-        title = 'ضع العميل الأعلى مساهمة تحت مراجعة التركّز';
+        title = 'ضع العميل الأعلى مساهمة تحت مراجعة التركيّز';
         action = 'راجع معاملات العميل الأعلى مساهمة، شروطه واتجاه مساهمته قبل اعتبار الاعتماد عليه مستقرًا.';
         whyNow = 'هذا العميل يمثل الحصة الأكبر من القيمة المحسوبة في المصدر الحالي.';
-        expectedOutcome = 'خطة متابعة واضحة للعميل وتقليل مفاجآت التركّز دون اختلاق توقع إيراد.';
+        expectedOutcome = 'خطة متابعة واضحة للعميل وتقليل مفاجآت التركيّز دون اختلاق توقع إيراد.';
         risk = 'خطر الاعتماد غير المرئي على عميل واحد إذا كانت الحصة المرتفعة غير مقصودة.';
       } else if (id === 'sales:period-decline-risk') {
         title = 'افتح سبب انخفاض المبيعات قبل اعتماد خطة تصحيح';
@@ -1374,7 +1374,7 @@ function deriveFindingRecommendations(business: { findings: BusinessFinding[]; r
         title = 'راجع العميل الأكثر تأثيرًا في تغير المبيعات';
         action = 'افتح معاملات العميل صاحب أكبر تغير وطابق السبب في المصدر قبل اعتماد خطة مبيعات.';
       } else if (id === 'purchases:top-party') {
-        title = 'ضع المورد الأعلى مساهمة تحت مراجعة التركّز';
+        title = 'ضع المورد الأعلى مساهمة تحت مراجعة التركيّز';
         action = 'راجع أسعار وشروط ومواعيد المورد الأعلى مساهمة قبل زيادة الاعتماد عليه.';
         whyNow = 'هذا المورد يمثل الحصة الأكبر من القيمة المحسوبة في المصدر الحالي.';
         expectedOutcome = 'صورة واضحة لتركيز المشتريات وشروط المورد المؤثر.';
@@ -1395,7 +1395,7 @@ function deriveFindingRecommendations(business: { findings: BusinessFinding[]; r
       } else if (id === 'receivables:concentration-risk') {
         title = 'ابدأ مراجعة التحصيل من العميل الأعلى تعرضًا';
         action = 'اربط حصة العميل الأعلى من الرصيد بعمر الدين وأحدث حركة سداد قبل اتخاذ إجراء تحصيلي.';
-        expectedOutcome = 'تحديد ما إذا كان التركّز يحتاج تدخلًا فعليًا أو مجرد متابعة.';
+        expectedOutcome = 'تحديد ما إذا كان التركيّز يحتاج تدخلًا فعليًا أو مجرد متابعة.';
         risk = 'خطر تركّز الذمم دون معرفة عمر الدين أو سلوك السداد.';
       } else if (id === 'profitability:margin') {
         title = 'حوّل الهامش إلى خريطة ربحية حسب المصدر';
