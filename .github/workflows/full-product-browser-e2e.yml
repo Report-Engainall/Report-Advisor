@@ -355,10 +355,9 @@ jobs:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           # The open report belongs to the certified real-report company f68a7e91...
-          # Actor A belongs to RUNTIME-EVIDENCE-A-401117 and is intentionally synthetic.
-          # Actor D is defaulted to the real tenant owning the open report job.
-          TEST_USER_A_EMAIL: ${{ env.TEST_USER_D_EMAIL }}
-          TEST_USER_A_PASSWORD: ${{ env.TEST_USER_D_PASSWORD }}
+          # The provisioning step persists Actor D into GITHUB_ENV. Do not overwrite the
+          # environment with expression-context values here; resume-open-report-server-proof.mjs
+          # deliberately falls back from TEST_USER_A_* to TEST_USER_D_*.
           OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
           OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
           OPEN_REPORT_EXPECTED_ROWS: '0'
