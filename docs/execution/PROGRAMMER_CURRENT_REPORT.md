@@ -1,5 +1,5 @@
 SESSION HANDOFF = NOT READY
-REPORT_FOR_HEAD = fabf6e60b38e3412d60af12f8b63a1f33e7608a8
+REPORT_FOR_HEAD = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51
 UPDATED_AT = 2026-10-06
 WHAT_I_WAS_ASKED_TO_DO = Continue from the exact product head, close proven failures, keep the Smart Report journey source-bound, and produce visible real-business results without rebuilding or fabricating PASS.
 
@@ -17,3 +17,5 @@ DO_NOT_REPEAT = Do not rebuild; do not delete prior work; do not fabricate unava
 NEXT_EXACT_ACTION = Run exact-head Product Build, Session Handoff and Device-Independent Browser on 56be225; if Chromium raises another terminal failure, fix only that first failure.
 
 LANDING_SOURCE_METRICS_20261006 = Source calculations are read from SmartReportDetail.intelligence.calculations only; unavailable values remain unavailable. The authoritative report currently has row.count=332, data.completeness=97.04%, data.numeric.outlier.rate=17.47%, row.duplicate.rate=0%, all source-bound with confidence 1.0.
+
+LANDING_UNIT_FORMAT_FIX = a742ade3d07d7cc3fba6f15b870f2bd91a69cf51 adds explicit source metric units: row count renders as number; completeness/outlier/duplicate render as percentages, not currency.
