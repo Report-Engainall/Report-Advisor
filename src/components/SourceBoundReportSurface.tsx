@@ -140,9 +140,19 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
         : 'open';
   const sourcePath = '/reports/smart/' + encodeURIComponent(report.jobId) +
     '?sourceHash=' + encodeURIComponent(report.sourceHash) + '#decision-evidence-inspector';
+  const reportContextQuery =
+    '?reportJobId=' + encodeURIComponent(report.jobId) +
+    '&sourceHash=' + encodeURIComponent(report.sourceHash);
   const recommendationQuery = decision.recommendationId
     ? '&recommendationId=' + encodeURIComponent(decision.recommendationId)
     : '';
+  const decisionPath = '/decision-experience?stage=decision&reportJobId=' +
+    encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash) + recommendationQuery;
+  const approvalPath = '/decision-experience?stage=approval&reportJobId=' +
+    encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash) + recommendationQuery;
+  const outcomePath = '/decision-experience?stage=outcome&reportJobId=' +
+    encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash) + recommendationQuery;
+  const workPath = '/work-center' + reportContextQuery + (decision.recommendationId ? '&recommendationId=' + encodeURIComponent(decision.recommendationId) : '');
   return (
     <section className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-5" aria-label="استمرار الرحلة">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -154,18 +164,18 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
         <Link to={sourcePath} className="btn-secondary text-[10px]">العودة إلى المصدر والدليل</Link>
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-        <Link to={'/decision-experience?stage=decision' + recommendationQuery} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
+        <Link to={decisionPath} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
           <div className="text-[9px] font-black text-primary-800">القرار</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.status)}</div>
           <div className="mt-1 text-[9px] text-ink-500">الدليل → التوصية → القرار</div>
         </Link>
-        <Link to={'/decision-experience?stage=approval' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة الموافقة">
+        <Link to={approvalPath} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة الموافقة">
           <div className="text-[9px] font-black text-ink-600">APPROVAL</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.approvalStatus)}</div>
           <div className="mt-1 text-[9px] text-ink-500">الحالة المحفوظة</div>
         </Link>
         {decision.workItemId ? (
-          <Link to={'/work-center?decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
+          <Link to={workPath + '&decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
             <div className="text-[9px] font-black text-ink-600">WORK</div>
             <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.workItemStatus)}</div>
             <div className="mt-1 text-[9px] text-ink-500">عنصر عمل مرتبط</div>
@@ -177,7 +187,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
             <div className="mt-1 text-[9px] text-warning-900">ينتظر الاعتماد الموثق</div>
           </div>
         )}
-        <Link to={'/decision-experience?stage=outcome' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
+        <Link to={outcomePath} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
           <div className="text-[9px] font-black text-ink-600">النتيجة والتعلّم</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.outcomeStatus)}</div>
           <div className="mt-1 text-[9px] text-ink-500">النتيجة والتعلم</div>
