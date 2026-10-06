@@ -380,8 +380,8 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       smartKernelSurfacePresent &&
       smartKernelSourceMetricsPresent &&
       smartKernelCertifiedValuesPresent &&
-      state.smartKernelReviewStatePresent &&
-      state.smartKernelExpectedCountsPresent &&
+      (!isSmartReport || state.smartKernelReviewStatePresent) &&
+      (!isSmartReport || state.smartKernelExpectedCountsPresent) &&
       smartDecisionChainPresent &&
       smartDecisionCardsComplete &&
       smartJobIdPresent &&
