@@ -15,6 +15,8 @@ import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { fetchDecisionWorkItems, fetchPendingDecisionApprovals, fetchRecentDecisionActivity, type DecisionActivityRecord, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import type { Alert, Recommendation } from '@/lib/types';
+import { fetchLatestSmartReportBySourceHash, type SmartReportDetail } from '@/lib/report-smart';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 
 function activityActionLabel(value: string | null | undefined): string {
   const normalized = String(value ?? '').trim().toLowerCase();
@@ -103,6 +105,152 @@ function AlertRow({ alert }: { alert: Alert }) {
   );
 }
 
+function SourceBoundCommandCenter({
+  report,
+  workItems,
+  outcomes,
+  pendingApprovals,
+}: {
+  report: SmartReportDetail;
+  workItems: DecisionWorkItemRecord[];
+  outcomes: DecisionOutcome[];
+  pendingApprovals: number;
+}) {
+  const signal = selectExecutiveSignal(report.intelligence);
+  const recommendation = selectExecutiveRecommendation(report.intelligence, signal);
+  const scenario = report.intelligence.kernel?.scenarios?.[0];
+  const rowCount = report.authoritativeCurrentRowCount ?? report.rowCount ?? 0;
+  const stock = scenario?.baseline?.stock ?? null;
+  const demand = scenario?.baseline?.demand ?? null;
+  const coverage = scenario?.baseline?.coverage ?? null;
+  const actionWorkItems = workItems.filter((item) => item.status === 'OPEN' || item.status === 'IN_PROGRESS');
+
+  return (
+    <div dir="rtl" className="ag-command-center-surface space-y-5 animate-fade-in pb-10">
+      <section className="rounded-[18px] border border-[#26344a] bg-[linear-gradient(135deg,#07111f,#153047)] p-5 text-white shadow-elevated lg:p-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-4xl">
+            <div className="flex items-center gap-2 text-[11px] font-black text-primary-200"><ShieldCheck size={15}/> مركز القيادة · مرتبط بالمصدر</div>
+            <h1 className="mt-2 text-[25px] font-black tracking-tight lg:text-[31px]">ما يؤثر على العمل الآن</h1>
+            <p className="mt-2 text-[12px] leading-6 text-slate-300">
+              هذه الصورة مبنية مباشرة على التقرير الحقيقي الحالي، وليست على لوحة مبيعات عامة. كل رقم وإشارة أدناه تعود إلى نفس المصدر والبصمة.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[11px]">فتح التقرير الكامل <ArrowUpLeft size={13}/></Link>
+            <Link to={'/trust?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[11px]">الدليل <ShieldCheck size={13}/></Link>
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-bold">
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{report.sourcePath}</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{formatNumber(rowCount)} صفًا</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">جودة المصدر {report.qualityScore == null ? 'غير متاحة' : Math.round(report.qualityScore) + '%'}</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{report.evidenceStatus === 'VERIFIED' ? 'الدليل موثق' : 'حالة الدليل: ' + report.evidenceStatus}</span>
+        </div>
+      </section>
+
+      <div className="ag-decision-strip" aria-label="ملخص الحقيقة الحالية">
+        <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{formatNumber(rowCount)}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الرصيد المصدرّي</span><span className="ag-decision-value">{stock == null ? 'غير متاح' : formatNumber(stock)}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الطلب المصدرّي</span><span className="ag-decision-value">{demand == null ? 'غير متاح' : formatNumber(demand)}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">تغطية الطلب</span><span className="ag-decision-value">{coverage == null ? 'غير متاح' : (coverage * 100).toFixed(1) + '%'}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الإشارات</span><span className="ag-decision-value">{report.intelligence.signals.length}</span></div>
+      </div>
+
+      <section className="rounded-[20px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="section-kicker">موجز الإدارة</div>
+            <h2 className="mt-1 text-2xl font-black tracking-tight text-ink-950">{report.intelligence.advisorBrief.headline}</h2>
+            <p className="mt-2 text-xs leading-6 text-ink-600">{report.intelligence.summary}</p>
+          </div>
+          <div className="rounded-2xl border border-ink-200 bg-ink-50 p-4 xl:w-64">
+            <div className="text-[9px] font-black text-ink-400">حالة الصورة</div>
+            <div className="mt-1 text-base font-black text-ink-900">{report.intelligence.advisorBrief.health === 'HEALTHY' ? 'سليم' : report.intelligence.advisorBrief.health === 'ATTENTION' ? 'يحتاج انتباهًا' : 'المراجعة مطلوبة'}</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">{report.intelligence.advisorBrief.ownerHint}</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+        <Card variant="action">
+          <CardHeader kicker="أهم قضية الآن" title={signal?.title ?? 'لا توجد إشارة استثنائية مثبتة'} subtitle={signal?.message ?? 'لا توجد إشارة أعمال أقوى مثبتة من المصدر الحالي.'} />
+          <CardBody>
+            {signal ? (
+              <div className="space-y-3">
+                <div className="grid gap-2 sm:grid-cols-3 text-[10px]">
+                  <div className="rounded-xl bg-ink-50 p-3"><div className="text-ink-400">ما الذي يعنيه ذلك</div><div className="mt-1 font-bold text-ink-800">{signal.soWhat}</div></div>
+                  <div className="rounded-xl bg-amber-50 p-3"><div className="text-amber-700">الأثر</div><div className="mt-1 font-bold text-amber-900">{signal.impact}</div></div>
+                  <div className="rounded-xl bg-primary-50 p-3"><div className="text-primary-700">الأولوية</div><div className="mt-1 font-black text-primary-900">{signal.priority === 'P0' ? 'عاجل' : signal.priority === 'P1' ? 'مرتفع' : signal.priority === 'P2' ? 'متوسط' : 'منخفض'}</div></div>
+                </div>
+                <div className="rounded-xl border border-ink-100 bg-white p-3">
+                  <div className="text-[9px] font-black text-ink-400">الدليل المرتبط</div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {signal.evidence.map((item) => <span key={item} className="rounded-full bg-ink-50 px-2 py-1 text-[8px] text-ink-700">{item.replace(/\b(field|stockField|dailySalesField|affectedRows|negativeRows|zeroRows|rows)=/gi, (match) => {
+                      const labels: Record<string,string> = { field: 'الحقل: ', stockField: 'حقل الرصيد: ', dailySalesField: 'معدل البيع اليومي: ', affectedRows: 'السجلات المتأثرة: ', negativeRows: 'السجلات السالبة: ', zeroRows: 'السجلات الصفرية: ', rows: 'السجلات: ' };
+                      return labels[match.split('=')[0]] ?? match;
+                    })}</span>)}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </CardBody>
+        </Card>
+
+        <Card variant="evidence">
+          <CardHeader kicker="الإجراء التالي" title={recommendation?.title ?? 'مراجعة الدليل'} subtitle={recommendation?.action ?? 'لا يوجد إجراء مؤهل قبل اكتمال التحقق.'} />
+          <CardBody>
+            <div className="space-y-2 text-[10px]">
+              <div className="rounded-xl bg-white p-3 border border-ink-100"><span className="font-black text-ink-500">المسؤول المحتمل:</span> {recommendation?.ownerHint ?? report.intelligence.advisorBrief.ownerHint}</div>
+              <div className="rounded-xl bg-white p-3 border border-ink-100"><span className="font-black text-ink-500">النتيجة المتوقعة:</span> {recommendation?.expectedOutcome ?? report.intelligence.advisorBrief.expectedOutcome ?? 'غير متاح'}</div>
+              <div className="rounded-xl bg-white p-3 border border-ink-100"><span className="font-black text-ink-500">حد الدليل:</span> {report.intelligence.advisorBrief.proofRequirement}</div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link to={'/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">مساحة القرار <ArrowUpLeft size={13}/></Link>
+              <Link to="/advisor-cases" className="btn-secondary text-[10px]">قضايا Advisor <ArrowUpLeft size={13}/></Link>
+            </div>
+          </CardBody>
+        </Card>
+      </section>
+
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <Card><CardBody><div className="text-[9px] text-ink-400">اعتمادات معلقة</div><div className="mt-1 text-2xl font-black">{pendingApprovals}</div><Link to="/decision-inbox" className="mt-2 inline-flex text-[10px] font-black text-primary-700">فتح مركز القرارات <ArrowUpLeft size={12}/></Link></CardBody></Card>
+        <Card><CardBody><div className="text-[9px] text-ink-400">أعمال مفتوحة</div><div className="mt-1 text-2xl font-black">{actionWorkItems.filter((item) => item.status === 'OPEN').length}</div><Link to="/work-center?decisionWorkFilter=open" className="mt-2 inline-flex text-[10px] font-black text-primary-700">فتح مركز العمل <ArrowUpLeft size={12}/></Link></CardBody></Card>
+        <Card><CardBody><div className="text-[9px] text-ink-400">قيد التنفيذ</div><div className="mt-1 text-2xl font-black">{actionWorkItems.filter((item) => item.status === 'IN_PROGRESS').length}</div><Link to="/work-center?decisionWorkFilter=in_progress" className="mt-2 inline-flex text-[10px] font-black text-primary-700">متابعة التنفيذ <ArrowUpLeft size={12}/></Link></CardBody></Card>
+        <Card><CardBody><div className="text-[9px] text-ink-400">نتائج مسجلة</div><div className="mt-1 text-2xl font-black">{outcomes.length}</div><div className="mt-2 text-[10px] text-ink-500">{outcomes[0]?.notes ?? 'لا توجد نتيجة فعلية مثبتة بعد.'}</div></CardBody></Card>
+      </section>
+
+      <section className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+        <div className="flex items-center justify-between gap-3"><div><div className="section-kicker">من الانتباه إلى الإجراء</div><h2 className="mt-1 text-lg font-black">الأعمال المرتبطة بالقضية</h2></div><Link to="/work-center" className="btn-ghost text-[10px]">فتح كل الأعمال <ArrowUpLeft size={13}/></Link></div>
+        <div className="mt-4">
+          {actionWorkItems.length === 0
+            ? <div className="rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-4 text-center text-[10px] text-ink-500">لا توجد مهمة مفتوحة أو قيد التنفيذ الآن.</div>
+            : <div className="grid gap-2 lg:grid-cols-2">
+              {actionWorkItems.map((item) => (
+                <article key={item.id} className="rounded-xl border border-ink-200 bg-white p-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{item.title}</div><span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{item.status === 'OPEN' ? 'مفتوح' : 'قيد التنفيذ'}</span></div>
+                  <div className="mt-2 text-[9px] text-ink-500">{item.department || 'قسم غير محدد'} · {item.assigneeLabel ?? 'المالك غير محدد'}</div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]"><div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">الدليل</div><div className="mt-1 font-bold">{item.evidenceSnapshotId ? 'مثبت' : 'غير متاح'}</div></div><div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">النتيجة</div><div className="mt-1 font-bold">{item.actualImpact == null ? 'لم تُسجل نتيجة بعد' : formatNumber(item.actualImpact)}</div></div><div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">المصدر</div><div className="mt-1 font-bold">نفس التقرير الحالي</div></div></div>
+                </article>
+              ))}
+            </div>}
+        </div>
+      </section>
+
+      <section className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><div className="section-kicker">عينة المصدر</div><h2 className="mt-1 text-lg font-black">صفوف حقيقية من التقرير</h2></div><Link to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">عرض كل الصفوف <ArrowUpLeft size={13}/></Link></div>
+        <div className="mt-3 overflow-x-auto rounded-xl border border-ink-200">
+          {report.canonicalRows.slice(0, 6).length > 0 ? (
+            <table className="min-w-full text-right text-[10px]">
+              <tbody>{report.canonicalRows.slice(0, 6).map((row) => <tr key={row.row_number} className="border-t border-ink-100"><td className="px-3 py-2 font-black text-ink-500">#{row.row_number}</td><td className="px-3 py-2 text-ink-800">{String(Object.values(row.data ?? {})[0] ?? 'غير متاح')}</td><td className="px-3 py-2 text-ink-800">{String(Object.values(row.data ?? {})[1] ?? 'غير متاح')}</td><td className="px-3 py-2 text-ink-800">{String(Object.values(row.data ?? {})[2] ?? 'غير متاح')}</td></tr>)}</tbody>
+            </table>
+          ) : <div className="p-4 text-[10px] text-ink-500">لا توجد صفوف مثبتة في القراءة الحالية.</div>}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function DecisionRow({ recommendation }: { recommendation: Recommendation }) {
   return (
     <article className="rounded-[14px] border border-primary-100 bg-primary-50/25 p-4">
@@ -138,6 +286,7 @@ export function ExecutiveCommandCenterPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
 
   const load = useCallback(async (silent = false) => {
     try {
@@ -145,19 +294,39 @@ export function ExecutiveCommandCenterPage() {
       setError(null);
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
+      let nextSourceReport: SmartReportDetail | null = null;
+      try {
+        nextSourceReport = await fetchLatestSmartReportBySourceHash(
+          'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313',
+          { signal: AbortSignal.timeout(25000) },
+        );
+      } catch {
+        nextSourceReport = null;
+      }
+
       const [snapshot, intelligence, nextWorkItems, nextOutcomes, nextPendingApprovals, nextRecentActivity] = await Promise.all([
-        fetchDashboardSnapshot(months),
-        fetchDashboardIntelligence(),
+        nextSourceReport ? Promise.resolve(null) : fetchDashboardSnapshot(months),
+        nextSourceReport ? Promise.resolve(null) : fetchDashboardIntelligence(),
         fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
         fetchPendingDecisionApprovals(),
         fetchRecentDecisionActivity(100),
       ]);
-      setKpis(snapshot.kpis);
-      setAsOf(snapshot.asOf);
-      setTrend(snapshot.trend);
-      setAlerts(intelligence.alerts.filter((item) => !item.is_read));
-      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));
+
+      setSourceReport(nextSourceReport);
+      if (nextSourceReport) {
+        setKpis(null);
+        setAsOf(null);
+        setTrend([]);
+        setAlerts([]);
+        setRecommendations([]);
+      } else if (snapshot && intelligence) {
+        setKpis(snapshot.kpis);
+        setAsOf(snapshot.asOf);
+        setTrend(snapshot.trend);
+        setAlerts(intelligence.alerts.filter((item) => !item.is_read));
+        setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));
+      }
       setWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes.slice(-20).reverse());
       setPendingApprovals(nextPendingApprovals);
@@ -191,6 +360,8 @@ export function ExecutiveCommandCenterPage() {
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (sourceReport) return <SourceBoundCommandCenter report={sourceReport} workItems={workItems} outcomes={outcomes} pendingApprovals={pendingApprovals} />;
+
   if (!kpis) return <DataUnavailableState title="مركز القيادة ينتظر الحقيقة" message="لا توجد مؤشرات أساسية موثوقة تكفي لبناء صورة تنفيذية. راجع جودة المصدر قبل اتخاذ القرار." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
   return (
