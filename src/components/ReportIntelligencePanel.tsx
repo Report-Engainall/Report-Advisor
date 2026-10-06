@@ -353,13 +353,13 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <span className="text-[9px] font-bold text-ink-600">{driver.value}</span>
         </div>
         <div className="mt-1 grid gap-1 sm:grid-cols-4 text-[8px] text-ink-500">
-          <span>الفعلي: {driver.actual == null ? "N/A" : number(driver.actual)}</span>
-          <span>المتوقع: {driver.expected == null ? "N/A" : number(driver.expected)}</span>
-          <span>النسبة: {driver.share == null ? "N/A" : driver.share.toFixed(1) + "%"}</span>
-          <span>الفترة: {driver.period ?? "N/A"}</span>
+          <span>الفعلي: {driver.actual == null ? "غير متاح" : number(driver.actual)}</span>
+          <span>المتوقع: {driver.expected == null ? "غير متاح" : number(driver.expected)}</span>
+          <span>النسبة: {driver.share == null ? "غير متاح" : driver.share.toFixed(1) + "%"}</span>
+          <span>الفترة: {driver.period ?? "غير متاح"}</span>
         </div>
         <div className="mt-1 text-[8px] leading-4 text-ink-600">{driver.why}</div>
-        <div className="mt-1 flex flex-wrap gap-1">{driver.proof.map((proof) => <span key={proof} className="rounded-full bg-ink-50 px-2 py-1 font-mono text-[7px] text-ink-500">{proof}</span>)}</div>
+        <div className="mt-1 flex flex-wrap gap-1">{driver.proof.map((proof) => <span key={proof} className="rounded-full bg-ink-50 px-2 py-1 text-[7px] text-ink-500">{humanizeEvidence(proof)}</span>)}</div>
       </div>
     ))}
   </div> : null}
