@@ -141,14 +141,15 @@ function normalizeBusinessField(value: unknown): string | null {
     ['quantity',['quantity','qty','الكمية','العدد']],
     ['daily_sales_rate',['daily_sales_rate','dailysalesrate','معدل البيع اليومي','معدل البيع ليومي','معدل البيعيومي','متوسط البيع اليومي']],
     ['annual_sales_rate',['annual_sales_rate','annualsalesrate','معدل البيع العام','معدل البيع السنوي']],
-    ['sales_qty',['sales_qty','salesqty','كمية المبيعات','الكميةالمباعة','صافي المبيعات','صافيالمبيعات']],
+    ['sales_qty',['sales_qty','salesqty','net_sales','netsales','net sales','كمية المبيعات','الكميةالمباعة','صافي المبيعات','صافيالمبيعات']],
     ['stockout_days',['stockout_days','stockoutdays','أيام النفاد','فترة النفاد','الفترة المتوقعة لنفاد الكمية','الفترةالمتوقعةلنفادالكمية']],
     ['stock_age_days',['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
     ['stock_age_period_days',['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
     ['opening_stock',['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
     ['incoming',['incoming','inbound','الوارد','الـوارد']],
     ['net_inbound',['net_inbound','netinbound','صافي الوارد','صافيوارد']],
-    ['transfers_pending',['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
+    ['warehouse',['warehouse','store','location','مخزن','المخزن','المستودع','الموقع']],
+     ['transfers_pending',['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
   ];
   for (const [canonical, candidates] of aliases) {
     if (candidates.some((candidate) => candidate.toLowerCase().normalize('NFKC').replace(/[\s_-]+/g,'') === key)) return canonical;
@@ -1179,16 +1180,36 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   );
   if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
 
-  const availableFields = [...new Set(sourceColumnDescriptors(sourceAnalysis, canonicalRows).flatMap((column) => {
+  const descriptors = sourceColumnDescriptors(sourceAnalysis, canonicalRows);
+  const availableFields = [...new Set(descriptors.flatMap((column) => {
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
     const name = String(column.name ?? '').trim();
     return [mapped, name].filter(Boolean);
   }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
 
+  // Schema presence is not evidence of usable data. A field that is 100% blank
+  // must not qualify an archetype or generate a model-specific recommendation.
+  const usableFields = [...new Set(descriptors.filter((column) => {
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    const name = String(column.name ?? '').trim();
+    if (!mapped && !name) return false;
+    return canonicalRows.some((row) => Object.entries(row.data ?? {}).some(([key, value]) => {
+      const keyMapped = normalizeBusinessField(key);
+      const matches = (mapped && keyMapped === mapped) || key === name || key === mapped;
+      return matches && value !== null && value !== undefined && String(value).trim() !== '';
+    }));
+  }).flatMap((column) => {
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    const name = String(column.name ?? '').trim();
+    return [mapped, name].filter(Boolean);
+  }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+
+  const intelligenceAvailableFields = usableFields.length > 0 ? usableFields : availableFields;
+
   const detectedArchetype = detectReportArchetype({
     sourcePath: String(job.source_path ?? ''),
     specialty,
-    availableFields,
+    availableFields: intelligenceAvailableFields,
   });
 
   let intelligence: SmartReportIntelligence = baseIntelligence;
@@ -1235,7 +1256,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
           sourceVersionId: typeof effectiveRendered.sourceVersionId === 'string' ? effectiveRendered.sourceVersionId : null,
         },
-        availableFields,
+        availableFields: intelligenceAvailableFields,
+
         sampleSize: effectiveRendered.rowCount == null ? 0 : Number(effectiveRendered.rowCount),
         archetypeId: detectedArchetype.profile.id,
         profileVersion: detectedArchetype.profile.version,
@@ -1253,15 +1275,19 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
       archetypeState = archetypeRun.state;
       const archetypeIntelligence = archetypeRun.intelligence as SmartReportIntelligence;
-      intelligence = {
-        ...archetypeIntelligence,
-        advisorBrief: archetypeRun.state === 'SUPPORTED'
-          ? archetypeIntelligence.advisorBrief
-          : {
-              ...archetypeIntelligence.advisorBrief,
-              health: 'REVIEW_REQUIRED',
-              headline: 'النموذج لم يجتز بوابة الاعتماد: ' + archetypeRun.state + ' — تم إبقاء الحسابات والإشارات والذكاء المتاح، بينما يظل اعتماد القرار مقيدًا بحالة الدليل والنموذج.',
-            },
+      if (archetypeRun.state === 'SUPPORTED') {
+        intelligence = archetypeIntelligence;
+      } else {
+        // Fail closed: do not expose model-specific findings/recommendations
+        // when the selected archetype is not actually supported by usable data.
+        intelligence = {
+          ...baseIntelligence,
+          advisorBrief: {
+            ...baseIntelligence.advisorBrief,
+            health: 'REVIEW_REQUIRED',
+            headline: 'النموذج المتخصص يحتاج مراجعة؛ تم إبقاء الحقائق والإشارات المصدرية فقط دون توصية نموذجية غير مثبتة.',
+          },
+        };
       };
 
       const calculations = intelligence.calculations ?? calculationRegistryResults;
