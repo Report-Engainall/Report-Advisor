@@ -915,16 +915,18 @@ export function SmartReportPage() {
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE</div>
+              <div className="text-[8px] font-black tracking-[.12em] text-slate-400">المصدر</div>
               <div className="mt-1 break-words text-[11px] font-bold text-slate-100">{report.sourcePath}</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source-hash">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE HASH</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.sourceHash}</div>
+            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3">
+              <div className="text-[8px] font-black tracking-[.12em] text-slate-400">السجلات</div>
+              <div className="mt-1 text-[18px] font-black text-white">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">من المصدر الكانوني الحالي</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-job-id">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">REPORT JOB ID</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.jobId}</div>
+            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3">
+              <div className="text-[8px] font-black tracking-[.12em] text-slate-400">الثقة</div>
+              <div className="mt-1 text-[18px] font-black text-white">{confidenceLabel}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{sourceIsVerified ? 'المصدر موثق' : 'يحتاج مراجعة'}</div>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -940,6 +942,15 @@ export function SmartReportPage() {
           <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-slate-950">افتح الدليل ثم القرار</Link>
         </div>
       </div>
+      <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.04] p-2">
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => document.getElementById('smart-report-data-explorer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="rounded-xl bg-white px-3 py-2 text-[10px] font-black text-slate-950 hover:bg-slate-100">استكشف الصفوف</button>
+          <button type="button" onClick={() => document.getElementById('decision-chain')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black text-white hover:bg-white/10">افهم الإشارة</button>
+          <button type="button" onClick={() => { const node = document.getElementById('smart-report-details'); if (node instanceof HTMLDetailsElement) node.open = true; node?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black text-white hover:bg-white/10">افتح الأدلة والبيانات</button>
+          <Link to={'/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-[10px] font-black text-amber-100 hover:bg-amber-300/15">انتقل إلى التنفيذ</Link>
+        </div>
+      </div>
+
       <div className="mt-5 grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-700 bg-white/[.035] p-4">
           <div className="text-[9px] font-black text-slate-400">أهم نتيجة</div>
@@ -1080,7 +1091,7 @@ export function SmartReportPage() {
       </div>
     </details>
 
-    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+    <details id="smart-report-details" className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -1166,7 +1177,7 @@ export function SmartReportPage() {
       }
     />
 
-    <SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''}/>
+    <div id="smart-report-data-explorer"><SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''} /></div>
 
     
 
