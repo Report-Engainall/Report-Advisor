@@ -14,7 +14,7 @@ WHAT_I_ACTUALLY_DID = Verified main=a6d034e05172189d278e689eb01a0c86454f529e and
 
 WHAT_IS_PROVEN = Direct Supabase recomputation of تقارير ادارية.xlsx: 332 rows, stock 23075, demand 324250, baseline coverage 0.07116422513492675405, demand+15% coverage 0.06188193489993630787. Evidence Passport for job 16709d80-e012-40ef-9c12-6fd8255897f8 and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313 is VERIFIED/READY/ACCEPTED. Open report d074ad5c-70d4-4402-a763-01129786f392 is completed/rendered with 6776 canonical rows and source hash sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10.
 
-FIRST_FAILURE = Run 37410218572, step "Resume and prove the real open report", failed before authenticated report readback because TEST_USER_A_EMAIL was empty.
+FIRST_ACTIVE_FAILURE = Run 37410218572, step "Resume and prove the real open report", failed before authenticated report readback because TEST_USER_A_EMAIL was empty.
 
 ROOT_CAUSE = Credential-state propagation defect between actor provisioning and the next workflow step. The tenant/data binding for Actor D was already correct; the credential variables were not.
 
