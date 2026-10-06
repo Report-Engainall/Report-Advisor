@@ -7,7 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState, userFacingE
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchLatestSmartReportBySourceHash, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { CustomerReportSurface } from '@/components/CustomerReportSurface';
@@ -163,21 +163,16 @@ export function ReportsCenterPage() {
 
     // Customer-visible truth has priority. Start all reads together, but publish
     // each source as soon as it settles instead of waiting for the slowest read.
+    // Read the designated source directly. The catalog is enrichment only and
+    // must never block the customer's first real report.
+    const primaryPromise = fetchLatestSmartReportBySourceHash(
+      PRIMARY_SMART_REPORT_SOURCE_HASH,
+      { signal: AbortSignal.timeout(15000) },
+    );
     const catalogPromise = fetchSmartReportCatalog(
       60,
       { signal: AbortSignal.timeout(12000) },
     );
-    const primaryPromise = catalogPromise.then(async (catalogResult) => {
-      const authoritative = catalogResult.find((report) => report.sourceHash === PRIMARY_SMART_REPORT_SOURCE_HASH)
-        ?? catalogResult[0]
-        ?? null;
-      if (!authoritative) return null;
-      return fetchSmartReport(
-        authoritative.jobId,
-        authoritative.sourceHash,
-        { signal: AbortSignal.timeout(15000) },
-      );
-    });
     const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
 
     let primary: SmartReportDetail | null = null;
