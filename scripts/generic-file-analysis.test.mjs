@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { parseFile } from '../src/lib/file-engine/adapters.ts';
+import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
 
 function buffer(value: string): ArrayBuffer {
@@ -7,6 +8,12 @@ function buffer(value: string): ArrayBuffer {
 }
 
 async function main() {
+  const unknownText = 'نص عام في ملف غير معروف\nيوجد تأخير ويجب المراجعة\nالإجمالي 1200 ريال';
+  const detectedUnknown = detectFormat({ name: 'business.log', size: unknownText.length, type: 'text/plain' }, buffer(unknownText));
+  assert.equal(detectedUnknown.format, 'txt', 'unknown readable text should use generic text fallback');
+  assert.equal(detectedUnknown.category, 'text', 'generic fallback category');
+  assert.ok(detectedUnknown.warnings.some((warning) => warning.includes('مسار النص العام')), 'generic fallback warning');
+
   const cases = [
     { format: 'txt' as const, name: 'risk.txt', source: 'توجد مشكلة في المخزون\nيجب مراجعة الكميات المتأخرة\nالإجمالي 1200 ريال', expectedRows: 3 },
     { format: 'xml' as const, name: 'sales.xml', source: '<root><row><product>صنف 1</product><total>100</total></row><row><product>صنف 2</product><total>200</total></row></root>', expectedRows: 2 },
