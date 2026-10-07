@@ -245,7 +245,7 @@ assert.match(
 );
 assert.match(
   smartReport,
-  /headline: 'النموذج لم يجتز بوابة التشغيل: ' \+ archetypeRun\.state \+ ' — تم إبقاء الذكاء المصدرّي المتاح/,
+  /headline: 'النموذج يحتاج مراجعة قبل الاعتماد: ' \+ archetypeRun\.state \+ ' — الإشارة المصدرية\/المحسوبة معروضة، لكن القرار التنفيذي محجوب حتى يكتمل النموذج المتخصص\.'/
   'Archetype review must preserve source intelligence instead of blanking all signals and recommendations',
 );
 assert.doesNotMatch(

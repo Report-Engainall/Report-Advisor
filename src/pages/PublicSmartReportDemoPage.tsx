@@ -346,6 +346,105 @@ export function PublicSmartReportDemoPage() {
           </div>
         </section>
 
+        <section className="rounded-[22px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6" aria-label="رحلة القرار">
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="text-[9px] font-black tracking-[.14em] text-primary-200">DECISION JOURNEY</div>
+              <h2 className="mt-1 text-lg font-black">لا تترك التقرير في شاشة واحدة</h2>
+              <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-300">
+                كل مساحة أدناه تبدأ من نفس الفكرة: المصدر أولًا، ثم الإشارة والتوصية، ثم المراجعة والقرار والعمل والنتيجة. لا يتم اعتبار التوصية قرارًا أو نتيجة قبل إثباتهما.
+              </p>
+            </div>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[9px] font-black text-ink-200">SOURCE → SIGNAL → RECOMMENDATION → DECISION → WORK → OUTCOME</span>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            <Link key="/reports/smart/demo" to="/reports/smart/demo" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">التقرير الذكي</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">ابدأ من الحكم والدليل</div>
+            </Link>
+            <Link key="/intelligence" to="/intelligence" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">مركز الذكاء</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">الإشارات والتوصيات</div>
+            </Link>
+            <Link key="/advisor-cases" to="/advisor-cases" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">قضايا Advisor</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">حوّل الإشارة إلى قضية متابعة</div>
+            </Link>
+            <Link key="/decision-inbox" to="/decision-inbox" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">مركز القرارات</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">راجع ما يحتاج اعتمادًا</div>
+            </Link>
+            <Link key="/decision-experience" to="/decision-experience" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">تجربة القرار</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">افصل القرار عن التوصية</div>
+            </Link>
+            <Link key="/work-center" to="/work-center" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">مركز العمل</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">حوّل القرار المعتمد إلى تنفيذ</div>
+            </Link>
+            <Link key="/trust" to="/trust" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">الثقة والدليل</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">تحقق من الـEvidence والـlineage</div>
+            </Link>
+            <Link key="/replay" to="/replay" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">إعادة التشغيل والتعلّم</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">قارن ما حدث بعد التنفيذ</div>
+            </Link>
+            <Link key="/benchmark" to="/benchmark" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">المقارنة</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">مرجع موثق فقط، دون اختلاق</div>
+            </Link>
+            <Link key="/command-center" to="/command-center" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">مركز القيادة</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">الصورة التنفيذية وما يحتاج انتباهًا</div>
+            </Link>
+            <Link key="/reports/executive" to="/reports/executive" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">التقرير التنفيذي</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">ملخص الإدارة والإشارات</div>
+            </Link>
+            <Link key="/reports/inventory" to="/reports/inventory" className="group rounded-2xl border border-white/10 bg-white/[.05] p-3 transition-colors hover:border-primary-300/50 hover:bg-white/[.08]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-white">تقرير المخزون</span>
+                <ArrowUpLeft size={13} className="text-primary-200 transition-transform group-hover:-translate-y-0.5" />
+              </div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-300">التحقق من التفاصيل التشغيلية</div>
+            </Link>
+          </div>
+        </section>
+
         <section className="rounded-[22px] border border-primary-200 bg-primary-50/50 p-5 lg:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

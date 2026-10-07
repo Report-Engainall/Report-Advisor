@@ -407,7 +407,7 @@ export function ReportsCenterPage() {
           <div className="ag-reports-smart-metrics mt-4 grid gap-2 sm:grid-cols-3">
             {[
               ['مصادر موثقة', smartReports.filter((r) => r.evidenceStatus === 'VERIFIED' || r.trustState === 'TRUSTED').length, 'مصادر يمكن الاعتماد عليها في القراءة الحالية.'],
-              ['جاهزة للقرار', smartReports.filter((r) => r.decisionStatus === 'APPROVED' || r.recommendationStatus === 'PROPOSED').length, 'لديها مخرج واضح يمكن متابعته ضمن المسار.'],
+              ['لديها توصية', smartReports.filter((r) => r.recommendationStatus === 'PROPOSED' || r.recommendationStatus === 'APPROVED' || r.recommendationStatus === 'COMPLETED').length, 'لديها توصية محفوظة في مسار التقرير؛ الاعتماد والتنفيذ يظلان حالتين منفصلتين.'],
               ['تحتاج انتباهًا', smartReports.filter((r) => ['REVIEW','REVIEW_REQUIRED','PENDING','INSUFFICIENT_DATA','GAP_DETECTED'].includes(String(r.trustState ?? r.reportVerificationState))).length, 'نقص أو مراجعة يجب رؤيتها قبل الاعتماد.'],
             ].map(([label, value, note]) => (
               <div key={String(label)} className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
@@ -458,7 +458,7 @@ export function ReportsCenterPage() {
                   </div>
 
                   <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/70 p-3">
-                    <div className="text-[9px] font-black text-amber-700">أهم نتيجة مثبتة</div>
+                    <div className="text-[9px] font-black text-amber-700">أهم قراءة مصدرية</div>
                     <div className="mt-1 text-[10px] font-bold leading-5 text-ink-900">
                       {primarySmartReport && report.jobId === primarySmartReport.jobId
                         ? (primarySmartReport.intelligence.advisorBrief.topFinding?.statement
