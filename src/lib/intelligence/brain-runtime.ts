@@ -1,4 +1,4 @@
-import { parseDate, parseNumber } from '@/lib/file-engine/normalizer.ts';
+import { parseDate, parseNumber } from '../file-engine/normalizer.ts';
 
 export type BrainMetricStatus = 'CALCULATED' | 'INSUFFICIENT_DATA' | 'UNAVAILABLE';
 export type BrainSignalSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
