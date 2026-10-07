@@ -153,6 +153,19 @@ type ReportInput = {
   sourceAnalysis?: { datasets?: unknown[] } | null;
   renderedOutput?: Record<string, unknown>;
   canonicalRows?: Array<{ row_number?: number; data?: Record<string, unknown> | null }>;
+  persistedIntelligenceCalculations?: Array<{
+    metric_id?: string | null;
+    name?: string | null;
+    formula?: string | null;
+    availability_state?: string | null;
+    value?: number | null;
+    unit?: string | null;
+    sample_size?: number | null;
+    usable_sample?: number | null;
+    confidence?: number | null;
+    limitation?: string | null;
+    evidence?: unknown;
+  }>;
 };
 
 function text(value: unknown): string { return String(value ?? '').trim(); }
