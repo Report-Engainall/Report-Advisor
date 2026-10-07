@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowUpLeft, BookmarkCheck, FileSearch, Filter, RotateCcw, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { fetchAdvisorBusinessCases, setAdvisorBusinessCaseFollowed, type AdvisorBusinessCase } from '@/lib/report-decisions';
 
@@ -21,6 +21,9 @@ const priorityLabel: Record<string, string> = {
 };
 
 export function AdvisorCasesPage() {
+  const [params] = useSearchParams();
+  const contextReportJobId = params.get('reportJobId')?.trim() || '';
+  const contextSourceHash = params.get('sourceHash')?.trim() || '';
   const [cases, setCases] = useState<AdvisorBusinessCase[]>([]);
   const [filter, setFilter] = useState<'all' | 'followed' | 'open' | 'done'>('all');
   const [loading, setLoading] = useState(true);
@@ -42,12 +45,17 @@ export function AdvisorCasesPage() {
 
   useEffect(() => { void load(); }, []);
 
-  const visibleCases = useMemo(() => cases.filter((item) => {
+  const contextCases = useMemo(() => {
+    if (!contextReportJobId || !contextSourceHash) return cases;
+    return cases.filter((item) => item.reportJobId === contextReportJobId && item.sourceHash === contextSourceHash);
+  }, [cases, contextReportJobId, contextSourceHash]);
+
+  const visibleCases = useMemo(() => contextCases.filter((item) => {
     if (filter === 'followed') return item.followed;
     if (filter === 'done') return ['executed', 'approved'].includes(item.status);
     if (filter === 'open') return !['executed', 'approved', 'blocked'].includes(item.status);
     return true;
-  }), [cases, filter]);
+  }), [contextCases, filter]);
 
   const toggleFollow = async (item: AdvisorBusinessCase) => {
     setBusyId(item.id);
@@ -81,6 +89,20 @@ export function AdvisorCasesPage() {
           </div>
         </div>
       </section>
+
+      {contextReportJobId && contextSourceHash ? (
+        <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-4 shadow-sm" aria-label="سياق التقرير الحالي في قضايا Advisor">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="text-[9px] font-black tracking-[.14em] text-primary-800">SOURCE-BOUND ADVISOR CASES</div>
+              <h2 className="mt-1 text-base font-black text-ink-950">قضايا التقرير الحالي فقط</h2>
+              <p className="mt-1 text-[10px] leading-5 text-ink-700">تم تقييد العرض على نفس reportJobId والبصمة المصدرية التي فتحت منها هذه المساحة؛ لا تختلط قضايا تقارير أخرى.</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-500"><span className="rounded-full bg-white px-2 py-1 font-mono">job={contextReportJobId}</span><span className="rounded-full bg-white px-2 py-1 font-mono">hash={contextSourceHash}</span><span className="rounded-full bg-white px-2 py-1 font-black">{contextCases.length} قضية مرتبطة</span></div>
+            </div>
+            <Link to={'/reports/smart/' + encodeURIComponent(contextReportJobId) + '?sourceHash=' + encodeURIComponent(contextSourceHash)} className="btn-primary text-[10px]">العودة إلى التقرير الذكي <FileSearch size={12}/></Link>
+          </div>
+        </section>
+      ) : null}
 
       <Card>
         <CardHeader
@@ -122,7 +144,7 @@ export function AdvisorCasesPage() {
               <BookmarkCheck size={24} className="mx-auto text-ink-400" />
               <div className="mt-3 text-sm font-black text-ink-800">لا توجد قضية محفوظة في هذا المرشح</div>
               <p className="mt-1 text-[10px] leading-5 text-ink-500">من داخل Advisor احفظ الإشارة المهمة كقضية، وستظهر هنا مع نفس المصدر والدليل.</p>
-              <Link to="/reports" className="mt-3 inline-flex btn-secondary text-[10px]">العودة إلى مركز التقارير <ArrowUpLeft size={12}/></Link>
+              <Link to={contextReportJobId && contextSourceHash ? '/reports/smart/' + encodeURIComponent(contextReportJobId) + '?sourceHash=' + encodeURIComponent(contextSourceHash) : '/reports'} className="mt-3 inline-flex btn-secondary text-[10px]">{contextReportJobId && contextSourceHash ? 'العودة إلى التقرير الحالي' : 'العودة إلى مركز التقارير'} <ArrowUpLeft size={12}/></Link>
             </div>
           ) : (
             <div className="mt-5 space-y-3">
