@@ -45,3 +45,5 @@ NOT_PROVEN
 
 NEXT EXACT ACTION
 Consume the terminal Full Product Browser E2E and Final Certification runs for 7a0e9f... only. On any new failure, inspect the first newly proven defect, fix only that defect, and re-run from the new exact head.
+
+NEXT_EXACT_ACTION = Consume terminal Full Product Browser E2E on the latest product head; then consume Final Certification and close only newly proven blockers.
