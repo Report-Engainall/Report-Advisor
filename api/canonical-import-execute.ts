@@ -1,4 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Dataset } from '../src/lib/file-engine/types';
+import type { CanonicalImportEntityType } from '../src/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner, type DurableCanonicalImportInput } from '../src/lib/import/canonical-production-adapter';
 import { parseFile } from '../src/lib/file-engine/adapters';
 import { detectFormat } from '../src/lib/file-engine/detector';
@@ -7,7 +11,11 @@ import { computeSHA256 } from '../src/lib/file-engine/file-identity-core';
 import { reconcileForCanonical } from '../src/lib/import/canonical-truth-boundary';
 import { json, requireConfig, requireMethod, supabaseUserRequest } from '../src/server/resilience-runtime.mjs';
 
-function bearerToken(req: any): string | null {
+type HandlerRequest = IncomingMessage & { body?: unknown };
+
+type HandlerResponse = ServerResponse;
+
+function bearerToken(req: HandlerRequest): string | null {
   const value = req.headers?.authorization;
   if (typeof value !== 'string' || !value.startsWith('Bearer ')) return null;
   const token = value.slice(7).trim();
@@ -32,7 +40,7 @@ async function resolveCurrentCompany(token: string): Promise<string | null> {
   return typeof value === 'string' && value ? value : null;
 }
 
-async function parseBody(req: any): Promise<unknown> {
+async function parseBody(req: HandlerRequest): Promise<unknown> {
   if (req.body && typeof req.body === 'object') return req.body;
   if (typeof req.body === 'string' && req.body.trim()) return JSON.parse(req.body);
 
@@ -42,15 +50,15 @@ async function parseBody(req: any): Promise<unknown> {
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
-function reportEntityTypeFromJobKey(jobKey: string): string {
+function reportEntityTypeFromJobKey(jobKey: string): CanonicalImportEntityType {
   const parts = jobKey.split(':');
   if (parts[0] !== 'canonical-import') throw new Error('REPORT_EXECUTION_JOB_KEY_INVALID');
-  if (parts[1] === 'generic' && parts[2]) return 'generic:' + parts[2];
-  if (parts[1]) return parts[1];
+  if (parts[1] === 'generic' && parts[2] && /^generic:[a-z][a-z0-9_-]{0,63}$/.test('generic:' + parts[2])) return 'generic:' + parts[2] as `generic:${string}`;
+  if (parts[1] === 'products' || parts[1] === 'customers' || parts[1] === 'sales_invoices') return parts[1];
   throw new Error('REPORT_EXECUTION_ENTITY_TYPE_MISSING');
 }
 
-function datasetForAnalysis(dataset: any): Record<string, unknown> {
+function datasetForAnalysis(dataset: Dataset): Record<string, unknown> {
   return {
     id: dataset.id,
     name: dataset.name,
@@ -65,8 +73,8 @@ function datasetForAnalysis(dataset: any): Record<string, unknown> {
 }
 
 async function authoritativeSourceInput(args: {
-  workerClient: any;
-  dataClient: any;
+  workerClient: SupabaseClient;
+  dataClient: SupabaseClient;
   companyId: string;
   importId: string;
   reportExecutionJobId?: string;
@@ -116,11 +124,9 @@ async function authoritativeSourceInput(args: {
   const sourceHash = 'sha256:' + await computeSHA256(buffer);
   if (expectedSourceHash && expectedSourceHash !== sourceHash) throw new Error('AUTHORITATIVE_SOURCE_HASH_MISMATCH');
 
-  const fileLike = {
-    name: fileName,
-    size: buffer.byteLength,
+  const fileLike = new File([buffer], fileName, {
     type: typeof fileRecord.file_mime === 'string' ? fileRecord.file_mime : '',
-  } as any;
+  });
   const security = securityScan(fileLike, buffer);
   if (!security.passed) throw new Error('AUTHORITATIVE_SOURCE_SECURITY_REJECTED:' + security.issues.join('|').slice(0, 512));
 
@@ -135,7 +141,7 @@ async function authoritativeSourceInput(args: {
   if (qualityScore < 50) throw new Error('AUTHORITATIVE_SOURCE_QUALITY_REJECTED');
 
   const reconciled = reconcileForCanonical(
-    entityType as any,
+    entityType,
     companyId,
     fileName,
     sourceHash,
@@ -160,7 +166,7 @@ async function authoritativeSourceInput(args: {
     datasets: [datasetForAnalysis(dataset)],
     canonical_text: null,
     visual_assets: [],
-    warnings: dataset.columns.flatMap((column: any) => Array.isArray(column.qualityIssues) ? column.qualityIssues : []),
+    warnings: dataset.columns.flatMap((column) => Array.isArray(column.qualityIssues) ? column.qualityIssues : []),
     metadata: {
       authoritativeServerRead: true,
       reportExecutionJobId: reportExecutionJobId || null,
@@ -202,7 +208,7 @@ async function authoritativeSourceInput(args: {
     importId,
     fileName,
     sourceHash,
-    entityType: entityType as any,
+    entityType,
     rows: reconciled.rows,
     qualityScore,
     qualityApproved: args.qualityApproved ?? qualityScore >= 75,
@@ -213,7 +219,7 @@ function validateInput(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HandlerRequest, res: HandlerResponse) {
   if (!requireMethod(req, res, 'POST')) return;
   if (!requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])) return;
 
@@ -303,9 +309,10 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const entityType = body.entityType;
-    const genericEntity = typeof entityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(entityType);
-    if (entityType !== 'products' && entityType !== 'customers' && entityType !== 'sales_invoices' && !genericEntity) throw new Error('entity_type_invalid');
+    const rawEntityType = body.entityType;
+    const genericEntity = typeof rawEntityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(rawEntityType);
+    if (rawEntityType !== 'products' && rawEntityType !== 'customers' && rawEntityType !== 'sales_invoices' && !genericEntity) throw new Error('entity_type_invalid');
+    const entityType = rawEntityType as CanonicalImportEntityType;
     if (typeof body.importId !== 'string' || !body.importId.trim()) throw new Error('import_id_invalid');
     if (typeof body.fileName !== 'string' || !body.fileName.trim() || body.fileName.length > 512) throw new Error('file_name_invalid');
     if (typeof body.sourceHash !== 'string' || !/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash)) throw new Error('source_hash_invalid');
