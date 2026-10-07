@@ -400,12 +400,11 @@ function benchmarkFromMetric(input: BrainInput, metricId: string, dimension: str
 }
 
 function defaultBenchmark(input: BrainInput, metrics: BrainMetric[]): BrainBenchmark {
-  const choices:[
-    string,string
-  ]=[
-    ['sales.customer-concentration','customerCode'],
-    ['purchases.supplier-concentration','supplierCode'],
+  const choices: [string, string][] = [
+    ['sales.average-document','documentNo'],
+    ['purchases.average-lead-time','supplierCode'],
     ['inventory.zero-negative-share','productCode'],
+    ['profitability.margin','productCode'],
   ];
   for(const [metricId,dimension] of choices){
     const candidate=benchmarkFromMetric(input,metricId,dimension);
