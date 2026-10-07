@@ -784,24 +784,39 @@ export function SmartReportPage() {
     let active = true;
     setDecisionOutcomes([]);
     if (!decisionFingerprintCandidates.length) return () => { active = false; };
-    void supabase
-      .from('decision_outcomes')
-      .select('decision_fingerprint,label,actual_value,expected_value,observed_at')
-      .in('decision_fingerprint', decisionFingerprintCandidates)
-      .order('observed_at', { ascending: true })
-      .limit(100)
-      .then(({ data, error }) => {
-        if (!active) return;
-        if (error) {
-          setDecisionOutcomes([]);
-          return;
-        }
-        setDecisionOutcomes((data ?? []).map((row) => ({
-          label: String(row.label) as 'correct' | 'incorrect' | 'partial' | 'unknown',
-          actualValue: row.actual_value == null ? null : Number(row.actual_value),
-          expectedValue: row.expected_value == null ? null : Number(row.expected_value),
-        })));
-      });
+    void (async () => {
+      const recommendationIds = decisionFingerprintCandidates
+        .filter((value) => value.startsWith('recommendation:'))
+        .map((value) => value.slice('recommendation:'.length));
+      const [decisionResult, recommendationResult] = await Promise.all([
+        supabase
+          .from('decision_outcomes')
+          .select('decision_fingerprint,label,actual_value,expected_value,observed_at')
+          .in('decision_fingerprint', decisionFingerprintCandidates)
+          .order('observed_at', { ascending: true })
+          .limit(100),
+        recommendationIds.length
+          ? supabase
+              .from('recommendation_outcomes')
+              .select('recommendation_key,status,actual_impact,expected_impact,observed_at')
+              .in('recommendation_key', recommendationIds)
+              .order('observed_at', { ascending: true })
+              .limit(100)
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (!active) return;
+      const mappedDecisions = decisionResult.error ? [] : (decisionResult.data ?? []).map((row) => ({
+        label: String(row.label) as 'correct' | 'incorrect' | 'partial' | 'unknown',
+        actualValue: row.actual_value == null ? null : Number(row.actual_value),
+        expectedValue: row.expected_value == null ? null : Number(row.expected_value),
+      }));
+      const mappedRecommendations = recommendationResult.error ? [] : (recommendationResult.data ?? []).map((row) => ({
+        label: row.status === 'negative' ? 'incorrect' as const : row.status === 'positive' || row.status === 'neutral' ? 'correct' as const : 'unknown' as const,
+        actualValue: row.actual_impact == null ? null : Number(row.actual_impact),
+        expectedValue: row.expected_impact == null ? null : Number(row.expected_impact),
+      }));
+      setDecisionOutcomes([...mappedDecisions, ...mappedRecommendations].slice(0, 100));
+    })();
     return () => { active = false; };
   }, [decisionFingerprintCandidates]);
 
