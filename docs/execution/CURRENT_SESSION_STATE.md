@@ -1,8 +1,8 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 11c4abca93802053de2ace699328f74795993114
-CURRENT_MAIN_HEAD = 11c4abca93802053de2ace699328f74795993114
-CURRENT_EXECUTION_HEAD = 11c4abca93802053de2ace699328f74795993114
+CURRENT_EXACT_HEAD = e33c08c7471f49fac44a14da4fdac7cc651aa297
+CURRENT_MAIN_HEAD = e33c08c7471f49fac44a14da4fdac7cc651aa297
+CURRENT_EXECUTION_HEAD = e33c08c7471f49fac44a14da4fdac7cc651aa297
 BRANCH = main
 PR = #889 merged
 CURRENT_PR_HEAD = 11c4abca93802053de2ace699328f74795993114
@@ -45,3 +45,15 @@ ROOT_CAUSE
 NEXT_EXACT_ACTION = Produce fresh build/typecheck and authenticated browser evidence for 11c4abca...; consume the first newly proven failure only; then run 48/48 intelligence and final certification. Do not certify the product from older SHAs.
 
 LATEST PRODUCT HEAD NOTE = 11c4abca93802053de2ace699328f74795993114. Netlify production remains on the older published deploy 6ac3d608e2e37d0008cc0222; PR #889 Preview is READY on Netlify. Vercel is blocked by the free daily deployment/build-rate limit.
+
+
+## 2026-10-07 checkpoint — product continuity closure
+- MAIN HEAD: e33c08c7471f49fac44a14da4fdac7cc651aa297.
+- PR #894 merged: universal report-context continuity across global/product navigation.
+- PR #895 merged: fixed hook initialization order in ReportSourceContext before continuity normalization.
+- PR #896 merged: report context now exposes direct shortcuts to Command Center, Decision Inbox, and Executive Report.
+- Netlify PR previews for #894/#895/#896 reached READY on their respective commits.
+- Public Netlify production remains on the older deploy 6ac3d608e2e37d0008cc0222; this is NOT current-main proof.
+- Vercel remains blocked by the free build-rate limit; do not interpret that infrastructure limit as an application failure.
+- Exact authenticated business E2E and 48/48 certification are still OPEN gates; no false PASS.
+- NEXT EXACT ACTION: obtain same-head production deployment on a free host or authorized Netlify production path, then run authenticated full business E2E + 48/48 certification on e33c08c7471f49fac44a14da4fdac7cc651aa297.
