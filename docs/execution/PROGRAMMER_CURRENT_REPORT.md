@@ -16,6 +16,7 @@ WHAT_I_ACTUALLY_DID = Merged #905: expanded the file engine for common generic f
 
 WHAT_IS_PROVEN = PR #905 merged into main at 555b8b1865978ca7054537c7f23e579671c2e465. Final Execution Batch passed 30/30 deterministic gates; UI route completeness, storage tenant isolation, and PDF structured parser regression passed on the same HEAD. Netlify PR preview #905 passed and publicly rendered the file-analysis surface. Vercel remains blocked by the Free deployment/build-rate limit.
 
+ROOT_CAUSE = The external file-analysis surface had advertised broad format support while several common formats were still rejected by the parser switch and TXT/Markdown were routed through CSV parsing; PR #905 closes that gap with conservative parsers plus source-agnostic intelligence while retaining fail-closed evidence boundaries.
 FIRST_ACTIVE_FAILURE = The Session Handoff Contract initially failed because persisted execution docs still referenced older HEADs after #905; this checkpoint aligns the state/report with the current application HEAD. Vercel remains an infrastructure limit, not an application failure.
 
 NEXT_EXACT_ACTION = Consume fresh current-head quality/typecheck/build and certification/browser results for the post-#905 main; then prove same-head production deployment. Treat Vercel Free-rate failure as infrastructure-only.
