@@ -318,6 +318,9 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     reportJobId: input.reportJobId ?? null,
     archetypeId: archetype?.id ?? null,
     availableFields: fields,
+    evidenceVerified: advisory.proofState === 'VERIFIED',
+    evidenceSnapshotId: input.evidenceSnapshotId ?? null,
+    evidencePassportId: input.evidencePassportId ?? null,
     recommendation: recommendation ? {
       title: recommendation.title,
       action: recommendation.action,
