@@ -1,25 +1,23 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 69ce31c6b734abf26dce05fbd78e8bd0640600a1
+CURRENT MAIN HEAD = 0e02e8812c2f89cbe032a2e56c2237a7971ae72a
 REFERENCE START HEAD = 8d60d5961b0a9c39bda5aadbeb9762898a7127c1
-CURRENT EXECUTION HEAD = 69ce31c6b734abf26dce05fbd78e8bd0640600a1
-REPORT_FOR_HEAD = 69ce31c6b734abf26dce05fbd78e8bd0640600a1
+CURRENT EXECUTION HEAD = 0e02e8812c2f89cbe032a2e56c2237a7971ae72a
+REPORT_FOR_HEAD = 0e02e8812c2f89cbe032a2e56c2237a7971ae72a
 BRANCH = main
-PR = #884 merged
-UPDATED_AT = 2026-10-07T22:10:00+03:00
+PR = N/A
+UPDATED_AT = 2026-10-07T22:30:00+03:00
 
 WHAT_I_WAS_ASKED_TO_DO = Continue execution until the customer can operate the real report, not merely read product terminology.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = On the actual current mainline, merged PR #884 so Reports Center now exposes the existing report intelligence panel and the canonical row-level source explorer directly on the primary Reports Center surface. The explorer preserves the report job/source hash context and existing fail-closed evidence rules.
+WHAT_I_ACTUALLY_DID = Merged #884 to surface intelligence + canonical rows in Reports Center, #886 to add an authenticated E2E proof contract for that exact customer surface, and #887 to fix the strict TypeScript import/compatibility diagnostics observed during Vercel build diagnostics.
 
-WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. PR #884 is merged into main at 69ce31c6....
+WHAT_IS_PROVEN = The authoritative Supabase report remains job 16709d80-e012-40ef-9c12-6fd8255897f8 for تقارير ادارية.xlsx, source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313, ACCEPTED + VERIFIED + READY evidence passport, 332 authoritative rows, quality 98. Public Netlify previews show the customer-facing intelligence/source surface. The exact current main is 0e02e881....
 
-FIRST_ACTIVE_FAILURE = Vercel build/deployment rate limiting is currently blocking a fresh same-head deployment for 69ce31c6.... This is an infrastructure gate, not a fabricated application PASS/FAIL.
+FIRST_ACTIVE_FAILURE = Vercel diagnostic typechecking exposed strict ESM import-specifier errors and one Array.prototype.at compatibility error. Those exact source-level failures were corrected and merged as #887. Fresh exact-head proof is still required.
 
-ROOT_CAUSE = The Reports Center had the correct source-bound report selection and headline signal, but the actual intelligence panel and source-row workspace were visually separated into deeper routes. The merged change removes that fragmentation without inventing data.
+NEXT_EXACT_ACTION = Run/consume fresh exact-head typecheck/build and authenticated E2E for 0e02e881..., then consume 48/48 intelligence and final certification. Treat any older deployment/CI as historical only.
 
-NEXT_EXACT_ACTION = Produce a same-head deployment for 69ce31c6... when the Vercel rate-limit gate clears, then consume same-head browser artifacts and final 48/48 intelligence certification. If a new failure appears, fix only that first proven failure.
-
-CHANGED_FILES_ACCOUNTED_FOR = src/pages/ReportsPage.tsx (PR #884); existing source-bound/report intelligence components reused without new data-contract changes.
+CHANGED_FILES_ACCOUNTED_FOR = PR #884 src/pages/ReportsPage.tsx; PR #886 scripts/real-business-e2e.mjs; PR #887 strict TypeScript import specifiers + archetype evaluator Array access across 11 runtime files.
