@@ -13,6 +13,7 @@ import { parseNumber } from '@/lib/file-engine/normalizer';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
+import { DecisionIntelligenceStudio } from '@/components/DecisionIntelligenceStudio';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 
 function textValue(value: unknown): string {
@@ -982,6 +983,15 @@ export function SmartReportPage() {
     </section>
 
     {universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
+
+    <DecisionIntelligenceStudio
+      rows={report.canonicalRows.map((row) => row.data)}
+      specialty={report.specialty}
+      sourceHash={report.sourceHash}
+      reportJobId={report.jobId}
+      archetypeId={report.archetypeId}
+      recommendation={primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? null}
+    />
 
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
