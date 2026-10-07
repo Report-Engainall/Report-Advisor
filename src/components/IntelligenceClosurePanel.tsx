@@ -5,7 +5,7 @@ import {
   assessCausalHypothesis, buildKnowledgeGraph, buildLearningCandidate, buildRowCellProvenance,
   buildForecastGovernance, compareCounterfactual, detectDrift, evaluateDetailedDecisionPolicy,
   evaluateVOI, rankDecisionPortfolio, semanticDiff, savePersistentView, persistCausalHypothesis,
-  persistVOIRequest, persistHumanLearningFeedback, persistRowCellProvenance, persistDecisionOutcome,
+  persistVOIRequest, persistHumanLearningFeedback, persistRowCellProvenance, persistDecisionOutcome, persistOperationalTaskProposal,
   type DriftEvent, type ForecastGovernance, type PortfolioDecision,
 } from '@/lib/intelligence/closure-runtime';
 import { calculateDecisionScore } from '@/lib/intelligence/decisionScore';
@@ -34,6 +34,7 @@ type ClosureState = {
   loading: boolean;
   error: string | null;
   outcomes: number;
+  taskProposals: number;
 };
 
 const fmt = (v: unknown) => typeof v === 'number' && Number.isFinite(v) ? v.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) : 'غير متاح';
@@ -41,13 +42,14 @@ const numericField = (rows: KernelRow[], preferred: string[]) => preferred.find(
 
 export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId = null, recommendation = null, qualityScore, gaps, demo = false }: Props) {
   const [scenario, setScenario] = useState<GovernedScenarioRecord | null>(null);
-  const [closure, setClosure] = useState<ClosureState>({ savedViews: 0, portfolioItems: [], driftEvents: [], forecasts: [], learning: 0, lineage: 0, loading: false, error: null, outcomes: 0 });
+  const [closure, setClosure] = useState<ClosureState>({ savedViews: 0, portfolioItems: [], driftEvents: [], forecasts: [], learning: 0, lineage: 0, loading: false, error: null, outcomes: 0, taskProposals: 0 });
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [outcomeLabel, setOutcomeLabel] = useState<'correct' | 'incorrect' | 'partial' | 'unknown'>('partial');
   const [outcomeActual, setOutcomeActual] = useState('');
   const [outcomeExpected, setOutcomeExpected] = useState('');
   const [outcomeNotes, setOutcomeNotes] = useState('');
+  const [savingTask, setSavingTask] = useState(false);
 
   const driverField = useMemo(() => numericField(rows, ['salesQty','quantity','volume','netAmount']), [rows]);
   const outcomeField = useMemo(() => numericField(rows, ['profit','currentStock','netAmount','balance']), [rows]);
@@ -208,9 +210,10 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
           supabase.from('human_override_feedback').select('id').eq('company_id', companyId).limit(100),
           supabase.from('report_cell_lineage').select('id').eq('company_id', companyId).eq('report_execution_job_id', reportJobId ?? '').limit(100),
           supabase.from('decision_outcomes').select('id').eq('company_id', companyId).eq('decision_fingerprint', decisionFingerprint).limit(100),
+          supabase.from('operational_task_proposals').select('id').eq('company_id', companyId).eq('task_key', 'advisor:' + (reportJobId ?? sourceHash ?? 'unknown')).limit(1),
           fetchLatestGovernedScenario(),
         ]);
-        for (const res of [views,portfolioRes,driftRes,forecastRes,learningRes,lineageRes,outcomeRes]) if (res.error) throw res.error;
+        for (const res of [views,portfolioRes,driftRes,forecastRes,learningRes,lineageRes,outcomeRes,taskRes]) if (res.error) throw res.error;
         if (cancelled) return;
         setScenario(latest);
         setClosure({
@@ -221,6 +224,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
           learning: learningRes.data?.length ?? 0,
           lineage: lineageRes.data?.length ?? 0,
           outcomes: outcomeRes.data?.length ?? 0,
+          taskProposals: taskRes.data?.length ?? 0,
           loading: false,
           error: null,
         });
@@ -302,6 +306,27 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
     }
   };
 
+  const persistWorkProposal = async () => {
+    if (demo) { setMessage('المعاينة العامة لا تكتب إلى مركز العمل.'); return; }
+    if (!sourceHash || !reportJobId || !recommendation) { setMessage('لا يوجد اقتراح مصدرّي مؤهل للحفظ في مركز العمل.'); return; }
+    setSavingTask(true); setMessage(null);
+    try {
+      await persistOperationalTaskProposal({
+        taskKey: 'advisor:' + reportJobId,
+        role: 'manager',
+        horizon: 'today',
+        priority: 'high',
+        title: 'إجراء المستشار: ' + recommendation.slice(0, 160),
+        reason: 'توصية مربوطة بتقرير مصدرّي وبصمة المصدر ' + sourceHash,
+        expectedOutcome: 'تنفيذ الإجراء ثم تسجيل النتيجة الفعلية على نفس هوية التقرير.',
+        evidenceRequired: [sourceHash, 'reportJobId=' + reportJobId, 'verified_evidence_snapshot'],
+      });
+      setClosure((s) => ({ ...s, taskProposals: 1 }));
+      setMessage('تم حفظ المقترح في مركز العمل. ما زال مقترحًا حتى اعتماده وتنفيذه.');
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'WORK_PROPOSAL_PERSIST_FAILED'); }
+    finally { setSavingTask(false); }
+  };
+
   const persistLearning = async (overrideStatus: string) => {
     if (demo) { setMessage('قرار الإنسان في المعاينة لا يُحفظ؛ هذه النسخة لإثبات السلوك فقط.'); return; }
     try {
@@ -329,6 +354,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
     { title:'Decision Policy', value: decisionGate.outcome, detail: decisionGate.reasons.join(' · ') || 'Policy allows next state.' },
     { title:'Portfolio', value: rankedPortfolio.length ? `Top ${Math.min(3, rankedPortfolio.length)}` : 'NO_PERSISTED_PORTFOLIO', detail: rankedPortfolio[0]?.tradeOffs.join(' · ') || 'تظهر من قرارات محفوظة فقط.' },
     { title:'Outcome → Learning', value: closure.outcomes ? `${closure.outcomes} outcomes` : learningCandidate.state, detail: closure.outcomes ? 'نتائج تنفيذية مرتبطة بلقطة دليل موثقة.' : 'بانتظار نتيجة فعلية؛ لا تعديل تلقائي للسياسة.' },
+    { title:'Work Proposal', value: closure.taskProposals ? 'SAVED' : 'PROPOSED', detail: closure.taskProposals ? 'مقترح محفوظ في مركز العمل.' : 'يحتاج حفظًا واعتمادًا قبل التنفيذ.' },
     { title:'Row/Cell Provenance', value: closure.lineage ? `${closure.lineage} rows` : 'READY_TO_WRITE', detail: 'المسار: Source → Row → Field → Metric → Claim.' },
   ];
 
@@ -336,7 +362,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
     <header className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,.10),transparent_40%),linear-gradient(135deg,#08131d,#071018)] p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div><div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-emerald-300"><Sparkles size={14}/> INTELLIGENCE CLOSURE</div><h3 className="mt-2 text-xl font-black">المساحة الموحدة من السبب إلى القرار والتعلّم</h3><p className="mt-1 max-w-3xl text-[10px] leading-6 text-slate-400">كل بطاقة أدناه تحمل حدًّا ثبوتيًا: لا causal بلا إثبات سببي، لا forecast بلا backtest، ولا outcome بلا قياس فعلي.</p></div>
-        <div className="flex flex-wrap gap-2"><button type="button" onClick={saveView} disabled={saving || demo} className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-[9px] font-black text-cyan-100"><Save size={13}/>{saving ? 'يحفظ…' : 'حفظ العرض'}</button><button type="button" onClick={() => void persistCurrent()} disabled={demo} className="inline-flex items-center gap-2 rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-[9px] font-black text-emerald-100"><ShieldCheck size={13}/> حفظ Intelligence + Lineage</button></div>
+        <div className="flex flex-wrap gap-2"><button type="button" onClick={saveView} disabled={saving || demo} className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-[9px] font-black text-cyan-100"><Save size={13}/>{saving ? 'يحفظ…' : 'حفظ العرض'}</button><button type="button" onClick={() => void persistWorkProposal()} disabled={savingTask || demo || !recommendation} className="inline-flex items-center gap-2 rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-[9px] font-black text-amber-100">{savingTask ? 'يحفظ…' : 'حفظ الإجراء في مركز العمل'}</button><button type="button" onClick={() => void persistCurrent()} disabled={demo} className="inline-flex items-center gap-2 rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-[9px] font-black text-emerald-100"><ShieldCheck size={13}/> حفظ Intelligence + Lineage</button></div>
       </div>
       {message && <div className="mt-3 rounded-xl border border-white/10 bg-white/[.03] p-2.5 text-[9px] text-slate-300">{message}</div>}
       <div className="mt-4 rounded-2xl border border-amber-300/15 bg-amber-300/[.035] p-4">
@@ -366,7 +392,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
     <div className="grid gap-4 px-5 pb-5 lg:grid-cols-3">
       <div className="rounded-2xl border border-fuchsia-300/15 bg-fuchsia-300/[.04] p-4"><div className="flex items-center gap-2 text-fuchsia-200"><BrainCircuit size={15}/><span className="text-[9px] font-black">CAUSAL + VOI</span></div><div className="mt-3 space-y-2 text-[9px] text-slate-300"><div>الحالة: <b>{causal?.state ?? 'INSUFFICIENT_DATA'}</b></div><div>الدليل المؤيد: {causal?.evidenceSupporting.length ?? 0}</div><div>الدليل المعارض: {causal?.evidenceContradicting.length ?? 0}</div><div>المعلومات ذات الأولوية: {voi?.minimumEvidence.join('، ') || 'لا شيء مثبت الآن'}</div></div></div>
       <div className="rounded-2xl border border-sky-300/15 bg-sky-300/[.04] p-4"><div className="flex items-center gap-2 text-sky-200"><GitBranch size={15}/><span className="text-[9px] font-black">KNOWLEDGE GRAPH</span></div><div className="mt-3 text-[9px] text-slate-300"><div>{graph.nodes.length} nodes / {graph.edges.length} evidence-backed edges</div><div className="mt-2 space-y-1">{graph.edges.slice(0,5).map((e)=><div key={e.from+e.to} className="rounded-lg border border-white/10 bg-black/10 px-2 py-1">{e.from} → {e.to} · {e.relation}</div>)}</div></div></div>
-      <div className="rounded-2xl border border-amber-300/15 bg-amber-300/[.04] p-4"><div className="flex items-center gap-2 text-amber-200"><Waypoints size={15}/><span className="text-[9px] font-black">PERSISTED STATE</span></div><div className="mt-3 grid grid-cols-2 gap-2 text-[8px]"><div className="rounded-lg border border-white/10 bg-black/10 p-2">Saved Views <b className="block text-sm">{closure.savedViews}</b></div><div className="rounded-lg border border-white/10 bg-black/10 p-2">Portfolio <b className="block text-sm">{closure.portfolioItems.length}</b></div><div className="rounded-lg border border-white/10 bg-black/10 p-2">Forecasts <b className="block text-sm">{closure.forecasts.length}</b></div><div className="rounded-lg border border-white/10 bg-black/10 p-2">Learning <b className="block text-sm">{closure.learning}</b></div></div></div>
+      <div className="rounded-2xl border border-amber-300/15 bg-amber-300/[.04] p-4"><div className="flex items-center gap-2 text-amber-200"><Waypoints size={15}/><span className="text-[9px] font-black">PERSISTED STATE</span></div><div className="mt-3 grid grid-cols-2 gap-2 text-[8px]"><div className="rounded-lg border border-white/10 bg-black/10 p-2">Saved Views <b className="block text-sm">{closure.savedViews}</b></div><div className="rounded-lg border border-white/10 bg-black/10 p-2">Portfolio <b className="block text-sm">{closure.portfolioItems.length}</b></div><div className="rounded-lg border border-white/10 bg-black/10 p-2">Forecasts <b className="block text-sm">{closure.forecasts.length}</b></div><div className="rounded-lg border border-white/10 bg-black/10 p-2">Learning <b className="block text-sm">{closure.learning}</b></div><div className="rounded-lg border border-white/10 bg-black/10 p-2">Tasks <b className="block text-sm">{closure.taskProposals}</b></div></div></div>
     </div>
     <footer className="flex flex-wrap items-center gap-3 border-t border-white/10 px-5 py-3 text-[8px] text-slate-500"><DatabaseZap size={12}/> tenant-safe persistence · source-bound evidence · no automatic policy mutation · {closure.loading ? 'يُقرأ…' : closure.error ?? 'readback ready'}</footer>
   </section>;
