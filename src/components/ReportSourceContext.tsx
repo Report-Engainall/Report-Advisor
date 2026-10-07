@@ -17,6 +17,8 @@ const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
   profitability: { path: '/reports/profitability', label: 'تقرير الربحية' },
 };
 
+const REPORT_CONTEXT_CACHE = new Map<string, SmartReportDetail>();
+
 function stateLabel(value: string | null): string {
   if (!value) return 'غير متاح';
   const labels: Record<string, string> = {
@@ -44,7 +46,8 @@ export function ReportSourceContext() {
   const jobId = urlValidSourceHash ? urlJobId : storedJobId;
   const sourceHash = urlValidSourceHash ? urlSourceHash : storedSourceHash;
   const validSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
-  const [report, setReport] = useState<SmartReportDetail | null>(null);
+  const cacheKey = jobId && validSourceHash ? jobId + ':' + sourceHash : '';
+  const [report, setReport] = useState<SmartReportDetail | null>(() => cacheKey ? REPORT_CONTEXT_CACHE.get(cacheKey) ?? null : null);
   const [error, setError] = useState<string | null>(null);
   const [contextResolving, setContextResolving] = useState(false);
 
@@ -74,6 +77,14 @@ export function ReportSourceContext() {
       return;
     }
     let active = true;
+    const key = jobId + ':' + sourceHash;
+    const cached = REPORT_CONTEXT_CACHE.get(key);
+    if (cached) {
+      setReport(cached);
+      setError(null);
+      return () => { active = false; };
+    }
+    setReport(null);
     setError(null);
     void fetchSmartReport(jobId, sourceHash).then((value) => {
       if (!active) return;
@@ -82,6 +93,7 @@ export function ReportSourceContext() {
         setError('مصدر التقرير لا يطابق البصمة المرسلة إلى هذه الشاشة.');
         return;
       }
+      if (value) REPORT_CONTEXT_CACHE.set(key, value);
       setReport(value);
     }).catch((cause) => {
       if (active) setError(cause instanceof Error ? cause.message : String(cause));
