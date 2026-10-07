@@ -888,6 +888,16 @@ export function SmartReportPage() {
     : primaryRecommendation?.evidence?.length
       ? primaryRecommendation.evidence
       : topFinding?.evidence ?? [];
+  const brain = universalIntelligence?.brain ?? null;
+  const brainMetricValue = (value: number | null, unit: string) => {
+    if (value == null || !Number.isFinite(value)) return 'غير متاح';
+    if (unit === 'percent') return value.toLocaleString('ar-YE', { maximumFractionDigits: 1 }) + '%';
+    if (unit === 'days') return value.toLocaleString('ar-YE', { maximumFractionDigits: 1 }) + ' يوم';
+    if (unit === 'currency') return value.toLocaleString('ar-YE', { maximumFractionDigits: 0 });
+    if (unit === 'ratio') return value.toLocaleString('ar-YE', { maximumFractionDigits: 2 });
+    return value.toLocaleString('ar-YE', { maximumFractionDigits: 1 });
+  };
+
   const confidenceLabel =
     report.reportVerificationState === 'VERIFIED' && report.qualityScore != null
       ? `ثقة المصدر ${report.qualityScore}% · الدليل موثق`
@@ -983,6 +993,87 @@ export function SmartReportPage() {
     </section>
 
     {universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
+
+    {brain && (
+      <section id="brain-runtime" data-testid="smart-report-brain-runtime" className="rounded-[22px] border border-emerald-200/30 bg-slate-950 p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)] lg:p-7">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="section-kicker text-emerald-300">BRAIN RUNTIME · الحساب → الإشارة → القرار → النتيجة</div>
+            <h2 className="mt-1 text-2xl font-black">عقل التقرير يعمل على المقاييس الفعلية، لا على بطاقات وصفية</h2>
+            <p className="mt-2 max-w-4xl text-xs leading-6 text-slate-300">كل قيمة هنا مرتبطة بحقول وصفوف من المصدر. المقارنة خارجية لا تُختلق، والنتيجة والتعلّم لا يتحولان إلى PASS قبل وجود أثر فعلي.</p>
+          </div>
+          <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-right">
+            <div className="text-[9px] font-black text-emerald-200">جاهزية القرار</div>
+            <div className="mt-1 text-2xl font-black text-emerald-100">{brain.decision.readiness}%</div>
+            <div className="mt-1 text-[9px] text-slate-400">{brain.status === 'ACTIONABLE' ? 'قابل للتوصية ضمن حدود الدليل' : brain.status === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة' : 'بيانات غير كافية'}</div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {brain.metrics.filter(metric => metric.status === 'CALCULATED').slice(0, 8).map(metric => (
+            <article key={metric.id} className="rounded-2xl border border-white/10 bg-white/[.045] p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[10px] font-black text-slate-300">{metric.label}</div>
+                <span className="rounded-full bg-emerald-300/10 px-2 py-1 text-[8px] font-black text-emerald-200">CALCULATED</span>
+              </div>
+              <div className="mt-2 text-xl font-black">{brainMetricValue(metric.value, metric.unit)}</div>
+              <div className="mt-1 text-[9px] leading-5 text-slate-500">{metric.formula}</div>
+              <div className="mt-2 text-[8px] font-mono text-slate-500">rows {metric.evidence.rows.slice(0, 5).join(', ') || '—'} · n={metric.evidence.sampleSize}</div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-5 grid gap-3 lg:grid-cols-3">
+          <article className="rounded-2xl border border-rose-400/20 bg-rose-400/[.06] p-4">
+            <div className="text-[9px] font-black text-rose-200">أهم الإشارات</div>
+            <div className="mt-3 space-y-3">
+              {brain.signals.slice(0, 3).map(signal => (
+                <div key={signal.id} className="border-b border-white/5 pb-3 last:border-0 last:pb-0">
+                  <div className="text-sm font-black">{signal.title}</div>
+                  <div className="mt-1 text-[10px] leading-5 text-slate-300">{signal.statement}</div>
+                  <div className="mt-1 text-[9px] text-slate-500">{signal.next}</div>
+                </div>
+              ))}
+              {!brain.signals.length && <div className="text-xs text-slate-500">لا توجد إشارة تنفيذية مؤهلة من البيانات الحالية.</div>}
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[.05] p-4">
+            <div className="text-[9px] font-black text-cyan-200">المقارنة الداخلية</div>
+            <div className="mt-2 text-lg font-black">{brain.benchmark.state === 'INTERNAL_COMPARABLE' ? 'متاحة' : 'غير متاحة بعد'}</div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-300">{brain.benchmark.boundary}</div>
+            {brain.benchmark.state === 'INTERNAL_COMPARABLE' && (
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-xl bg-white/[.04] p-2"><div className="text-[8px] text-slate-500">الحالي</div><div className="mt-1 text-sm font-black">{brainMetricValue(brain.benchmark.current, 'ratio')}</div></div>
+                <div className="rounded-xl bg-white/[.04] p-2"><div className="text-[8px] text-slate-500">الوسيط</div><div className="mt-1 text-sm font-black">{brainMetricValue(brain.benchmark.median, 'ratio')}</div></div>
+                <div className="rounded-xl bg-white/[.04] p-2"><div className="text-[8px] text-slate-500">Q3</div><div className="mt-1 text-sm font-black">{brainMetricValue(brain.benchmark.topQuartile, 'ratio')}</div></div>
+              </div>
+            )}
+          </article>
+
+          <article className="rounded-2xl border border-amber-300/20 bg-amber-300/[.05] p-4">
+            <div className="text-[9px] font-black text-amber-200">النتيجة والتعلّم</div>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="text-lg font-black">{brain.outcome.state === 'PENDING' ? 'بانتظار التنفيذ' : brain.outcome.state === 'OBSERVED' ? 'مرصودة' : 'جزئية'}</span>
+              <span className="text-[9px] text-slate-500">{brain.outcome.observations} ملاحظات</span>
+            </div>
+            <div className="mt-2 text-[10px] leading-5 text-slate-300">{brain.outcome.boundary}</div>
+            <div className="mt-3 rounded-xl bg-white/[.04] p-3">
+              <div className="text-[8px] text-slate-500">حالة التعلّم</div>
+              <div className="mt-1 text-sm font-black text-amber-100">{brain.outcome.learning}</div>
+            </div>
+          </article>
+        </div>
+
+        {brain.decision.blockers.length > 0 && (
+          <div className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/[.05] px-4 py-3 text-[10px] leading-6 text-amber-100">
+            موانع جاهزية القرار: {brain.decision.blockers.join(' · ')}
+          </div>
+        )}
+      </section>
+    )}
+
+
 
     <DecisionIntelligenceStudio
       rows={report.canonicalRows.map((row) => row.data)}
