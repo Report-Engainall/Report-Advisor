@@ -423,7 +423,7 @@ function deriveSignals(metrics: BrainMetric[]): BrainSignal[] {
   const collection=m('receivables.collection-rate'); if(collection!=null&&collection<70)add('receivables.collection-rate',collection<50?'CRITICAL':'HIGH',70,'تحصيل منخفض',`نسبة التحصيل المحسوبة ${collection.toFixed(1)}%.`,'الرصيد غير المحصل ظاهر في المصدر ويحتاج ترتيب أولوية.', 'ابدأ بأكبر الأرصدة المستحقة بدل تعميم المشكلة.', 'رتّب العملاء بحسب الرصيد والاستحقاق ثم سجّل نتيجة التحصيل.');
   const margin=m('profitability.margin'); if(margin!=null&&margin<10)add('profitability.margin',margin<0?'CRITICAL':'HIGH',10,'هامش ربح ضعيف',`الهامش المحسوب ${margin.toFixed(1)}% من القيمة الصافية.`,'الهامش منخفض على مستوى المصدر؛ السبب يحتاج تحليل السعر/التكلفة.', 'راجع الأصناف والعملاء التي تسحب الهامش قبل تعديل الأسعار.', 'اختبر بدائل السعر والتكلفة في سيناريو مستقل.');
   const recon=m('inventory.reconciliation-gap'); if(recon!=null&&recon>0)add('inventory.reconciliation-gap',recon>=10?'CRITICAL':'HIGH',0,'فجوة تسوية في حركة المخزون',`نسبة ${recon.toFixed(1)}% من الصفوف لا تتطابق فيها معادلة الرصيد.`,'هناك تعارض بين حركات المصدر والرصيد النهائي.', 'أوقف الاستنتاج المالي للمخزون المتأثر حتى تتم المطابقة.', 'افتح الصفوف المخالفة واربطها بالمستند/الحركة.');
-  return out.sort((a,b)=>({CRITICAL:4,HIGH:3,MEDIUM:2,LOW:1}[b.severity]-({CRITICAL:4,HIGH:3,MEDIUM:2,LOW:1}[a.severity]) || b.value-a.value);
+  return out.sort((a,b)=>({CRITICAL:4,HIGH:3,MEDIUM:2,LOW:1}[b.severity]-({CRITICAL:4,HIGH:3,MEDIUM:2,LOW:1}[a.severity]) || b.value-a.value));
 }
 
 function outcomeState(input: BrainInput): BrainOutcomeState {
