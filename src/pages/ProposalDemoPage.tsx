@@ -5,6 +5,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
+import { IntelligenceResultRail } from '@/components/IntelligenceResultRail';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 import inventoryCsv from '../../tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv?raw';
 
@@ -772,6 +773,13 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     </section>
   );
 
+  const previewSignal = PUBLIC_SMART_INTELLIGENCE.intelligence.signals[0] ?? null;
+  const previewRecommendation = PUBLIC_SMART_INTELLIGENCE.intelligence.recommendations[0] ?? null;
+  const previewEvidence = previewSignal?.evidence ?? previewRecommendation?.evidence ?? [];
+  const smartResultHref = route.startsWith('/reports/smart/')
+    ? '/reports/smart/demo'
+    : '/reports/smart/demo';
+
   const commonHeader = (
     <>
       <PreviewSourceBanner />
@@ -779,8 +787,22 @@ function PreviewBusinessSurface({ path }: { path: string }) {
       <div className="flex flex-col gap-1">
         <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PREVIEW BUSINESS SURFACE</div>
         <h2 className="text-xl font-black text-ink-950">{title}</h2>
-        <p className="text-xs leading-5 text-ink-500">نفس الـFixture، مع حدود المجال معلنة وحدود البيانات غير المتاحة ظاهرة.</p>
+        <p className="text-xs leading-5 text-ink-500">النتيجة الذكية أدناه مشتقة من نفس المصدر قبل تفاصيل الشاشة، وليست بطاقة وصفية.</p>
       </div>
+      <IntelligenceResultRail
+        sourceLabel="28-inventory-stockout-reorder.csv"
+        headline={previewSignal?.message ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.headline ?? 'لا يوجد حكم استشاري مثبت.'}
+        signalTitle={previewSignal?.title ?? 'لا توجد إشارة مؤهلة'}
+        signalMessage={previewSignal?.message ?? PUBLIC_SMART_INTELLIGENCE.intelligence.summary}
+        evidence={previewEvidence}
+        whyNow={previewRecommendation?.whyNow ?? previewSignal?.soWhat ?? 'لا توجد قرينة كافية لتحديد الأولوية.'}
+        recommendationTitle={previewRecommendation?.title ?? 'مراجعة المصدر'}
+        recommendationAction={previewRecommendation?.action ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.recommendedAction ?? 'لا يوجد إجراء مؤهل.'}
+        measurement={previewRecommendation?.measurement ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.measurement ?? 'لا توجد آلية قياس مثبتة.'}
+        blocker={previewRecommendation?.blocker ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.proofRequirement ?? 'اعتماد الدليل غير مكتمل.'}
+        status={PUBLIC_SMART_INTELLIGENCE.advisory.actionState === 'ACTIONABLE' ? 'قابل للتحويل إلى عمل' : 'المراجعة مطلوبة قبل القرار'}
+        href={smartResultHref}
+      />
     </>
   );
 
