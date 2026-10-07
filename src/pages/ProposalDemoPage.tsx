@@ -480,7 +480,7 @@ function PreviewAdvisorReport() {
             ))}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-3.5 py-2 text-[10px] font-black text-white">حوّلها إلى قرار</Link>
+            <Link to="/decision-experience?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-3.5 py-2 text-[10px] font-black text-white">حوّلها إلى قرار</Link>
             <Link to="/work-center?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 bg-white px-3.5 py-2 text-[10px] font-black text-ink-800">اذهب للعمل</Link>
           </div>
         </article>
@@ -659,8 +659,8 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
         >
           {decisionState === 'جاهز' ? 'إنشاء مسودة قرار' : 'تم إنشاء مسودة القرار'}
         </button>
-        <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">فتح مساحة القرار</Link>
-        <Link to="/work-center" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">افتح مسار العمل</Link>
+        <Link to="/decision-experience?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">فتح مساحة القرار</Link>
+        <Link to="/work-center?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">افتح مسار العمل</Link>
         <span className="inline-flex min-h-10 items-center rounded-xl border border-ink-100 bg-ink-50 px-4 py-2.5 text-[10px] font-black text-ink-500">المعاينة لا تحفظ قرارًا فعليًا</span>
       </div>
     </section>
@@ -1012,9 +1012,9 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
         <PreviewInventoryTable />
         <div className="grid gap-3 md:grid-cols-3">
-          <Link to="/reports/inventory" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">المخزون</div><div className="mt-1 text-[10px] text-ink-400">كل الصفوف والتغطية</div></Link>
-          <Link to="/decision-experience" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">القرار</div><div className="mt-1 text-[10px] text-ink-400">3 إشارات قابلة للعمل</div></Link>
-          <Link to="/work-center" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">العمل</div><div className="mt-1 text-[10px] text-ink-400">تحويل الإشارة إلى إجراء</div></Link>
+          <Link to="/reports/inventory?demo=1" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">المخزون</div><div className="mt-1 text-[10px] text-ink-400">كل الصفوف والتغطية</div></Link>
+          <Link to="/decision-experience?demo=1" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">القرار</div><div className="mt-1 text-[10px] text-ink-400">3 إشارات قابلة للعمل</div></Link>
+          <Link to="/work-center?demo=1" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">العمل</div><div className="mt-1 text-[10px] text-ink-400">تحويل الإشارة إلى إجراء</div></Link>
         </div>
       </>
     );
