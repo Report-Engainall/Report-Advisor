@@ -52,7 +52,7 @@ describe('persisted intelligence fallback', () => {
           confidence: 0.9708,
         },
       ],
-    } as const;
+    };
 
     const profile = getReportArchetype('inventory.movement-card');
     if (!profile) throw new Error('missing test archetype');
