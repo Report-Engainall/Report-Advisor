@@ -259,9 +259,11 @@ function calcGrowth(ctx: Ctx, measure: string, dateField: string): Calc {
   const dateKey=ctx.field(dateField); const measureKey=ctx.field(measure);
   if(!dateKey || !measureKey) return {value:null,rows:[],note:'date or measure unavailable'};
   const points: Array<{time:number;value:number;index:number}>=ctx.rows.flatMap((row,index)=>{
-    const value=n(row[measureKey]); const date=parseDate(row[dateKey]);
-    if(value==null || !date || !Number.isFinite(date.getTime())) return [];
-    return [{time:date.getTime(),value,index}];
+    const value=n(row[measureKey]); const parsedDate=parseDate(row[dateKey]);
+    if(value==null || !parsedDate) return [];
+    const time = new Date(parsedDate).getTime();
+    if(!Number.isFinite(time)) return [];
+    return [{time,value,index}];
   });
   if(points.length<2) return {value:null,rows:[],note:'at least two dated observations required'};
   const sorted=points.sort((a,b)=>a.time-b.time);
