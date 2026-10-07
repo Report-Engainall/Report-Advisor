@@ -12,7 +12,22 @@ type RuleProfile = {
   recommendationFocus: string[];
 };
 
-type RuleReport = Parameters<typeof deriveReportIntelligence>[0];
+export type PersistedIntelligenceCalculation = {
+  metric_id?: string | null;
+  name?: string | null;
+  formula?: string | null;
+  availability_state?: string | null;
+  value?: number | null;
+  unit?: string | null;
+  sample_size?: number | null;
+  usable_sample?: number | null;
+  confidence?: number | null;
+  limitation?: string | null;
+  evidence?: unknown;
+};
+type RuleReport = Parameters<typeof deriveReportIntelligence>[0] & {
+  persistedIntelligenceCalculations?: PersistedIntelligenceCalculation[];
+};
 
 function text(value: unknown): string {
   return String(value ?? '').trim();
@@ -1042,6 +1057,55 @@ export function applyArchetypeRuleSet(
         evidence: ['customerField=' + customerKey, 'productField=' + productKey, 'pairCount=' + top[1]],
         limitation: 'تكرار العلاقة لا يثبت فرصة بيع إضافية دون قياس السلة والقيمة.',
         action: profile.recommendationFocus[0] || 'راجع العلاقة الأعلى تكرارًا مع قيمة المبيعات والوتيرة.',
+      };
+    }
+  }
+
+  if (!modelFinding && report.persistedIntelligenceCalculations?.length && family === 'inventory-movement') {
+    const usable = report.persistedIntelligenceCalculations.filter((item) =>
+      String(item.availability_state ?? '').toUpperCase() === 'CALCULATED'
+      && Number.isFinite(Number(item.value))
+    );
+    const metric = (name: string) => usable.find((item) => text(item.name) === name);
+    const coverage = metric('نسبة الرصيد إلى الطلب المرجعي');
+    const negative = metric('سجلات الرصيد السالب');
+    const zero = metric('سجلات الرصيد الصفري');
+    const completeness = metric('اكتمال البيانات');
+
+    const coverageValue = coverage ? num(coverage.value) : null;
+    const negativeValue = negative ? num(negative.value) : null;
+    const zeroValue = zero ? num(zero.value) : null;
+    const sample = Number(coverage?.sample_size ?? negative?.sample_size ?? zero?.sample_size ?? report.rowCount ?? 0);
+    const zeroRate = zeroValue != null && sample > 0 ? (zeroValue / sample) * 100 : null;
+
+    if (coverageValue != null || negativeValue != null || zeroValue != null || completeness) {
+      const highRisk = coverageValue != null && coverageValue < 1;
+      const evidence = [
+        coverage ? 'metric=' + text(coverage.name) + ':' + coverageValue : '',
+        negative ? 'metric=' + text(negative.name) + ':' + negativeValue : '',
+        zero ? 'metric=' + text(zero.name) + ':' + zeroValue : '',
+        completeness ? 'metric=' + text(completeness.name) + ':' + num(completeness.value) + '%' : '',
+        'sampleSize=' + sample,
+        ...[coverage, negative, zero, completeness].filter(Boolean).map((item) => 'confidence=' + Number(item?.confidence ?? 0).toFixed(4)),
+      ].filter(Boolean);
+
+      const parts: string[] = [];
+      if (coverageValue != null) parts.push('نسبة الرصيد إلى الطلب المرجعي = ' + coverageValue.toFixed(2));
+      if (negativeValue != null) parts.push(negativeValue + ' سجلًا برصيد سالب');
+      if (zeroValue != null) parts.push(zeroValue + ' سجلًا برصيد صفري' + (zeroRate != null ? ' (' + zeroRate.toFixed(1) + '% من العينة)' : ''));
+      if (completeness && num(completeness.value) != null) parts.push('اكتمال البيانات ' + Number(completeness.value).toFixed(1) + '%');
+
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':persisted-calculation',
+        kind: highRisk || (negativeValue != null && negativeValue > 0) ? 'RISK' : 'FINDING',
+        priority: highRisk || (negativeValue != null && negativeValue > 0) ? 'high' : 'medium',
+        title: profile.title + ' — إشارة من الحسابات الموثقة',
+        statement: parts.join('، ') + '.',
+        value: coverageValue ?? negativeValue ?? zeroValue ?? num(completeness?.value),
+        unit: coverageValue != null ? 'stock-to-demand ratio' : negativeValue != null ? 'negative-balance rows' : zeroValue != null ? 'zero-balance rows' : '% completeness',
+        evidence,
+        limitation: 'هذه الإشارة مبنية على حسابات Intelligence محفوظة لنفس التقرير؛ الحقول الخام غير المتاحة لا تُستبدل ولا تُعتبر متاحة.',
+        action: profile.recommendationFocus[0] || 'راجع تفاصيل الحسابات والأدلة المصدرية ثم حوّل النتيجة إلى إجراء.',
       };
     }
   }

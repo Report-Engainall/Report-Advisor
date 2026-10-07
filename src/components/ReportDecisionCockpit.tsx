@@ -31,7 +31,9 @@ function label(value: unknown) {
 export function ReportDecisionCockpit({ report }: { report: SmartReportDetail }) {
   const hash = encodeURIComponent(report.sourceHash);
   const job = encodeURIComponent(report.jobId);
-  const evidenceReady = report.reportVerificationState === 'VERIFIED' && report.evidenceStatus !== 'PENDING_EVIDENCE';
+  const evidenceReady = report.reportVerificationState === 'VERIFIED'
+    && report.evidenceStatus !== 'PENDING_EVIDENCE'
+    && report.archetypeState === 'SUPPORTED';
   const gap = Number(report.canonicalCommitGap ?? 0);
   const specialtyRoutes: Record<string, string> = {
     sales: '/reports/sales',
