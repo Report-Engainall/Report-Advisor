@@ -1,5 +1,5 @@
-import type { CanonicalField } from './canonical-schema';
-import type { BusinessQuestion } from './business-question-engine';
+import type { CanonicalField } from './canonical-schema.js';
+import type { BusinessQuestion } from './business-question-engine.js';
 
 export type BusinessArchetype =
   | 'sales'
