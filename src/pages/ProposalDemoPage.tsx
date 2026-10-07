@@ -708,6 +708,95 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
   );
 }
 
+type PreviewSmartResult = {
+  sourceLabel: string; headline: string; signalTitle: string; signalMessage: string;
+  whyNow: string; recommendationTitle: string; recommendationAction: string;
+  measurement: string; blocker: string; status: string; evidence: string[]; href: string;
+};
+function getPreviewSmartResult(route: string): PreviewSmartResult {
+  const sourceLabel = PREVIEW_DATASET.name;
+  const first = LIVE_ROWS[0]; const last = LIVE_ROWS[LIVE_ROWS.length - 1];
+  const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
+  const open = LIVE_TOTALS.netAmount - paidTotal;
+  const margin = LIVE_TOTALS.netAmount > 0 ? (LIVE_TOTALS.profit / LIVE_TOTALS.netAmount) * 100 : 0;
+  const base = { sourceLabel, measurement: 'أعد القياس من نفس source/job/evidence lineage بعد أي إجراء.', href: '/reports/smart/demo' };
+  if (route === '/' || route === '/reports' || route === '/reports/sales') return { ...base,
+    headline: 'المبيعات ترتفع 137.5% بينما 768 YER ما تزال مفتوحة مشتقة.', signalTitle: 'نمو المبيعات',
+    signalMessage: 'salesQty ارتفع من 8 إلى 19 وحدة في طرفي العينة.', whyNow: 'أحدث الفترات تحمل أعلى وحدات مبيعات؛ لذلك يجب قراءة النمو مع التحصيل.',
+    recommendationTitle: 'تابع النمو والتحصيل معًا', recommendationAction: 'راجع الصفوف الأعلى قيمة ثم افصل نمو المبيعات عن الرصيد المفتوح قبل اعتماد خطة جديدة.',
+    blocker: 'لا يوجد customer_id؛ لا يتم اختلاق RFM أو تركّز عملاء.', status: 'مبيعات · Source-derived', evidence: ['salesQty=8→19','netAmount=3,186 YER','open=' + open.toLocaleString('ar-YE') + ' YER'] };
+  if (route === '/reports/inventory' || route === '/reports/inventory-intelligence' || route === '/inventory') return { ...base,
+    headline: '3 صفوف حديثة تحت تغطية 2.00 مع ارتفاع الطلب.', signalTitle: 'مخاطر تغطية مركزة',
+    signalMessage: 'DOC-28-010/011/012 تحمل تغطية 1.82–1.84.', whyNow: 'الانخفاض ظهر في أحدث الفترات مع وصول المبيعات إلى 17–19 وحدة.',
+    recommendationTitle: 'راجع إعادة الطلب للأصناف الثلاثة', recommendationAction: 'تحقق من lead time وreorder point ثم ثبّت خطة الشراء.',
+    blocker: 'المصدر لا يحتوي lead time أو reorder point أو purchase quantity.', status: 'مخزون · Actionable', evidence: ['DOC-28-010','DOC-28-011','DOC-28-012'] };
+  if (route === '/reports/profitability') return { ...base,
+    headline: 'الهامش الكلي 28.8% والربح 918 YER مثبتان من المصدر.', signalTitle: 'ربحية قابلة للتفسير',
+    signalMessage: 'profit ÷ netAmount = ' + margin.toFixed(1) + '% من الصفوف نفسها.', whyNow: 'يمكن عزل الصفوف الأقل هامشًا قبل تعديل التسعير.',
+    recommendationTitle: 'ابدأ بالصفوف الأقل هامشًا', recommendationAction: 'طابق السعر والتكلفة في الصفوف الأقل هامشًا قبل اعتماد تغيير تسعيري.',
+    blocker: 'سبب الهامش وتكلفة معيارية خارج الحقول الحالية غير مثبتة.', status: 'ربحية · Source-derived', evidence: ['profit=918 YER','netAmount=3,186 YER','margin=' + margin.toFixed(1) + '%'] };
+  if (route === '/reports/receivables' || route === '/analytics/liquidity') return { ...base,
+    headline: '768 YER رصيد مفتوح مشتق؛ ليس دفتر ذمم محاسبيًا.', signalTitle: 'رصيد مفتوح مشتق',
+    signalMessage: 'netAmount − paidAmount = 768 YER.', whyNow: 'الرصيد قابل للقياس، لكن العميل والاستحقاق غير مثبتين.',
+    recommendationTitle: 'تحقق قبل إجراء التحصيل', recommendationAction: 'اربط الصفوف المفتوحة بعميل وdueDate من المصدر المحاسبي الفعلي.',
+    blocker: 'customer_id وdueDate غير موجودين.', status: 'مالي · Derived', evidence: ['netAmount=3,186 YER','paidAmount=2,418 YER','open=768 YER'] };
+  if (route === '/reports/demand-velocity' || route === '/intelligence/forecasts') return { ...base,
+    headline: 'اتجاه الطلب صاعد 137.5% بين طرفي العينة.', signalTitle: 'اتجاه طلب صاعد',
+    signalMessage: 'salesQty انتقل من 8 إلى 19 وحدة.', whyNow: 'آخر 3 فترات منخفضة التغطية أيضًا.',
+    recommendationTitle: 'اربط اتجاه الطلب بالمخزون', recommendationAction: 'راقب salesQty مع currentStock قبل اعتماد كمية شراء.',
+    blocker: 'لا توجد lead time أو reorder point؛ لا يوجد forecast شراء معتمد.', status: 'طلب · Trend-derived', evidence: ['salesGrowth=137.5%','periods=12','lowCoverage=3'] };
+  if (route === '/decision-experience' || route === '/decision-inbox' || route === '/command-center' || route === '/advisor-cases' || route === '/intelligence' || route === '/intelligence/recommendations') return { ...base,
+    headline: '3 إشارات قابلة للتحويل إلى مسودة قرار، وليست قرارًا معتمدًا.', signalTitle: 'P1 · مراجعة تغطية المخزون',
+    signalMessage: 'أحدث 3 صفوف تحت 2.00 ويمكن ردّها إلى أدلة محددة.', whyNow: 'الإشارة حديثة ومتزامنة مع ارتفاع salesQty.',
+    recommendationTitle: 'أنشئ مسودة قرار مراجعة', recommendationAction: 'اربط المسودة بـDOC-28-010/011/012 وتحقق من مدخلات الشراء المفقودة.',
+    blocker: 'لا يوجد قرار فعلي أو outcome محفوظ في Fixture المعاينة.', status: 'Decision-ready · pending approval', evidence: ['DOC-28-010','DOC-28-011','DOC-28-012'] };
+  if (route === '/work-center' || route === '/operations') return { ...base,
+    headline: 'هناك عمل محدد؛ Outcome التنفيذ لم يحدث بعد.', signalTitle: '3 أعمال مراجعة',
+    signalMessage: 'كل صف منخفض التغطية يمكن تحويله إلى عمل قابل للتتبع.', whyNow: 'الأدلة محددة، لكن التنفيذ الحقيقي غير مثبت.',
+    recommendationTitle: 'حوّل الإشارة إلى عمل', recommendationAction: 'أنشئ مهام مراجعة lead time/reorder point ثم اربطها بالقرار.',
+    blocker: 'لا توجد نتيجة تنفيذ حقيقية في المصدر.', status: 'Work-ready · outcome pending', evidence: ['lowCoverage=3','owner=inventory/procurement','outcome=pending'] };
+  if (route === '/trust' || route === '/metrics' || route === '/data-quality' || route === '/import' || route === '/import/analyze') return { ...base,
+    headline: 'المصدر مقروء والحكم قابل لإعادة التتبع إلى صفوفه.', signalTitle: 'Source-derived evidence',
+    signalMessage: '12 صفًا و11 حقلاً تدخل في الحسابات المعروضة.', whyNow: 'كل claim يجب أن يبقى مربوطًا بالمصدر والدليل نفسه أثناء التنقل.',
+    recommendationTitle: 'حافظ على lineage', recommendationAction: 'لا تعيد تعريف المصدر عند الانتقال؛ استخدم Report Context نفسه.',
+    blocker: 'المعاينة Fixture وليست tenant حيًا.', status: 'Provenance · source-bound', evidence: ['rows=12','columns=11','fixture=' + sourceLabel] };
+  if (route === '/analytics/rfm' || route === '/customers') return { ...base,
+    headline: 'تحليل العملاء محجوب لأن customer_id غير موجود.', signalTitle: 'Customer dimension missing',
+    signalMessage: 'لا توجد هوية عميل موثوقة في المصدر.', whyNow: 'أي RFM أو تركّز عملاء الآن سيكون اختلاقًا.',
+    recommendationTitle: 'أضف customer_id', recommendationAction: 'اربط sales rows بمعرف عميل ثم أعد تشغيل التحليل.',
+    blocker: 'customer_id غير موجود.', status: 'BLOCKED · insufficient data', evidence: ['customer_id=absent','rows=12'] };
+  if (route === '/analytics/aging') return { ...base,
+    headline: 'Aging غير قابل للاشتقاق لأن dueDate مفقود.', signalTitle: 'تاريخ الاستحقاق مفقود',
+    signalMessage: 'المصدر يوفر documentDate ولا يوفر dueDate.', whyNow: '768 YER المفتوحة لا تكفي لبناء buckets عمرية.',
+    recommendationTitle: 'أضف dueDate', recommendationAction: 'بعد توفر dueDate أعد تصنيف الأرصدة المفتوحة مع lineage.',
+    blocker: 'dueDate غير موجود.', status: 'BLOCKED · due date missing', evidence: ['documentDate=present','dueDate=absent','open=768 YER'] };
+  if (route === '/reports/purchases' || route === '/suppliers') return { ...base,
+    headline: 'لا يوجد ذكاء مشتريات قابل للإثبات من هذا المصدر.', signalTitle: 'Purchasing source missing',
+    signalMessage: 'purchase_qty وpurchase_amount وsupplier غير موجودة.', whyNow: 'ملء الشاشة بأرقام مشتريات سيحوّل نقص البيانات إلى بيانات وهمية.',
+    recommendationTitle: 'اربط مصدر مشتريات حقيقي', recommendationAction: 'أدخل supplier_id وpurchase fields ثم أعد تشغيل intelligence.',
+    blocker: 'حقول المشتريات والمورد غير موجودة.', status: 'BLOCKED · purchasing source missing', evidence: ['supplier_id=absent','purchase_qty=absent','purchase_amount=absent'] };
+  if (route === '/benchmark') return { ...base,
+    headline: 'Benchmark غير متاح دون cohort مرجعي مستقل.', signalTitle: 'لا توجد عينة مقارنة',
+    signalMessage: 'المعاينة تمثل عينة واحدة فقط.', whyNow: 'أي benchmark رقمي الآن سيكون مختلقًا.',
+    recommendationTitle: 'أدخل reference cohort', recommendationAction: 'اربط نفس المؤشر بعينة مرجعية مستقلة قبل المقارنة.',
+    blocker: 'reference cohort غير موجود.', status: 'BLOCKED · no benchmark sample', evidence: ['sample=1','referenceCohort=absent'] };
+  if (route === '/replay') return { ...base,
+    headline: 'Replay مكتمل حتى decision gate؛ Outcome لم يحدث بعد.', signalTitle: 'Replay جاهز',
+    signalMessage: 'يمكن إعادة بناء signal → recommendation → decision gate.', whyNow: 'لدينا evidence قبل التنفيذ فقط.',
+    recommendationTitle: 'انتظر Outcome الحقيقي', recommendationAction: 'بعد التنفيذ أضف outcome source ثم قارن قبل/بعد.',
+    blocker: 'outcome غير موجود في Fixture.', status: 'PENDING OUTCOME', evidence: ['signal=evidence-bound','outcome=absent'] };
+  return { ...base,
+    headline: PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.headline ?? 'حكم ذكي مرتبط بالمصدر.',
+    signalTitle: PUBLIC_SMART_INTELLIGENCE.intelligence.signals[0]?.title ?? 'إشارة مرتبطة بالمصدر',
+    signalMessage: PUBLIC_SMART_INTELLIGENCE.intelligence.signals[0]?.message ?? PUBLIC_SMART_INTELLIGENCE.intelligence.summary,
+    whyNow: PUBLIC_SMART_INTELLIGENCE.intelligence.recommendations[0]?.whyNow ?? 'راجع الدليل.',
+    recommendationTitle: PUBLIC_SMART_INTELLIGENCE.intelligence.recommendations[0]?.title ?? 'مراجعة الدليل',
+    recommendationAction: PUBLIC_SMART_INTELLIGENCE.intelligence.recommendations[0]?.action ?? 'راجع الدليل المرتبط بالمصدر.',
+    blocker: PUBLIC_SMART_INTELLIGENCE.intelligence.recommendations[0]?.blocker ?? 'اعتماد الدليل غير مثبت.',
+    status: 'Source-derived', evidence: PUBLIC_SMART_INTELLIGENCE.intelligence.signals[0]?.evidence ?? []
+  };
+}
+
 function PreviewBusinessSurface({ path }: { path: string }) {
   const [decisionState, setDecisionState] = useState<Record<string, 'جاهز' | 'مسودة قرار' | 'مكتمل'>>({});
   const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
@@ -773,12 +862,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
     </section>
   );
 
-  const previewSignal = PUBLIC_SMART_INTELLIGENCE.intelligence.signals[0] ?? null;
-  const previewRecommendation = PUBLIC_SMART_INTELLIGENCE.intelligence.recommendations[0] ?? null;
-  const previewEvidence = previewSignal?.evidence ?? previewRecommendation?.evidence ?? [];
-  const smartResultHref = route.startsWith('/reports/smart/')
-    ? '/reports/smart/demo'
-    : '/reports/smart/demo';
+  const previewResult = getPreviewSmartResult(route);
 
   const commonHeader = (
     <>
@@ -787,21 +871,21 @@ function PreviewBusinessSurface({ path }: { path: string }) {
       <div className="flex flex-col gap-1">
         <div className="text-[9px] font-black tracking-[.14em] text-primary-600">PREVIEW BUSINESS SURFACE</div>
         <h2 className="text-xl font-black text-ink-950">{title}</h2>
-        <p className="text-xs leading-5 text-ink-500">النتيجة الذكية أدناه مشتقة من نفس المصدر قبل تفاصيل الشاشة، وليست بطاقة وصفية.</p>
+        <p className="text-xs leading-5 text-ink-500">النتيجة الذكية هنا مرتبطة بالمجال الحالي وليست إعادة عرض لإشارة واحدة في كل الشاشات.</p>
       </div>
       <IntelligenceResultRail
-        sourceLabel="28-inventory-stockout-reorder.csv"
-        headline={previewSignal?.message ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.headline ?? 'لا يوجد حكم استشاري مثبت.'}
-        signalTitle={previewSignal?.title ?? 'لا توجد إشارة مؤهلة'}
-        signalMessage={previewSignal?.message ?? PUBLIC_SMART_INTELLIGENCE.intelligence.summary}
-        evidence={previewEvidence}
-        whyNow={previewRecommendation?.whyNow ?? previewSignal?.soWhat ?? 'لا توجد قرينة كافية لتحديد الأولوية.'}
-        recommendationTitle={previewRecommendation?.title ?? 'مراجعة المصدر'}
-        recommendationAction={previewRecommendation?.action ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.recommendedAction ?? 'لا يوجد إجراء مؤهل.'}
-        measurement={previewRecommendation?.measurement ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.measurement ?? 'لا توجد آلية قياس مثبتة.'}
-        blocker={previewRecommendation?.blocker ?? PUBLIC_SMART_INTELLIGENCE.intelligence.advisorBrief.proofRequirement ?? 'اعتماد الدليل غير مكتمل.'}
-        status={PUBLIC_SMART_INTELLIGENCE.advisory.actionState === 'ACTIONABLE' ? 'قابل للتحويل إلى عمل' : 'المراجعة مطلوبة قبل القرار'}
-        href={smartResultHref}
+        sourceLabel={previewResult.sourceLabel}
+        headline={previewResult.headline}
+        signalTitle={previewResult.signalTitle}
+        signalMessage={previewResult.signalMessage}
+        evidence={previewResult.evidence}
+        whyNow={previewResult.whyNow}
+        recommendationTitle={previewResult.recommendationTitle}
+        recommendationAction={previewResult.recommendationAction}
+        measurement={previewResult.measurement}
+        blocker={previewResult.blocker}
+        status={previewResult.status}
+        href={previewResult.href}
       />
     </>
   );

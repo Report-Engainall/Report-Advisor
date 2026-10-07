@@ -3,6 +3,7 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
+import { useReportContext } from '@/components/ReportContext';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { IntelligenceResultRail } from '@/components/IntelligenceResultRail';
 
@@ -32,8 +33,15 @@ function stateLabel(value: string | null): string {
 export function ReportSourceContext() {
   const [params] = useSearchParams();
   const location = useLocation();
-  const jobId = params.get('reportJobId')?.trim() || '';
-  const sourceHash = params.get('sourceHash')?.trim() || '';
+  const { reportJobId: storedJobId, sourceHash: storedSourceHash, setReportContext } = useReportContext();
+  const urlJobId = params.get('reportJobId')?.trim() || '';
+  const urlSourceHash = params.get('sourceHash')?.trim() || '';
+  const urlValidSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(urlSourceHash);
+  useEffect(() => {
+    if (urlJobId && urlValidSourceHash) setReportContext(urlJobId, urlSourceHash);
+  }, [urlJobId, urlSourceHash, urlValidSourceHash, setReportContext]);
+  const jobId = urlValidSourceHash ? urlJobId : storedJobId;
+  const sourceHash = urlValidSourceHash ? urlSourceHash : storedSourceHash;
   const validSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
