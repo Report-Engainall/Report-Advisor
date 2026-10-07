@@ -41,3 +41,5 @@ Commercial preview closure
 - Buyer proof wording now distinguishes endpoint comparison from aggregate growth.
 
 WHAT_I_ACTUALLY_DID = Closed preview route consistency, commercial buyer navigation, security-definer hardening, browser prerequisite ordering, and exact-head handoff alignment.
+
+WHAT_IS_PROVEN = Product Build/Commercial E2E have passed on earlier exact heads; current d8537eb commercial preview is deployed and browser/Final Certification are still pending on the latest exact head.
