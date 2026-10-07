@@ -2,7 +2,7 @@ create or replace function public.list_stale_e2e_actor_ids(p_before timestamptz,
 returns table(user_id uuid, created_at timestamptz)
 language sql
 security definer
-set search_path = auth, pg_catalog
+set search_path = pg_catalog
 as $$
   select u.id, u.created_at
   from auth.users u
@@ -13,3 +13,6 @@ as $$
   order by u.created_at asc
   limit greatest(1, least(coalesce(p_limit, 250), 1000))
 $$;
+
+revoke all on function public.list_stale_e2e_actor_ids(timestamptz, integer) from public, anon, authenticated;
+grant execute on function public.list_stale_e2e_actor_ids(timestamptz, integer) to service_role;
