@@ -39,3 +39,5 @@ Commercial preview closure
 - Buyer-facing internal links now remain inside ?demo=1 preview mode.
 - Commercial value chain SOURCE → EVIDENCE → SIGNAL → ADVISOR → DECISION → WORK → OUTCOME → LEARNING now supports explicit demo-link routing.
 - Buyer proof wording now distinguishes endpoint comparison from aggregate growth.
+
+WHAT_I_ACTUALLY_DID = Closed preview route consistency, commercial buyer navigation, security-definer hardening, browser prerequisite ordering, and exact-head handoff alignment.
