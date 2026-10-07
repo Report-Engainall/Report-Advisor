@@ -12,6 +12,8 @@ import { formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
+import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
+import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 
 function textValue(value: unknown): string {
   if (value == null || value === '') return 'غير متاح';
@@ -805,6 +807,19 @@ export function SmartReportPage() {
   };
 
   const smartAnalysis = useMemo(() => buildSmartAnalysis(report), [report]);
+  const universalIntelligence = useMemo(() => report ? buildUniversalReportIntelligence({
+    specialty: report.specialty,
+    rowCount: report.rowCount,
+    sourceAnalysis: report.sourceAnalysis,
+    canonicalRows: report.canonicalRows,
+    renderedOutput: report.renderedOutput,
+    sourcePath: report.sourcePath,
+    sourceHash: report.sourceHash,
+    reportJobId: report.jobId,
+    archetypeId: report.archetypeId,
+    evidenceSnapshotId: typeof report.renderedOutput.evidenceSnapshotId === 'string' ? report.renderedOutput.evidenceSnapshotId : null,
+    evidencePassportId: typeof report.renderedOutput.evidencePassportId === 'string' ? report.renderedOutput.evidencePassportId : null,
+  }) : null, [report]);
 
   if (loading) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
   if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
@@ -966,6 +981,7 @@ export function SmartReportPage() {
       </div>
     </section>
 
+    {universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
 
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">

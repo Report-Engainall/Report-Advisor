@@ -10,6 +10,8 @@ import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
 import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence } from '@/lib/report-intelligence/report-smart-insights';
+import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
+import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
 
 function fileIcon(format: FileFormat) {
   if (['xlsx','xls','xlsm','csv','tsv','ods'].includes(format)) return <FileSpreadsheet size={18}/>;
@@ -216,6 +218,14 @@ export function ExternalFileAnalysisPage() {
 
   const dataset = datasets[active] ?? null;
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
+  const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
+    specialty: inferSpecialty(dataset) ?? null,
+    rowCount: dataset.rowCount,
+    sourceAnalysis: { datasets: [dataset] },
+    canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
+    sourcePath: file?.name ?? dataset.name,
+    sourceHash: file?.hash ?? null,
+  }) : null, [dataset, file]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
     unmapped: dataset.columns.filter(c => !c.mappedField).length,
@@ -254,6 +264,7 @@ export function ExternalFileAnalysisPage() {
       </div>
     </CardBody></Card>}
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
+    {file && universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {datasets.length > 1 && <Card><CardBody><div className="flex gap-2 overflow-x-auto">{datasets.map((d,i)=><button key={`${d.id}-${i}`} type="button" aria-pressed={i===active} onClick={()=>setActive(i)} className={`whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-semibold ${i===active?'border-primary-500 bg-primary-50 text-primary-700':'border-ink-200 bg-white text-ink-600'}`}>ورقة/مجموعة {i+1}: {d.name}</button>)}</div></CardBody></Card>}
     {dataset && <>

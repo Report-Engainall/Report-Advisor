@@ -1,10 +1,12 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const fixture = resolve(root, 'tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv');
-const previewArgs = ['run', 'preview', '--', '--host', '127.0.0.1', '--port', '4176'];
+const port = 4300 + (process.pid % 200);
+const baseUrl = `http://127.0.0.1:${port}`;
+const previewArgs = ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(port)];
 const command = process.platform === 'win32' ? (process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe') : 'npm';
 const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'npm ' + previewArgs.join(' ')] : previewArgs;
 const child = spawn(command, args, {
@@ -19,7 +21,7 @@ try {
   let ready = false;
   for (let i = 0; i < 50; i += 1) {
     try {
-      const response = await fetch('http://127.0.0.1:4176/try-report');
+      const response = await fetch(baseUrl + '/try-report');
       if (response.ok) {
         ready = true;
         break;
@@ -35,17 +37,32 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
 
-  await page.goto('http://127.0.0.1:4176/try-report', { waitUntil: 'networkidle' });
+  await page.goto(baseUrl + '/try-report', { waitUntil: 'networkidle' });
   await page.locator('input[type="file"]').setInputFiles(fixture);
   await page.getByText('تم التعرف على المصدر', { exact: false }).waitFor({ state: 'visible', timeout: 30000 });
 
   const body = (await page.locator('body').innerText()).replace(/\\s+/g, ' ').trim();
+  if (errors.length) throw new Error('TRY_REPORT_PAGEERROR:' + errors.join(' | '));
   const required = [
     '28-inventory-stockout-reorder.csv',
     'بصمة SHA-256',
     'الصفوف',
     'الأعمدة',
     'التقرير الاستشاري الأولي',
+    'من المصدر إلى قرار قابل للتنفيذ',
+    'المصدر',
+    'الاستخراج',
+    'كشف الحقيقة',
+    'الإشارة',
+    'لماذا',
+    'ماذا يعني',
+    'التوصية',
+    'القياس',
+    'القرار',
+    'العمل',
+    'النتيجة',
+    'التعلّم',
+    'المقارنة',
     'ماذا نفعل الآن؟',
     'حد الدليل',
     'تحويل إلى تقرير ذكي'
@@ -71,6 +88,10 @@ try {
   console.log('public-report-upload-smoke: PASS');
   await browser.close();
 } finally {
-  child.kill('SIGTERM');
+  if (process.platform === 'win32' && child.pid) {
+    spawnSync(process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe', ['/d', '/s', '/c', `taskkill /PID ${child.pid} /T /F`], { stdio: 'ignore' });
+  } else {
+    child.kill('SIGTERM');
+  }
   await wait(250);
 }

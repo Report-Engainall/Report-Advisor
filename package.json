@@ -158,6 +158,7 @@
     "test:public-preview-smoke": "node scripts/public-preview-smoke.mjs",
     "test:public-report-upload-smoke": "node scripts/public-report-upload-smoke.mjs",
     "test:fixture-corpus-smoke": "node --experimental-strip-types scripts/fixture-corpus-smoke.mjs",
+    "test:universal-intelligence-48": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/universal-intelligence-48.test.mjs",
     "test:connections-language-ui": "node scripts/check-connections-language-ui.mjs",
     "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs",
     "test:report-row-coverage-contract": "node scripts/check-report-row-coverage-contract.mjs",
