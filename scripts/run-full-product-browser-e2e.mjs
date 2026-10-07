@@ -1,6 +1,10 @@
-﻿import { chromium } from 'playwright';
+import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import process from 'node:process';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+
+const LOVABLE_TRANSFER_SOURCE_HEAD = 'ff9af3792735e3612cab2d47f53ee91692617bf8';
 
 const baseURL = process.env.E2E_BASE_URL || 'http://127.0.0.1:4173';
 const supabaseURL = process.env.REPORT_ADVISOR_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -8,6 +12,107 @@ const supabaseAnonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY || process.
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
+
+const lovableBundlePath = path.resolve(reportDir, 'Report-Advisor-Lovable-Transfer-ff9af379.zip');
+
+async function createLovableTransferBundle() {
+  const bundleDir = path.resolve(reportDir, 'lovable-transfer');
+  const tarPath = path.resolve(reportDir, 'lovable-transfer-source.tar');
+  await fs.rm(bundleDir, { recursive: true, force: true });
+  await fs.rm(tarPath, { force: true });
+  await fs.rm(lovableBundlePath, { force: true });
+  await fs.mkdir(bundleDir, { recursive: true });
+
+  execFileSync('git', ['archive', '--format=tar', LOVABLE_TRANSFER_SOURCE_HEAD, '--output', tarPath], {
+    cwd: process.cwd(),
+    stdio: 'ignore',
+  });
+  execFileSync('tar', ['-xf', tarPath, '-C', bundleDir], { stdio: 'ignore' });
+  await fs.rm(tarPath, { force: true });
+
+  async function scrub(directory) {
+    const entries = await fs.readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        if (['node_modules', 'dist', 'coverage', 'artifacts', '.git'].includes(entry.name)) {
+          await fs.rm(entryPath, { recursive: true, force: true });
+          continue;
+        }
+        await scrub(entryPath);
+        continue;
+      }
+      if (
+        entry.name === '.env' ||
+        entry.name === '.env.local' ||
+        entry.name === '.env.production' ||
+        entry.name === '.env.development' ||
+        entry.name.endsWith('.pem') ||
+        entry.name.endsWith('.key')
+      ) {
+        await fs.rm(entryPath, { force: true });
+      }
+    }
+  }
+  await scrub(bundleDir);
+
+  const readme = [
+    '# Report-Advisor — Lovable Transfer Package',
+    '',
+    'Source feature HEAD: ff9af3792735e3612cab2d47f53ee91692617bf8',
+    'Repository: Report-Engainall/Report-Advisor',
+    '',
+    'CONTINUE THE EXISTING PRODUCT. DO NOT REBUILD FROM ZERO.',
+    '',
+    'Preserve existing architecture and completed functionality.',
+    'Already closed at this source head: governed Scenario Engine, persistence/readback/provenance/UI; Confidence Governance/UI; Decision lifecycle; Transactional Spine; 48-archetype runtime contract; public browser runtime; build/lint/test infrastructure.',
+    '',
+    'Complete open capabilities: authenticated Business E2E proof; 48 real-source proof; Causal Intelligence; Counterfactual/VOI beyond the existing Scenario foundation; Semantic Diff; Data/Model/Recommendation/Business Drift; Forecast Governance; Process Intelligence where event data supports it; Knowledge/Graph Intelligence; Cross-Domain Intelligence; Decision Policy; Decision Portfolio; Outcome -> Learning; Human/Active Learning; Row/Cell provenance; Unified Knowledge Workspace; persistent tenant-safe Saved Views; full advisory UX; production proof.',
+    '',
+    'PRODUCT CONTRACT: Any Source -> Truth -> Evidence -> Signal -> Decision -> Approval -> Action -> Outcome -> Learning -> Benchmark',
+    'VALUE NARRATIVE: WHAT -> WHY -> SO WHAT -> IMPACT -> WHAT NEXT -> PROOF',
+    'OWNER -> EXPECTED OUTCOME',
+    '',
+    'NEVER FABRICATE evidence, causality, financial impact, benchmark, outcomes, or probability meaning for governance scores.',
+    'PRESERVE tenant isolation, company-context guards, evidence binding, and fail-closed behavior.',
+    '',
+    'FREE CREDIT CONSTRAINT: only 29% remains. Use costly remote/production runs only when strictly necessary. Prefer local, deterministic, staging, and browser-local proof. Do not repeat proven work without a reason.',
+    '',
+    'MODIFICATION RULE: modify existing files to complete gaps; preserve working behavior. Create new files only for genuinely missing modules/tests/migrations/UI surfaces.',
+    '',
+    'ACCEPTANCE: IMPLEMENTED != INTEGRATED != PERSISTED != UI-EXPOSED != READBACK-PROVEN != BROWSER-PROVEN != PRODUCTION-PROVEN != PRODUCT COMPLETE',
+    '',
+  ].join('\n');
+  await fs.writeFile(path.join(bundleDir, 'LOVABLE_TRANSFER_README.md'), readme, 'utf8');
+
+  const inventory = execFileSync(
+    'git',
+    ['ls-tree', '-r', '--name-only', LOVABLE_TRANSFER_SOURCE_HEAD],
+    { encoding: 'utf8', cwd: process.cwd() },
+  );
+  await fs.writeFile(path.join(bundleDir, 'LOVABLE_TRACKED_FILE_INVENTORY.txt'), inventory, 'utf8');
+
+  const excluded = [
+    'Excluded intentionally:',
+    '- .git',
+    '- runtime .env files',
+    '- private key/certificate files (*.pem, *.key)',
+    '- node_modules',
+    '- dist',
+    '- coverage',
+    '- generated artifacts',
+    '',
+  ].join('\n');
+  await fs.writeFile(path.join(bundleDir, 'LOVABLE_EXCLUDED_FILES.txt'), excluded, 'utf8');
+
+  execFileSync('zip', ['-qr', lovableBundlePath, '.'], { cwd: bundleDir, stdio: 'ignore' });
+  await fs.rm(bundleDir, { recursive: true, force: true });
+
+  const stat = await fs.stat(lovableBundlePath);
+  console.log(`LOVABLE_TRANSFER_BUNDLE=${lovableBundlePath}; bytes=${stat.size}; source=${LOVABLE_TRANSFER_SOURCE_HEAD}`);
+}
+
+await createLovableTransferBundle();
 
 const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
 const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
