@@ -25,6 +25,8 @@ assert.match(script, /freshRunScoped/);
 assert.match(script, /lookup_e2e_actor_by_email/);
 assert.match(script, /cleanupStaleEphemeralActors/);
 assert.match(script, /E2E_STALE_ACTOR_CLEANUP_LIMIT/);
+assert.match(script, /E2E_STALE_ACTOR_CLEANUP_LIMIT || '250'/);
+assert.match(script, /E2E_STALE_ACTOR_DELETE_CONCURRENCY || '5'/);
 assert.match(script, /TEST_USER_A_EPHEMERAL/);
 assert.match(script, /TEST_USER_B_EPHEMERAL/);
 assert.match(workflow, /TEST_USER_A_EPHEMERAL=false/);
