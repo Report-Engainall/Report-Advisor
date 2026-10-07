@@ -130,6 +130,12 @@ function PreviewMetric({ label, value, meta }: { label: string; value: string; m
   );
 }
 
+function previewDemoHref(path: string): string {
+  if (path === '/') return '/proposal-demo';
+  if (path.includes('auth=1') || path === '/try-report') return path;
+  return path.includes('?') ? path + '&demo=1' : path + '?demo=1';
+}
+
 function PreviewNavigation({ currentPath }: { currentPath: string }) {
   const sections = [
     {
@@ -198,7 +204,7 @@ function PreviewNavigation({ currentPath }: { currentPath: string }) {
                   return (
                     <Link
                       key={href}
-                      to={href}
+                      to={previewDemoHref(href)}
                       className={`inline-flex min-h-9 items-center justify-between rounded-lg px-2.5 py-2 text-[10px] font-black transition ${active ? 'bg-primary-700 text-white' : 'text-ink-700 hover:bg-white hover:text-primary-700'}`}
                       aria-current={active ? 'page' : undefined}
                     >
@@ -259,8 +265,8 @@ function BuyerProofPanel() {
     {
       label: 'المبيعات',
       value: salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%',
-      unit: 'نمو',
-      detail: firstSales != null && lastSales != null ? 'من ' + firstSales + ' إلى ' + lastSales + ' وحدة' : 'لا توجد سلسلة كافية',
+      unit: 'فرق نسبي',
+      detail: firstSales != null && lastSales != null ? 'آخر صف ' + lastSales + ' مقابل أول صف ' + firstSales + ' وحدة' : 'لا توجد سلسلة كافية',
       tone: 'primary',
     },
     {
@@ -293,9 +299,9 @@ function BuyerProofPanel() {
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 lg:min-w-[260px]">
             <div className="text-[9px] font-black tracking-[.12em] text-slate-400">أقوى دليل حالي</div>
             <div className="mt-2 text-lg font-black text-white">
-              {latestLow ? latestLow.productCode + ' · تغطية ' + (latestLow.currentStock / latestLow.salesQty).toFixed(2) : 'لا توجد إشارة منخفضة'}
+              {latestLow ? latestLow.productCode + ' · ' + latestLow.warehouse + ' · تغطية ' + (latestLow.currentStock / latestLow.salesQty).toFixed(2) : 'لا توجد إشارة منخفضة'}
             </div>
-            <div className="mt-1 text-[10px] leading-5 text-slate-300">أحدث صف تحت حد التغطية، مع الاحتفاظ برقم المستند والمستودع كمصدر للإشارة.</div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-300">أحدث صف تحت حد التغطية؛ رقم المستند والمستودع محفوظان ضمن الدليل.</div>
           </div>
         </div>
       </div>
@@ -336,8 +342,8 @@ function BuyerProofPanel() {
           النتيجة قابلة للإثبات، والتوقعات منفصلة عن النتائج الفعلية.
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/reports/inventory" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">افتح التقرير الذكي</Link>
-          <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">جرّب القرار</Link>
+          <Link to="/reports/inventory?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">افتح التقرير الذكي</Link>
+          <Link to="/decision-experience?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">جرّب القرار</Link>
           <Link to="/try-report" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">جرّب تقريرك الآن</Link>
         </div>
       </div>
@@ -475,7 +481,7 @@ function PreviewAdvisorReport() {
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-3.5 py-2 text-[10px] font-black text-white">حوّلها إلى قرار</Link>
-            <Link to="/work-center" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 bg-white px-3.5 py-2 text-[10px] font-black text-ink-800">اذهب للعمل</Link>
+            <Link to="/work-center?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 bg-white px-3.5 py-2 text-[10px] font-black text-ink-800">اذهب للعمل</Link>
           </div>
         </article>
       </div>
@@ -914,7 +920,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <PreviewMetric label="أول شهر" value={String(first.salesQty)} meta={first.documentDate} />
           <PreviewMetric label="آخر شهر" value={String(last.salesQty)} meta={last.documentDate} />
-          <PreviewMetric label="النمو بين الطرفين" value={salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%'} meta="اتجاه وصفي" />
+          <PreviewMetric label="التغير بين الطرفين" value={salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%'} meta="مقارنة أول/آخر صف" />
           <PreviewMetric label="عدد الفترات" value={String(LIVE_ROWS.length)} meta="صفًا زمنيًا في المصدر" />
         </div>
         <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
@@ -1124,7 +1130,7 @@ function ProposalCommercialDemoPage() {
             <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام الـFixture، وليست بيانات شركة حيّة</h2>
             <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">البيانات المعروضة أدناه تُقرأ وقت البناء مباشرة من الملف canonical fixture: 28-inventory-stockout-reorder.csv. كل مؤشر في هذه المساحة مشتق من الصفوف نفسها، ولا توجد أرقام ملخّصة مستقلة عنها.</p>
           </div>
-          <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
+          <Link to="/reports?demo=1" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {[
@@ -1301,8 +1307,8 @@ function ProposalCommercialDemoPage() {
               <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">يحتاج مراجعة</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2 print:hidden">
-              <Link to="/" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
-              <Link to="/reports/executive" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
+              <Link to="/reports/inventory?demo=1" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
+              <Link to="/reports/executive?demo=1" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
             </div>
           </CardBody>
         </Card>
@@ -1316,7 +1322,7 @@ function ProposalCommercialDemoPage() {
             <div key={item.requirement} className="rounded-xl border border-ink-100 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">مرتبط بـ: {item.match.title}</div>}</div>
-                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
+                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={previewDemoHref(item.match.path)} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
               </div>
             </div>
           ))}
@@ -1327,7 +1333,7 @@ function ProposalCommercialDemoPage() {
         <CardHeader title="تسلسل العرض الحي" subtitle="تدفق مقترح لعرض حقيقي بدون نسخ منفصلة من المنتج." />
         <CardBody>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {matched.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={item.match!.path} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
+            {matched.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={previewDemoHref(item.match!.path)} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
           </div>
         </CardBody>
       </Card>
