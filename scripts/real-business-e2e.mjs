@@ -1092,6 +1092,24 @@ async function proveDecisionApprovalActionOutcome(page, report) {
 }
 
 
+async function proveDecisionInboxReportContext(page, report) {
+  const target = baseURL + '/decision-inbox?reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
+  const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
+  assert.ok(response && response.status() < 400, 'decision-inbox-context: HTTP ' + (response?.status() ?? 'NO_RESPONSE'));
+  const body = (await page.locator('body').innerText()).trim();
+  assertCurrentReportText(body, 'decision inbox report context');
+  assert.ok(body.includes('قرارات التقرير الحالي فقط'), 'DECISION_INBOX_SOURCE_BOUND_HEADER_MISSING');
+  assert.ok(body.includes(report.reportJobId), 'DECISION_INBOX_REPORT_JOB_ID_VISIBLE_MISSING');
+  assert.ok(body.includes(CURRENT_REPORT_SOURCE_HASH), 'DECISION_INBOX_SOURCE_HASH_VISIBLE_MISSING');
+  evidence.steps.push({
+    step: 'decision-inbox-source-bound-context',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+  });
+  await page.screenshot({ path: reportDir + '/current-decision-inbox-source-bound.png', fullPage: true });
+}
+
 async function proveAdvisorCasesReportContext(page, report) {
   const target = baseURL + '/advisor-cases?reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
   const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
@@ -1182,6 +1200,7 @@ try {
   await proveSourceBoundSurface(pageC, currentReport, { label: 'work', path: '/work-center' });
   await proveSourceBoundSurface(pageC, currentReport, { label: 'inventory', path: '/reports/inventory' });
   await proveAdvisorCasesReportContext(pageC, currentReport);
+  await proveDecisionInboxReportContext(pageC, currentReport);
   await pageC.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
   await pageC.reload({ waitUntil: 'networkidle', timeout: 30000 });
   assert.equal(await currentTenant(pageC), REAL_SMART_REPORT_COMPANY_ID, 'CERTIFIED_REPORT_TENANT_CHANGED_ACROSS_REFRESH');

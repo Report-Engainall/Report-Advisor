@@ -14,7 +14,7 @@ import {
   Sparkles,
   UserRound,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
@@ -103,6 +103,9 @@ function filterItem(item: InboxItem, filter: InboxFilter): boolean {
 }
 
 export function DecisionInboxPage() {
+  const [params] = useSearchParams();
+  const contextReportJobId = params.get('reportJobId')?.trim() || '';
+  const contextSourceHash = params.get('sourceHash')?.trim() || '';
   const [items, setItems] = useState<InboxItem[]>([]);
   const [filter, setFilter] = useState<InboxFilter>(() => {
     try {
@@ -261,16 +264,21 @@ export function DecisionInboxPage() {
     localStorage.setItem(VIEW_KEY, JSON.stringify({ filter, query }));
   }, [filter, query]);
 
+  const contextItems = useMemo(() => {
+    if (!contextReportJobId || !contextSourceHash) return items;
+    return items.filter((item) => item.reportJobId === contextReportJobId && item.sourceHash === contextSourceHash);
+  }, [items, contextReportJobId, contextSourceHash]);
+
   const visibleItems = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return items.filter((item) => {
+    return contextItems.filter((item) => {
       if (!filterItem(item, filter)) return false;
       if (!q) return true;
       return [item.signalTitle, item.signalMessage, item.sourcePath, item.decisionKey, item.owner]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(q));
     });
-  }, [items, filter, query]);
+  }, [contextItems, filter, query]);
 
   const saveAsCase = async (item: InboxItem) => {
     setBusyDecisionId(item.decisionId);
@@ -324,11 +332,11 @@ export function DecisionInboxPage() {
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   const counts = {
-    attention: items.filter((item) => filterItem(item, 'attention')).length,
-    approval: items.filter((item) => item.approvalStatus === 'PENDING').length,
-    work: items.filter((item) => Boolean(item.workItemId) && item.workItemStatus !== 'COMPLETED').length,
-    outcome: items.filter((item) => Boolean(item.workItemId) && !item.outcomeId).length,
-    critical: items.filter((item) => item.priority === 'P0' || item.priority === 'P1').length,
+    attention: contextItems.filter((item) => filterItem(item, 'attention')).length,
+    approval: contextItems.filter((item) => item.approvalStatus === 'PENDING').length,
+    work: contextItems.filter((item) => Boolean(item.workItemId) && item.workItemStatus !== 'COMPLETED').length,
+    outcome: contextItems.filter((item) => Boolean(item.workItemId) && !item.outcomeId).length,
+    critical: contextItems.filter((item) => item.priority === 'P0' || item.priority === 'P1').length,
   };
 
   return (
@@ -343,6 +351,20 @@ export function DecisionInboxPage() {
           </>
         }
       />
+
+      {contextReportJobId && contextSourceHash ? (
+        <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-4 shadow-sm" aria-label="سياق التقرير الحالي في صندوق القرار">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="text-[9px] font-black tracking-[.14em] text-primary-800">SOURCE-BOUND DECISION INBOX</div>
+              <h2 className="mt-1 text-base font-black text-ink-950">قرارات التقرير الحالي فقط</h2>
+              <p className="mt-1 text-[10px] leading-5 text-ink-700">تم تقييد الصندوق على نفس التقرير والبصمة المصدرية؛ لا تختلط قرارات تقارير أخرى.</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-500"><span className="rounded-full bg-white px-2 py-1 font-mono">job={contextReportJobId}</span><span className="rounded-full bg-white px-2 py-1 font-mono">hash={contextSourceHash}</span><span className="rounded-full bg-white px-2 py-1 font-black">{contextItems.length} قرار مرتبط</span></div>
+            </div>
+            <Link to={'/reports/smart/' + encodeURIComponent(contextReportJobId) + '?sourceHash=' + encodeURIComponent(contextSourceHash)} className="btn-primary text-[10px]">العودة إلى التقرير الذكي <FileSearch size={12}/></Link>
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5" aria-label="فلاتر صندوق القرار">
         {([
@@ -414,8 +436,8 @@ export function DecisionInboxPage() {
                       {item.reportJobId && item.sourceHash && <Link to={'/reports/smart/' + item.reportJobId + '?sourceHash=' + encodeURIComponent(item.sourceHash) + '#decision-evidence-inspector'} className="btn-ghost justify-center text-[9px]"><FileSearch size={12}/> الدليل</Link>}
                       {!item.approvalStatus && item.status === 'PROPOSED' && <button type="button" disabled={busy} onClick={() => void requestApproval(item)} className="btn-secondary justify-center text-[9px] disabled:opacity-50"><ShieldCheck size={12}/> اطلب اعتماد</button>}
                       <button type="button" disabled={busy || !item.sourceHash || !item.reportJobId} onClick={() => void saveAsCase(item)} className="btn-secondary justify-center text-[9px] disabled:opacity-50"><Bookmark size={12}/> احفظ كقضية</button>
-                      {item.workItemId && <Link to={'/work-center?decisionId=' + encodeURIComponent(item.decisionId)} className="btn-secondary justify-center text-[9px]"><Play size={12}/> افتح العمل</Link>}
-                      <Link to={'/replay?decisionId=' + encodeURIComponent(item.decisionId)} className="btn-ghost justify-center text-[9px]"><RefreshCw size={12}/> Replay</Link>
+                      {item.workItemId && <Link to={'/work-center?decisionId=' + encodeURIComponent(item.decisionId) + (item.reportJobId && item.sourceHash ? '&reportJobId=' + encodeURIComponent(item.reportJobId) + '&sourceHash=' + encodeURIComponent(item.sourceHash) : '')} className="btn-secondary justify-center text-[9px]"><Play size={12}/> افتح العمل</Link>}
+                      <Link to={'/replay?decisionId=' + encodeURIComponent(item.decisionId) + (item.reportJobId && item.sourceHash ? '&reportJobId=' + encodeURIComponent(item.reportJobId) + '&sourceHash=' + encodeURIComponent(item.sourceHash) : '')} className="btn-ghost justify-center text-[9px]"><RefreshCw size={12}/> Replay</Link>
                     </div>
                   </aside>
                 </div>
