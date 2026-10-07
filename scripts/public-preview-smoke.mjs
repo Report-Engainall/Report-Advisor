@@ -1,7 +1,22 @@
 import { spawn, spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
+const appSource = fs.readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+if (appSource.includes('isNetlifyPreview') || appSource.includes('isPrimaryPublicPreview') || appSource.includes('isGitHubPagesPublicPreview')) {
+  throw new Error('PUBLIC_ROUTE_HOST_HIJACK_CONTRACT_FAILED');
+}
+if (!appSource.includes("const explicitPreviewQuery = query.get('preview') === '1'")) {
+  throw new Error('EXPLICIT_PREVIEW_QUERY_CONTRACT_FAILED');
+}
+if (!appSource.includes("location.pathname === '/proposal-demo'")) {
+  throw new Error('EXPLICIT_PROPOSAL_DEMO_ROUTE_CONTRACT_FAILED');
+}
+if (!appSource.includes('return <AuthGate><AppShell /></AuthGate>')) {
+  throw new Error('REAL_APP_ROUTE_AUTH_CONTRACT_FAILED');
+}
+
 const port = 4300 + (process.pid % 200);
 const baseUrl = `http://127.0.0.1:${port}`;
 const previewArgs = ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(port)];
@@ -42,6 +57,7 @@ try {
     ['/reports/sales?demo=1', 'المبيعات'],
     ['/decision-experience?demo=1', 'تجربة القرار'],
     ['/try-report', 'مختبر الملفات والبيانات'],
+    ['/reports/inventory', 'الدخول إلى مساحة العمل'],
   ];
 
   for (const [path, expected] of cases) {
