@@ -53,6 +53,7 @@ const AdvisorCasesPage = lazy(() => import('@/pages/AdvisorCasesPage').then(m =>
 const ExecutiveReportPage = lazy(() => import('@/pages/ExecutiveReportPage').then(m => ({ default: m.ExecutiveReportPage })));
 const MetricInspectorPage = lazy(() => import('@/pages/MetricInspectorPage').then(m => ({ default: m.MetricInspectorPage })));
 const ProposalDemoPage = lazy(() => import('@/pages/ProposalDemoPage').then(m => ({ default: m.ProposalDemoPage })));
+const PublicSmartReportDemoPage = lazy(() => import('@/pages/PublicSmartReportDemoPage').then(m => ({ default: m.PublicSmartReportDemoPage })));
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then(m => ({ default: m.OnboardingPage })));
 const WorkCenterPage = lazy(() => import('@/pages/WorkCenterPage').then(m => ({ default: m.WorkCenterPage })));
 const OperationsPage = lazy(() => import('@/pages/OperationsPage').then(m => ({ default: m.OperationsPage })));
@@ -198,8 +199,10 @@ function PublicOrAuthenticatedWorkspace() {
   const isGitHubPagesPublicPreview = host === 'report-engainall.github.io';
   const demoQuery = query.get('demo') === '1';
   const authQuery = query.get('auth') === '1';
+  const isPublicSmartReportDemo = location.pathname === '/reports/smart/demo' || location.pathname === '/reports/smart/demo/';
 
   if (authQuery) return <AuthGate />;
+  if (isPublicSmartReportDemo) return <PublicSmartReportDemoPage />;
   if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview) return <ProposalDemoPage />;
   return <AuthGate><AppShell /></AuthGate>;
 }
