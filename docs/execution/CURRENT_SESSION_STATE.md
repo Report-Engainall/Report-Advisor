@@ -1,11 +1,11 @@
-﻿SESSION HANDOFF = READY
+SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
+CURRENT_EXACT_HEAD = eda8932be50a58a95a61e5c75de0742b2f99d793
 CURRENT_MAIN_HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
-CURRENT_EXECUTION_HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
+CURRENT_EXECUTION_HEAD = eda8932be50a58a95a61e5c75de0742b2f99d793
 BRANCH = exec/decision-completion-20261007
 PR = #867
-CURRENT_PR_HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
+CURRENT_PR_HEAD = eda8932be50a58a95a61e5c75de0742b2f99d793
 
 WHAT_ACTUALLY_HAPPENED
 - Closed the intelligence workspace runtime/UI/persistence gap across causal hypotheses, counterfactuals, VOI, semantic and business drift, forecast governance, process intelligence, evidence-backed knowledge graph, cross-domain join guards, decision policy/portfolio ranking, outcome-to-learning, and row/cell provenance.
@@ -43,4 +43,4 @@ ROOT_CAUSE
 - The certification performance gate treated dedicated Web Worker bundles as if they were initial UI-thread chunks, while the actual critical path was also carrying a static DashboardPage entry.
 - Session handoff records and route reachability had drifted behind the execution branch.
 
-NEXT_EXACT_ACTION = Consume terminal CI for e8e3f270; fix only the first newly proven failure; then consume same-head browser/certification artifacts. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.
+NEXT_EXACT_ACTION = Consume terminal CI for eda8932be50a58a95a61e5c75de0742b2f99d793; fix only the first newly proven failure; then consume same-head browser/certification artifacts. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.
