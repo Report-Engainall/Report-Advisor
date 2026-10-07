@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - diag/lint-exact-errors-20261007
+  pull_request:
 
 permissions:
   contents: read
