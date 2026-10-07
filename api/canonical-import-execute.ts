@@ -312,8 +312,7 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     const rawEntityType = body.entityType;
     const genericEntity = typeof rawEntityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(rawEntityType);
     if (rawEntityType !== 'products' && rawEntityType !== 'customers' && rawEntityType !== 'sales_invoices' && !genericEntity) throw new Error('entity_type_invalid');
-    const entityType = rawEntityType as CanonicalImportEntityType;
-    if (typeof body.importId !== 'string' || !body.importId.trim()) throw new Error('import_id_invalid');
+     if (typeof body.importId !== 'string' || !body.importId.trim()) throw new Error('import_id_invalid');
     if (typeof body.fileName !== 'string' || !body.fileName.trim() || body.fileName.length > 512) throw new Error('file_name_invalid');
     if (typeof body.sourceHash !== 'string' || !/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash)) throw new Error('source_hash_invalid');
     const mode = body.mode === 'finalize-source' ? 'finalize-source' : 'execute';
