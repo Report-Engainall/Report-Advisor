@@ -5,7 +5,7 @@ import {
   assessCausalHypothesis, buildKnowledgeGraph, buildLearningCandidate, buildRowCellProvenance,
   buildForecastGovernance, compareCounterfactual, detectDrift, evaluateDetailedDecisionPolicy,
   evaluateVOI, rankDecisionPortfolio, semanticDiff, savePersistentView, persistCausalHypothesis,
-  persistVOIRequest, persistHumanLearningFeedback, persistRowCellProvenance,
+  persistVOIRequest, persistHumanLearningFeedback, persistRowCellProvenance, persistDecisionOutcome,
   type DriftEvent, type ForecastGovernance, type PortfolioDecision,
 } from '@/lib/intelligence/closure-runtime';
 import { calculateDecisionScore } from '@/lib/intelligence/decisionScore';
@@ -33,6 +33,7 @@ type ClosureState = {
   lineage: number;
   loading: boolean;
   error: string | null;
+  outcomes: number;
 };
 
 const fmt = (v: unknown) => typeof v === 'number' && Number.isFinite(v) ? v.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) : 'غير متاح';
@@ -40,9 +41,13 @@ const numericField = (rows: KernelRow[], preferred: string[]) => preferred.find(
 
 export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId = null, recommendation = null, qualityScore, gaps, demo = false }: Props) {
   const [scenario, setScenario] = useState<GovernedScenarioRecord | null>(null);
-  const [closure, setClosure] = useState<ClosureState>({ savedViews: 0, portfolioItems: [], driftEvents: [], forecasts: [], learning: 0, lineage: 0, loading: false, error: null });
+  const [closure, setClosure] = useState<ClosureState>({ savedViews: 0, portfolioItems: [], driftEvents: [], forecasts: [], learning: 0, lineage: 0, loading: false, error: null, outcomes: 0 });
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [outcomeLabel, setOutcomeLabel] = useState<'correct' | 'incorrect' | 'partial' | 'unknown'>('partial');
+  const [outcomeActual, setOutcomeActual] = useState('');
+  const [outcomeExpected, setOutcomeExpected] = useState('');
+  const [outcomeNotes, setOutcomeNotes] = useState('');
 
   const driverField = useMemo(() => numericField(rows, ['salesQty','quantity','volume','netAmount']), [rows]);
   const outcomeField = useMemo(() => numericField(rows, ['profit','currentStock','netAmount','balance']), [rows]);
@@ -181,9 +186,10 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
   }), [closure.portfolioItems]);
 
   const rankedPortfolio = useMemo(() => portfolio.length ? rankDecisionPortfolio(portfolio) : [], [portfolio]);
+  const decisionFingerprint = useMemo(() => recommendation ? 'recommendation:' + recommendation : 'report:' + (reportJobId ?? 'unknown'), [recommendation, reportJobId]);
   const learningCandidate = useMemo(() => buildLearningCandidate({
-    decisionKey: recommendation ? 'recommendation:' + recommendation : 'report:' + (reportJobId ?? 'unknown'),
-  }), [recommendation, reportJobId]);
+    decisionKey: decisionFingerprint,
+  }), [decisionFingerprint]);
 
   useEffect(() => {
     if (demo) return;
@@ -201,9 +207,10 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
           supabase.from('forecasts').select('id,metric,period,forecast_value,lower_bound,upper_bound,model_name,quality_score,confidence,data_points').eq('company_id', companyId).order('created_at', { ascending:false }).limit(20),
           supabase.from('human_override_feedback').select('id').eq('company_id', companyId).limit(100),
           supabase.from('report_cell_lineage').select('id').eq('company_id', companyId).eq('report_execution_job_id', reportJobId ?? '').limit(100),
+          supabase.from('decision_outcomes').select('id').eq('company_id', companyId).eq('decision_fingerprint', decisionFingerprint).limit(100),
           fetchLatestGovernedScenario(),
         ]);
-        for (const res of [views,portfolioRes,driftRes,forecastRes,learningRes,lineageRes]) if (res.error) throw res.error;
+        for (const res of [views,portfolioRes,driftRes,forecastRes,learningRes,lineageRes,outcomeRes]) if (res.error) throw res.error;
         if (cancelled) return;
         setScenario(latest);
         setClosure({
@@ -213,6 +220,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
           forecasts: (forecastRes.data ?? []) as Array<Record<string, unknown>>,
           learning: learningRes.data?.length ?? 0,
           lineage: lineageRes.data?.length ?? 0,
+          outcomes: outcomeRes.data?.length ?? 0,
           loading: false,
           error: null,
         });
@@ -256,6 +264,44 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
     } catch (error) { setMessage(error instanceof Error ? error.message : 'PERSIST_INTELLIGENCE_FAILED'); }
   };
 
+  const persistOutcome = async () => {
+    if (demo) { setMessage('المعاينة العامة لا تكتب نتائج تنفيذية.'); return; }
+    if (!sourceHash || !reportJobId) { setMessage('لا يمكن تسجيل النتيجة دون reportJobId و sourceHash.'); return; }
+    setSaving(true); setMessage(null);
+    try {
+      const { data: snapshots, error: snapshotError } = await supabase
+        .from('report_evidence_snapshots')
+        .select('id,verification_status,source_hash,report_execution_job_id')
+        .eq('report_execution_job_id', reportJobId)
+        .eq('source_hash', sourceHash)
+        .eq('verification_status', 'VERIFIED')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (snapshotError) throw snapshotError;
+      const snapshot = snapshots?.[0];
+      if (!snapshot?.id) throw new Error('VERIFIED_EVIDENCE_SNAPSHOT_REQUIRED_FOR_OUTCOME');
+      const actual = outcomeActual.trim() === '' ? null : Number(outcomeActual);
+      const expected = outcomeExpected.trim() === '' ? null : Number(outcomeExpected);
+      if (actual != null && !Number.isFinite(actual)) throw new Error('INVALID_ACTUAL_VALUE');
+      if (expected != null && !Number.isFinite(expected)) throw new Error('INVALID_EXPECTED_VALUE');
+      await persistDecisionOutcome({
+        decisionFingerprint,
+        evidenceSnapshotId: String(snapshot.id),
+        observedAt: new Date().toISOString(),
+        label: outcomeLabel,
+        actualValue: actual,
+        expectedValue: expected,
+        notes: outcomeNotes.trim() || null,
+      });
+      setClosure((s) => ({ ...s, outcomes: s.outcomes + 1 }));
+      setMessage('تم تسجيل النتيجة الفعلية وربطها بلقطة الدليل الموثقة. لا تُعدّل سياسة القرار تلقائيًا.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'OUTCOME_PERSIST_FAILED');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const persistLearning = async (overrideStatus: string) => {
     if (demo) { setMessage('قرار الإنسان في المعاينة لا يُحفظ؛ هذه النسخة لإثبات السلوك فقط.'); return; }
     try {
@@ -282,7 +328,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
     { title:'Knowledge Graph', value: graph.edges.length ? `${graph.edges.length} edges` : 'SOURCE_LINKED', detail: `${graph.nodes.length} nodes · isolated=${graph.isolated.length}` },
     { title:'Decision Policy', value: decisionGate.outcome, detail: decisionGate.reasons.join(' · ') || 'Policy allows next state.' },
     { title:'Portfolio', value: rankedPortfolio.length ? `Top ${Math.min(3, rankedPortfolio.length)}` : 'NO_PERSISTED_PORTFOLIO', detail: rankedPortfolio[0]?.tradeOffs.join(' · ') || 'تظهر من قرارات محفوظة فقط.' },
-    { title:'Outcome → Learning', value: learningCandidate.state, detail: `${closure.learning} human feedback records · لا تعديل تلقائي للسياسة.` },
+    { title:'Outcome → Learning', value: closure.outcomes ? `${closure.outcomes} outcomes` : learningCandidate.state, detail: closure.outcomes ? 'نتائج تنفيذية مرتبطة بلقطة دليل موثقة.' : 'بانتظار نتيجة فعلية؛ لا تعديل تلقائي للسياسة.' },
     { title:'Row/Cell Provenance', value: closure.lineage ? `${closure.lineage} rows` : 'READY_TO_WRITE', detail: 'المسار: Source → Row → Field → Metric → Claim.' },
   ];
 
@@ -293,6 +339,26 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
         <div className="flex flex-wrap gap-2"><button type="button" onClick={saveView} disabled={saving || demo} className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-[9px] font-black text-cyan-100"><Save size={13}/>{saving ? 'يحفظ…' : 'حفظ العرض'}</button><button type="button" onClick={() => void persistCurrent()} disabled={demo} className="inline-flex items-center gap-2 rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-[9px] font-black text-emerald-100"><ShieldCheck size={13}/> حفظ Intelligence + Lineage</button></div>
       </div>
       {message && <div className="mt-3 rounded-xl border border-white/10 bg-white/[.03] p-2.5 text-[9px] text-slate-300">{message}</div>}
+      <div className="mt-4 rounded-2xl border border-amber-300/15 bg-amber-300/[.035] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-amber-200">OUTCOME CAPTURE · النتيجة الفعلية</div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-400">التسجيل يتطلب Snapshot موثقًا لنفس التقرير. الهدف هو إغلاق حلقة التنفيذ والتعلّم، وليس كتابة PASS يدوي.</div>
+          </div>
+          <button type="button" onClick={() => void persistOutcome()} disabled={saving || demo || !sourceHash || !reportJobId} className="rounded-xl bg-amber-200 px-3 py-2 text-[9px] font-black text-slate-950 disabled:opacity-40">تسجيل النتيجة</button>
+        </div>
+        <div className="mt-3 grid gap-2 md:grid-cols-4">
+          <select value={outcomeLabel} onChange={(event) => setOutcomeLabel(event.target.value as typeof outcomeLabel)} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-[10px] text-white">
+            <option value="correct">Correct · تحققت</option>
+            <option value="partial">Partial · جزئية</option>
+            <option value="incorrect">Incorrect · لم تتحقق</option>
+            <option value="unknown">Unknown · غير محسومة</option>
+          </select>
+          <input value={outcomeExpected} onChange={(event) => setOutcomeExpected(event.target.value)} inputMode="decimal" placeholder="القيمة المتوقعة" className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-[10px] text-white placeholder:text-slate-600" />
+          <input value={outcomeActual} onChange={(event) => setOutcomeActual(event.target.value)} inputMode="decimal" placeholder="القيمة الفعلية" className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-[10px] text-white placeholder:text-slate-600" />
+          <input value={outcomeNotes} onChange={(event) => setOutcomeNotes(event.target.value)} placeholder="ملاحظة/قرينة بعد التنفيذ" className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-[10px] text-white placeholder:text-slate-600" />
+        </div>
+      </div>
     </header>
     <div className="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-4">
       {blocks.map((item) => <article key={item.title} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex items-center justify-between gap-2"><div className="text-[8px] font-black tracking-[.12em] text-slate-500">{item.title}</div><Layers3 size={13} className="text-emerald-300/70"/></div><div className="mt-2 text-sm font-black text-white">{item.value}</div><div className="mt-1 text-[9px] leading-5 text-slate-400">{item.detail}</div></article>)}
