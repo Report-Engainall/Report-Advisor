@@ -43,6 +43,8 @@ assert.ok(packet.metrics.some(item => item.id==='inventory.coverage-days'));
 assert.ok(packet.metrics.some(item => item.id==='inventory.zero-negative-share' && item.status==='CALCULATED'));
 assert.ok(packet.signals.length >= 3);
 assert.equal(packet.benchmark.state,'INTERNAL_COMPARABLE');
+assert.equal(packet.benchmark.metricId,'sales.average-document');
+assert.equal(packet.benchmark.dimension,'documentNo');
 assert.ok(packet.benchmark.entityCount >= 5);
 assert.equal(packet.outcome.state,'PARTIAL');
 assert.equal(packet.outcome.learning,'CANDIDATE');
