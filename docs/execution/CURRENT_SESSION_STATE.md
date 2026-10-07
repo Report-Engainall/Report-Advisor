@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
+CURRENT_EXACT_HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
 CURRENT_MAIN_HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
-CURRENT_EXECUTION_HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
+CURRENT_EXECUTION_HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
 BRANCH = exec/decision-completion-20261007
 PR = #867
-CURRENT_PR_HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
+CURRENT_PR_HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
 
 WHAT_ACTUALLY_HAPPENED
 - Closed the intelligence workspace runtime/UI/persistence gap across causal hypotheses, counterfactuals, VOI, semantic and business drift, forecast governance, process intelligence, evidence-backed knowledge graph, cross-domain join guards, decision policy/portfolio ranking, outcome-to-learning, and row/cell provenance.
@@ -29,7 +29,7 @@ WHAT_IS_PROVEN
 - Supabase intelligence workspace migration is applied to staging with RLS enabled; authenticated CRUD readback for the newly added tables is not claimed.
 
 CURRENT_OPEN_GATES
-- Final Certification Gate for 78c72852a45470e24a1fc3321ae3daa05fa304ad.
+- Final Certification Gate for bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0.
 - Authenticated business browser E2E and tenant-isolation proof remain NOT_PROVEN pending provisioned actors/backend secrets.
 - 48 real-source runtime proof remains NOT_PROVEN pending the governed real corpus plus authenticated/service-role execution.
 - Production runtime proof remains NOT_PROVEN; no manual production deployment is being used to manufacture evidence.
@@ -43,4 +43,4 @@ ROOT_CAUSE
 - Earlier certification drift was closed; the current live-proof risk was concurrent staging pressure from multiple PR workflows sharing Supabase Auth/Postgres.
 - The current CI shape keeps Full Product Browser E2E as the authoritative PR live proof and prevents auxiliary live suites from consuming staging during the same PR run.
 
-NEXT_EXACT_ACTION = Consume terminal CI for 78c72852a45470e24a1fc3321ae3daa05fa304ad; first inspect Full Product Browser E2E and its 48/48 real-source gate, then use manual auxiliary staging proofs only after the integrated PR proof is terminal. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.
+NEXT_EXACT_ACTION = After staging returns healthy, consume terminal CI for bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0; inspect Full Product Browser E2E and the blocking 48/48 real-source proof first. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.

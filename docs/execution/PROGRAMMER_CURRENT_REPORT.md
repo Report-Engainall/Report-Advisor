@@ -2,8 +2,8 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
 REFERENCE START HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
-CURRENT EXECUTION HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
-REPORT_FOR_HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
+CURRENT EXECUTION HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
+REPORT_FOR_HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
 BRANCH = exec/decision-completion-20261007
 PR = #867
 UPDATED_AT = 2026-10-07T06:35:00+03:00
@@ -20,6 +20,6 @@ FIRST_ACTIVE_FAILURE = The first exact-head live-proof failure was shared stagin
 
 ROOT_CAUSE = Earlier certification drift around the static DashboardPage entry, Worker classification, session handoff, and route reachability is closed; the current live-proof failure was shared staging contention across Auth/Postgres-heavy PR workflows.
 
-NEXT_EXACT_ACTION = Consume terminal CI for 78c72852a45470e24a1fc3321ae3daa05fa304ad; inspect Full Product Browser E2E and the blocking 48/48 real-source proof first. Do not declare authenticated business E2E or production proof without actual evidence.
+NEXT_EXACT_ACTION = After staging returns healthy, consume terminal CI for bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0; inspect Full Product Browser E2E and the blocking 48/48 real-source proof first. Do not declare authenticated business E2E or production proof without actual evidence.
 
 CHANGED_FILES_ACCOUNTED_FOR = src/App.tsx; scripts/check-performance-budget.mjs; .github/workflows/deploy-netlify-production.yml; src/pages/PublicDemoWorkspacePage.tsx (removed); docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
