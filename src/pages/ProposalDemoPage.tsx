@@ -4,6 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
+import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
+import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 import inventoryCsv from '../../tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv?raw';
 
 type LiveRow = {
@@ -79,6 +81,53 @@ const LIVE_TOTALS = LIVE_ROWS.reduce((totals, row) => ({
 }), { salesQty: 0, currentStock: 0, netAmount: 0, profit: 0 });
 
 const LOW_COVERAGE_ROWS = LIVE_ROWS.filter(row => row.salesQty > 0 && row.currentStock / row.salesQty < 2);
+
+const PREVIEW_DATASET = {
+  name: '28-inventory-stockout-reorder.csv',
+  rowCount: LIVE_ROWS.length,
+  columns: CSV_HEADERS.map((name) => ({
+    name,
+    mappedField:
+      name === 'documentNo' ? 'invoice_number'
+      : name === 'documentDate' ? 'date'
+      : name === 'productCode' ? 'sku'
+      : name === 'productName' ? 'product_name'
+      : name === 'warehouse' ? 'warehouse'
+      : name === 'salesQty' ? 'sales_qty'
+      : name === 'currentStock' ? 'current_stock'
+      : name === 'netAmount' ? 'net_amount'
+      : name === 'cost' ? 'cost'
+      : name === 'profit' ? 'profit'
+      : name === 'paidAmount' ? 'paid_amount'
+      : null,
+    dataType: typeof LIVE_ROWS[0]?.[name as keyof LiveRow] === 'number' ? 'number' : 'text',
+    nullCount: 0,
+    mappingConfidence: 100,
+  })),
+  rows: LIVE_ROWS.map((row) => ({
+    ...row,
+    invoice_number: row.documentNo,
+    date: row.documentDate,
+    sku: row.productCode,
+    product_name: row.productName,
+    sales_qty: row.salesQty,
+    current_stock: row.currentStock,
+    net_amount: row.netAmount,
+    paid_amount: row.paidAmount,
+  })),
+  preview: LIVE_ROWS.slice(0, 10),
+};
+
+const PUBLIC_SMART_INTELLIGENCE = buildUniversalReportIntelligence({
+  specialty: 'inventory',
+  rowCount: PREVIEW_DATASET.rowCount,
+  sourceAnalysis: { datasets: [PREVIEW_DATASET] },
+  canonicalRows: PREVIEW_DATASET.rows.map((data, index) => ({ row_number: index + 1, data })),
+  sourcePath: PREVIEW_DATASET.name,
+  sourceHash: 'preview:28-inventory-stockout-reorder',
+  reportJobId: 'preview-smart-report-28',
+  tenantId: 'preview',
+});
 
 type Capability = {
   id: string;
@@ -1051,6 +1100,20 @@ function ProposalCommercialDemoPage() {
       </div>
 
       <BuyerProofPanel />
+
+      <section className="space-y-3">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="section-kicker">SMART REPORT · LIVE PRODUCT SURFACE</div>
+            <h2 className="text-xl font-black text-ink-950">العقل نفسه ظاهر داخل العرض، وليس مجرد وصف له</h2>
+            <p className="text-[11px] leading-5 text-ink-500">هذه الطبقة تستخدم محرك ذكاء التقرير العام نفسه على الـFixture الحالي، ثم تربط الإشارة بالتوصية والدليل والقرار وحدود التنفيذ.</p>
+          </div>
+          <Link to="/reports/smart/demo" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 text-[10px] font-black text-white">
+            افتح التقرير الكامل ←
+          </Link>
+        </div>
+        <UniversalIntelligenceChain result={PUBLIC_SMART_INTELLIGENCE} />
+      </section>
 
       <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#0f2231)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
