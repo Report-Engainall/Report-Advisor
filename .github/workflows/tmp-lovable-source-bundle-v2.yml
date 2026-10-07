@@ -9,7 +9,7 @@ jobs:
   bundle:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout exact branch commit
+      - name: Checkout repository history for exact source archive
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -20,7 +20,7 @@ jobs:
           set -euo pipefail
           rm -rf lovable-transfer
           mkdir lovable-transfer
-          git archive HEAD | tar -x -C lovable-transfer
+          git archive ff9af3792735e3612cab2d47f53ee91692617bf8 | tar -x -C lovable-transfer
 
           find lovable-transfer -type f -name '.env' -delete
           find lovable-transfer -type f -name '.env.local' -delete
