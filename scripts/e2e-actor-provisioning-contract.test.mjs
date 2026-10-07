@@ -3,6 +3,8 @@ import fs from 'node:fs';
 
 const script = fs.readFileSync('scripts/provision-e2e-actors.mjs', 'utf8');
 const migration = fs.readFileSync('supabase/migrations/20261002050000_reconcile_e2e_actor_service_role_key_guard.sql', 'utf8');
+const lookupMigration = fs.readFileSync('supabase/migrations/20261007170000_e2e_actor_lookup_cleanup.sql', 'utf8');
+const cleanupMigration = fs.readFileSync('supabase/migrations/20261007170100_e2e_actor_cleanup_generated_only.sql', 'utf8');
 const workflow = fs.readFileSync('.github/workflows/full-product-browser-e2e.yml', 'utf8');
 
 assert.match(script, /auth\.admin\.createUser/);
@@ -20,6 +22,9 @@ assert.match(script, /AUTH_RETRY_ATTEMPTS\s*=\s*4/);
 assert.match(script, /isAuthRequest\(input\)/);
 assert.match(script, /authRetryable/);
 assert.match(script, /freshRunScoped/);
+assert.match(script, /lookup_e2e_actor_by_email/);
+assert.match(script, /cleanupStaleEphemeralActors/);
+assert.match(script, /E2E_STALE_ACTOR_CLEANUP_LIMIT/);
 assert.match(script, /TEST_USER_A_EPHEMERAL/);
 assert.match(script, /TEST_USER_B_EPHEMERAL/);
 assert.match(workflow, /TEST_USER_A_EPHEMERAL=false/);
@@ -35,6 +40,11 @@ assert.match(migration, /revoke all on function public\.provision_e2e_test_membe
 assert.match(migration, /grant execute on function public\.provision_e2e_test_membership/i);
 assert.match(migration, /e2e_actor/);
 assert.match(migration, /e2e_actor_membership_provisioned/);
+assert.match(lookupMigration, /lookup_e2e_actor_by_email/);
+assert.match(lookupMigration, /service_role/);
+assert.match(lookupMigration, /revoke all on function/);
+assert.match(cleanupMigration, /e2e\.report-advisor\.invalid/);
+assert.match(cleanupMigration, /list_stale_e2e_actor_ids/);
 
 assert.match(workflow, /Start exact Netlify preview with serverless API/);
 assert.ok(workflow.includes('node scripts/provision-e2e-actors.mjs'));
