@@ -783,6 +783,19 @@ function parseSimpleXml(text: string): Row[] | null {
       }
     } catch { /* fall through */ }
   }
+  const blockRegex = /<([A-Za-z_][\w:.-]*)[^>]*>([\s\S]*?)<\/\1>/g;
+  const grouped = new Map<string, Row[]>();
+  for (const block of normalized.matchAll(blockRegex)) {
+    const tag = block[1];
+    const inner = block[2];
+    if (new RegExp('<' + tag + '\\b', 'i').test(inner)) continue;
+    const row: Row = {};
+    const pairRegex = /<([A-Za-z_][\w:.-]*)[^>]*>\s*([^<]+?)\s*<\/\1>/g;
+    for (const match of inner.matchAll(pairRegex)) row[match[1]] = decodeXmlEntities(match[2].trim());
+    if (Object.keys(row).length >= 2) grouped.set(tag, [...(grouped.get(tag) ?? []), row]);
+  }
+  for (const rows of grouped.values()) if (rows.length >= 2) return rows;
+
   const pairs: Row = {};
   const pairRegex = /<([A-Za-z_][\w:.-]*)[^>]*>\s*([^<]+?)\s*<\/\1>/g;
   for (const match of normalized.matchAll(pairRegex)) pairs[match[1]] = decodeXmlEntities(match[2].trim());
