@@ -1,11 +1,11 @@
 SESSION HANDOFF = NOT READY
-CURRENT_EXACT_HEAD = 7a0e9f44773f81cbac84d30a53e8df677f5341c8
-CURRENT_EXECUTION_HEAD = 7a0e9f44773f81cbac84d30a53e8df677f5341c8
+CURRENT_EXACT_HEAD = d8537eb53cdacbe664736648892b44bde0529899
+CURRENT_EXECUTION_HEAD = d8537eb53cdacbe664736648892b44bde0529899
 LATEST_APP_ROUTE_FIX_HEAD = e6f0c6d19a18730cf0b29c4b7522c6971947bb8f
 BRANCH = exec/decision-completion-20261007
 PR = #867
 BASE_MAIN_HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
-ACTION_STATUS = EXACT_HEAD_PROOF_AFTER_SECURITY_AND_PREVIEW_CONTRACT_FIXES
+ACTION_STATUS = COMMERCIAL_PREVIEW_CLOSURE_AND_EXACT_HEAD_CERTIFICATION
 
 CLOSED
 - Removed Netlify/host-based route hijacking. Real routes use AuthGate/AppShell; demo rendering is explicit only.
@@ -46,4 +46,4 @@ NOT_PROVEN
 NEXT EXACT ACTION
 Consume the terminal Full Product Browser E2E and Final Certification runs for 7a0e9f... only. On any new failure, inspect the first newly proven defect, fix only that defect, and re-run from the new exact head.
 
-NEXT_EXACT_ACTION = Consume terminal Full Product Browser E2E on the latest product head; then consume Final Certification and close only newly proven blockers.
+NEXT_EXACT_ACTION = Consume terminal Full Product Browser E2E and Final Certification on the latest exact head; fix only newly proven blockers.
