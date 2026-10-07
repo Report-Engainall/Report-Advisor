@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   storage-runtime:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     env:

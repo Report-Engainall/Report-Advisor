@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   live-gate-proof:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     env:
       REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
