@@ -358,7 +358,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                   >
                     فتح مسار القرار <ArrowUpLeft size={12}/>
                   </Link>
-                  <Link to="/advisor-cases" className="inline-flex items-center gap-1 text-[9px] font-bold text-primary-700">
+                  <Link to={'/advisor-cases?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-1 text-[9px] font-bold text-primary-700">
                     قضايا Advisor <ArrowUpLeft size={12}/>
                   </Link>
                 </div>
