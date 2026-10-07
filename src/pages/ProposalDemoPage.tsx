@@ -4,6 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
+import { IntelligenceClosurePanel } from '@/components/IntelligenceClosurePanel';
+import { assessDataQuality, deriveUnknownGaps, type KernelRow } from '@/lib/decision-intelligence-kernel';
 import inventoryCsv from '../../tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv?raw';
 
 type LiveRow = {
@@ -658,6 +660,21 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
   );
 }
 
+const DEMO_SOURCE_BINDING = 'fixture:28-inventory-stockout-reorder.csv';
+
+function PreviewDecisionClosure({ domain }: { domain: 'sales' | 'inventory' }) {
+  const rows = LIVE_ROWS.map((row) => ({ ...row })) as unknown as KernelRow[];
+  const contract = domain === 'inventory'
+    ? { id: 'inventory', requiredFields: ['currentStock'], numericFields: ['currentStock', 'salesQty'], minimumRows: 3, uniqueKey: ['productCode', 'warehouse'] }
+    : { id: 'sales', requiredFields: ['netAmount', 'profit'], numericFields: ['netAmount', 'profit', 'cost'], minimumRows: 3 };
+  const quality = assessDataQuality(rows, contract);
+  const recommendation = domain === 'inventory'
+    ? 'مراجعة تغطية الأصناف ذات الأولوية قبل اعتماد إعادة الطلب.'
+    : 'مراجعة محركات التغير في صافي المبيعات والربح قبل تثبيت خطة المبيعات.';
+  const gaps = deriveUnknownGaps(rows, { recommendation, outcomeRequired: true }).map((gap) => ({ id: gap.id, title: gap.title, state: gap.state, action: gap.action }));
+  return <IntelligenceClosurePanel rows={rows} sourceHash={DEMO_SOURCE_BINDING} recommendation={recommendation} qualityScore={quality.score} gaps={gaps} demo />;
+}
+
 function PreviewBusinessSurface({ path }: { path: string }) {
   const [decisionState, setDecisionState] = useState<Record<string, 'جاهز' | 'مسودة قرار' | 'مكتمل'>>({});
   const paidTotal = LIVE_ROWS.reduce((sum, row) => sum + row.paidAmount, 0);
@@ -775,6 +792,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
           <PreviewMetric label="صافي الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER" />
         </div>
         <PreviewInventoryTable />
+        <div className="mt-5"><PreviewDecisionClosure domain="inventory" /></div>
         <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-4 text-xs text-primary-900">
           الإشارة المحسوبة من الـFixture: {LOW_COVERAGE_ROWS.length} أصناف لديها تغطية أقل من 2.00. الأولوية تبدأ من هذه الصفوف الثلاثة، وليس من رقم افتراضي.
         </div>
@@ -791,6 +809,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
         <PreviewDomainAdvisor domain="sales" />
         <PreviewInventoryTable />
+        <div className="mt-5"><PreviewDecisionClosure domain="sales" /></div>
       </>
     );
   } else if (route === '/reports/profitability') {

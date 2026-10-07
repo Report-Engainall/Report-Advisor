@@ -482,7 +482,9 @@ export function summarizeNumericStability(rows: KernelRow[], field: string): { m
 
 export async function optimizeSimpleAllocation(input: { objective: number[]; lower: number[]; upper: number[]; demand: number[]; capacity: number }): Promise<number[] | null> {
   try {
-    const GLPK = (await import('glpk.js')).default;
+    const GLPK = typeof window === 'undefined'
+      ? (await import('glpk.js/node')).default
+      : (await import('glpk.js')).default;
     const glpk = await GLPK();
     const vars = input.objective.map((coef, index) => ({ name:'x' + index, coef }));
     const subjectTo = [{

@@ -6,6 +6,7 @@ import {
   type KernelRow,
 } from '@/lib/decision-intelligence-kernel';
 import type { DuckDbQueryResult } from '@/lib/duckdb-browser';
+import { IntelligenceClosurePanel } from '@/components/IntelligenceClosurePanel';
 
 type Props = {
   rows: KernelRow[];
@@ -15,7 +16,7 @@ type Props = {
   archetypeId?: string | null;
   recommendation?: string | null;
 };
-type Tab = 'control' | 'whatif' | 'gaps' | 'proof' | 'learning' | 'engine';
+type Tab = 'control' | 'whatif' | 'gaps' | 'proof' | 'learning' | 'engine' | 'closure';
 
 const contractFor = (specialty?: string | null) => {
   if (specialty === 'inventory') return { id: 'inventory', requiredFields: ['currentStock'], numericFields: ['currentStock', 'salesQty'], minimumRows: 3, uniqueKey: ['productCode', 'warehouse'] };
@@ -80,7 +81,7 @@ export function DecisionIntelligenceStudio(props: Props) {
 
   const tabs: Array<[Tab, string, typeof Activity]> = [
     ['control', 'المشهد', Activity], ['whatif', 'ماذا لو؟', Target], ['gaps', 'فجوات القرار', TriangleAlert],
-    ['proof', 'سلسلة الدليل', GitBranch], ['learning', 'التعلّم', BrainCircuit], ['engine', 'محركات الحساب', Database],
+    ['proof', 'سلسلة الدليل', GitBranch], ['learning', 'التعلّم', BrainCircuit], ['engine', 'محركات الحساب', Database], ['closure', 'الإغلاق الذكي', Scale],
   ];
 
   return <section dir="rtl" className="overflow-hidden rounded-[26px] border border-slate-700/70 bg-[#090e18] text-white shadow-[0_30px_90px_-42px_rgba(15,23,42,.95)]">
@@ -208,6 +209,7 @@ export function DecisionIntelligenceStudio(props: Props) {
           ].map(([label,value]) => <div key={label}><div className="text-[8px] font-black text-violet-200">{label}</div><div className="mt-1 text-[9px] leading-5 text-slate-300">{value}</div></div>)}</div>
         </div>
       </div>}
+      {tab === 'closure' && <IntelligenceClosurePanel rows={rows} sourceHash={sourceHash} reportJobId={reportJobId} recommendation={recommendation} qualityScore={quality.score} gaps={gaps} />}
       {tab === 'engine' && <div className="grid gap-4 xl:grid-cols-[1fr_.8fr]">
         <div className="rounded-2xl border border-white/10 bg-white/[.035] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">

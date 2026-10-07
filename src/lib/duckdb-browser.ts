@@ -77,7 +77,8 @@ export async function registerArrowRows(
 ): Promise<string> {
   const name = safeName(tableName);
   const arrowTable = tableFromJSON(rows) as Table<any>;
-  await connection.insertArrowTable(arrowTable, { name, create: true, overwrite: true });
+  await connection.query('DROP TABLE IF EXISTS "' + name + '"');
+  await connection.insertArrowTable(arrowTable, { name, create: true });
   return name;
 }
 
