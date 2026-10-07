@@ -322,7 +322,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
         reason: 'توصية مربوطة بتقرير مصدرّي وبصمة المصدر ' + sourceHash,
         expectedOutcome: 'تنفيذ الإجراء ثم تسجيل النتيجة الفعلية على نفس هوية التقرير.',
         evidenceRequired: [sourceHash, 'reportJobId=' + reportJobId, recommendationId ? 'recommendationId=' + recommendationId : 'recommendationId missing', 'verified_evidence_snapshot'],
-        sourceId: recommendationId ?? null,
+        sourceId: null,
       });
       setClosure((s) => ({ ...s, taskProposals: 1 }));
       setMessage('تم حفظ المقترح في مركز العمل. ما زال مقترحًا حتى اعتماده وتنفيذه.');
