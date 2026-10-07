@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, CircleAlert, ShieldCheck } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useReportContext } from '@/components/ReportContext';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { IntelligenceResultRail } from '@/components/IntelligenceResultRail';
+import { getReportArchetype } from '@/lib/report-intelligence/archetype-registry';
 
 const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
   sales: { path: '/reports/sales', label: 'تقرير المبيعات' },
@@ -115,8 +116,40 @@ export function ReportSourceContext() {
   const signal = selectExecutiveSignal(report.intelligence);
   const recommendation = selectExecutiveRecommendation(report.intelligence, signal);
   const evidence = signal?.evidence ?? recommendation?.evidence ?? [];
+  const archetype = report.archetypeId ? getReportArchetype(report.archetypeId) : null;
+  const lifecycle = [
+    { key: 'truth', label: 'الحقيقة', value: report.trustState, ready: ['TRUSTED', 'VERIFIED'].includes(String(report.trustState)) },
+    { key: 'evidence', label: 'الدليل', value: report.evidenceStatus, ready: ['VERIFIED', 'TRUSTED'].includes(String(report.evidenceStatus)) },
+    { key: 'signal', label: 'الإشارة', value: signal ? 'SIGNAL' : 'NO_SIGNAL', ready: Boolean(signal) },
+    { key: 'recommendation', label: 'التوصية', value: recommendation ? 'PROPOSED' : 'NO_RECOMMENDATION', ready: Boolean(recommendation) },
+    { key: 'decision', label: 'القرار', value: report.decisionStatus, ready: ['APPROVED', 'COMMITTED', 'READY'].includes(String(report.decisionStatus)) },
+    { key: 'action', label: 'العمل', value: report.actionStatus, ready: ['STARTED', 'IN_PROGRESS', 'COMPLETED'].includes(String(report.actionStatus)) },
+    { key: 'outcome', label: 'النتيجة', value: report.outcomeStatus, ready: ['VERIFIED', 'MEASURED', 'COMPLETED'].includes(String(report.outcomeStatus)) },
+    { key: 'learning', label: 'التعلّم', value: report.learningStatus, ready: ['VERIFIED', 'COMPLETED', 'AVAILABLE'].includes(String(report.learningStatus)) },
+  ];
+  const lifecycleIndex = lifecycle.findIndex((item) => !item.ready);
+  const nextLifecycle = lifecycleIndex >= 0 ? lifecycle[lifecycleIndex] : null;
   return (
     <div className="mb-4 space-y-3">
+      <section dir="rtl" className="rounded-[20px] border border-ink-200 bg-ink-950 p-3 text-white shadow-sm" aria-label="سلسلة ذكاء التقرير الحالية">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.13em] text-primary-200">
+              <ShieldCheck size={13} /> العقل التشغيلي · نفس التقرير في كل المساحات
+              {archetype ? <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 tracking-normal text-slate-200">{archetype.title}</span> : null}
+            </div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-300">{nextLifecycle ? <>المنتج الآن يقود من <b className="text-white">{nextLifecycle.label}</b>؛ لا يتم القفز إلى المرحلة التالية دون إثبات.</> : <>السلسلة مكتملة الحالة الحالية؛ يبقى القياس والتعلّم محكومين بالدليل.</>}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 lg:flex lg:flex-nowrap">
+            {lifecycle.map((item) => (
+              <Link key={item.key} to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className={'inline-flex min-h-9 items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[8px] font-black transition ' + (item.ready ? 'border-emerald-300/25 bg-emerald-300/10 text-emerald-100 hover:bg-emerald-300/15' : item.key === nextLifecycle?.key ? 'border-amber-300/35 bg-amber-300/10 text-amber-100' : 'border-white/10 bg-white/[.03] text-slate-400')} title={String(item.value ?? 'NOT_AVAILABLE')}>
+                {item.ready ? <CheckCircle2 size={11} /> : item.key === nextLifecycle?.key ? <CircleAlert size={11} /> : null}{item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <IntelligenceResultRail
         sourceLabel={report.sourcePath || 'التقرير الحالي'}
         headline={signal?.message ?? report.intelligence.advisorBrief.headline ?? 'لا يوجد حكم استشاري مثبت من المصدر الحالي.'}
