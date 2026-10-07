@@ -87,6 +87,9 @@ export type BrainPacket = {
     sourceHash: string | null;
     reportJobId: string | null;
     archetypeId: string | null;
+    evidenceSnapshotId: string | null;
+    evidencePassportId: string | null;
+    evidenceVerified: boolean;
   };
 };
 
@@ -98,6 +101,9 @@ export type BrainInput = {
   reportJobId?: string | null;
   archetypeId?: string | null;
   availableFields?: string[];
+  evidenceVerified?: boolean;
+  evidenceSnapshotId?: string | null;
+  evidencePassportId?: string | null;
   recommendation?: {
     title?: string;
     action?: string;
@@ -457,10 +463,11 @@ function outcomeState(input: BrainInput): BrainOutcomeState {
 function readiness(metrics: BrainMetric[], signals: BrainSignal[], input: BrainInput): {score:number;blockers:string[];eligible:boolean}{
   const blockers:string[]=[];
   const calculated=metrics.filter(item=>item.status==='CALCULATED').length;
-  const requiredEvidence=(input.sourceHash?20:0)+(input.reportJobId?10:0)+(input.rows.length?25:0);
+  const requiredEvidence=(input.sourceHash?15:0)+(input.reportJobId?10:0)+(input.rows.length?20:0)+(input.evidenceVerified?25:0);
   let score=Math.min(100,requiredEvidence+(metrics.length?Math.round((calculated/metrics.length)*35):0)+(signals.length?15:5));
   if(!input.sourceHash)blockers.push('SOURCE_HASH_REQUIRED');
   if(!input.reportJobId)blockers.push('REPORT_JOB_ID_REQUIRED');
+  if(!input.evidenceVerified)blockers.push('VERIFIED_EVIDENCE_REQUIRED');
   if(!input.rows.length)blockers.push('ROWS_REQUIRED');
   if(!calculated)blockers.push('NO_CALCULATED_METRICS');
   if(signals.length && signals[0].evidence.sampleSize < 1)blockers.push('EVIDENCE_EMPTY');
@@ -487,7 +494,7 @@ export function buildBrainPacket(input: BrainInput): BrainPacket {
       evidenceRequired:[input.sourceHash ? 'sourceHash' : 'sourceHash missing', input.reportJobId ? 'reportJobId' : 'reportJobId missing', ...((input.recommendation?.evidence ?? []).slice(0,5))],
     },
     decision:{readiness:ready.score,blockers:ready.blockers,recommendationEligible:ready.eligible},
-    provenance:{sourceHash:input.sourceHash ?? null,reportJobId:input.reportJobId ?? null,archetypeId:input.archetypeId ?? null},
+    provenance:{sourceHash:input.sourceHash ?? null,reportJobId:input.reportJobId ?? null,archetypeId:input.archetypeId ?? null,evidenceSnapshotId:input.evidenceSnapshotId ?? null,evidencePassportId:input.evidencePassportId ?? null,evidenceVerified:Boolean(input.evidenceVerified)},
   };
 }
 
@@ -496,6 +503,8 @@ export function validateBrainPacket(packet: BrainPacket): string[] {
   if(packet.version!=='brain.v1')errors.push('VERSION_INVALID');
   if(!packet.provenance.sourceHash)errors.push('SOURCE_HASH_MISSING');
   if(!packet.provenance.reportJobId)errors.push('REPORT_JOB_ID_MISSING');
+  if(!packet.provenance.evidenceVerified)errors.push('VERIFIED_EVIDENCE_MISSING');
+  if(packet.provenance.evidenceVerified && (!packet.provenance.evidenceSnapshotId || !packet.provenance.evidencePassportId))errors.push('VERIFIED_EVIDENCE_IDENTIFIERS_MISSING');
   for(const metric of packet.metrics){
     if(metric.status==='CALCULATED' && metric.value==null)errors.push('CALCULATED_WITHOUT_VALUE:'+metric.id);
     if(metric.requiredFields.some(field=>!metric.availableFields.includes(field)) && metric.status==='CALCULATED')errors.push('CALCULATED_WITH_MISSING_FIELD:'+metric.id);
