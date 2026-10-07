@@ -1092,6 +1092,29 @@ async function proveDecisionApprovalActionOutcome(page, report) {
 }
 
 
+async function proveAdvisorCasesReportContext(page, report) {
+  const target = baseURL + '/advisor-cases?reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
+  const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
+  assert.ok(response && response.status() < 400, 'advisor-cases-context: HTTP ' + (response?.status() ?? 'NO_RESPONSE'));
+  const body = (await page.locator('body').innerText()).trim();
+  assertCurrentReportText(body, 'advisor cases report context');
+  assert.ok(body.includes('قضايا التقرير الحالي فقط'), 'ADVISOR_CASES_SOURCE_BOUND_HEADER_MISSING');
+  assert.ok(body.includes(report.reportJobId), 'ADVISOR_CASES_REPORT_JOB_ID_VISIBLE_MISSING');
+  assert.ok(body.includes(CURRENT_REPORT_SOURCE_HASH), 'ADVISOR_CASES_SOURCE_HASH_VISIBLE_MISSING');
+  const firstLink = page.locator('a[href^="/reports/smart/"]').first();
+  assert.ok(await firstLink.count() === 1, 'ADVISOR_CASES_BACK_TO_REPORT_MISSING');
+  const href = await firstLink.getAttribute('href');
+  assert.ok(String(href).includes(encodeURIComponent(report.reportJobId)), 'ADVISOR_CASES_BACK_LINK_JOB_MISMATCH');
+  assert.ok(String(href).includes(encodeURIComponent(CURRENT_REPORT_SOURCE_HASH)), 'ADVISOR_CASES_BACK_LINK_SOURCE_HASH_MISMATCH');
+  evidence.steps.push({
+    step: 'advisor-cases-source-bound-context',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+  });
+  await page.screenshot({ path: reportDir + '/current-advisor-cases-source-bound.png', fullPage: true });
+}
+
 async function proveContextPreservedSurface(page, report, surface) {
   const target = baseURL + surface.path;
   const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
@@ -1158,6 +1181,7 @@ try {
   await proveSourceBoundSurface(pageC, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
   await proveSourceBoundSurface(pageC, currentReport, { label: 'work', path: '/work-center' });
   await proveSourceBoundSurface(pageC, currentReport, { label: 'inventory', path: '/reports/inventory' });
+  await proveAdvisorCasesReportContext(pageC, currentReport);
   await pageC.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
   await pageC.reload({ waitUntil: 'networkidle', timeout: 30000 });
   assert.equal(await currentTenant(pageC), REAL_SMART_REPORT_COMPANY_ID, 'CERTIFIED_REPORT_TENANT_CHANGED_ACROSS_REFRESH');
