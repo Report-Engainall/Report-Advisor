@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, CheckCircle2, CircleAlert, ShieldCheck } from 'lucide-react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useReportContext } from '@/components/ReportContext';
@@ -19,6 +19,41 @@ const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
 
 const REPORT_CONTEXT_CACHE = new Map<string, SmartReportDetail>();
 
+// These surfaces are part of the report-to-decision operating chain. Once a
+// verified report is active, navigation to any of them must carry the exact
+// reportJobId + sourceHash instead of silently falling back to global data.
+const CONTEXT_CONTINUITY_PATHS = [
+  '/command-center',
+  '/decision-inbox',
+  '/decision-experience',
+  '/advisor-cases',
+  '/trust',
+  '/intelligence',
+  '/work-center',
+  '/operations',
+  '/replay',
+  '/benchmark',
+  '/metrics',
+  '/reports/executive',
+  '/reports/sales',
+  '/reports/purchases',
+  '/reports/inventory',
+  '/reports/inventory-intelligence',
+  '/reports/demand-velocity',
+  '/reports/receivables',
+  '/reports/profitability',
+  '/analytics',
+  '/analytics/rfm',
+  '/analytics/abc',
+  '/analytics/aging',
+  '/analytics/liquidity',
+  '/data-quality',
+] as const;
+
+function needsContextContinuity(pathname: string): boolean {
+  return CONTEXT_CONTINUITY_PATHS.some((path) => pathname === path || pathname.startsWith(path + '/'));
+}
+
 function stateLabel(value: string | null): string {
   if (!value) return 'غير متاح';
   const labels: Record<string, string> = {
@@ -36,6 +71,7 @@ function stateLabel(value: string | null): string {
 export function ReportSourceContext() {
   const [params] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { reportJobId: storedJobId, sourceHash: storedSourceHash, setReportContext } = useReportContext();
   const urlJobId = params.get('reportJobId')?.trim() || '';
   const urlSourceHash = params.get('sourceHash')?.trim() || '';
@@ -47,6 +83,22 @@ export function ReportSourceContext() {
   const sourceHash = urlValidSourceHash ? urlSourceHash : storedSourceHash;
   const validSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
   const cacheKey = jobId && validSourceHash ? jobId + ':' + sourceHash : '';
+
+  // Normalize the browser URL to the active report context. This closes the
+  // exact failure mode where a global sidebar/journey link lands on a
+  // source-bound surface without its lineage query parameters.
+  useEffect(() => {
+    if (contextResolving || !jobId || !validSourceHash || !needsContextContinuity(location.pathname)) return;
+    const currentQuery = new URLSearchParams(location.search);
+    const hasExactContext = currentQuery.get('reportJobId') === jobId && currentQuery.get('sourceHash') === sourceHash;
+    if (hasExactContext) return;
+    currentQuery.set('reportJobId', jobId);
+    currentQuery.set('sourceHash', sourceHash);
+    navigate(
+      { pathname: location.pathname, search: '?' + currentQuery.toString() },
+      { replace: true },
+    );
+  }, [contextResolving, jobId, location.pathname, location.search, navigate, sourceHash, validSourceHash]);
   const [report, setReport] = useState<SmartReportDetail | null>(() => cacheKey ? REPORT_CONTEXT_CACHE.get(cacheKey) ?? null : null);
   const [error, setError] = useState<string | null>(null);
   const [contextResolving, setContextResolving] = useState(false);

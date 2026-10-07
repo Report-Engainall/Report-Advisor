@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
 import { useLanguage } from '@/lib/language';
 import { isWorkspacePathVisible, readWorkspaceMode, readWorkspacePreferences, type WorkspaceMode, type WorkspacePreferences } from '@/lib/workspace-mode';
+import { withActiveReportContext } from '@/lib/report-context-url';
 
 import { NAVIGATION_SECTIONS, resolveNavigationItem, type NavigationIconKey, type NavigationItem, type NavigationSectionId } from '@/lib/navigation-registry';
 
@@ -146,7 +147,7 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
                 return (
                   <Link
                     key={item.path}
-                    to={item.path}
+                    to={withActiveReportContext(item.path, location.search)}
                     onClick={onNavigate}
                     className={'ag-nav-item nav-item min-h-11 ' + (activeItem ? 'ag-nav-item-active' : 'ag-nav-item-inactive')}
                     aria-current={activeItem ? 'page' : undefined}

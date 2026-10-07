@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Command, Search, X } from 'lucide-react';
 import { NAVIGATION_ITEMS, type NavigationItem, type NavigationSectionId } from '@/lib/navigation-registry';
+import { withActiveReportContext } from '@/lib/report-context-url';
 import { searchUnifiedKnowledge, type UnifiedSearchResult } from '@/lib/unified-search';
 
 type CommandItem = Pick<NavigationItem, 'label' | 'description' | 'path' | 'keywords' | 'section'>;
@@ -88,9 +89,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   }, [contextScore, query, recentPaths]);
 
   const openSearchResult = useCallback((item: UnifiedSearchResult) => {
-    navigate(item.path);
+    navigate(withActiveReportContext(item.path, location.search));
     onClose();
-  }, [navigate, onClose]);
+  }, [location.search, navigate, onClose]);
 
   const openCommand = useCallback((item: CommandItem) => {
     const next = [item.path, ...recentPaths.filter(path => path !== item.path)].slice(0, RECENT_LIMIT);
@@ -100,9 +101,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     } catch {
       // Optional persistence; navigation remains functional.
     }
-    navigate(item.path);
+    navigate(withActiveReportContext(item.path, location.search));
     onClose();
-  }, [navigate, onClose, recentPaths]);
+  }, [location.search, navigate, onClose, recentPaths]);
 
   useEffect(() => {
     if (!open) return;

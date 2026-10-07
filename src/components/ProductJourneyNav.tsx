@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { withActiveReportContext } from '@/lib/report-context-url';
 import { ArrowLeft, BookOpen, CheckCircle2, FileSearch, FileInput, Lightbulb, Route, ShieldCheck, Target, Sparkles, BriefcaseBusiness } from 'lucide-react';
 
 type JourneyStep = { path: string; label: string; description: string; icon: typeof Lightbulb; stage?: string };
@@ -21,11 +22,10 @@ export function ProductJourneyNav() {
   const currentParams = new URLSearchParams(location.search);
 
   const hrefFor = (path: string, stage?: string) => {
-    if (path !== '/decision-experience') return path;
     const query = new URLSearchParams(location.search);
     if (stage) query.set('stage', stage);
     const suffix = query.toString();
-    return suffix ? path + '?' + suffix : path;
+    return withActiveReportContext(suffix ? path + '?' + suffix : path, location.search);
   };
 
   return (
