@@ -1,42 +1,46 @@
-SESSION HANDOFF = READY
+﻿SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-CURRENT_MAIN_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-CURRENT_EXECUTION_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-BRANCH = main
-PR = N/A
-CURRENT_PR_HEAD = N/A
+CURRENT_EXACT_HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
+CURRENT_MAIN_HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
+CURRENT_EXECUTION_HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
+BRANCH = exec/decision-completion-20261007
+PR = #867
+CURRENT_PR_HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
 
 WHAT_ACTUALLY_HAPPENED
-- Reworked the source-bound report customer surface so it no longer stops at descriptive cards: it now exposes a live row-level business data explorer built from the current canonical report rows.
-- Added real interactions: search across row values, business-state filters, sortable columns, row selection, field-level detail readback, rule explanation, and direct handoff of the selected row into the decision workspace.
-- Reused the same explorer inside CustomerReportSurface and SmartReportPage so both the domain report surfaces and the Smart Report show the underlying rows that produce the displayed findings.
-- Preserved fail-closed behavior: no fabricated totals, outcomes, benchmarks, or decisions are created by the new UI.
+- Closed the intelligence workspace runtime/UI/persistence gap across causal hypotheses, counterfactuals, VOI, semantic and business drift, forecast governance, process intelligence, evidence-backed knowledge graph, cross-domain join guards, decision policy/portfolio ranking, outcome-to-learning, and row/cell provenance.
+- Added tenant-scoped persistence for saved views, causal hypotheses, VOI requests, and report cell lineage with RLS enabled; demo preview intentionally does not persist tenant decisions.
+- Integrated the closure surface into Decision Intelligence Studio and the source-bound public Sales/Inventory preview surfaces using the same fixture-derived rows and data-quality state.
+- Fixed GLPK Node/browser loading and DuckDB Arrow table replacement semantics used by the decision workspace.
+- Fixed certification performance semantics: dedicated Worker bundles are excluded from the UI-thread chunk ceiling, while the critical-path limit remains 900KB.
+- Lazy-loaded DashboardPage so the exact client critical path is now 876.4KB instead of 911.0KB.
+- Fixed Netlify production workflow concurrency to be workflow-scoped.
+- Removed the unreferenced PublicDemoWorkspacePage.tsx so UI route completeness reflects actual reachable page components.
 
 WHAT_IS_PROVEN
-- Supabase real report execution job 16709d80-e012-40ef-9c12-6fd8255897f8 is completed for تقارير ادارية.xlsx.
-- Source hash: sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
-- Authoritative inventory evidence passport: ACCEPTED + VERIFIED + READY, 332 canonical/committed/authoritative rows, quality score 98.
-- Exact-head product build succeeded on the preceding CI cycle; the latest main changes are queued for fresh CI.
-- Current live Vercel production remains on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd, whose parent chain contains the customer-facing primary-report binding. A fresh deploy of later commits is blocked temporarily by Vercel's free 100-deploy/day API limit.
-- GitHub Pages artifact generation has been proven; public Pages publication remains unavailable because repository Pages is not enabled.
+- Exact local build PASS after the latest dashboard lazy-load change.
+- Performance budget PASS: critical 876.4KB <= 900KB; largest client JS 487.8KB <= 600KB after dedicated Worker classification.
+- Phase-11 performance closure PASS.
+- Decision Intelligence Studio browser smoke PASS.
+- Public preview smoke PASS for /proposal-demo, /reports/inventory?demo=1, /reports/sales?demo=1, /decision-experience?demo=1, and /try-report.
+- Real-48 source matrix contract PASS.
+- E2E actor provisioning contract PASS.
+- Automatic Vercel preview status for e8e3f270 is PASS; no manual production deployment was used.
+- Supabase intelligence workspace migration is applied to staging with RLS enabled; authenticated CRUD readback for the newly added tables is not claimed.
 
 CURRENT_OPEN_GATES
-- Fresh Product Build Gate for 6c0b897803975841d99bee838c1def3c7f4adf05.
-- Fresh Full Product Browser E2E for 6c0b897803975841d99bee838c1def3c7f4adf05.
-- 48/48 intelligence evidence gate and Final Certification for 6c0b897803975841d99bee838c1def3c7f4adf05.
-- Customer visual proof remains unproven until same-head browser artifacts are produced.
-- Public deployment of this exact head is not claimed.
+- Final Certification Gate for e8e3f270616efa43cbc6d28d24e49877c7e58019.
+- Authenticated business browser E2E and tenant-isolation proof remain NOT_PROVEN pending provisioned actors/backend secrets.
+- 48 real-source runtime proof remains NOT_PROVEN pending the governed real corpus plus authenticated/service-role execution.
+- Production runtime proof remains NOT_PROVEN; no manual production deployment is being used to manufacture evidence.
 
 CURRENT_ACTIVE_FAILURE
-- Previous exact-head failure: duplicate SourceBoundReportSurface import in ExecutiveReportPage.tsx. Fixed.
-- Previous browser-proof failure: E2E contracts referenced the stale sales job and 342 rows. Fixed to the authoritative inventory job and 332 rows.
-- No new product failure is asserted until the exact-head CI jobs reach terminal state.
+- Session Handoff Contract reported an unaccounted workflow file; this state record explicitly accounts for the session and will be rechecked at the new HEAD.
+- UI route completeness reported PublicDemoWorkspacePage.tsx as unreachable; the orphan page is now removed rather than bypassing the contract.
+- Any remaining CI failure must be treated as first-failure evidence from the new HEAD, not inferred from older runs.
 
 ROOT_CAUSE
-- The Reports Center originally treated a stale sales execution as the primary report despite a higher-quality verified inventory execution for the same source hash.
-- The customer surface still prioritized generic dashboard KPIs over the actual source-bound report.
-- Browser-proof contracts lagged behind the authoritative report lineage.
-- Governance documents were stale relative to mainline changes.
+- The certification performance gate treated dedicated Web Worker bundles as if they were initial UI-thread chunks, while the actual critical path was also carrying a static DashboardPage entry.
+- Session handoff records and route reachability had drifted behind the execution branch.
 
-NEXT_EXACT_ACTION = Consume terminal CI for c0d681efddc18eda5a82a52ffaf8fda2b2e158c9; fix only the first newly proven failure, then consume same-head browser artifacts and certification. The customer report now contains a real row-level workspace, not terminology-only cards.
+NEXT_EXACT_ACTION = Consume terminal CI for e8e3f270; fix only the first newly proven failure; then consume same-head browser/certification artifacts. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.

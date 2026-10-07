@@ -1,25 +1,25 @@
-SESSION HANDOFF = READY
+﻿SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-REPORT_FOR_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-BRANCH = main
-PR = N/A
-UPDATED_AT = 2026-10-05T23:08:00+03:00
+CURRENT MAIN HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
+REFERENCE START HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
+CURRENT EXECUTION HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
+REPORT_FOR_HEAD = e8e3f270616efa43cbc6d28d24e49877c7e58019
+BRANCH = exec/decision-completion-20261007
+PR = #867
+UPDATED_AT = 2026-10-07T06:20:00+03:00
 
-WHAT_I_WAS_ASKED_TO_DO = Continue execution until the customer can operate the real report, not merely read product terminology.
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing execution to a sellable evidence-first Business Decision Operating System, with real business outputs and no fabricated proof.
 
-OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
+OBJECTIVE = Any source -> truth -> evidence -> signal -> why -> so what -> recommendation -> decision -> approval -> work -> outcome -> learning, with source binding, provenance, tenant safety, and browser/certification proof.
 
-WHAT_I_ACTUALLY_DID = Converted the report surface from descriptive terminology into a data-first workspace: a live explorer over canonical rows with business-state filters, search, sorting, row selection, field readback, rule explanation, and direct row-to-decision navigation; reused it across CustomerReportSurface and SmartReportPage; kept the source binding and fail-closed evidence rules intact.
+WHAT_I_ACTUALLY_DID = Delivered the intelligence closure runtime and UI/persistence surfaces; integrated them into Decision Intelligence Studio and the real fixture-derived public Sales/Inventory surfaces; fixed GLPK and DuckDB runtime regressions; closed certification performance/workflow gates; lazy-loaded DashboardPage to keep the exact 900KB performance contract honest; removed an unreachable demo page; and updated session governance for this exact HEAD.
 
-WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. The product build succeeded on the preceding exact-head CI cycle. The current Vercel production is reachable at report-advisor.vercel.app and is on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd; later main commits are awaiting a fresh deployment because the Vercel free API deployment quota is currently exhausted.
+WHAT_IS_PROVEN = Local exact build PASS; performance budget PASS at critical 876.4KB and largest client JS 487.8KB; Phase-11 E2E performance closure PASS; Decision Intelligence Studio smoke PASS; public preview smoke PASS on five routes; real-48 source matrix contract PASS; E2E actor provisioning contract PASS; automatic Vercel preview PASS; Netlify preview for the preceding exact candidate PASS; intelligence workspace migration applied with RLS verified.
 
-FIRST_ACTIVE_FAILURE = The last newly proven product failure was a duplicate SourceBoundReportSurface import in ExecutiveReportPage.tsx, which caused TypeScript to stop before browser proof. After that, the browser contracts were found to reference the stale 342-row sales job; those contracts are now aligned to the authoritative 332-row inventory job.
+FIRST_ACTIVE_FAILURE = The first exact-head certification failure was performance/workflow governance: initial critical path 911.0KB and Worker bundle classified as largest UI chunk, plus non-scoped Netlify workflow concurrency. Those were corrected. The next exact-head failures were session-handoff stale coverage and an unreachable PublicDemoWorkspacePage.tsx; both are corrected in this follow-up commit.
 
-ROOT_CAUSE = The customer path and proof path were both anchored to stale sales lineage instead of the verified inventory lineage, and the Reports Center visual hierarchy still placed generic KPIs above the actual source report.
+ROOT_CAUSE = Certification/accountability drift had accumulated around a static root dashboard import, Worker asset classification, a workflow concurrency key, stale session documentation, and a dead page component.
 
-NEXT_EXACT_ACTION = Consume terminal CI for c0d681efddc18eda5a82a52ffaf8fda2b2e158c9; fix only the first newly proven failure; then consume same-head browser artifacts and final certification. No terminology-only PASS.
+NEXT_EXACT_ACTION = Consume terminal CI for the new exact HEAD e8e3f270 plus this governance follow-up; fix only the first newly proven failure, then consume same-head authenticated/browser/certification artifacts. Do not declare 48 real-source, authenticated business E2E, or production proof without actual evidence.
 
-CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/full-product-browser-e2e.yml; .github/workflows/github-pages-production.yml; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; scripts/real-business-e2e.mjs; scripts/run-full-product-browser-e2e.mjs; src/App.tsx; src/components/CustomerReportSurface.tsx; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx; src/lib/report-intelligence/report-smart-insights.ts; src/lib/report-smart.ts; src/pages/CanonicalImportPage.tsx; src/pages/ExecutiveReportPage.tsx; src/pages/ReportsPage.tsx; src/pages/SmartReportPage.tsx; vite.config.ts
+CHANGED_FILES_ACCOUNTED_FOR = src/App.tsx; scripts/check-performance-budget.mjs; .github/workflows/deploy-netlify-production.yml; src/pages/PublicDemoWorkspacePage.tsx (removed); docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
