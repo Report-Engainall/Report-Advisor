@@ -83,6 +83,9 @@ export function ReportSourceContext() {
   const sourceHash = urlValidSourceHash ? urlSourceHash : storedSourceHash;
   const validSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
   const cacheKey = jobId && validSourceHash ? jobId + ':' + sourceHash : '';
+  const [report, setReport] = useState<SmartReportDetail | null>(() => cacheKey ? REPORT_CONTEXT_CACHE.get(cacheKey) ?? null : null);
+  const [error, setError] = useState<string | null>(null);
+  const [contextResolving, setContextResolving] = useState(false);
 
   // Normalize the browser URL to the active report context. This closes the
   // exact failure mode where a global sidebar/journey link lands on a
@@ -99,9 +102,6 @@ export function ReportSourceContext() {
       { replace: true },
     );
   }, [contextResolving, jobId, location.pathname, location.search, navigate, sourceHash, validSourceHash]);
-  const [report, setReport] = useState<SmartReportDetail | null>(() => cacheKey ? REPORT_CONTEXT_CACHE.get(cacheKey) ?? null : null);
-  const [error, setError] = useState<string | null>(null);
-  const [contextResolving, setContextResolving] = useState(false);
 
   useEffect(() => {
     if (urlJobId && urlValidSourceHash) return;
