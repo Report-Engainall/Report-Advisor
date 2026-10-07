@@ -5,11 +5,13 @@ import assert from 'node:assert/strict';
 const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
 const page = readFileSync(resolve(process.cwd(), 'src/pages/ProposalDemoPage.tsx'), 'utf8');
 
-assert.match(app, /const isNetlifyPreview = host\.endsWith\('--aghbari-report-advisor\.netlify\.app'\)/);
-assert.match(app, /const isPrimaryPublicPreview = host === 'aghbari-report-advisor\.netlify\.app' \|\| host === 'main--aghbari-report-advisor\.netlify\.app';/);
+assert.doesNotMatch(app, /isNetlifyPreview|isPrimaryPublicPreview|isGitHubPagesPublicPreview/);
+assert.match(app, /const demoQuery = query\.get\('demo'\) === '1';/);
+assert.match(app, /const explicitPreviewQuery = query\.get\('preview'\) === '1';/);
+assert.match(app, /const authQuery = query\.get\('auth'\) === '1';/);
 assert.match(app, /if \(authQuery\) return <AuthGate \/>;/);
-assert.match(app, /if \(demoQuery \|\| isNetlifyPreview \|\| isPrimaryPublicPreview \|\| isGitHubPagesPublicPreview\) return <ProposalDemoPage \/>;/);
-assert.doesNotMatch(app, /return \(isNetlifyPreview \|\| demoQuery\)\s*\n\s*\? <ProposalDemoPage \/>/);
+assert.match(app, /if \(demoQuery \|\| explicitPreviewQuery \|\| location\.pathname === '\/proposal-demo'\) return <ProposalDemoPage \/>;/);
+assert.match(app, /return <AuthGate><AppShell \/><\/AuthGate>;/);
 
 assert.match(page, /function PreviewBusinessSurface\(\{ path \}: \{ path: string \}\)/);
 assert.match(page, /function ProposalCommercialDemoPage\(\)/);
