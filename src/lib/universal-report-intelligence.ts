@@ -1,4 +1,5 @@
 import type { CanonicalField } from './report-intelligence/canonical-schema';
+import { buildBrainPacket, type BrainPacket } from './intelligence/brain-runtime';
 import { matchCanonicalField } from './report-intelligence/canonical-schema';
 import { applyArchetypeRuleSet } from './report-intelligence/archetype-evaluator';
 import { detectReportArchetype, getReportArchetype, type ArchetypeProfile } from './report-intelligence/archetype-registry';
@@ -66,6 +67,7 @@ export type UniversalIntelligenceResult = {
     answer: string;
     followUp: string | null;
   }>;
+  brain: BrainPacket;
 };
 
 type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
@@ -77,6 +79,7 @@ type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
   evidenceSnapshotId?: string | null;
   evidencePassportId?: string | null;
   availableFields?: CanonicalField[];
+  decisionOutcomes?: Array<{ label: 'correct' | 'incorrect' | 'partial' | 'unknown'; actualValue?: number | null; expectedValue?: number | null }>;
 };
 
 function text(value: unknown): string {
@@ -309,6 +312,23 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     ),
   );
 
+  const brain = buildBrainPacket({
+    rows: (input.canonicalRows ?? []).map((row) => row.data ?? {}),
+    sourceHash: input.sourceHash ?? null,
+    reportJobId: input.reportJobId ?? null,
+    archetypeId: archetype?.id ?? null,
+    availableFields: fields,
+    recommendation: recommendation ? {
+      title: recommendation.title,
+      action: recommendation.action,
+      ownerHint: recommendation.ownerHint,
+      expectedOutcome: recommendation.expectedOutcome,
+      measurement: recommendation.measurement,
+      evidence: recommendation.evidence,
+    } : null,
+    decisionOutcomes: input.decisionOutcomes ?? [],
+  });
+
   const confidenceGovernance = buildConfidenceGovernance({
     rows: stats.rows,
     completeness: quality,
@@ -478,5 +498,6 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     totalFieldCount: stats.total,
     stages,
     topQuestions,
+    brain,
   };
 }
