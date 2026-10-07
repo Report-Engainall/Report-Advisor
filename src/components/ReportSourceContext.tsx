@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useReportContext } from '@/components/ReportContext';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
@@ -45,11 +45,32 @@ export function ReportSourceContext() {
   const validSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [contextResolving, setContextResolving] = useState(false);
 
   useEffect(() => {
+    if (urlJobId && urlValidSourceHash) return;
+    if (storedJobId && validSourceHash) return;
+    let active = true;
+    setContextResolving(true);
+    setError(null);
+    void fetchSmartReportCatalog(1, { signal: AbortSignal.timeout(12000) })
+      .then((catalog) => {
+        if (!active) return;
+        const latest = catalog[0];
+        if (latest?.jobId && latest.sourceHash) setReportContext(latest.jobId, latest.sourceHash);
+        else setError('لا يوجد تقرير مكتمل صالح للربط بالسياق الحالي.');
+      })
+      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : String(cause)); })
+      .finally(() => { if (active) setContextResolving(false); });
+    return () => { active = false; };
+  }, [urlJobId, urlValidSourceHash, storedJobId, validSourceHash, setReportContext]);
+
+  useEffect(() => {
+    if (contextResolving) return;
     if (!jobId || !validSourceHash) {
       setReport(null);
-      setError(jobId ? 'مصدر التقرير يحتاج بصمة صالحة.' : null);
+      if (!jobId && !error) setError(null);
+      else if (jobId) setError('مصدر التقرير يحتاج بصمة صالحة.');
       return;
     }
     let active = true;
@@ -67,6 +88,10 @@ export function ReportSourceContext() {
     });
     return () => { active = false; };
   }, [jobId, sourceHash, validSourceHash]);
+
+  if (contextResolving && !report) {
+    return <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite"><div className="text-[11px] font-black text-primary-950">جارٍ ربط أحدث تقرير ذكي بالسياق الحالي…</div><p className="mt-1 text-[10px] leading-5 text-primary-900/80">لن نعرض أرقامًا أو توصيات عامة؛ سيتم تحميل النتيجة من آخر تقرير مكتمل في نفس مساحة العمل.</p></section>;
+  }
 
   if (!jobId || !validSourceHash) return null;
 
