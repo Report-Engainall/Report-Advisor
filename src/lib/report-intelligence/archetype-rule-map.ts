@@ -1,4 +1,4 @@
-import type { ArchetypeProfile } from './archetype-registry';
+import type { ArchetypeProfile } from './archetype-registry.js';
 
 export type ArchetypeRuleFamily =
   | 'trend'

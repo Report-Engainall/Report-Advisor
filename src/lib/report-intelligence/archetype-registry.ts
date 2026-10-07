@@ -1,8 +1,8 @@
-import { matchCanonicalField, type CanonicalField } from './canonical-schema';
-import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator';
-import { deriveReportIntelligence } from './report-smart-insights';
-import { applyArchetypeRuleSet, type PersistedIntelligenceCalculation } from './archetype-evaluator';
-import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map';
+import { matchCanonicalField, type CanonicalField } from './canonical-schema.js';
+import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator.js';
+import { deriveReportIntelligence } from './report-smart-insights.js';
+import { applyArchetypeRuleSet, type PersistedIntelligenceCalculation } from './archetype-evaluator.js';
+import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map.js';
 
 export type ArchetypeDomain =
   | 'sales'

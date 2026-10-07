@@ -1,5 +1,5 @@
-import { deriveReportIntelligence, type ReportIntelligence, type BusinessFinding, type ReportSignal, type ReportRecommendation } from './report-smart-insights';
-import { matchCanonicalField } from './canonical-schema';
+import { deriveReportIntelligence, type ReportIntelligence, type BusinessFinding, type ReportSignal, type ReportRecommendation } from './report-smart-insights.js';
+import { matchCanonicalField } from './canonical-schema.js';
 
 type RuleProfile = {
   id: string;
@@ -631,7 +631,7 @@ export function applyArchetypeRuleSet(
         }
       }
       const latestDates = [...latestByParty.values()].sort();
-      const latest = latestDates.at(-1) ?? null;
+      const latest = latestDates[latestDates.length - 1] ?? null;
       modelFinding = {
         id: 'archetype:' + profile.id + ':continuity',
         kind: 'FINDING',

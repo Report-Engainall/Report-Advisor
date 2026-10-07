@@ -1,6 +1,6 @@
-import type { CanonicalField } from './canonical-schema';
-import type { Claim, ClaimProvenance, ClaimStatus } from './claim-ledger';
-import type { ReportIntelligence } from './report-smart-insights';
+import type { CanonicalField } from './canonical-schema.js';
+import type { Claim, ClaimProvenance, ClaimStatus } from './claim-ledger.js';
+import type { ReportIntelligence } from './report-smart-insights.js';
 
 type ClaimAdapterInput = {
   intelligence: ReportIntelligence;
