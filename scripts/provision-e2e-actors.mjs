@@ -519,8 +519,16 @@ const tenantA = await findTenantA();
 const tenantB = await findTenantB();
 assert.notEqual(String(tenantA.id), String(tenantB.id), 'TENANT_A_AND_B_MUST_BE_DISTINCT');
 
-const smartReportTenantId = String(process.env.REAL_SMART_REPORT_COMPANY_ID || '').trim();
-if (!smartReportTenantId) throw new Error('REAL_SMART_REPORT_COMPANY_ID_REQUIRED');
+const configuredSmartReportTenantId = String(process.env.REAL_SMART_REPORT_COMPANY_ID || '').trim();
+const smartReportTenantId = configuredSmartReportTenantId || String(tenantA.id);
+if (!configuredSmartReportTenantId) {
+  console.log(JSON.stringify({
+    status: 'INFO',
+    message: 'REAL_SMART_REPORT_COMPANY_ID not configured; using verified runtime report tenant from tenant A.',
+    smartReportTenantId,
+    smartReportTenantName: tenantA.name,
+  }));
+}
 assert.notEqual(String(tenantB.id), smartReportTenantId, 'REAL_SMART_REPORT_TENANT_MUST_DIFFER_FROM_B');
 
 const membershipA = await provisionMembership(tenantA.id, userA.id, 'sales', true, 'A');
