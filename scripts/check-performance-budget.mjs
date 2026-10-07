@@ -7,7 +7,7 @@ import { join, resolve, relative } from 'node:path';
 // That made a 450KB "total build" budget incompatible with the app's lazy-loading architecture.
 // The initial shell includes the globally loaded executive stylesheet and React runtime.
 // Keep a tight raw budget while allowing a small headroom for the proven build/provenance shell.
-const MAX_CRITICAL_KB = 925;
+const MAX_CRITICAL_KB = 900;
 const MAX_COMPRESSED_TEXT_KB = 2000;
 const MAX_CHUNK_KB = 600;
 
