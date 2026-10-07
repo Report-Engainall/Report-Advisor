@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: netlify-production
+  group: netlify-production-${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
