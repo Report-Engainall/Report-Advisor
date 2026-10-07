@@ -390,7 +390,7 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: node scripts/real-business-e2e.mjs
 
-      - name: Report real-source 48 archetype coverage (non-blocking)
+      - name: Prove 48/48 real-source archetype coverage
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
@@ -404,14 +404,11 @@ jobs:
           REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
         shell: bash
         run: |
-          set +e
-          test -n "${TEST_USER_B_EMAIL}" && test -n "${TEST_USER_B_PASSWORD}"
+          set -euo pipefail
+          test -n "${TEST_USER_B_EMAIL}"
+          test -n "${TEST_USER_B_PASSWORD}"
           node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
-          rc=$?
-          echo "REAL_SOURCE_48_COVERAGE_IS_NON_BLOCKING=true" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_EXIT_CODE=$rc" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_GATE=DIAGNOSTIC_ONLY" >> "$GITHUB_STEP_SUMMARY"
-          exit 0
+          echo "REAL_SOURCE_48_GATE=BLOCKING_PASS" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fail closed on browser evidence
         if: ${{ always() }}
