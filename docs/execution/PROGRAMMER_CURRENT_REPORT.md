@@ -1,25 +1,25 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-REPORT_FOR_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
+CURRENT MAIN HEAD = 69ce31c6b734abf26dce05fbd78e8bd0640600a1
+REFERENCE START HEAD = 8d60d5961b0a9c39bda5aadbeb9762898a7127c1
+CURRENT EXECUTION HEAD = 69ce31c6b734abf26dce05fbd78e8bd0640600a1
+REPORT_FOR_HEAD = 69ce31c6b734abf26dce05fbd78e8bd0640600a1
 BRANCH = main
-PR = N/A
-UPDATED_AT = 2026-10-05T23:08:00+03:00
+PR = #884 merged
+UPDATED_AT = 2026-10-07T22:10:00+03:00
 
 WHAT_I_WAS_ASKED_TO_DO = Continue execution until the customer can operate the real report, not merely read product terminology.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = Converted the report surface from descriptive terminology into a data-first workspace: a live explorer over canonical rows with business-state filters, search, sorting, row selection, field readback, rule explanation, and direct row-to-decision navigation; reused it across CustomerReportSurface and SmartReportPage; kept the source binding and fail-closed evidence rules intact.
+WHAT_I_ACTUALLY_DID = On the actual current mainline, merged PR #884 so Reports Center now exposes the existing report intelligence panel and the canonical row-level source explorer directly on the primary Reports Center surface. The explorer preserves the report job/source hash context and existing fail-closed evidence rules.
 
-WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. The product build succeeded on the preceding exact-head CI cycle. The current Vercel production is reachable at report-advisor.vercel.app and is on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd; later main commits are awaiting a fresh deployment because the Vercel free API deployment quota is currently exhausted.
+WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. PR #884 is merged into main at 69ce31c6....
 
-FIRST_ACTIVE_FAILURE = The last newly proven product failure was a duplicate SourceBoundReportSurface import in ExecutiveReportPage.tsx, which caused TypeScript to stop before browser proof. After that, the browser contracts were found to reference the stale 342-row sales job; those contracts are now aligned to the authoritative 332-row inventory job.
+FIRST_ACTIVE_FAILURE = Vercel build/deployment rate limiting is currently blocking a fresh same-head deployment for 69ce31c6.... This is an infrastructure gate, not a fabricated application PASS/FAIL.
 
-ROOT_CAUSE = The customer path and proof path were both anchored to stale sales lineage instead of the verified inventory lineage, and the Reports Center visual hierarchy still placed generic KPIs above the actual source report.
+ROOT_CAUSE = The Reports Center had the correct source-bound report selection and headline signal, but the actual intelligence panel and source-row workspace were visually separated into deeper routes. The merged change removes that fragmentation without inventing data.
 
-NEXT_EXACT_ACTION = Consume terminal CI for c0d681efddc18eda5a82a52ffaf8fda2b2e158c9; fix only the first newly proven failure; then consume same-head browser artifacts and final certification. No terminology-only PASS.
+NEXT_EXACT_ACTION = Produce a same-head deployment for 69ce31c6... when the Vercel rate-limit gate clears, then consume same-head browser artifacts and final 48/48 intelligence certification. If a new failure appears, fix only that first proven failure.
 
-CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/full-product-browser-e2e.yml; .github/workflows/github-pages-production.yml; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; scripts/real-business-e2e.mjs; scripts/run-full-product-browser-e2e.mjs; src/App.tsx; src/components/CustomerReportSurface.tsx; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx; src/lib/report-intelligence/report-smart-insights.ts; src/lib/report-smart.ts; src/pages/CanonicalImportPage.tsx; src/pages/ExecutiveReportPage.tsx; src/pages/ReportsPage.tsx; src/pages/SmartReportPage.tsx; vite.config.ts
+CHANGED_FILES_ACCOUNTED_FOR = src/pages/ReportsPage.tsx (PR #884); existing source-bound/report intelligence components reused without new data-contract changes.
