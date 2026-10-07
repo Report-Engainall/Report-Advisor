@@ -394,7 +394,7 @@ export function BusinessDataExplorer({ report }: { report: SmartReportDetail }) 
     numeric: genericNumericField,
   }), [ageField, genericNumericField, identityField, salesField, skuField, stockField, stockoutField]);
 
-  const classify = (data: Record<string, unknown>) => {
+  const classify = useCallback((data: Record<string, unknown>) => {
     const stock = stockField ? numberValue(data[stockField]) : null;
     const stockout = stockoutField ? numberValue(data[stockoutField]) : null;
     const age = ageField ? numberValue(data[ageField]) : null;
@@ -405,7 +405,7 @@ export function BusinessDataExplorer({ report }: { report: SmartReportDetail }) 
       aging: age != null && age >= 120 && (sales == null || sales > 0),
       attention: (stock != null && stock <= 0) || (stockout != null && stockout >= 0 && stockout <= 7) || (age != null && age >= 120 && (sales == null || sales > 0)),
     };
-  };
+  }, [ageField, salesField, stockField, stockoutField]);
 
   const summary = useMemo(() => rows.reduce((acc, item) => {
     const state = classify(item.data);
@@ -443,7 +443,7 @@ export function BusinessDataExplorer({ report }: { report: SmartReportDetail }) 
         return sortDesc ? -comparison : comparison;
       })
       .slice(0, 120);
-  }, [filter, query, rows, sortBy, sortDesc]);
+  }, [classify, filter, query, rows, sortBy, sortDesc]);
 
   const selected = selectedIndex == null ? null : rows.find((item) => item.index === selectedIndex) ?? null;
   const label = (field: string | null, fallback: string) => {
@@ -715,7 +715,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   const refreshDecisions = useCallback(async () => {
     const rows = await fetchSourceDecisionProposals(report.sourceHash, report.jobId);
     setDecisions(rows);
-  }, [report.sourceHash]);
+  }, [report.jobId, report.sourceHash]);
 
   const refreshAudit = useCallback(async (decision: SourceDecisionState) => {
     setAuditLoading(true);
