@@ -64,12 +64,11 @@ export type GovernedScenarioRecord = {
 
 const LATEST_KEY = 'profitability-sensitivity-latest';
 
-function requireCompanyId(): Promise<string> {
-  return resolveCurrentCompanyId().then((companyId) => {
-    if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-    return companyId;
-  });
-}
+const requireTenant = async (): Promise<string> => {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
+  return companyId;
+};
 
 function stableStringify(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -102,7 +101,7 @@ function parseRecord(row: Record<string, unknown>): GovernedScenarioRecord {
 }
 
 export async function fetchLatestGovernedScenario(): Promise<GovernedScenarioRecord | null> {
-  const companyId = await requireCompanyId();
+  const companyId = await requireTenant();
   const { data, error } = await supabase
     .from('governed_scenarios')
     .select('id,scenario_key,assumptions,outputs,confidence,risk_score,status,created_at')
@@ -117,7 +116,7 @@ export async function saveGovernedScenario(
   assumptions: ProfitabilityScenarioAssumptions,
   outputs: Omit<ProfitabilityScenarioOutputs, 'runKey' | 'resultHash' | 'computedAt'>,
 ): Promise<GovernedScenarioRecord> {
-  const companyId = await requireCompanyId();
+  const companyId = await requireTenant();
   const computedAt = new Date().toISOString();
   const runKey = await buildScenarioRunKey(assumptions);
   const resultHash = await sha256Text(stableStringify({ assumptions, outputs }));
