@@ -21,3 +21,7 @@ FIRST_ACTIVE_FAILURE = Vercel diagnostic typechecking exposed strict ESM import-
 NEXT_EXACT_ACTION = Run/consume fresh exact-head typecheck/build and authenticated E2E for 0e02e881..., then consume 48/48 intelligence and final certification. Treat any older deployment/CI as historical only.
 
 CHANGED_FILES_ACCOUNTED_FOR = PR #884 src/pages/ReportsPage.tsx; PR #886 scripts/real-business-e2e.mjs; PR #887 strict TypeScript import specifiers + archetype evaluator Array access across 11 runtime files.
+
+CURRENT PRODUCT HEAD = 0c88d94110369da906790d32091d25719bd2de8e
+LATEST PRODUCT CHANGE = PR #889 merged: active report lineage is now carried through intelligence → Advisor → decision → work → replay → benchmark → trust, with an E2E contract.
+PROOF STATE = Netlify PR #889 preview READY; exact-head authenticated E2E/build/certification still not terminal; production still old.
