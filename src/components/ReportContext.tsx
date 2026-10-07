@@ -30,7 +30,7 @@ export function ReportContextProvider({ children }: { children: ReactNode }) {
     setContext((previous) => {
       if (previous.reportJobId === reportJobId && previous.sourceHash === sourceHash) return previous;
       const next = { reportJobId, sourceHash };
-      try { window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      try { window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* sessionStorage may be unavailable in restricted contexts. */ }
       return next;
     });
   }, []);
