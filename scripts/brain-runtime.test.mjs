@@ -20,6 +20,9 @@ const packet = buildBrainPacket({
   reportJobId:'brain-runtime-test-job',
   archetypeId:'inventory.stockout-reorder',
   availableFields:Object.keys(rows[0]),
+  evidenceVerified:true,
+  evidenceSnapshotId:'evidence-snapshot-test',
+  evidencePassportId:'evidence-passport-test',
   recommendation:{
     title:'معالجة الأصناف الحرجة',
     action:'راجع الأصناف منخفضة التغطية واربطها بالتوريد.',
