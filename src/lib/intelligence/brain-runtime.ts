@@ -275,18 +275,27 @@ function calcZeroShare(ctx: Ctx, field: string): Calc {
 }
 
 function calcDays(ctx: Ctx, stock: string, daily: string): Calc {
-  const a=ctx.values(stock), b=ctx.values(daily); if(!a.length||!b.length) return {value:null,rows:[],note:'stock and daily demand are required'};
+  if (!ctx.field(stock) || !ctx.field(daily)) return {value:null,rows:[],note:'stock and daily demand are required'};
   const rows:number[]=[]; const values:number[]=[];
-  const keyed=Math.min(a.length,b.length);
-  for(let i=0;i<keyed;i++){if(b[i].value>0){values.push(a[i].value/b[i].value);rows.push(a[i].index);}}
-  return values.length ? {value:values.reduce((s,x)=>s+x,0)/values.length,rows,note:'mean stock coverage in days using source daily demand'} : {value:null,rows:[],note:'daily demand is zero'};
+  ctx.rows.forEach((row,index)=>{
+    const stockValue=n(ctx.value(row,stock));
+    const dailyValue=n(ctx.value(row,daily));
+    if(stockValue != null && dailyValue != null && dailyValue > 0){ values.push(stockValue/dailyValue); rows.push(index); }
+  });
+  return values.length ? {value:values.reduce((s,x)=>s+x,0)/values.length,rows,note:'row-aligned mean stock coverage in days using source daily demand'} : {value:null,rows:[],note:'no row has positive daily demand with numeric stock'};
 }
 
 function calcDeadShare(ctx: Ctx, age: string, demand: string): Calc {
-  const a=ctx.values(age), d=ctx.values(demand); if(!a.length||!d.length) return {value:null,rows:[],note:'age and demand are required'};
-  const count=Math.min(a.length,d.length); const bad:number[]=[];
-  for(let i=0;i<count;i++) if(a[i].value>=180 && d[i].value<=1) bad.push(a[i].index);
-  return {value:(bad.length/count)*100,rows:bad,note:'share aged >=180 days with demand <=1'};
+  if (!ctx.field(age) || !ctx.field(demand)) return {value:null,rows:[],note:'age and demand are required'};
+  let comparable=0; const bad:number[]=[];
+  ctx.rows.forEach((row,index)=>{
+    const ageValue=n(ctx.value(row,age));
+    const demandValue=n(ctx.value(row,demand));
+    if(ageValue == null || demandValue == null) return;
+    comparable += 1;
+    if(ageValue >= 180 && demandValue <= 1) bad.push(index);
+  });
+  return comparable ? {value:(bad.length/comparable)*100,rows:bad,note:'row-aligned share aged >=180 days with demand <=1'} : {value:null,rows:[],note:'no row has numeric age and demand'};
 }
 
 function calcReconciliation(ctx: Ctx): Calc {
@@ -310,8 +319,8 @@ const metricDefs: MetricDef[] = [
   {id:'sales.discount-rate',label:'معدل الخصم',unit:'percent',required:['discount','grossAmount'],formula:'SUM(discount) / |SUM(grossAmount)| × 100',direction:'lower-is-better',calculate:ctx=>calcRatio(ctx,'discount','grossAmount',true)},
   {id:'sales.target-gap',label:'فجوة المستهدف',unit:'percent',required:['targetAmount','netAmount'],formula:'(actual - target) / |target| × 100',direction:'higher-is-better',calculate:ctx=>{
     const target=ctx.values('targetAmount'), actual=ctx.values('netAmount'); if(!target.length||!actual.length)return{value:null,rows:[],note:'target and actual required'};
-    const count=Math.min(target.length,actual.length); const pairs=Array.from({length:count},(_,i)=>({t:target[i],a:actual[i]})); const sumT=pairs.reduce((s,p)=>s+p.t.value,0); const sumA=pairs.reduce((s,p)=>s+p.a.value,0);
-    return sumT ? {value:((sumA-sumT)/Math.abs(sumT))*100,rows:pairs.flatMap(p=>[p.t.index,p.a.index]),note:'aggregate actual vs aggregate target'} : {value:null,rows:[],note:'target aggregate is zero'};
+    const sumT=target.reduce((s,p)=>s+p.value,0); const sumA=actual.reduce((s,p)=>s+p.value,0);
+    return sumT ? {value:((sumA-sumT)/Math.abs(sumT))*100,rows:[...new Set([...target.map(p=>p.index),...actual.map(p=>p.index)])],note:'aggregate actual vs aggregate target; row alignment not assumed'} : {value:null,rows:[],note:'target aggregate is zero'};
   }},
   {id:'purchases.supplier-concentration',label:'تركيز أكبر مورد',unit:'percent',required:['supplierCode','netAmount'],formula:'MAX(supplier spend) / total supplier spend × 100',direction:'lower-is-better',calculate:ctx=>calcConcentration(ctx,'supplierCode','netAmount')},
   {id:'purchases.average-lead-time',label:'متوسط مدة التوريد',unit:'days',required:['leadTimeDays'],formula:'AVG(leadTimeDays)',direction:'lower-is-better',calculate:ctx=>calcAverage(ctx,'leadTimeDays')},
