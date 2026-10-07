@@ -444,29 +444,43 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     stage(
       'outcome',
       'النتيجة',
-      'NOT_AVAILABLE',
-      'لا توجد نتيجة تنفيذية مثبتة في هذا السياق.',
-      'لا نسمّي المتوقع «متحققًا» قبل وصول دليل بعد التنفيذ.',
-      [],
-      'أعد القياس على نفس المصدر/المؤشر ثم ثبّت النتيجة.',
+      brain.outcome.state === 'OBSERVED' ? 'VERIFIED' : brain.outcome.state === 'PARTIAL' ? 'REVIEW_REQUIRED' : 'NOT_AVAILABLE',
+      brain.outcome.state === 'OBSERVED'
+        ? 'توجد نتيجة تنفيذية مرصودة مرتبطة بتاريخ ملاحظة.'
+        : brain.outcome.state === 'PARTIAL'
+          ? 'توجد ملاحظات تنفيذية، لكن النتيجة جزئية ولا تصلح كأثر كامل.'
+          : 'لا توجد نتيجة تنفيذية مثبتة في هذا السياق.',
+      brain.outcome.boundary,
+      brain.outcome.actualValue != null && brain.outcome.expectedValue != null
+        ? [`actual=${brain.outcome.actualValue}`, `expected=${brain.outcome.expectedValue}`]
+        : [],
+      brain.outcome.state === 'OBSERVED' ? 'راجع أثر التنفيذ مقابل المتوقع.' : 'أعد القياس على نفس المصدر/المؤشر ثم ثبّت النتيجة.',
     ),
     stage(
       'learning',
       'التعلّم',
-      'NOT_AVAILABLE',
-      'التعلّم ينتظر نتيجة فعلية قابلة للمقارنة.',
-      'سيُربط الدرس بما تغيّر وبالمقياس الذي تم تتبعه.',
-      [],
-      'قارن قبل/بعد ثم حدّث قاعدة التوصية.',
+      brain.outcome.learning === 'CANDIDATE' ? 'DERIVED' : brain.outcome.learning === 'REVIEW_REQUIRED' ? 'REVIEW_REQUIRED' : 'NOT_AVAILABLE',
+      brain.outcome.learning === 'CANDIDATE'
+        ? 'تكوّن مرشح تعلّم من نتائج فعلية متعددة.'
+        : brain.outcome.learning === 'REVIEW_REQUIRED'
+          ? 'توجد إشارة تعلّم، لكنها تحتاج نتائج إضافية ومراجعة بشرية.'
+          : 'التعلّم ينتظر نتيجة فعلية قابلة للمقارنة.',
+      brain.outcome.boundary,
+      [`observations=${brain.outcome.observations}`],
+      brain.outcome.learning === 'CANDIDATE' ? 'راجع تغير القاعدة أو العتبة قبل اعتماد نسخة جديدة.' : 'اجمع actual مقابل expected ثم أعد التقييم.',
     ),
     stage(
       'benchmark',
       'المقارنة',
-      'GAP_DETECTED',
-      'لا يوجد Benchmark خارجي موثوق ضمن هذا المصدر.',
-      'لا يتم اختلاق متوسط سوق أو منافس. المقارنة تُفتح فقط عند وجود مرجع موثق.',
-      [],
-      'أضف مرجعًا داخليًا أو خارجيًا موثقًا قبل إصدار مقارنة.',
+      brain.benchmark.state === 'INTERNAL_COMPARABLE' ? 'DERIVED' : 'GAP_DETECTED',
+      brain.benchmark.state === 'INTERNAL_COMPARABLE'
+        ? `مقارنة داخلية متاحة عبر ${brain.benchmark.entityCount} كيانات.`
+        : brain.benchmark.boundary,
+      brain.benchmark.boundary,
+      brain.benchmark.current != null && brain.benchmark.median != null
+        ? [`current=${brain.benchmark.current}`, `median=${brain.benchmark.median}`, `topQuartile=${brain.benchmark.topQuartile}`]
+        : [],
+      brain.benchmark.state === 'INTERNAL_COMPARABLE' ? 'افتح الفارق عن الوسيط والربع الأعلى قبل تحديد الإجراء.' : 'أضف كيانات مقارنة كافية داخل المصدر أو مرجعًا خارجيًا موثقًا.',
     ),
   ];
 
