@@ -26,3 +26,125 @@ jobs:
         run: node scripts/execution-enforcement-adversarial.test.mjs
       - name: Run certification boundary test-of-test suite
         run: node scripts/check-certification-boundary-integrity.test.mjs
+
+  lovable-source-bundle:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Verify source branch and feature head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "tmp/lovable-transfer-20261007"
+          git rev-parse HEAD
+      - name: Build Lovable transfer bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf lovable-transfer
+          mkdir -p lovable-transfer
+          git archive --format=tar HEAD | tar -x -C lovable-transfer
+
+          # Never ship runtime secrets/private keys or generated/local state.
+          find lovable-transfer -type f -name '.env' -print -delete || true
+          find lovable-transfer -type f -name '.env.local' -print -delete || true
+          find lovable-transfer -type f -name '.env.production' -print -delete || true
+          find lovable-transfer -type f -name '.env.development' -print -delete || true
+          find lovable-transfer -type f -name '*.pem' -print -delete || true
+          find lovable-transfer -type f -name '*.key' -print -delete || true
+          rm -rf lovable-transfer/.git lovable-transfer/node_modules lovable-transfer/dist lovable-transfer/coverage lovable-transfer/artifacts
+          rm -f lovable-transfer/.github/workflows/tmp-lovable-source-bundle.yml
+
+          cat > lovable-transfer/LOVABLE_TRANSFER_README.md <<'EOF'
+# Report-Advisor — Lovable Transfer Package
+
+SOURCE SNAPSHOT
+Repository: Report-Engainall/Report-Advisor
+Feature source HEAD: ff9af3792735e3612cab2d47f53ee91692617bf8
+This is a continuation snapshot. Do NOT rebuild the product from zero.
+
+ALREADY CLOSED — PRESERVE, DO NOT REBUILD
+- Governed Scenario Engine + persistence + readback + provenance + UI.
+- Confidence Governance + UI.
+- Decision lifecycle + Transactional Spine.
+- 48-archetype runtime contract.
+- Public browser runtime.
+- Existing build/lint/test infrastructure.
+
+OPEN CAPABILITIES
+- Authenticated Business E2E proof.
+- 48 real-source proof.
+- Causal Intelligence.
+- Counterfactual / VOI beyond the Scenario foundation.
+- Semantic Diff and Data/Model/Recommendation/Business Drift.
+- Forecast Governance.
+- Process Intelligence when event data supports it.
+- Knowledge/Graph Intelligence.
+- Cross-Domain Intelligence.
+- Decision Policy Engine.
+- Decision Portfolio Intelligence.
+- Outcome -> Learning governance loop.
+- Human / Active Learning.
+- Row / Cell provenance.
+- Unified Knowledge Workspace.
+- Persistent tenant-safe Saved Views.
+- Full report advisory UX completion.
+- Production proof.
+
+PRODUCT CONTRACT
+Any Source -> Truth -> Evidence -> Signal -> Decision -> Approval -> Action -> Outcome -> Learning -> Benchmark
+
+WHAT -> WHY -> SO WHAT -> IMPACT -> WHAT NEXT -> PROOF
+OWNER -> EXPECTED OUTCOME
+
+NO FABRICATION
+Never fabricate financial impact, benchmarks, outcomes, causal claims, or evidence. Unknown remains unknown.
+
+SECURITY
+Never weaken tenant isolation, company-context guards, evidence binding, or provenance guards to make a demo pass.
+
+LOW-CREDIT CONSTRAINT
+Remaining free monthly credit: 29%.
+Use expensive remote/production runs only when strictly necessary. Prefer local, deterministic, staging, and browser-local proof. Never repeat proven work without a reason.
+
+MODIFICATION RULE
+Modify existing files where needed to complete open capabilities. Preserve working behavior. Create new files only where a real module/test/migration/UI surface is missing.
+
+READ FIRST
+- package.json
+- docs/execution/CURRENT_SESSION_STATE.md
+- docs/execution/PROGRAMMER_CURRENT_REPORT.md
+- relevant src/lib, src/pages, src/components, scripts, and supabase/migrations
+
+FINAL ACCEPTANCE
+IMPLEMENTED != INTEGRATED != PERSISTED != UI-EXPOSED != READBACK-PROVEN != BROWSER-PROVEN != PRODUCTION-PROVEN != PRODUCT COMPLETE
+EOF
+
+          git ls-files > lovable-transfer/LOVABLE_TRACKED_FILE_INVENTORY.txt
+          cat > lovable-transfer/LOVABLE_EXCLUDED_FILES.txt <<'EOF'
+Excluded intentionally:
+- .git
+- runtime .env files
+- private key/certificate files (*.pem, *.key)
+- node_modules
+- dist
+- coverage
+- generated artifacts
+EOF
+
+          cd lovable-transfer
+          zip -qr ../Report-Advisor-Lovable-Transfer-ff9af379.zip .
+          cd ..
+          unzip -t Report-Advisor-Lovable-Transfer-ff9af379.zip >/dev/null
+          ls -lh Report-Advisor-Lovable-Transfer-ff9af379.zip
+
+      - name: Upload Lovable source bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-lovable-transfer-ff9af379
+          path: Report-Advisor-Lovable-Transfer-ff9af379.zip
+          if-no-files-found: error
+          retention-days: 7
