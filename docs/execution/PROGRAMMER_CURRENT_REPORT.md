@@ -22,6 +22,6 @@ NEXT_EXACT_ACTION = Run/consume fresh exact-head typecheck/build and authenticat
 
 CHANGED_FILES_ACCOUNTED_FOR = PR #884 src/pages/ReportsPage.tsx; PR #886 scripts/real-business-e2e.mjs; PR #887 strict TypeScript import specifiers + archetype evaluator Array access across 11 runtime files.
 
-CURRENT PRODUCT HEAD = 0c88d94110369da906790d32091d25719bd2de8e
+CURRENT PRODUCT HEAD = 11c4abca93802053de2ace699328f74795993114
 LATEST PRODUCT CHANGE = PR #889 merged: active report lineage is now carried through intelligence → Advisor → decision → work → replay → benchmark → trust, with an E2E contract.
 PROOF STATE = Netlify PR #889 preview READY; exact-head authenticated E2E/build/certification still not terminal; production still old.
