@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
 import { IntelligenceClosurePanel } from '@/components/IntelligenceClosurePanel';
 import { assessDataQuality, deriveUnknownGaps, type KernelRow } from '@/lib/decision-intelligence-kernel';
+import { buildBrainPacket } from '@/lib/intelligence/brain-runtime';
 import inventoryCsv from '../../tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv?raw';
 
 type LiveRow = {
@@ -684,6 +685,20 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   const last = LIVE_ROWS[LIVE_ROWS.length - 1];
   const salesGrowth = first.salesQty > 0 ? ((last.salesQty - first.salesQty) / first.salesQty) * 100 : null;
   const rowMargins = LIVE_ROWS.filter(row => row.netAmount > 0).map(row => ({ ...row, margin: (row.profit / row.netAmount) * 100 })).sort((a, b) => a.margin - b.margin);
+  const brainPacket = useMemo(() => buildBrainPacket({
+    rows: LIVE_ROWS as unknown as Record<string, unknown>[],
+    availableFields: Object.keys(LIVE_ROWS[0] ?? {}),
+    reportJobId: 'preview:28-inventory-stockout-reorder',
+    sourceHash: DEMO_SOURCE_BINDING,
+    recommendation: {
+      title: 'مراجعة إعادة الطلب للأصناف منخفضة التغطية',
+      action: 'راجع مهلة التوريد ونقطة إعادة الطلب قبل اعتماد كمية الشراء.',
+      ownerHint: 'مدير المخزون / المشتريات',
+      expectedOutcome: 'رفع تغطية الأصناف المتأثرة إلى الحد التشغيلي.',
+      measurement: 'نسبة الصفوف التي تعود تغطيتها إلى 2.00 فأعلى.',
+      evidence: LOW_COVERAGE_ROWS.map(row => row.documentNo),
+    },
+  }), []);
 
   const route = path.replace(/\/$/, '') || '/';
   const routeTitle: Record<string, string> = {
@@ -1016,6 +1031,37 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   return (
     <div dir="rtl" className="space-y-5 pb-10">
       {commonHeader}
+      <section dir="rtl" className="overflow-hidden rounded-[22px] border border-primary-200 bg-white shadow-sm" aria-label="إثبات تشغيل عقل المنتج">
+        <div className="bg-[linear-gradient(135deg,#07151c,#0d2a2a)] p-5 text-white">
+          <div className="text-[9px] font-black tracking-[.16em] text-primary-200">BRAIN RUNTIME · LIVE PREVIEW</div>
+          <div className="mt-1 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-xl font-black">العقل يعمل على نفس صفوف التقرير، وليس على نصوص ثابتة</h2>
+              <p className="mt-1 text-[10px] leading-5 text-slate-300">المؤشرات والإشارات التالية ناتجة مباشرة من <code>brain-runtime</code> مع ربط source/job/evidence.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[.06] px-4 py-2.5">
+              <div className="text-[9px] text-slate-400">جاهزية القرار</div>
+              <div className="mt-1 text-xl font-black">{brainPacket.decision.readiness}%</div>
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3"><div className="text-[9px] text-ink-400">المؤشرات المحسوبة</div><div className="mt-1 text-xl font-black text-ink-950">{brainPacket.metrics.filter(metric => metric.status === 'CALCULATED').length}</div><div className="mt-1 text-[9px] text-ink-500">من {brainPacket.metrics.length} تعريفًا متاحًا للعينة</div></div>
+          <div className="rounded-xl border border-warning-200 bg-warning-50 p-3"><div className="text-[9px] text-warning-700">الإشارات</div><div className="mt-1 text-xl font-black text-warning-950">{brainPacket.signals.length}</div><div className="mt-1 text-[9px] text-warning-900/70">كل إشارة تحمل صفوف دليل</div></div>
+          <div className="rounded-xl border border-primary-200 bg-primary-50 p-3"><div className="text-[9px] text-primary-700">التوصية</div><div className="mt-1 text-sm font-black text-primary-950">{brainPacket.work.state === 'PROPOSED' ? 'مؤهلة للعمل' : brainPacket.work.state}</div><div className="mt-1 text-[9px] text-primary-900/70">{brainPacket.work.evidenceRequired.length} متطلبات دليل</div></div>
+          <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">حالة العقل</div><div className="mt-1 text-sm font-black text-ink-950">{brainPacket.status}</div><div className="mt-1 text-[9px] text-ink-500">{brainPacket.decision.blockers.length ? brainPacket.decision.blockers.join(' · ') : 'لا توجد عوائق حسابية'}</div></div>
+        </div>
+        <div className="grid gap-3 border-t border-ink-100 bg-ink-50/50 p-5 lg:grid-cols-2">
+          <div className="rounded-xl border border-ink-100 bg-white p-4">
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SIGNALS</div>
+            <div className="mt-2 space-y-2">{brainPacket.signals.slice(0,4).map(signal => <div key={signal.id} className="rounded-lg border border-warning-100 bg-warning-50/60 p-3"><div className="text-[10px] font-black text-ink-900">{signal.title}</div><div className="mt-1 text-[9px] leading-5 text-ink-600">{signal.statement}</div><div className="mt-1 text-[9px] font-bold text-ink-400">الصفوف: {signal.evidence.rows.join('، ') || 'غير متاح'}</div></div>)}{brainPacket.signals.length===0 && <div className="text-[10px] text-ink-400">لا توجد إشارة مثبتة من العينة.</div>}</div>
+          </div>
+          <div className="rounded-xl border border-ink-100 bg-white p-4">
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">METRICS</div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">{brainPacket.metrics.filter(metric => metric.status === 'CALCULATED').slice(0,6).map(metric => <div key={metric.id} className="rounded-lg border border-ink-100 bg-ink-50 p-3"><div className="text-[9px] text-ink-400">{metric.label}</div><div className="mt-1 text-sm font-black text-ink-950">{metric.value == null ? 'غير متاح' : Number(metric.value).toLocaleString('ar-YE',{maximumFractionDigits:2})} {metric.unit}</div><div className="mt-1 text-[8px] leading-4 text-ink-500">{metric.formula}</div></div>)}</div>
+          </div>
+        </div>
+      </section>
       {body}
       <footer className="rounded-xl border border-ink-100 bg-ink-50/70 p-3 text-[10px] leading-5 text-ink-500">
         <strong className="text-ink-700">حد المعاينة:</strong> هذه البيانات حقيقية المصدر لكنها ليست بديلًا عن جلسة شركة مصادق عليها. أي قرار أو نتيجة تنفيذية نهائية يجب أن تمر عبر الشركة والسياق الأمني الفعلي.
