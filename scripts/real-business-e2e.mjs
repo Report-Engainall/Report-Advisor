@@ -599,6 +599,25 @@ async function proveReportsCenterRealSurface(page, report) {
     'REPORTS_CENTER_DECISION_STATE_MISSING',
   );
 
+  const expectedContextLinks = [
+    '/intelligence',
+    '/advisor-cases',
+    '/work-center',
+    '/replay',
+    '/benchmark',
+    '/trust',
+    '/decision-experience',
+  ];
+  for (const route of expectedContextLinks) {
+    const link = page.locator('a[href^="' + route + '?"]');
+    assert.ok(await link.count() >= 1, 'REPORT_CONTEXT_LINK_MISSING:' + route);
+    const hrefs = await link.evaluateAll(nodes => nodes.map(node => node.getAttribute('href') || ''));
+    assert.ok(
+      hrefs.some(href => href.includes('reportJobId=' + encodeURIComponent(report.reportJobId)) && href.includes('sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH))),
+      'REPORT_CONTEXT_LINK_LINEAGE_MISSING:' + route,
+    );
+  }
+
   await page.screenshot({ path: reportDir + '/current-report-center-real-surface.png', fullPage: true });
   evidence.steps.push({
     step: 'current-report-center-real-intelligence-and-source-rows',
