@@ -9,6 +9,9 @@ import {
 } from '../src/lib/file-engine/normalizer.ts';
 import { cleanValue, detectColumnDataType } from '../src/lib/file-engine/data-types.ts';
 import { detectHeaderRow, rowsFromDetectedHeader } from '../src/lib/file-engine/header-detection.ts';
+import { parseCSV } from '../src/lib/file-engine/adapters.ts';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`File-engine regression failed: ${message}`);
@@ -60,5 +63,17 @@ const compositeHeaderMatrix = [
 ];
 const compositeCandidate = detectHeaderRow(compositeHeaderMatrix);
 assert(compositeCandidate?.structurallySuspicious === true, 'merged multi-field PDF headers must be marked structurally suspicious');
+
+const fixturePath = resolve(process.cwd(), 'tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv');
+const fixtureBuffer = readFileSync(fixturePath);
+const fixtureDatasets = await parseCSV(fixtureBuffer.buffer.slice(fixtureBuffer.byteOffset, fixtureBuffer.byteOffset + fixtureBuffer.byteLength), '28-inventory-stockout-reorder.csv');
+const fixture = fixtureDatasets[0];
+assert(fixture?.rowCount === 12, 'inventory fixture must preserve all 12 source rows');
+assert(fixture?.rows[0]?.documentNo === 'DOC-28-001', 'first source document must be preserved');
+assert(fixture?.rows[11]?.documentNo === 'DOC-28-012', 'last source document must be preserved');
+assert(fixture?.rows[0]?.productCode === 'SKU-1', 'alphanumeric product code must not be coerced to a number');
+assert(fixture?.rows[0]?.productName === 'صنف 1', 'mixed text product name must not lose its text');
+assert(fixture?.rows[0]?.warehouse === 'WH-1', 'alphanumeric warehouse code must not be coerced to a number');
+assert(fixture?.rows[11]?.salesQty === 19 && fixture?.rows[11]?.currentStock === 35, 'numeric inventory fields must remain numeric');
 
 console.log('File-engine behavioral regressions: PASS');

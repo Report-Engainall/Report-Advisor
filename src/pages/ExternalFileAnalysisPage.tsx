@@ -9,7 +9,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { deriveReportIntelligence, type ReportIntelligence } from '@/lib/report-intelligence/report-smart-insights';
+import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence } from '@/lib/report-intelligence/report-smart-insights';
 
 function fileIcon(format: FileFormat) {
   if (['xlsx','xls','xlsm','csv','tsv','ods'].includes(format)) return <FileSpreadsheet size={18}/>;
@@ -19,24 +19,112 @@ function fileIcon(format: FileFormat) {
 }
 
 function inferSpecialty(dataset: Dataset): 'inventory' | 'sales' | 'purchases' | 'receivables' | 'payments' | undefined {
-  const mapped = new Set(dataset.columns.map((column) => column.mappedField).filter(Boolean));
-  if (mapped.has('current_stock') || mapped.has('stockout_days') || mapped.has('daily_sales_rate')) return 'inventory';
-  if (mapped.has('supplier_name') && (mapped.has('total') || mapped.has('net_amount'))) return 'purchases';
-  if (mapped.has('balance') && (mapped.has('paid_amount') || mapped.has('credit'))) return 'receivables';
-  if (mapped.has('paid_amount') && !mapped.has('total') && !mapped.has('net_amount')) return 'payments';
-  if (mapped.has('customer_name') && (mapped.has('total') || mapped.has('net_amount') || mapped.has('sales_qty'))) return 'sales';
-  if (mapped.has('sales_qty') && (mapped.has('product_name') || mapped.has('sku'))) return 'inventory';
+  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\\s_./-]+/g, '');
+  const fields = new Set([
+    ...dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
+    ...dataset.columns.map((column) => normalize(column.name)),
+  ]);
+  const has = (...aliases: string[]) => aliases.some((alias) => fields.has(alias) || [...fields].some((field) => field.includes(alias)));
+  if (has('current_stock', 'currentstock', 'stockout_days', 'stockoutdays', 'daily_sales_rate', 'dailysalesrate', 'salesqty') || (has('currentstock', 'الرصيدالحالي', 'المخزونالحالي') && has('productcode', 'salesqty', 'warehouse'))) return 'inventory';
+  if (has('supplier_name', 'suppliername', 'المورد') && has('total', 'net_amount', 'netamount')) return 'purchases';
+  if (has('balance', 'الرصيدالمستحق', 'المتبقي') && (has('paid_amount', 'paidamount', 'paid', 'المدفوع') || has('credit', 'دائن'))) return 'receivables';
+  if (has('paid_amount', 'paidamount', 'paid', 'المدفوع') && !has('total', 'net_amount', 'netamount')) return 'payments';
+  if (has('customer_name', 'customername', 'customer', 'client', 'العميل') && has('total', 'net_amount', 'netamount', 'salesqty')) return 'sales';
+  if (has('sales_qty', 'salesqty', 'كميةالمبيعات') && (has('product_name', 'productname', 'product', 'item', 'productcode', 'sku') || has('warehouse', 'المستودع'))) return 'inventory';
   return undefined;
 }
 
 function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
   const specialty = inferSpecialty(dataset);
-  return deriveReportIntelligence({
+  const base = deriveReportIntelligence({
     specialty,
     rowCount: dataset.rowCount,
     sourceAnalysis: { datasets: [dataset] },
     canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
   });
+
+  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\s_./-]+/g, '');
+  const normalizedHeaders = new Set(dataset.columns.map((column) => normalize(column.name)));
+  const inventoryShape = normalizedHeaders.has('currentstock') && normalizedHeaders.has('salesqty');
+  if (!inventoryShape) return base;
+  const findColumn = (...aliases: string[]) => dataset.columns.find((column) => {
+    const keys = [column.mappedField ?? '', column.name].map(normalize);
+    return aliases.some((alias) => keys.some((key) => key.includes(normalize(alias))));
+  });
+  const valueOf = (row: Record<string, unknown>, column: typeof dataset.columns[number] | undefined): unknown => {
+    if (!column) return undefined;
+    return row[column.name] ?? row[column.mappedField ?? ''];
+  };
+
+  const stockColumn = findColumn('currentStock', 'current_stock', 'stock', 'الرصيدالحالي', 'المخزونالحالي');
+  const salesColumn = findColumn('salesQty', 'sales_qty', 'sales', 'كميةالمبيعات');
+  const skuColumn = findColumn('productCode', 'product_code', 'sku', 'رقمالصنف', 'كودالصنف');
+  const warehouseColumn = findColumn('warehouse', 'المستودع', 'المخزن');
+  const documentColumn = findColumn('documentNo', 'invoice_number', 'document_number', 'رقمالمستند', 'رقمالفاتورة');
+
+  if (!stockColumn || !salesColumn) return base;
+
+  const rows = dataset.rows.map((row, index) => ({
+    index,
+    sales: Number(valueOf(row, salesColumn)),
+    stock: Number(valueOf(row, stockColumn)),
+    sku: String(valueOf(row, skuColumn) ?? 'غير محدد'),
+    warehouse: String(valueOf(row, warehouseColumn) ?? 'غير محدد'),
+    document: String(valueOf(row, documentColumn) ?? 'ROW-' + (index + 1)),
+  })).filter((row) => Number.isFinite(row.sales) && Number.isFinite(row.stock) && row.sales > 0);
+
+  const lowCoverage = rows.filter((row) => row.stock / row.sales < 2);
+  if (!lowCoverage.length) return base;
+
+  const latest = lowCoverage[lowCoverage.length - 1];
+  const totalSales = rows.reduce((sum, row) => sum + row.sales, 0);
+  const lowSales = lowCoverage.reduce((sum, row) => sum + row.sales, 0);
+  const lowStock = lowCoverage.reduce((sum, row) => sum + row.stock, 0);
+  const totalStock = rows.reduce((sum, row) => sum + row.stock, 0);
+  const coverage = latest.stock / latest.sales;
+
+  const topRisk: BusinessFinding = {
+    id: 'preview:inventory:low-coverage',
+    kind: 'RISK',
+    priority: 'high',
+    title: 'تغطية مخزون منخفضة',
+    statement: 'آخر صف منخفض التغطية هو ' + latest.sku + ' في ' + latest.warehouse + ' بتغطية ' + coverage.toFixed(2) + '، مع ' + latest.sales + ' مبيعات و' + latest.stock + ' رصيد.',
+    value: coverage,
+    unit: 'x',
+    dimensionLabel: 'الصنف',
+    dimensionValue: latest.sku,
+    evidence: lowCoverage.map((row) => row.document + ' · ' + row.sku + ' · تغطية ' + (row.stock / row.sales).toFixed(2) + ' · مبيعات ' + row.sales + ' · رصيد ' + row.stock).slice(-5),
+    limitation: 'المصدر لا يحتوي مهلة توريد أو نقطة إعادة طلب؛ لا يتم اختلاق كمية شراء أو أثر مالي.',
+    action: 'راجع إعادة الطلب للأصناف منخفضة التغطية ثم ثبّت الكمية بعد التحقق من مهلة التوريد ونقطة إعادة الطلب.',
+  };
+
+  return {
+    ...base,
+    businessQuestion: 'أين توجد أصناف معرضة لانخفاض التغطية قبل القرار؟',
+    summary: 'تم فحص ' + dataset.rowCount + ' صفًا من المصدر مباشرة، وظهرت ' + lowCoverage.length + ' صفوف تحت حد التغطية 2.00.',
+    advisorBrief: {
+      health: 'REVIEW_REQUIRED',
+      headline: topRisk.statement,
+      topFinding: null,
+      topRisk,
+      topOpportunity: null,
+      recommendedAction: topRisk.action,
+      ownerHint: 'مدير المخزون / المشتريات',
+      expectedOutcome: 'عودة تغطية الصفوف المتأثرة إلى 2.00 فأعلى مع استمرار مراقبة المبيعات والرصيد.',
+      measurement: 'نجاح المعالجة = عودة التغطية إلى 2.00 فأعلى؛ النطاق المثبت ' + lowCoverage.length + ' صفوف من ' + rows.length + '.',
+      proofRequirement: 'المصدر ' + dataset.name + '، ' + dataset.rowCount + ' صفًا، والتوصية مشتقة من الرصيد ÷ المبيعات في نفس الصفوف.',
+    },
+    guidance: {
+      focus: topRisk.title,
+      inspect: [
+        lowCoverage.length + ' صفوف تحت 2.00',
+        (totalSales > 0 ? ((lowSales / totalSales) * 100).toFixed(1) + '%' : 'غير متاح') + ' من وحدات المبيعات داخل الصفوف المتأثرة',
+        (totalStock > 0 ? ((lowStock / totalStock) * 100).toFixed(1) + '%' : 'غير متاح') + ' من الرصيد الحالي داخل الصفوف المتأثرة',
+      ],
+      ownerHint: 'مدير المخزون / المشتريات',
+      boundary: topRisk.limitation,
+    },
+  };
 }
 
 function PreviewIntelligenceCard({ intelligence }: { intelligence: ReportIntelligence }) {

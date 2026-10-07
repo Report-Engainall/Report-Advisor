@@ -53,6 +53,13 @@ try {
   for (const item of required) {
     if (!body.includes(item)) throw new Error('TRY_REPORT_MISSING:' + item);
   }
+  const dataRows = await page.locator('table').last().locator('tbody tr').count();
+  if (dataRows !== 12) throw new Error('TRY_REPORT_ROW_COUNT:' + dataRows);
+  const tableText = await page.locator('table').last().innerText();
+  if (!tableText.includes('DOC-28-001') || !tableText.includes('DOC-28-012')) throw new Error('TRY_REPORT_SOURCE_RANGE_MISSING');
+  if (!tableText.includes('SKU-1') || !tableText.includes('WH-1') || !tableText.includes('صنف 1')) throw new Error('TRY_REPORT_SOURCE_TEXT_CORRUPTED');
+  if (!body.includes('1.84') && !body.includes('تغطية 1.84')) throw new Error('TRY_REPORT_ADVISOR_COVERAGE_MISSING');
+  if (!body.includes('إعادة الطلب')) throw new Error('TRY_REPORT_ADVISOR_ACTION_MISSING');
   if (errors.length) throw new Error('TRY_REPORT_PAGEERROR:' + errors[0]);
   const metrics = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,

@@ -87,7 +87,12 @@ export function parseNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null;
   if (typeof value === 'number') return Number.isFinite(value) ? value : null;
 
-  let normalized = normalizeArabicDigits(String(value))
+  const original = normalizeArabicDigits(String(value)).trim();
+  const currencyWords = /(?:ريال|ريال?يمني|ر\.س|ر\.ي|sar|yer|usd|eur|gbp|aed|دينار|درهم|جنيه|دولار|يورو|جنيه\s+إسترليني)/giu;
+  const numericCandidate = original.replace(currencyWords, '');
+  if (/\p{L}/u.test(numericCandidate)) return null;
+
+  let normalized = numericCandidate
     .replace(/[٬]/g, ',')
     .replace(/[٫]/g, '.')
     .replace(/[\u00A0\u202F\s]/g, '')

@@ -87,6 +87,9 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
       /^[-+]?\d[\d.,٬،/\s-]*$/u.test(value) ||
       /\b20\d{2}[-/]\d{1,2}[-/]\d{1,2}\b/u.test(value)
     ).length / headers.length;
+    const containsDateValue = headers.some((value) => /\b20\d{2}[-/]\d{1,2}[-/]\d{1,2}\b/u.test(value));
+    const containsIdentifierValue = headers.some((value) => /^(?:DOC|SKU|A|B|C)[-_]?\d+/iu.test(value));
+    const containsMixedBusinessValues = containsDateValue && containsIdentifierValue;
     const nextWidth = next.length;
 
     let score = 0;
@@ -100,6 +103,10 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
     if (unique >= 0.8) { score += 15; reasons.push('unique headers'); }
     if (hints) { score += Math.min(hints * 8, 24); reasons.push('canonical field hints'); }
     if (!hints && dataLike >= 0.5) { score -= 30; reasons.push('data-like row without canonical header hints'); }
+    if (containsMixedBusinessValues && rowIndex > 0) {
+      score -= 60;
+      reasons.push('business data row: date + identifier detected');
+    }
     const minimumNextWidth = headers.length === 1 ? 1 : Math.max(2, Math.floor(headers.length * 0.7));
     if (nextWidth >= minimumNextWidth) { score += 20; reasons.push('next row matches width'); }
     if (headers.length === 1) { score += 5; reasons.push('single-field canonical header'); }
