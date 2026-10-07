@@ -1,0 +1,32 @@
+name: diagnostic-lint-current
+on:
+  push:
+    branches: [diag/lint-current-20261008]
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Run lint and expose every diagnostic
+        shell: bash
+        run: |
+          set +e
+          npm run lint > /tmp/lint.log 2>&1
+          code=$?
+          cat /tmp/lint.log
+          node - <<'NODE'
+          const fs = require('fs');
+          const text = fs.readFileSync('/tmp/lint.log','utf8');
+          for (const line of text.split(/\r?\n/)) {
+            if (!line.trim()) continue;
+            if (/error/i.test(line) && /no errors found/i.test(line) === false) console.log('::error title=ESLint error::' + line.replace(/%/g,'%25').replace(/\r/g,'%0D').replace(/\n/g,'%0A'));
+          }
+          NODE
+          exit "$code"
