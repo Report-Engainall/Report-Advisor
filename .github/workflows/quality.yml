@@ -129,7 +129,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Behavioral regressions
-        run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions && node scripts/dashboard-canonical-regression.mjs
+        run: npm run test:file-engine-regressions && npm run test:generic-file-analysis && npm run test:business-key-regressions && npm run test:import-classifier-regressions && node scripts/dashboard-canonical-regression.mjs
       - name: Business intelligence regressions
         run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
 
