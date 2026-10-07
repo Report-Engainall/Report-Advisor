@@ -498,3 +498,45 @@ export function buildOutcomeLearningFromHistory(outcomes: Array<{
       : 'اجمع نتائج إضافية قبل تعديل قاعدة القرار.',
   };
 }
+
+
+export type OperationalTaskProposalInput = {
+  taskKey: string;
+  role: 'manager' | 'employee' | 'sales' | 'warehouse' | 'accountant' | 'purchasing';
+  horizon: 'today' | 'tomorrow';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  title: string;
+  reason: string;
+  expectedOutcome: string;
+  evidenceRequired: unknown[];
+  sourceType?: 'recommendation' | 'alert' | 'forecast' | 'kpi';
+  sourceId?: string | null;
+  decisionId?: string | null;
+};
+
+export async function persistOperationalTaskProposal(input: OperationalTaskProposalInput) {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const payload = {
+    company_id: companyId,
+    task_key: input.taskKey,
+    role: input.role,
+    horizon: input.horizon,
+    priority: input.priority,
+    title: input.title,
+    reason: input.reason,
+    source_type: input.sourceType ?? 'recommendation',
+    source_id: input.sourceId ?? null,
+    expected_outcome: input.expectedOutcome,
+    evidence_required: input.evidenceRequired,
+    decision_id: input.decisionId ?? null,
+    status: 'proposed',
+  };
+  const { data, error } = await supabase
+    .from('operational_task_proposals')
+    .upsert(payload, { onConflict: 'company_id,task_key' })
+    .select('id,company_id,task_key,status,title,role,horizon,priority,expected_outcome,evidence_required,decision_id,created_at,updated_at')
+    .single();
+  if (error) throw error;
+  return data;
+}
