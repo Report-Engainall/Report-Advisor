@@ -3,7 +3,7 @@ import { parseFile } from '../src/lib/file-engine/adapters.ts';
 import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
 
-function buffer(value: string): ArrayBuffer {
+function buffer(value) {
   return new TextEncoder().encode(value).buffer;
 }
 
@@ -15,10 +15,10 @@ async function main() {
   assert.ok(detectedUnknown.warnings.some((warning) => warning.includes('مسار النص العام')), 'generic fallback warning');
 
   const cases = [
-    { format: 'txt' as const, name: 'risk.txt', source: 'توجد مشكلة في المخزون\nيجب مراجعة الكميات المتأخرة\nالإجمالي 1200 ريال', expectedRows: 3 },
-    { format: 'xml' as const, name: 'sales.xml', source: '<root><row><product>صنف 1</product><total>100</total></row><row><product>صنف 2</product><total>200</total></row></root>', expectedRows: 2 },
-    { format: 'yaml' as const, name: 'sales.yaml', source: '- product: صنف 1\n  total: 100\n- product: صنف 2\n  total: 200', expectedRows: 2 },
-    { format: 'rtf' as const, name: 'note.rtf', source: '{\\rtf1\\ansi خطر تأخير\\par يجب المراجعة\\par}', expectedRows: 2 },
+    { format: 'txt', name: 'risk.txt', source: 'توجد مشكلة في المخزون\nيجب مراجعة الكميات المتأخرة\nالإجمالي 1200 ريال', expectedRows: 3 },
+    { format: 'xml', name: 'sales.xml', source: '<root><row><product>صنف 1</product><total>100</total></row><row><product>صنف 2</product><total>200</total></row></root>', expectedRows: 2 },
+    { format: 'yaml', name: 'sales.yaml', source: '- product: صنف 1\n  total: 100\n- product: صنف 2\n  total: 200', expectedRows: 2 },
+    { format: 'rtf', name: 'note.rtf', source: '{\\rtf1\\ansi خطر تأخير\\par يجب المراجعة\\par}', expectedRows: 2 },
   ];
   for (const item of cases) {
     const datasets = await parseFile(buffer(item.source), item.name, item.format);
