@@ -11,6 +11,7 @@ import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem,
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { CustomerReportSurface } from '@/components/CustomerReportSurface';
+import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -410,6 +411,13 @@ export function ReportsCenterPage() {
         </div>
       </section>
     )}
+
+    {primarySmartReport ? (
+      <div className="ag-reports-live-intelligence space-y-4" aria-label="ذكاء التقرير والبيانات المصدرية الحالية">
+        <ReportIntelligencePanel report={primarySmartReport} />
+        <BusinessDataExplorer report={primarySmartReport} />
+      </div>
+    ) : null}
 
     <section className="ag-reports-explain grid gap-4 lg:grid-cols-[1.4fr_.6fr] items-end">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
