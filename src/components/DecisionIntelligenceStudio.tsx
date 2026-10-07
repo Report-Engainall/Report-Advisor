@@ -15,6 +15,7 @@ type Props = {
   reportJobId?: string | null;
   archetypeId?: string | null;
   recommendation?: string | null;
+  recommendationId?: string | null;
 };
 type Tab = 'control' | 'whatif' | 'gaps' | 'proof' | 'learning' | 'engine' | 'closure';
 
@@ -36,7 +37,7 @@ const tone = (state: string) =>
 const fmt = (v: number | null) => v == null ? 'غير متاح' : v.toLocaleString('ar-YE', { maximumFractionDigits: 2 });
 
 export function DecisionIntelligenceStudio(props: Props) {
-  const { rows, specialty, sourceHash = null, reportJobId = null, archetypeId = null, recommendation = null } = props;
+  const { rows, specialty, sourceHash = null, reportJobId = null, archetypeId = null, recommendation = null, recommendationId = null } = props;
   const [tab, setTab] = useState<Tab>('control');
   const [demand, setDemand] = useState(1);
   const [stockDelta, setStockDelta] = useState(0);
@@ -209,7 +210,7 @@ export function DecisionIntelligenceStudio(props: Props) {
           ].map(([label,value]) => <div key={label}><div className="text-[8px] font-black text-violet-200">{label}</div><div className="mt-1 text-[9px] leading-5 text-slate-300">{value}</div></div>)}</div>
         </div>
       </div>}
-      {tab === 'closure' && <IntelligenceClosurePanel rows={rows} sourceHash={sourceHash} reportJobId={reportJobId} recommendation={recommendation} qualityScore={quality.score} gaps={gaps} />}
+      {tab === 'closure' && <IntelligenceClosurePanel rows={rows} sourceHash={sourceHash} reportJobId={reportJobId} recommendation={recommendation} recommendationId={recommendationId} qualityScore={quality.score} gaps={gaps} />}
       {tab === 'engine' && <div className="grid gap-4 xl:grid-cols-[1fr_.8fr]">
         <div className="rounded-2xl border border-white/10 bg-white/[.035] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
