@@ -49,6 +49,21 @@ assert.equal(packet.outcome.learning,'CANDIDATE');
 assert.equal(packet.work.state,'PROPOSED');
 assert.equal(packet.decision.recommendationEligible,true);
 assert.deepEqual(validateBrainPacket(packet),[]);
+
+const blocked = buildBrainPacket({
+  rows,
+  sourceHash:'sha256:' + 'b'.repeat(64),
+  reportJobId:'brain-runtime-blocked-job',
+  archetypeId:'inventory.stockout-reorder',
+  availableFields:Object.keys(rows[0]),
+  evidenceVerified:false,
+  evidenceSnapshotId:null,
+  evidencePassportId:null,
+});
+assert.equal(blocked.status,'INSUFFICIENT_DATA');
+assert.equal(blocked.decision.recommendationEligible,false);
+assert.ok(blocked.decision.blockers.includes('VERIFIED_EVIDENCE_REQUIRED'));
+assert.ok(blocked.work.state === 'BLOCKED' || blocked.work.state === 'NOT_AVAILABLE');
 console.log('BRAIN_RUNTIME_PASS', JSON.stringify({
   metrics: packet.metrics.filter(item=>item.status==='CALCULATED').length,
   signals: packet.signals.length,
