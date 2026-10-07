@@ -121,7 +121,7 @@ async function findUserByEmail(email) {
 }
 
 async function cleanupStaleEphemeralActors() {
-  const limit = Math.max(0, Math.min(Number(process.env.E2E_STALE_ACTOR_CLEANUP_LIMIT || '1000'), 1000));
+  const limit = Math.max(0, Math.min(Number(process.env.E2E_STALE_ACTOR_CLEANUP_LIMIT || '250'), 1000));
   if (!limit) return { attempted: 0, deleted: 0 };
   assertProvisionDeadline('cleanup-stale-actors-list');
   const before = new Date(Date.now() - Number(process.env.E2E_STALE_ACTOR_MAX_AGE_MS || String(24 * 60 * 60 * 1000))).toISOString();
@@ -129,7 +129,7 @@ async function cleanupStaleEphemeralActors() {
   if (error) throw error;
   const ids = (Array.isArray(data) ? data : []).map(row => String(row.user_id)).filter(Boolean);
   let deleted = 0;
-  const concurrency = Math.max(1, Math.min(Number(process.env.E2E_STALE_ACTOR_DELETE_CONCURRENCY || '20'), 50));
+  const concurrency = Math.max(1, Math.min(Number(process.env.E2E_STALE_ACTOR_DELETE_CONCURRENCY || '5'), 50));
   for (let start = 0; start < ids.length; start += concurrency) {
     assertProvisionDeadline('cleanup-stale-actors-delete-batch-' + start);
     const batch = ids.slice(start, start + concurrency);
