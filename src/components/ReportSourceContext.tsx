@@ -69,8 +69,7 @@ export function ReportSourceContext() {
     if (contextResolving) return;
     if (!jobId || !validSourceHash) {
       setReport(null);
-      if (!jobId && !error) setError(null);
-      else if (jobId) setError('مصدر التقرير يحتاج بصمة صالحة.');
+      setError(jobId ? 'مصدر التقرير يحتاج بصمة صالحة.' : null);
       return;
     }
     let active = true;
