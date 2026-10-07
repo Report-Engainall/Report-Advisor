@@ -1,4 +1,4 @@
-import type { Dataset } from './types';
+import type { Dataset } from './types.js';
 import {
   deriveReportIntelligence,
   type BusinessFinding,
