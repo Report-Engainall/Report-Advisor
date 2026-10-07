@@ -19,6 +19,7 @@ type Props = {
   sourceHash?: string | null;
   reportJobId?: string | null;
   recommendation?: string | null;
+  recommendationId?: string | null;
   qualityScore: number;
   gaps: Array<{ id: string; title: string; state: string; action: string }>;
   demo?: boolean;
@@ -40,7 +41,7 @@ type ClosureState = {
 const fmt = (v: unknown) => typeof v === 'number' && Number.isFinite(v) ? v.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) : 'غير متاح';
 const numericField = (rows: KernelRow[], preferred: string[]) => preferred.find((field) => rows.some((r) => typeof r[field] === 'number' && Number.isFinite(r[field]))) ?? null;
 
-export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId = null, recommendation = null, qualityScore, gaps, demo = false }: Props) {
+export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId = null, recommendation = null, recommendationId = null, qualityScore, gaps, demo = false }: Props) {
   const [scenario, setScenario] = useState<GovernedScenarioRecord | null>(null);
   const [closure, setClosure] = useState<ClosureState>({ savedViews: 0, portfolioItems: [], driftEvents: [], forecasts: [], learning: 0, lineage: 0, loading: false, error: null, outcomes: 0, taskProposals: 0 });
   const [message, setMessage] = useState<string | null>(null);
@@ -188,7 +189,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
   }), [closure.portfolioItems]);
 
   const rankedPortfolio = useMemo(() => portfolio.length ? rankDecisionPortfolio(portfolio) : [], [portfolio]);
-  const decisionFingerprint = useMemo(() => recommendation ? 'recommendation:' + recommendation : 'report:' + (reportJobId ?? 'unknown'), [recommendation, reportJobId]);
+  const decisionFingerprint = useMemo(() => recommendationId ? 'recommendation:' + recommendationId : 'report:' + (reportJobId ?? 'unknown'), [recommendationId, reportJobId]);
   const learningCandidate = useMemo(() => buildLearningCandidate({
     decisionKey: decisionFingerprint,
   }), [decisionFingerprint]);
@@ -292,6 +293,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
         decisionFingerprint,
         evidenceSnapshotId: String(snapshot.id),
         observedAt: new Date().toISOString(),
+        actionId: recommendationId,
         label: outcomeLabel,
         actualValue: actual,
         expectedValue: expected,
@@ -319,7 +321,8 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
         title: 'إجراء المستشار: ' + recommendation.slice(0, 160),
         reason: 'توصية مربوطة بتقرير مصدرّي وبصمة المصدر ' + sourceHash,
         expectedOutcome: 'تنفيذ الإجراء ثم تسجيل النتيجة الفعلية على نفس هوية التقرير.',
-        evidenceRequired: [sourceHash, 'reportJobId=' + reportJobId, 'verified_evidence_snapshot'],
+        evidenceRequired: [sourceHash, 'reportJobId=' + reportJobId, recommendationId ? 'recommendationId=' + recommendationId : 'recommendationId missing', 'verified_evidence_snapshot'],
+        sourceId: recommendationId ?? null,
       });
       setClosure((s) => ({ ...s, taskProposals: 1 }));
       setMessage('تم حفظ المقترح في مركز العمل. ما زال مقترحًا حتى اعتماده وتنفيذه.');
