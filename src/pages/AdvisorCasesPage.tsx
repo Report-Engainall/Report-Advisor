@@ -82,10 +82,10 @@ export function AdvisorCasesPage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Metric label="كل القضايا" value={cases.length} />
-            <Metric label="متابعة" value={cases.filter((item) => item.followed).length} />
-            <Metric label="مفتوحة" value={cases.filter((item) => !['executed','approved','blocked'].includes(item.status)).length} />
-            <Metric label="مكتملة" value={cases.filter((item) => ['executed','approved'].includes(item.status)).length} />
+            <Metric label={contextReportJobId && contextSourceHash ? 'قضايا التقرير' : 'كل القضايا'} value={contextCases.length} />
+            <Metric label="متابعة" value={contextCases.filter((item) => item.followed).length} />
+            <Metric label="مفتوحة" value={contextCases.filter((item) => !['executed','approved','blocked'].includes(item.status)).length} />
+            <Metric label="مكتملة" value={contextCases.filter((item) => ['executed','approved'].includes(item.status)).length} />
           </div>
         </div>
       </section>
