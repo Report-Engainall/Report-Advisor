@@ -569,6 +569,48 @@ async function proveCurrentSmartReport(page, report) {
   evidence.steps.push({ step: 'current-report-smart-report-refresh-readback', status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT, qualityScore: Number(report.rendered.qualityScore), trustState: report.rendered.trustState, evidenceState: report.rendered.evidenceStatus });
 }
 
+async function proveReportsCenterRealSurface(page, report) {
+  const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
+  const response = await page.goto(baseURL + '/reports', { waitUntil: 'networkidle', timeout: 30000 });
+  assert.ok(response && response.status() < 400, 'REPORTS_CENTER_HTTP_FAILURE');
+  const jobResponse = await responsePromise;
+  assert.ok(jobResponse, 'REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING');
+  const rows = await jobResponse.json();
+  assert.equal(rows.length, 1, 'REPORTS_CENTER_EXPECTED_ONE_CURRENT_REPORT_JOB');
+  assert.equal(rows[0].id, report.reportJobId, 'REPORTS_CENTER_JOB_ID_MISMATCH');
+  assert.equal(rows[0].source_hash, CURRENT_REPORT_SOURCE_HASH, 'REPORTS_CENTER_SOURCE_HASH_MISMATCH');
+  assert.equal(rows[0].source_path, CURRENT_REPORT_SOURCE_PATH, 'REPORTS_CENTER_SOURCE_PATH_MISMATCH');
+
+  await page.getByText('ماذا استنتج النظام من هذا التقرير؟', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText('استكشف الصفوف التي صنعت التقرير', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const body = (await page.locator('body').innerText()).trim();
+  assertCurrentReportText(body, 'reports center');
+  assert.ok(body.includes('ما الذي ينصح به النظام؟'), 'REPORTS_CENTER_RECOMMENDATIONS_MISSING');
+  assert.ok(body.includes('بحث داخل الصفوف: اسم صنف، عميل، رقم، قيمة...'), 'REPORTS_CENTER_ROW_SEARCH_MISSING');
+  assert.ok(body.includes('كل السجلات'), 'REPORTS_CENTER_ROW_SUMMARY_MISSING');
+  assert.ok(body.includes('انقر صفًا لفتح تفاصيله.'), 'REPORTS_CENTER_ROW_DETAIL_HANDOFF_MISSING');
+  assert.ok(body.includes(REAL_SMART_REPORT_JOB_ID), 'REPORTS_CENTER_JOB_ID_NOT_VISIBLE');
+  assert.ok(body.includes(REAL_SMART_REPORT_SOURCE_HASH), 'REPORTS_CENTER_SOURCE_HASH_NOT_VISIBLE');
+  assert.ok(body.includes(REAL_SMART_REPORT_SOURCE_PATH), 'REPORTS_CENTER_SOURCE_PATH_NOT_VISIBLE');
+  assert.ok(
+    body.includes('التوصية') &&
+    (body.includes('القرار') || body.includes('مراجعة مطلوبة')),
+    'REPORTS_CENTER_DECISION_STATE_MISSING',
+  );
+
+  await page.screenshot({ path: reportDir + '/current-report-center-real-surface.png', fullPage: true });
+  evidence.steps.push({
+    step: 'current-report-center-real-intelligence-and-source-rows',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+    sourcePath: CURRENT_REPORT_SOURCE_PATH,
+    rowCount: CURRENT_REPORT_ROW_COUNT,
+    qualityScore: Number(report.rendered.qualityScore),
+  });
+}
+
 async function proveSourceBoundSurface(page, report, surface) {
   const target = baseURL + surface.path + (surface.path.includes('?') ? '&' : '?') + 'reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
   const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
@@ -1091,6 +1133,7 @@ try {
   evidence.steps.push({ step: 'certified-report-durable-proof', status: 'PASS', reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, jobStatus: currentReport.job.status, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, qualityScore: Number(currentReport.rendered.qualityScore), evidenceState: currentReport.rendered.evidenceStatus });
 
   await proveCurrentSmartReport(pageC, currentReport);
+  await proveReportsCenterRealSurface(pageC, currentReport);
   await proveSourceBoundSurface(pageC, currentReport, { label: 'executive', path: '/reports/executive' });
   await proveSourceBoundSurface(pageC, currentReport, { label: 'trust', path: '/trust' });
   await proveSourceBoundSurface(pageC, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
