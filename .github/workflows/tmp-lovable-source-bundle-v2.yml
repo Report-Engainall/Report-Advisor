@@ -1,0 +1,88 @@
+name: Lovable Source Bundle V2
+
+on:
+  push:
+    branches:
+      - tmp/lovable-transfer-20261007
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf lovable-transfer
+          mkdir lovable-transfer
+          git archive HEAD | tar -x -C lovable-transfer
+
+          find lovable-transfer -type f -name '.env' -delete
+          find lovable-transfer -type f -name '.env.local' -delete
+          find lovable-transfer -type f -name '.env.production' -delete
+          find lovable-transfer -type f -name '.env.development' -delete
+          find lovable-transfer -type f -name '*.pem' -delete
+          find lovable-transfer -type f -name '*.key' -delete
+          rm -rf lovable-transfer/.git
+          rm -rf lovable-transfer/node_modules
+          rm -rf lovable-transfer/dist
+          rm -rf lovable-transfer/coverage
+          rm -rf lovable-transfer/artifacts
+          rm -f lovable-transfer/.github/workflows/tmp-lovable-source-bundle.yml
+          rm -f lovable-transfer/.github/workflows/tmp-lovable-source-bundle-v2.yml
+
+          printf '%s\n' \
+            '# Report-Advisor — Lovable Transfer Package' \
+            '' \
+            'Source feature HEAD: ff9af3792735e3612cab2d47f53ee91692617bf8' \
+            'Repository: Report-Engainall/Report-Advisor' \
+            '' \
+            'CONTINUE THE EXISTING PRODUCT. DO NOT REBUILD FROM ZERO.' \
+            '' \
+            'Preserve the existing Scenario Engine, Confidence Governance, Decision lifecycle, Transactional Spine, 48-archetype runtime contract, public browser runtime, and test infrastructure.' \
+            '' \
+            'Open work includes authenticated E2E proof, 48 real-source proof, causal/VOI/drift/forecast/process/graph/cross-domain intelligence, decision policy/portfolio, outcome-learning, human learning, row/cell provenance, unified workspace, persistent Saved Views, UX completion, and production proof.' \
+            '' \
+            'PRODUCT CONTRACT: Any Source -> Truth -> Evidence -> Signal -> Decision -> Approval -> Action -> Outcome -> Learning -> Benchmark' \
+            'VALUE NARRATIVE: WHAT -> WHY -> SO WHAT -> IMPACT -> WHAT NEXT -> PROOF' \
+            'OWNER -> EXPECTED OUTCOME' \
+            '' \
+            'Never fabricate evidence, causal claims, financial impact, benchmarks, outcomes, or probability meaning for governance scores.' \
+            'Preserve tenant isolation and fail-closed security.' \
+            '' \
+            'FREE CREDIT CONSTRAINT: only 29% remains. Use costly remote/production execution only when strictly necessary. Prefer local, deterministic, staging, and browser-local proof. Do not repeat proven work without cause.' \
+            '' \
+            'Acceptance: IMPLEMENTED != INTEGRATED != PERSISTED != UI-EXPOSED != READBACK-PROVEN != BROWSER-PROVEN != PRODUCTION-PROVEN != PRODUCT COMPLETE' \
+            > lovable-transfer/LOVABLE_TRANSFER_README.md
+
+          git ls-files > lovable-transfer/LOVABLE_TRACKED_FILE_INVENTORY.txt
+
+          printf '%s\n' \
+            'Excluded intentionally:' \
+            '.git' \
+            'runtime .env files' \
+            'private key/certificate files (*.pem, *.key)' \
+            'node_modules' \
+            'dist' \
+            'coverage' \
+            'generated artifacts' \
+            > lovable-transfer/LOVABLE_EXCLUDED_FILES.txt
+
+          cd lovable-transfer
+          zip -qr ../Report-Advisor-Lovable-Transfer-ff9af379.zip .
+          cd ..
+          unzip -t Report-Advisor-Lovable-Transfer-ff9af379.zip
+          ls -lh Report-Advisor-Lovable-Transfer-ff9af379.zip
+
+      - name: Upload source archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-lovable-transfer-ff9af379
+          path: Report-Advisor-Lovable-Transfer-ff9af379.zip
+          if-no-files-found: error
+          retention-days: 7
