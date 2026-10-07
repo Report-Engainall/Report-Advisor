@@ -12,6 +12,7 @@ import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/l
 import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence } from '@/lib/report-intelligence/report-smart-insights';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
+import { DecisionIntelligenceStudio } from '@/components/DecisionIntelligenceStudio';
 
 function fileIcon(format: FileFormat) {
   if (['xlsx','xls','xlsm','csv','tsv','ods'].includes(format)) return <FileSpreadsheet size={18}/>;
@@ -265,6 +266,13 @@ export function ExternalFileAnalysisPage() {
     </CardBody></Card>}
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
     {file && universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
+    {dataset && <DecisionIntelligenceStudio
+      rows={dataset.rows}
+      specialty={inferSpecialty(dataset) ?? null}
+      sourceHash={file?.hash ? 'sha256:' + file.hash : null}
+      archetypeId={universalIntelligence?.archetype?.id ?? null}
+      recommendation={intelligence?.advisorBrief.recommendedAction ?? null}
+    />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {datasets.length > 1 && <Card><CardBody><div className="flex gap-2 overflow-x-auto">{datasets.map((d,i)=><button key={`${d.id}-${i}`} type="button" aria-pressed={i===active} onClick={()=>setActive(i)} className={`whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-semibold ${i===active?'border-primary-500 bg-primary-50 text-primary-700':'border-ink-200 bg-white text-ink-600'}`}>ورقة/مجموعة {i+1}: {d.name}</button>)}</div></CardBody></Card>}
     {dataset && <>

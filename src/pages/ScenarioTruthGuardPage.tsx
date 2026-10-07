@@ -9,7 +9,7 @@ import { CanonicalScenarioPage } from '@/pages/CanonicalScenarioPage';
 export function ScenarioTruthGuardPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'blocked'>('loading');
   const [reason, setReason] = useState<string | null>(null);
-  const [financials, setFinancials] = useState<{ revenue: number; cost: number; currency: string } | null>(null);
+  const [financials, setFinancials] = useState<{ revenue: number; cost: number; currency: string; as_of: string } | null>(null);
 
   const load = useCallback(async () => {
     setState('loading');
@@ -22,7 +22,7 @@ export function ScenarioTruthGuardPage() {
         snapshot.cost !== null &&
         snapshot.currency !== null
       ) {
-        setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency });
+        setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency, as_of: snapshot.as_of });
         setState('ready');
         return;
       }
@@ -45,6 +45,7 @@ export function ScenarioTruthGuardPage() {
         baseRevenue={financials.revenue}
         baseCost={financials.cost}
         currency={financials.currency}
+        sourceAsOf={financials.as_of}
       />
     );
   }

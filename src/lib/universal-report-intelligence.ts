@@ -1,4 +1,5 @@
 import type { CanonicalField } from './report-intelligence/canonical-schema';
+import { buildBrainPacket, type BrainPacket } from './intelligence/brain-runtime';
 import { matchCanonicalField } from './report-intelligence/canonical-schema';
 import { applyArchetypeRuleSet } from './report-intelligence/archetype-evaluator';
 import { detectReportArchetype, getReportArchetype, type ArchetypeProfile } from './report-intelligence/archetype-registry';
@@ -7,6 +8,7 @@ import {
   deriveReportIntelligence,
   selectExecutiveRecommendation,
   selectExecutiveSignal,
+  type BusinessFinding,
   type ReportIntelligence,
   type ReportRecommendation,
   type ReportSignal,
@@ -32,6 +34,21 @@ export type UniversalIntelligenceStage = {
   next: string;
 };
 
+export type ConfidenceDimension = {
+  key: 'data' | 'mapping' | 'calculation' | 'evidence' | 'signal' | 'forecast' | 'recommendation' | 'decision-readiness' | 'overall-advisory';
+  label: string;
+  score: number;
+  state: 'AVAILABLE' | 'NOT_AVAILABLE' | 'REVIEW';
+  basis: string[];
+};
+
+export type ConfidenceGovernance = {
+  scoreSemantics: 'GOVERNANCE_SCORE_NOT_PROBABILITY';
+  dimensions: ConfidenceDimension[];
+  bottleneck: ConfidenceDimension | null;
+  overall: number;
+};
+
 export type UniversalIntelligenceResult = {
   intelligence: ReportIntelligence;
   advisory: AdvisoryPacket;
@@ -39,6 +56,7 @@ export type UniversalIntelligenceResult = {
   archetypeState: string;
   archetypeReason: string;
   confidence: number;
+  confidenceGovernance: ConfidenceGovernance;
   mappedFieldCount: number;
   totalFieldCount: number;
   stages: UniversalIntelligenceStage[];
@@ -49,6 +67,7 @@ export type UniversalIntelligenceResult = {
     answer: string;
     followUp: string | null;
   }>;
+  brain: BrainPacket;
 };
 
 type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
@@ -59,7 +78,9 @@ type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
   tenantId?: string | null;
   evidenceSnapshotId?: string | null;
   evidencePassportId?: string | null;
+  evidenceVerified?: boolean;
   availableFields?: CanonicalField[];
+  decisionOutcomes?: Array<{ label: 'correct' | 'incorrect' | 'partial' | 'unknown'; actualValue?: number | null; expectedValue?: number | null }>;
 };
 
 function text(value: unknown): string {
@@ -134,6 +155,104 @@ function stage(
   return { key, label, status, headline, detail, evidence, next };
 }
 
+function confidenceDimension(
+  key: ConfidenceDimension['key'],
+  label: string,
+  score: number,
+  state: ConfidenceDimension['state'],
+  basis: string[],
+): ConfidenceDimension {
+  return {
+    key,
+    label,
+    score: Math.max(0, Math.min(100, Math.round(score))),
+    state,
+    basis: basis.filter(Boolean).slice(0, 4),
+  };
+}
+
+function buildConfidenceGovernance(input: {
+  rows: number;
+  completeness: number | null;
+  mapped: number;
+  total: number;
+  sourceHash: string | null;
+  evidenceSnapshotId: string | null;
+  evidencePassportId: string | null;
+  primaryFinding: BusinessFinding | null;
+  signal: ReportSignal | null;
+  recommendation: ReportRecommendation | null;
+  advisory: AdvisoryPacket;
+  forecast: ReportIntelligence['forecast'];
+}): ConfidenceGovernance {
+  const dataScore = input.rows > 0 ? input.completeness == null ? 55 : input.completeness : 0;
+  const mappingScore = input.total > 0 ? (input.mapped / input.total) * 100 : 0;
+  const calculationReady = Boolean(input.primaryFinding && Number.isFinite(Number(input.primaryFinding.value)) && input.primaryFinding.evidence.length > 0);
+  const calculationScore = calculationReady ? 85 : input.rows > 0 && input.mapped > 0 ? 55 : 0;
+  const evidenceScore = input.evidenceSnapshotId && input.evidencePassportId ? 100 : input.signal?.evidence?.length || input.recommendation?.evidence?.length ? 65 : 0;
+  const signalScore = input.signal ? input.signal.evidence.length > 0 ? 90 : 55 : 0;
+  const forecastAvailable = input.forecast.status === 'AVAILABLE' && input.forecast.nextValue != null;
+  const forecastScore = forecastAvailable ? input.forecast.observedPeriods >= 3 ? 70 : 50 : 0;
+  const recommendationScore = input.recommendation ? input.recommendation.evidence.length > 0 ? 85 : 50 : 0;
+  const decisionScore = input.advisory.actionState === 'ACTIONABLE'
+    ? input.evidenceSnapshotId && input.evidencePassportId ? 100 : 70
+    : input.advisory.actionState === 'REVIEW_REQUIRED' ? 50 : 0;
+
+  const dimensions: ConfidenceDimension[] = [
+    confidenceDimension('data', 'ثقة البيانات', dataScore, input.rows > 0 ? (input.completeness == null ? 'REVIEW' : 'AVAILABLE') : 'NOT_AVAILABLE', [
+      'rows=' + input.rows,
+      input.completeness == null ? 'اكتمال الخلايا غير محسوب' : 'completeness=' + input.completeness + '%',
+      input.sourceHash ? 'بصمة المصدر موجودة' : 'بصمة المصدر غير متاحة في هذا السياق',
+    ]),
+    confidenceDimension('mapping', 'ثقة التعيين الدلالي', mappingScore, input.total > 0 ? 'AVAILABLE' : 'NOT_AVAILABLE', [
+      'mappedFields=' + input.mapped + '/' + Math.max(1, input.total),
+      input.mapped === input.total && input.total > 0 ? 'كل الحقول المعروفة مرتبطة' : 'يوجد حقل أو أكثر يحتاج مراجعة',
+    ]),
+    confidenceDimension('calculation', 'ثقة الحساب', calculationScore, calculationReady ? 'AVAILABLE' : 'REVIEW', [
+      calculationReady ? 'توجد نتيجة رقمية مع دليل مرتبط' : 'لا توجد نتيجة حسابية موثقة بالكامل في هذا السياق',
+      'الدرجة حوكمة للجاهزية وليست احتمالًا إحصائيًا',
+    ]),
+    confidenceDimension('evidence', 'ثقة الدليل', evidenceScore, input.evidenceSnapshotId && input.evidencePassportId ? 'AVAILABLE' : input.signal || input.recommendation ? 'REVIEW' : 'NOT_AVAILABLE', [
+      input.evidenceSnapshotId ? 'Evidence Snapshot موجود' : 'Evidence Snapshot غير مكتمل',
+      input.evidencePassportId ? 'Evidence Passport موجود' : 'Evidence Passport غير مكتمل',
+    ]),
+    confidenceDimension('signal', 'ثقة الإشارة', signalScore, input.signal ? 'AVAILABLE' : 'NOT_AVAILABLE', [
+      input.signal ? 'signal=' + input.signal.id : 'لا توجد إشارة تنفيذية مؤهلة',
+      input.signal?.evidence?.length ? 'evidenceItems=' + input.signal.evidence.length : '',
+    ]),
+    confidenceDimension('forecast', 'ثقة التنبؤ', forecastScore, forecastAvailable ? 'REVIEW' : 'NOT_AVAILABLE', [
+      forecastAvailable ? 'observedPeriods=' + input.forecast.observedPeriods : 'لا يوجد Forecast متاح في هذا السياق',
+      forecastAvailable ? 'لا توجد معايرة فعلية كافية هنا؛ السقف الحوكمي 70' : 'لا يتم اختراع Forecast عند غياب العينة',
+    ]),
+    confidenceDimension('recommendation', 'ثقة التوصية', recommendationScore, input.recommendation ? 'AVAILABLE' : 'NOT_AVAILABLE', [
+      input.recommendation ? 'recommendation=' + input.recommendation.id : 'لا توجد توصية مؤهلة',
+      input.recommendation?.evidence?.length ? 'evidenceItems=' + input.recommendation.evidence.length : '',
+    ]),
+    confidenceDimension('decision-readiness', 'جاهزية القرار', decisionScore, input.advisory.actionState === 'ACTIONABLE' ? 'AVAILABLE' : input.advisory.actionState === 'REVIEW_REQUIRED' ? 'REVIEW' : 'NOT_AVAILABLE', [
+      'actionState=' + input.advisory.actionState,
+      input.evidencePassportId && input.evidenceSnapshotId ? 'سلسلة الدليل مكتملة' : 'السلسلة الدليلية غير مكتملة',
+    ]),
+  ];
+
+  const available = dimensions.filter((item) => item.state !== 'NOT_AVAILABLE');
+  const bottleneck = available.length ? [...available].sort((a, b) => a.score - b.score || a.label.localeCompare(b.label, 'ar'))[0] : null;
+  const overall = available.length ? Math.min(...available.map((item) => item.score)) : 0;
+  const overallDimension = confidenceDimension(
+    'overall-advisory',
+    'الثقة الاستشارية الكلية',
+    overall,
+    available.length ? (bottleneck && bottleneck.score < 70 ? 'REVIEW' : 'AVAILABLE') : 'NOT_AVAILABLE',
+    bottleneck ? ['أضعف حلقة: ' + bottleneck.label + ' (' + bottleneck.score + '%)', 'الدرجة الكلية = الحد الأدنى للأبعاد المتاحة حتى لا يخفي المتوسط ضعف دليل أو حساب.'] : ['لا توجد أبعاد كافية لإصدار درجة حوكمة.'],
+  );
+
+  return {
+    scoreSemantics: 'GOVERNANCE_SCORE_NOT_PROBABILITY',
+    dimensions: [...dimensions, overallDimension],
+    bottleneck,
+    overall,
+  };
+}
+
 export function buildUniversalReportIntelligence(input: UniversalReportInput): UniversalIntelligenceResult {
   const fields = canonicalFields(input);
   const stats = fieldStats(input);
@@ -149,7 +268,7 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
   const base = deriveReportIntelligence({ ...input, specialty: effectiveSpecialty });
 
   let intelligence = base;
-  let archetype = detection.profile;
+  const archetype = detection.profile;
   if (archetype) {
     intelligence = applyArchetypeRuleSet(
       archetype,
@@ -193,6 +312,41 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
       ),
     ),
   );
+
+  const brain = buildBrainPacket({
+    rows: (input.canonicalRows ?? []).map((row) => row.data ?? {}),
+    sourceHash: input.sourceHash ?? null,
+    reportJobId: input.reportJobId ?? null,
+    archetypeId: archetype?.id ?? null,
+    availableFields: fields,
+    evidenceVerified: input.evidenceVerified === true && advisory.proofState === 'VERIFIED',
+    evidenceSnapshotId: input.evidenceSnapshotId ?? null,
+    evidencePassportId: input.evidencePassportId ?? null,
+    recommendation: recommendation ? {
+      title: recommendation.title,
+      action: recommendation.action,
+      ownerHint: recommendation.ownerHint,
+      expectedOutcome: recommendation.expectedOutcome,
+      measurement: recommendation.measurement,
+      evidence: recommendation.evidence,
+    } : null,
+    decisionOutcomes: input.decisionOutcomes ?? [],
+  });
+
+  const confidenceGovernance = buildConfidenceGovernance({
+    rows: stats.rows,
+    completeness: quality,
+    mapped: stats.mapped,
+    total: stats.total,
+    sourceHash: input.sourceHash ?? null,
+    evidenceSnapshotId: provenance.evidenceSnapshotId,
+    evidencePassportId: provenance.evidencePassportId,
+    primaryFinding,
+    signal,
+    recommendation,
+    advisory,
+    forecast: intelligence.forecast,
+  });
 
   const proofText = provenance.evidenceSnapshotId && provenance.evidencePassportId
     ? 'Evidence Passport + snapshot مرتبطان بالمصدر.'
@@ -294,29 +448,43 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     stage(
       'outcome',
       'النتيجة',
-      'NOT_AVAILABLE',
-      'لا توجد نتيجة تنفيذية مثبتة في هذا السياق.',
-      'لا نسمّي المتوقع «متحققًا» قبل وصول دليل بعد التنفيذ.',
-      [],
-      'أعد القياس على نفس المصدر/المؤشر ثم ثبّت النتيجة.',
+      brain.outcome.state === 'OBSERVED' ? 'VERIFIED' : brain.outcome.state === 'PARTIAL' ? 'REVIEW_REQUIRED' : 'NOT_AVAILABLE',
+      brain.outcome.state === 'OBSERVED'
+        ? 'توجد نتيجة تنفيذية مرصودة مرتبطة بتاريخ ملاحظة.'
+        : brain.outcome.state === 'PARTIAL'
+          ? 'توجد ملاحظات تنفيذية، لكن النتيجة جزئية ولا تصلح كأثر كامل.'
+          : 'لا توجد نتيجة تنفيذية مثبتة في هذا السياق.',
+      brain.outcome.boundary,
+      brain.outcome.actualValue != null && brain.outcome.expectedValue != null
+        ? [`actual=${brain.outcome.actualValue}`, `expected=${brain.outcome.expectedValue}`]
+        : [],
+      brain.outcome.state === 'OBSERVED' ? 'راجع أثر التنفيذ مقابل المتوقع.' : 'أعد القياس على نفس المصدر/المؤشر ثم ثبّت النتيجة.',
     ),
     stage(
       'learning',
       'التعلّم',
-      'NOT_AVAILABLE',
-      'التعلّم ينتظر نتيجة فعلية قابلة للمقارنة.',
-      'سيُربط الدرس بما تغيّر وبالمقياس الذي تم تتبعه.',
-      [],
-      'قارن قبل/بعد ثم حدّث قاعدة التوصية.',
+      brain.outcome.learning === 'CANDIDATE' ? 'DERIVED' : brain.outcome.learning === 'REVIEW_REQUIRED' ? 'REVIEW_REQUIRED' : 'NOT_AVAILABLE',
+      brain.outcome.learning === 'CANDIDATE'
+        ? 'تكوّن مرشح تعلّم من نتائج فعلية متعددة.'
+        : brain.outcome.learning === 'REVIEW_REQUIRED'
+          ? 'توجد إشارة تعلّم، لكنها تحتاج نتائج إضافية ومراجعة بشرية.'
+          : 'التعلّم ينتظر نتيجة فعلية قابلة للمقارنة.',
+      brain.outcome.boundary,
+      [`observations=${brain.outcome.observations}`],
+      brain.outcome.learning === 'CANDIDATE' ? 'راجع تغير القاعدة أو العتبة قبل اعتماد نسخة جديدة.' : 'اجمع actual مقابل expected ثم أعد التقييم.',
     ),
     stage(
       'benchmark',
       'المقارنة',
-      'GAP_DETECTED',
-      'لا يوجد Benchmark خارجي موثوق ضمن هذا المصدر.',
-      'لا يتم اختلاق متوسط سوق أو منافس. المقارنة تُفتح فقط عند وجود مرجع موثق.',
-      [],
-      'أضف مرجعًا داخليًا أو خارجيًا موثقًا قبل إصدار مقارنة.',
+      brain.benchmark.state === 'INTERNAL_COMPARABLE' ? 'DERIVED' : 'GAP_DETECTED',
+      brain.benchmark.state === 'INTERNAL_COMPARABLE'
+        ? `مقارنة داخلية متاحة عبر ${brain.benchmark.entityCount} كيانات.`
+        : brain.benchmark.boundary,
+      brain.benchmark.boundary,
+      brain.benchmark.current != null && brain.benchmark.median != null
+        ? [`current=${brain.benchmark.current}`, `median=${brain.benchmark.median}`, `topQuartile=${brain.benchmark.topQuartile}`]
+        : [],
+      brain.benchmark.state === 'INTERNAL_COMPARABLE' ? 'افتح الفارق عن الوسيط والربع الأعلى قبل تحديد الإجراء.' : 'أضف كيانات مقارنة كافية داخل المصدر أو مرجعًا خارجيًا موثقًا.',
     ),
   ];
 
@@ -343,9 +511,11 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     archetypeState: detection.state,
     archetypeReason: detection.reason,
     confidence,
+    confidenceGovernance,
     mappedFieldCount: stats.mapped,
     totalFieldCount: stats.total,
     stages,
     topQuestions,
+    brain,
   };
 }

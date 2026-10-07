@@ -4,6 +4,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { CommercialValueChain } from '@/components/CommercialValueChain';
+import { IntelligenceClosurePanel } from '@/components/IntelligenceClosurePanel';
+import { assessDataQuality, deriveUnknownGaps, type KernelRow } from '@/lib/decision-intelligence-kernel';
+import { buildBrainPacket } from '@/lib/intelligence/brain-runtime';
 import inventoryCsv from '../../tests/fixtures/realistic-reports/28-inventory-stockout-reorder.csv?raw';
 
 type LiveRow = {
@@ -127,6 +130,12 @@ function PreviewMetric({ label, value, meta }: { label: string; value: string; m
   );
 }
 
+function previewDemoHref(path: string): string {
+  if (path === '/') return '/proposal-demo';
+  if (path.includes('auth=1') || path === '/try-report') return path;
+  return path.includes('?') ? path + '&demo=1' : path + '?demo=1';
+}
+
 function PreviewNavigation({ currentPath }: { currentPath: string }) {
   const sections = [
     {
@@ -195,7 +204,7 @@ function PreviewNavigation({ currentPath }: { currentPath: string }) {
                   return (
                     <Link
                       key={href}
-                      to={href}
+                      to={previewDemoHref(href)}
                       className={`inline-flex min-h-9 items-center justify-between rounded-lg px-2.5 py-2 text-[10px] font-black transition ${active ? 'bg-primary-700 text-white' : 'text-ink-700 hover:bg-white hover:text-primary-700'}`}
                       aria-current={active ? 'page' : undefined}
                     >
@@ -256,8 +265,8 @@ function BuyerProofPanel() {
     {
       label: 'المبيعات',
       value: salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%',
-      unit: 'نمو',
-      detail: firstSales != null && lastSales != null ? 'من ' + firstSales + ' إلى ' + lastSales + ' وحدة' : 'لا توجد سلسلة كافية',
+      unit: 'فرق نسبي',
+      detail: firstSales != null && lastSales != null ? 'آخر صف ' + lastSales + ' مقابل أول صف ' + firstSales + ' وحدة' : 'لا توجد سلسلة كافية',
       tone: 'primary',
     },
     {
@@ -290,9 +299,9 @@ function BuyerProofPanel() {
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 lg:min-w-[260px]">
             <div className="text-[9px] font-black tracking-[.12em] text-slate-400">أقوى دليل حالي</div>
             <div className="mt-2 text-lg font-black text-white">
-              {latestLow ? latestLow.productCode + ' · تغطية ' + (latestLow.currentStock / latestLow.salesQty).toFixed(2) : 'لا توجد إشارة منخفضة'}
+              {latestLow ? latestLow.productCode + ' · ' + latestLow.warehouse + ' · تغطية ' + (latestLow.currentStock / latestLow.salesQty).toFixed(2) : 'لا توجد إشارة منخفضة'}
             </div>
-            <div className="mt-1 text-[10px] leading-5 text-slate-300">أحدث صف تحت حد التغطية، مع الاحتفاظ برقم المستند والمستودع كمصدر للإشارة.</div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-300">أحدث صف تحت حد التغطية؛ رقم المستند والمستودع محفوظان ضمن الدليل.</div>
           </div>
         </div>
       </div>
@@ -333,8 +342,8 @@ function BuyerProofPanel() {
           النتيجة قابلة للإثبات، والتوقعات منفصلة عن النتائج الفعلية.
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/reports/inventory" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">افتح التقرير الذكي</Link>
-          <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">جرّب القرار</Link>
+          <Link to="/reports/inventory?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">افتح التقرير الذكي</Link>
+          <Link to="/decision-experience?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">جرّب القرار</Link>
           <Link to="/try-report" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">جرّب تقريرك الآن</Link>
         </div>
       </div>
@@ -471,8 +480,8 @@ function PreviewAdvisorReport() {
             ))}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-3.5 py-2 text-[10px] font-black text-white">حوّلها إلى قرار</Link>
-            <Link to="/work-center" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 bg-white px-3.5 py-2 text-[10px] font-black text-ink-800">اذهب للعمل</Link>
+            <Link to="/decision-experience?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-3.5 py-2 text-[10px] font-black text-white">حوّلها إلى قرار</Link>
+            <Link to="/work-center?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 bg-white px-3.5 py-2 text-[10px] font-black text-ink-800">اذهب للعمل</Link>
           </div>
         </article>
       </div>
@@ -650,12 +659,113 @@ function PreviewDomainAdvisor({ domain }: { domain: 'sales' | 'profitability' | 
         >
           {decisionState === 'جاهز' ? 'إنشاء مسودة قرار' : 'تم إنشاء مسودة القرار'}
         </button>
-        <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">فتح مساحة القرار</Link>
-        <Link to="/work-center" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">افتح مسار العمل</Link>
+        <Link to="/decision-experience?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">فتح مساحة القرار</Link>
+        <Link to="/work-center?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">افتح مسار العمل</Link>
         <span className="inline-flex min-h-10 items-center rounded-xl border border-ink-100 bg-ink-50 px-4 py-2.5 text-[10px] font-black text-ink-500">المعاينة لا تحفظ قرارًا فعليًا</span>
       </div>
     </section>
   );
+}
+
+const DEMO_SOURCE_BINDING = 'fixture:28-inventory-stockout-reorder.csv';
+
+const PREVIEW_REPORT_JOB_ID = 'preview:28-inventory-stockout-reorder';
+const PREVIEW_RECOMMENDATION = {
+  title: 'مراجعة إعادة الطلب للأصناف منخفضة التغطية',
+  action: 'راجع مهلة التوريد ونقطة إعادة الطلب قبل اعتماد كمية الشراء.',
+  ownerHint: 'مدير المخزون / المشتريات',
+  expectedOutcome: 'رفع تغطية الأصناف المتأثرة إلى الحد التشغيلي.',
+  measurement: 'نسبة الصفوف التي تعود تغطيتها إلى 2.00 فأعلى.',
+  evidence: LOW_COVERAGE_ROWS.map(row => row.documentNo),
+};
+
+function buildPreviewBrainPacket() {
+  return buildBrainPacket({
+    rows: LIVE_ROWS as unknown as Record<string, unknown>[],
+    availableFields: Object.keys(LIVE_ROWS[0] ?? {}),
+    reportJobId: PREVIEW_REPORT_JOB_ID,
+    sourceHash: DEMO_SOURCE_BINDING,
+    recommendation: PREVIEW_RECOMMENDATION,
+  });
+}
+
+function PreviewSmartReport() {
+  const brainPacket = useMemo(() => buildPreviewBrainPacket(), []);
+  const latestLow = [...LOW_COVERAGE_ROWS].sort((a, b) => b.documentDate.localeCompare(a.documentDate))[0] ?? null;
+  const strongestSignal = brainPacket.signals[0] ?? null;
+  const topMetrics = brainPacket.metrics.filter(metric => metric.status === 'CALCULATED').slice(0, 4);
+  const signalTitle = strongestSignal?.title ?? 'تغطية المخزون أقل من الحد التشغيلي';
+  const signalStatement = strongestSignal?.statement ?? (String(LOW_COVERAGE_ROWS.length) + ' صفوف من ' + String(LIVE_ROWS.length) + ' صفًا انخفضت تغطيتها تحت 2.00.');
+  const why = strongestSignal?.why ?? (latestLow ? ('آخر إشارة مثبتة في ' + latestLow.documentNo + ' للصنف ' + latestLow.productCode + ' في ' + latestLow.warehouse + ' بتغطية ' + (latestLow.currentStock / latestLow.salesQty).toFixed(2) + '.') : 'الإشارة مشتقة من الصفوف المصدرية الحالية.');
+  const soWhat = strongestSignal?.soWhat ?? 'الخطر تشغيلي: انخفاض التغطية يستحق مراجعة قبل تحويله إلى كمية شراء.';
+  const next = strongestSignal?.next ?? PREVIEW_RECOMMENDATION.action;
+
+  return (
+    <section id="preview-smart-report" dir="rtl" className="overflow-hidden rounded-[26px] border border-emerald-300/30 bg-[linear-gradient(135deg,#07131a,#0d2728_55%,#102036)] text-white shadow-[0_30px_90px_-44px_rgba(6,78,59,.9)]" aria-label="التقرير الذكي التنفيذي">
+      <div className="border-b border-white/10 p-5 lg:p-7">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-4xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1.5 text-[9px] font-black tracking-[.12em] text-emerald-200">SMART REPORT · EXECUTIVE ANSWER</span>
+              <span className="rounded-full border border-white/10 bg-white/[.05] px-3 py-1.5 text-[9px] font-black text-slate-300">من نفس المصدر</span>
+            </div>
+            <h2 className="mt-3 text-2xl font-black tracking-tight lg:text-4xl">التقرير الذكي الذي يراه المدير قبل جدول الأرقام</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">هذه ليست بطاقة KPI. النظام يجيب: ماذا حدث؟ لماذا يهم؟ ماذا نفعل؟ وما الذي يمنعنا من الجزم؟ وكل سطر أدناه مشتق من Fixture واحد.</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[.08] px-5 py-4 xl:min-w-[260px]">
+            <div className="text-[9px] font-black tracking-[.14em] text-emerald-200">جاهزية القرار</div>
+            <div className="mt-1 text-3xl font-black">{brainPacket.decision.readiness}%</div>
+            <div className="mt-1 text-[9px] leading-5 text-slate-400">{brainPacket.status === 'ACTIONABLE' ? 'العقل مؤهل للتوصية ضمن حدود الدليل' : brainPacket.status === 'REVIEW_REQUIRED' ? 'المراجعة مطلوبة قبل الاعتماد' : 'البيانات لا تكفي لرفع مستوى القرار'}</div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 lg:grid-cols-4">
+          <article className="rounded-2xl border border-rose-300/20 bg-rose-300/[.06] p-4"><div className="text-[9px] font-black tracking-[.1em] text-rose-200">WHAT · ماذا حدث؟</div><div className="mt-2 text-lg font-black">{signalTitle}</div><div className="mt-1 text-[10px] leading-5 text-slate-300">{signalStatement}</div></article>
+          <article className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[.05] p-4"><div className="text-[9px] font-black tracking-[.1em] text-cyan-200">WHY · لماذا الآن؟</div><div className="mt-2 text-sm font-black leading-6">{why}</div></article>
+          <article className="rounded-2xl border border-amber-300/20 bg-amber-300/[.06] p-4"><div className="text-[9px] font-black tracking-[.1em] text-amber-200">SO WHAT · ماذا يعني؟</div><div className="mt-2 text-sm font-black leading-6">{soWhat}</div></article>
+          <article className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[.06] p-4"><div className="text-[9px] font-black tracking-[.1em] text-emerald-200">WHAT NEXT · ماذا نفعل؟</div><div className="mt-2 text-sm font-black leading-6">{next}</div><div className="mt-2 text-[9px] text-slate-400">المالك: {PREVIEW_RECOMMENDATION.ownerHint}</div></article>
+        </div>
+      </div>
+
+      <div className="grid gap-4 p-5 lg:grid-cols-[1.1fr_.9fr] lg:p-7">
+        <article className="rounded-[22px] border border-white/10 bg-white/[.045] p-5">
+          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-emerald-200">SOURCE INTELLIGENCE · العقل الحسابي</div><h3 className="mt-1 text-lg font-black">المؤشرات التي بنت عليها الإجابة</h3></div><span className="rounded-full bg-white/[.06] px-3 py-1.5 text-[9px] font-black text-slate-300">{brainPacket.metrics.filter(metric => metric.status === 'CALCULATED').length} مؤشرات محسوبة</span></div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">{topMetrics.map(metric => <div key={metric.id} className="rounded-xl border border-white/10 bg-white/[.04] p-3"><div className="text-[9px] text-slate-400">{metric.label}</div><div className="mt-1 text-xl font-black">{metric.value == null ? 'غير متاح' : Number(metric.value).toLocaleString('ar-YE', { maximumFractionDigits: 2 })}<span className="mr-1 text-[9px] font-bold text-slate-500">{metric.unit}</span></div><div className="mt-1 text-[8px] leading-4 text-slate-500">{metric.formula}</div><div className="mt-2 text-[8px] font-mono text-slate-500">rows {metric.evidence.rows.slice(0, 6).join('، ') || '—'} · n={metric.evidence.sampleSize}</div></div>)}</div>
+        </article>
+
+        <article className="rounded-[22px] border border-white/10 bg-white/[.045] p-5">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-200">DECISION GATE · بوابة القرار</div><h3 className="mt-1 text-lg font-black">ما الذي يمنع النظام من التظاهر بأنه يعرف أكثر مما يعرف؟</h3>
+          <div className="mt-4 space-y-2">
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[9px] text-slate-400">المقارنة الداخلية</div><div className="mt-1 text-sm font-black">{brainPacket.benchmark.state === 'INTERNAL_COMPARABLE' ? 'مقارنة قابلة للحساب' : 'لا توجد عينة مقارنة كافية'}</div><div className="mt-1 text-[9px] leading-5 text-slate-500">{brainPacket.benchmark.boundary}</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[9px] text-slate-400">النتيجة</div><div className="mt-1 text-sm font-black">{brainPacket.outcome.state === 'PENDING' ? 'بانتظار التنفيذ' : brainPacket.outcome.state === 'OBSERVED' ? 'مرصودة' : 'غير كافية'}</div><div className="mt-1 text-[9px] leading-5 text-slate-500">{brainPacket.outcome.boundary}</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[9px] text-slate-400">موانع الاعتماد</div><div className="mt-1 text-sm font-black">{brainPacket.decision.blockers.length ? brainPacket.decision.blockers.join(' · ') : 'لا توجد موانع مثبتة'}</div></div>
+          </div>
+        </article>
+      </div>
+
+      <div className="border-t border-white/10 p-5 lg:p-7">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div><div className="text-[9px] font-black tracking-[.14em] text-slate-400">EVIDENCE · مصدر الحكم</div><div className="mt-1 text-sm font-black">السجلات التي دعمت الإشارة الحالية</div><div className="mt-1 text-[10px] leading-5 text-slate-400">المصدر: 28-inventory-stockout-reorder.csv · job: {PREVIEW_REPORT_JOB_ID}</div></div>
+          <div className="flex flex-wrap gap-2"><Link to="/reports/smart/demo?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-white px-4 py-2.5 text-[10px] font-black text-ink-950">فتح التقرير الذكي الكامل</Link><Link to="/decision-experience?demo=1" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[10px] font-black text-white">انتقل إلى القرار</Link></div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">{LOW_COVERAGE_ROWS.map(row => <span key={row.documentNo} className="rounded-xl border border-amber-300/20 bg-amber-300/[.06] px-3 py-2 text-[9px] font-black text-amber-100">{row.documentNo} · {row.productCode} · {row.warehouse} · تغطية {(row.currentStock / row.salesQty).toFixed(2)}</span>)}</div>
+      </div>
+    </section>
+  );
+}
+
+
+function PreviewDecisionClosure({ domain }: { domain: 'sales' | 'inventory' }) {
+  const rows = LIVE_ROWS.map((row) => ({ ...row })) as unknown as KernelRow[];
+  const contract = domain === 'inventory'
+    ? { id: 'inventory', requiredFields: ['currentStock'], numericFields: ['currentStock', 'salesQty'], minimumRows: 3, uniqueKey: ['productCode', 'warehouse'] }
+    : { id: 'sales', requiredFields: ['netAmount', 'profit'], numericFields: ['netAmount', 'profit', 'cost'], minimumRows: 3 };
+  const quality = assessDataQuality(rows, contract);
+  const recommendation = domain === 'inventory'
+    ? 'مراجعة تغطية الأصناف ذات الأولوية قبل اعتماد إعادة الطلب.'
+    : 'مراجعة محركات التغير في صافي المبيعات والربح قبل تثبيت خطة المبيعات.';
+  const gaps = deriveUnknownGaps(rows, { recommendation, outcomeRequired: true }).map((gap) => ({ id: gap.id, title: gap.title, state: gap.state, action: gap.action }));
+  return <IntelligenceClosurePanel rows={rows} sourceHash={DEMO_SOURCE_BINDING} recommendation={recommendation} qualityScore={quality.score} gaps={gaps} demo />;
 }
 
 function PreviewBusinessSurface({ path }: { path: string }) {
@@ -667,6 +777,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   const last = LIVE_ROWS[LIVE_ROWS.length - 1];
   const salesGrowth = first.salesQty > 0 ? ((last.salesQty - first.salesQty) / first.salesQty) * 100 : null;
   const rowMargins = LIVE_ROWS.filter(row => row.netAmount > 0).map(row => ({ ...row, margin: (row.profit / row.netAmount) * 100 })).sort((a, b) => a.margin - b.margin);
+  const brainPacket = useMemo(() => buildPreviewBrainPacket(), []);
 
   const route = path.replace(/\/$/, '') || '/';
   const routeTitle: Record<string, string> = {
@@ -766,6 +877,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   } else if (route === '/reports/inventory' || route === '/reports/inventory-intelligence' || route === '/inventory') {
     body = (
       <>
+        <PreviewSmartReport />
         <PreviewAdvisorReport />
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <PreviewMetric label="الصفوف" value={String(LIVE_ROWS.length)} meta="المصدر" />
@@ -775,6 +887,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
           <PreviewMetric label="صافي الربح" value={LIVE_TOTALS.profit.toLocaleString('ar-YE')} meta="YER" />
         </div>
         <PreviewInventoryTable />
+        <div className="mt-5"><PreviewDecisionClosure domain="inventory" /></div>
         <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-4 text-xs text-primary-900">
           الإشارة المحسوبة من الـFixture: {LOW_COVERAGE_ROWS.length} أصناف لديها تغطية أقل من 2.00. الأولوية تبدأ من هذه الصفوف الثلاثة، وليس من رقم افتراضي.
         </div>
@@ -791,6 +904,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
         <PreviewDomainAdvisor domain="sales" />
         <PreviewInventoryTable />
+        <div className="mt-5"><PreviewDecisionClosure domain="sales" /></div>
       </>
     );
   } else if (route === '/reports/profitability') {
@@ -880,7 +994,7 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <PreviewMetric label="أول شهر" value={String(first.salesQty)} meta={first.documentDate} />
           <PreviewMetric label="آخر شهر" value={String(last.salesQty)} meta={last.documentDate} />
-          <PreviewMetric label="النمو بين الطرفين" value={salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%'} meta="اتجاه وصفي" />
+          <PreviewMetric label="التغير بين الطرفين" value={salesGrowth == null ? 'غير متاح' : salesGrowth.toFixed(1) + '%'} meta="مقارنة أول/آخر صف" />
           <PreviewMetric label="عدد الفترات" value={String(LIVE_ROWS.length)} meta="صفًا زمنيًا في المصدر" />
         </div>
         <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
@@ -972,9 +1086,9 @@ function PreviewBusinessSurface({ path }: { path: string }) {
         </div>
         <PreviewInventoryTable />
         <div className="grid gap-3 md:grid-cols-3">
-          <Link to="/reports/inventory" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">المخزون</div><div className="mt-1 text-[10px] text-ink-400">كل الصفوف والتغطية</div></Link>
-          <Link to="/decision-experience" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">القرار</div><div className="mt-1 text-[10px] text-ink-400">3 إشارات قابلة للعمل</div></Link>
-          <Link to="/work-center" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">العمل</div><div className="mt-1 text-[10px] text-ink-400">تحويل الإشارة إلى إجراء</div></Link>
+          <Link to="/reports/inventory?demo=1" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">المخزون</div><div className="mt-1 text-[10px] text-ink-400">كل الصفوف والتغطية</div></Link>
+          <Link to="/decision-experience?demo=1" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">القرار</div><div className="mt-1 text-[10px] text-ink-400">3 إشارات قابلة للعمل</div></Link>
+          <Link to="/work-center?demo=1" className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm hover:border-primary-200"><div className="text-xs font-black">العمل</div><div className="mt-1 text-[10px] text-ink-400">تحويل الإشارة إلى إجراء</div></Link>
         </div>
       </>
     );
@@ -997,6 +1111,37 @@ function PreviewBusinessSurface({ path }: { path: string }) {
   return (
     <div dir="rtl" className="space-y-5 pb-10">
       {commonHeader}
+      <section dir="rtl" className="overflow-hidden rounded-[22px] border border-primary-200 bg-white shadow-sm" aria-label="إثبات تشغيل عقل المنتج">
+        <div className="bg-[linear-gradient(135deg,#07151c,#0d2a2a)] p-5 text-white">
+          <div className="text-[9px] font-black tracking-[.16em] text-primary-200">BRAIN RUNTIME · LIVE PREVIEW</div>
+          <div className="mt-1 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-xl font-black">العقل يعمل على نفس صفوف التقرير، وليس على نصوص ثابتة</h2>
+              <p className="mt-1 text-[10px] leading-5 text-slate-300">المؤشرات والإشارات التالية ناتجة مباشرة من <code>brain-runtime</code> مع ربط source/job/evidence.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[.06] px-4 py-2.5">
+              <div className="text-[9px] text-slate-400">جاهزية القرار</div>
+              <div className="mt-1 text-xl font-black">{brainPacket.decision.readiness}%</div>
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3"><div className="text-[9px] text-ink-400">المؤشرات المحسوبة</div><div className="mt-1 text-xl font-black text-ink-950">{brainPacket.metrics.filter(metric => metric.status === 'CALCULATED').length}</div><div className="mt-1 text-[9px] text-ink-500">من {brainPacket.metrics.length} تعريفًا متاحًا للعينة</div></div>
+          <div className="rounded-xl border border-warning-200 bg-warning-50 p-3"><div className="text-[9px] text-warning-700">الإشارات</div><div className="mt-1 text-xl font-black text-warning-950">{brainPacket.signals.length}</div><div className="mt-1 text-[9px] text-warning-900/70">كل إشارة تحمل صفوف دليل</div></div>
+          <div className="rounded-xl border border-primary-200 bg-primary-50 p-3"><div className="text-[9px] text-primary-700">التوصية</div><div className="mt-1 text-sm font-black text-primary-950">{brainPacket.work.state === 'PROPOSED' ? 'مؤهلة للعمل' : brainPacket.work.state}</div><div className="mt-1 text-[9px] text-primary-900/70">{brainPacket.work.evidenceRequired.length} متطلبات دليل</div></div>
+          <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">حالة العقل</div><div className="mt-1 text-sm font-black text-ink-950">{brainPacket.status}</div><div className="mt-1 text-[9px] text-ink-500">{brainPacket.decision.blockers.length ? brainPacket.decision.blockers.join(' · ') : 'لا توجد عوائق حسابية'}</div></div>
+        </div>
+        <div className="grid gap-3 border-t border-ink-100 bg-ink-50/50 p-5 lg:grid-cols-2">
+          <div className="rounded-xl border border-ink-100 bg-white p-4">
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SIGNALS</div>
+            <div className="mt-2 space-y-2">{brainPacket.signals.slice(0,4).map(signal => <div key={signal.id} className="rounded-lg border border-warning-100 bg-warning-50/60 p-3"><div className="text-[10px] font-black text-ink-900">{signal.title}</div><div className="mt-1 text-[9px] leading-5 text-ink-600">{signal.statement}</div><div className="mt-1 text-[9px] font-bold text-ink-400">الصفوف: {signal.evidence.rows.join('، ') || 'غير متاح'}</div></div>)}{brainPacket.signals.length===0 && <div className="text-[10px] text-ink-400">لا توجد إشارة مثبتة من العينة.</div>}</div>
+          </div>
+          <div className="rounded-xl border border-ink-100 bg-white p-4">
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">METRICS</div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">{brainPacket.metrics.filter(metric => metric.status === 'CALCULATED').slice(0,6).map(metric => <div key={metric.id} className="rounded-lg border border-ink-100 bg-ink-50 p-3"><div className="text-[9px] text-ink-400">{metric.label}</div><div className="mt-1 text-sm font-black text-ink-950">{metric.value == null ? 'غير متاح' : Number(metric.value).toLocaleString('ar-YE',{maximumFractionDigits:2})} {metric.unit}</div><div className="mt-1 text-[8px] leading-4 text-ink-500">{metric.formula}</div></div>)}</div>
+          </div>
+        </div>
+      </section>
       {body}
       <footer className="rounded-xl border border-ink-100 bg-ink-50/70 p-3 text-[10px] leading-5 text-ink-500">
         <strong className="text-ink-700">حد المعاينة:</strong> هذه البيانات حقيقية المصدر لكنها ليست بديلًا عن جلسة شركة مصادق عليها. أي قرار أو نتيجة تنفيذية نهائية يجب أن تمر عبر الشركة والسياق الأمني الفعلي.
@@ -1050,6 +1195,8 @@ function ProposalCommercialDemoPage() {
         <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50 print:hidden lg:mt-1"><Printer size={16} /> طباعة / PDF</button>
       </div>
 
+      <PreviewSmartReport />
+
       <BuyerProofPanel />
 
       <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#08111f,#0f2231)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
@@ -1059,7 +1206,7 @@ function ProposalCommercialDemoPage() {
             <h2 className="mt-2 text-2xl font-black tracking-tight">هذه أرقام الـFixture، وليست بيانات شركة حيّة</h2>
             <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">البيانات المعروضة أدناه تُقرأ وقت البناء مباشرة من الملف canonical fixture: 28-inventory-stockout-reorder.csv. كل مؤشر في هذه المساحة مشتق من الصفوف نفسها، ولا توجد أرقام ملخّصة مستقلة عنها.</p>
           </div>
-          <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
+          <Link to="/reports?demo=1" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">مركز التقارير ←</Link>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {[
@@ -1200,6 +1347,7 @@ function ProposalCommercialDemoPage() {
       </section>
 
       <CommercialValueChain
+        demo
         title="ما الذي يراه العميل عندما يشتري الأغبري؟"
         subtitle="عرض واحد يربط إدخال المصدر بالدليل والذكاء والقرار والتنفيذ والنتيجة؛ كل مرحلة تقود إلى مساحة فعلية داخل المنصة."
         stages={[
@@ -1236,8 +1384,8 @@ function ProposalCommercialDemoPage() {
               <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">يحتاج مراجعة</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2 print:hidden">
-              <Link to="/" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
-              <Link to="/reports/executive" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
+              <Link to="/reports/inventory?demo=1" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
+              <Link to="/reports/executive?demo=1" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
             </div>
           </CardBody>
         </Card>
@@ -1251,7 +1399,7 @@ function ProposalCommercialDemoPage() {
             <div key={item.requirement} className="rounded-xl border border-ink-100 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">مرتبط بـ: {item.match.title}</div>}</div>
-                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
+                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={previewDemoHref(item.match.path)} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
               </div>
             </div>
           ))}
@@ -1262,7 +1410,7 @@ function ProposalCommercialDemoPage() {
         <CardHeader title="تسلسل العرض الحي" subtitle="تدفق مقترح لعرض حقيقي بدون نسخ منفصلة من المنتج." />
         <CardBody>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {matched.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={item.match!.path} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
+            {matched.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={previewDemoHref(item.match!.path)} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
           </div>
         </CardBody>
       </Card>

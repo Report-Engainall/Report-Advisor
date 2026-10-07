@@ -10,10 +10,12 @@ on:
       - 'scripts/provision-e2e-actors.mjs'
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/public-preview-smoke.mjs'
       - 'scripts/real-48-source-matrix-preflight.mjs'
       - 'scripts/phase-f-live-resilience-probes.mjs'
       - 'scripts/rehydrate-legacy-corpus.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
+      - 'scripts/public-preview-smoke.mjs'
       - 'scripts/check-certification-boundary-integrity.mjs'
       - 'scripts/check-execution-enforcement-protocol.mjs'
       - 'scripts/execution-enforcement-adversarial-governance.test.mjs'
@@ -31,6 +33,7 @@ on:
       - 'src/lib/navigation-registry.ts'
       - 'src/lib/report-context.ts'
       - 'src/lib/report-intelligence/**'
+      - 'src/lib/intelligence/**'
       - 'src/lib/file-engine/**'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
@@ -58,6 +61,7 @@ on:
       - 'scripts/resume-open-report-server-proof.mjs'
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
+      - 'src/lib/intelligence/**'
       - 'src/components/ui/DataTable.tsx'
       - 'src/index.css'
       - 'docs/METRIC_TRUTH_OWNERSHIP.md'
@@ -187,6 +191,17 @@ jobs:
           test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
           npm run build
 
+      - name: Install deterministic browser tooling
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false netlify-cli@27.10.2
+          test "$(node -p "require('playwright/package.json').version")" = "1.63.0"
+          test "$(node -p "require('netlify-cli/package.json').version")" = "27.10.2"
+          npx playwright install --with-deps chromium
+          npx playwright --version
+
       - name: Run canonical heart regressions
         shell: bash
         run: |
@@ -216,6 +231,8 @@ jobs:
           npm run test:business-replay
           npm run test:benchmark-fail-closed
           npm run test:48-archetype-runtime
+          npm run test:brain-runtime
+          npm run test:public-preview-smoke
       - name: Prepare rerunnable E2E actor credentials
         env:
           SECRET_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
@@ -312,9 +329,12 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_ACTOR_PROVISION_DEADLINE_MS: '600000'
-          E2E_ACTOR_REQUEST_TIMEOUT_MS: '60000'
+          E2E_ACTOR_REQUEST_TIMEOUT_MS: '20000'
           E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
           E2E_CORPUS_TENANT_ID: '6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b'
+          E2E_STALE_ACTOR_CLEANUP_LIMIT: '250'
+          E2E_STALE_ACTOR_MAX_AGE_MS: '86400000'
+          E2E_STALE_ACTOR_DELETE_CONCURRENCY: '5'
           REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
           REPORT_ADVISOR_E2E_DEBUG: '1'
         shell: bash
@@ -355,17 +375,6 @@ jobs:
           OPEN_REPORT_EXPECTED_ROWS: '0'
           OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
         run: node scripts/resume-open-report-server-proof.mjs
-      - name: Install deterministic browser tooling
-        if: ${{ always() }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm install --no-save --package-lock=false netlify-cli@27.10.2
-          test "$(node -p "require('playwright/package.json').version")" = "1.63.0"
-          test "$(node -p "require('netlify-cli/package.json').version")" = "27.10.2"
-          npx playwright install --with-deps chromium
-          npx playwright --version
-
       - name: Real Chromium route and authenticated browser proof
         if: ${{ always() }}
         env:
@@ -390,7 +399,7 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: node scripts/real-business-e2e.mjs
 
-      - name: Report real-source 48 archetype coverage (non-blocking)
+      - name: Prove 48/48 real-source archetype coverage
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
@@ -404,14 +413,11 @@ jobs:
           REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
         shell: bash
         run: |
-          set +e
-          test -n "${TEST_USER_B_EMAIL}" && test -n "${TEST_USER_B_PASSWORD}"
+          set -euo pipefail
+          test -n "${TEST_USER_B_EMAIL}"
+          test -n "${TEST_USER_B_PASSWORD}"
           node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
-          rc=$?
-          echo "REAL_SOURCE_48_COVERAGE_IS_NON_BLOCKING=true" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_EXIT_CODE=$rc" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_GATE=DIAGNOSTIC_ONLY" >> "$GITHUB_STEP_SUMMARY"
-          exit 0
+          echo "REAL_SOURCE_48_GATE=BLOCKING_PASS" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fail closed on browser evidence
         if: ${{ always() }}

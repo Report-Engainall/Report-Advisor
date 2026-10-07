@@ -23,6 +23,7 @@ concurrency:
 
 jobs:
   exact-head-value-cohort:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     env:
       REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
@@ -30,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
 
       - name: Assert exact HEAD
@@ -38,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           actual="$(git rev-parse HEAD)"
-          test "$actual" = "${{ github.event.pull_request.head.sha }}"
+          test "$actual" = "${{ github.event.pull_request.head.sha || github.sha }}"
           printf 'EXACT_HEAD=%s\n' "$actual"
 
       - uses: actions/setup-node@v4

@@ -102,27 +102,46 @@ function isRetryableAuthLookup(error) {
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function findUserByEmail(email) {
-  for (let page = 1; page <= 10; page += 1) {
-    assertProvisionDeadline('find-user-page-' + page);
-    for (let attempt = 1; attempt <= 3; attempt += 1) {
-      assertProvisionDeadline('find-user-attempt-' + page + '-' + attempt);
-      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
-      if (!error) {
-        const user = (data.users ?? []).find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase());
-        if (user) return { user, lookupUnavailable: false };
-        if ((data.users ?? []).length < 1000) return { user: null, lookupUnavailable: false };
-        break;
-      }
-
-      if (!isRetryableAuthLookup(error) || attempt === 3) {
-        if (isRetryableAuthLookup(error)) return { user: null, lookupUnavailable: true };
-        throw error;
-      }
-
-      await wait(1000 * 2 ** (attempt - 1));
-    }
+  assertProvisionDeadline('lookup-user-by-email');
+  const { data, error } = await supabase.rpc('lookup_e2e_actor_by_email', { p_email: email });
+  if (error) {
+    if (isRetryableAuthLookup(error)) return { user: null, lookupUnavailable: true };
+    throw error;
   }
-  return { user: null, lookupUnavailable: false };
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row?.user_id) return { user: null, lookupUnavailable: false };
+  return {
+    user: {
+      id: row.user_id,
+      email: row.email,
+      user_metadata: row.raw_user_meta_data ?? {},
+    },
+    lookupUnavailable: false,
+  };
+}
+
+async function cleanupStaleEphemeralActors() {
+  const limit = Math.max(0, Math.min(Number(process.env.E2E_STALE_ACTOR_CLEANUP_LIMIT || '250'), 1000));
+  if (!limit) return { attempted: 0, deleted: 0 };
+  assertProvisionDeadline('cleanup-stale-actors-list');
+  const before = new Date(Date.now() - Number(process.env.E2E_STALE_ACTOR_MAX_AGE_MS || String(24 * 60 * 60 * 1000))).toISOString();
+  const { data, error } = await supabase.rpc('list_stale_e2e_actor_ids', { p_before: before, p_limit: limit });
+  if (error) throw error;
+  const ids = (Array.isArray(data) ? data : []).map(row => String(row.user_id)).filter(Boolean);
+  let deleted = 0;
+  const concurrency = Math.max(1, Math.min(Number(process.env.E2E_STALE_ACTOR_DELETE_CONCURRENCY || '5'), 50));
+  for (let start = 0; start < ids.length; start += concurrency) {
+    assertProvisionDeadline('cleanup-stale-actors-delete-batch-' + start);
+    const batch = ids.slice(start, start + concurrency);
+    await Promise.all(batch.map(async (userId) => {
+      const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
+      if (deleteError && !String(deleteError.message || '').toLowerCase().includes('not found')) {
+        throw deleteError;
+      }
+      deleted += 1;
+    }));
+  }
+  return { attempted: ids.length, deleted };
 }
 
 function runId() {
@@ -481,6 +500,9 @@ async function provisionMembership(companyId, userId, requestedRole, isDefault, 
   assert.equal(membership.is_active, true, 'E2E_MEMBERSHIP_INACTIVE:' + label);
   return membership;
 }
+
+const cleanupResult = await cleanupStaleEphemeralActors();
+console.log(JSON.stringify({ status: 'E2E_STALE_ACTOR_CLEANUP', ...cleanupResult }));
 
 const approverCredentials = ensureApproverCredentials();
 const userA = await ensureActor(

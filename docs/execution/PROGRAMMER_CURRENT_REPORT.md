@@ -1,25 +1,50 @@
-SESSION HANDOFF = READY
-PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-REPORT_FOR_HEAD = c0d681efddc18eda5a82a52ffaf8fda2b2e158c9
-BRANCH = main
-PR = N/A
-UPDATED_AT = 2026-10-05T23:08:00+03:00
+SESSION HANDOFF = NOT READY
+REPORT_FOR_HEAD = e02a7967a86b0579a23dd21aa0b249e630cdbaea
+UPDATED_AT = 2026-10-07T16:13:30Z
+CURRENT_EXACT_HEAD = e02a7967a86b0579a23dd21aa0b249e630cdbaea
+BRANCH = exec/decision-completion-20261007
+PR = #867
+REPORT_STATUS = EXACT_HEAD_PROOF_AFTER_SECURITY_AND_PREVIEW_CONTRACT_FIXES
 
-WHAT_I_WAS_ASKED_TO_DO = Continue execution until the customer can operate the real report, not merely read product terminology.
+WHAT_I_WAS_ASKED_TO_DO = Make the Report-Advisor product genuinely sellable by closing real product/runtime/proof gaps without restarting the project, and keep exact-head evidence authoritative.
 
-OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
+WHAT_I_ACTUALLY_DID
+- Removed the Netlify host-based route hijack so real routes render AuthGate/AppShell; /proposal-demo and explicit preview/demo query modes are the only demo entry points.
+- Integrated brain.v1 across the intelligence path with fail-closed verified-evidence rules, real metrics/signals/benchmark/outcome/learning/work states.
+- Fixed sparse-row calculations, comparable internal benchmark grain, and the parseDate/getTime runtime crash.
+- Added indexed service-role-only E2E actor lookup plus bounded generated-user cleanup.
+- Hardened the new E2E SECURITY DEFINER functions with fixed pg_catalog search_path and explicit service_role-only EXECUTE grants.
+- Updated stale preview-route contracts so they verify the current explicit routing behavior instead of the deleted host-hijack implementation.
+- Repaired session handoff state to point at this exact head.
 
-WHAT_I_ACTUALLY_DID = Converted the report surface from descriptive terminology into a data-first workspace: a live explorer over canonical rows with business-state filters, search, sorting, row selection, field readback, rule explanation, and direct row-to-decision navigation; reused it across CustomerReportSurface and SmartReportPage; kept the source binding and fail-closed evidence rules intact.
+WHAT_IS_PROVEN
+- Production Build Gate: PASS on af78f9bc5f8ecb9421b05164be38c5f1a124b395.
+- Commercial Product Creation E2E: PASS on af78f9bc5f8ecb9421b05164be38c5f1a124b395.
+- Supabase staging verification: both E2E actor functions are fixed to search_path=pg_catalog; anon/authenticated cannot EXECUTE; service_role can EXECUTE.
+- The exact-head codebase typecheck/production build and product contracts passed on af78f9bc5f8ecb9421b05164be38c5f1a124b395 before the later migration/test-contract commits.
+- Earlier live Netlify proof established the real route surface on the route-fix artifact.
 
-WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. The product build succeeded on the preceding exact-head CI cycle. The current Vercel production is reachable at report-advisor.vercel.app and is on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd; later main commits are awaiting a fresh deployment because the Vercel free API deployment quota is currently exhausted.
+FIRST_ACTIVE_FAILURE = Exact-head certification and Full Product Browser E2E are running; no terminal PASS on e02a7967a86b0579a23dd21aa0b249e630cdbaea.
 
-FIRST_ACTIVE_FAILURE = The last newly proven product failure was a duplicate SourceBoundReportSurface import in ExecutiveReportPage.tsx, which caused TypeScript to stop before browser proof. After that, the browser contracts were found to reference the stale 342-row sales job; those contracts are now aligned to the authoritative 332-row inventory job.
+ROOT_CAUSE = The last terminal failures were governance/test drift rather than a new business-runtime defect: obsolete SECURITY DEFINER migration assertions, obsolete host-hijack preview assertions, and stale handoff metadata. Each was corrected at source and re-run from a newer exact head.
 
-ROOT_CAUSE = The customer path and proof path were both anchored to stale sales lineage instead of the verified inventory lineage, and the Reports Center visual hierarchy still placed generic KPIs above the actual source report.
+NEXT_EXACT_ACTION = Consume Full Product Browser E2E and Final Certification for e02a7967a86b0579a23dd21aa0b249e630cdbaea; do not release until exact-head terminal evidence is PASS.
 
-NEXT_EXACT_ACTION = Consume terminal CI for c0d681efddc18eda5a82a52ffaf8fda2b2e158c9; fix only the first newly proven failure; then consume same-head browser artifacts and final certification. No terminology-only PASS.
+NOTES
+- Vercel free-plan build-rate-limit remains infrastructure/quota noise and is not the product verdict.
+- Netlify remains the available public preview/evidence channel.
 
-CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/full-product-browser-e2e.yml; .github/workflows/github-pages-production.yml; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; scripts/real-business-e2e.mjs; scripts/run-full-product-browser-e2e.mjs; src/App.tsx; src/components/CustomerReportSurface.tsx; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx; src/lib/report-intelligence/report-smart-insights.ts; src/lib/report-smart.ts; src/pages/CanonicalImportPage.tsx; src/pages/ExecutiveReportPage.tsx; src/pages/ReportsPage.tsx; src/pages/SmartReportPage.tsx; vite.config.ts
+
+Commercial preview closure
+- Buyer-facing internal links now remain inside ?demo=1 preview mode.
+- Commercial value chain SOURCE → EVIDENCE → SIGNAL → ADVISOR → DECISION → WORK → OUTCOME → LEARNING now supports explicit demo-link routing.
+- Buyer proof wording now distinguishes endpoint comparison from aggregate growth.
+
+WHAT_I_ACTUALLY_DID = Closed preview route consistency, commercial buyer navigation, security-definer hardening, browser prerequisite ordering, and exact-head handoff alignment.
+
+WHAT_IS_PROVEN = Product Build/Commercial E2E have passed on earlier exact heads; current d8537eb commercial preview is deployed and browser/Final Certification are still pending on the latest exact head.
+
+SMART_REPORT_PRIMARY_BUYER_SURFACE
+- Added a brain-derived executive smart report as the first buyer-facing content in Proposal Demo.
+- Smart report answers WHAT, WHY, SO WHAT, WHAT NEXT, shows calculated brain metrics, decision gate, benchmark/outcome boundaries, evidence rows, and direct routes to the full smart report and decision experience.
+- /reports/smart/demo?demo=1 now opens the same smart-report-first experience before the raw preview table.

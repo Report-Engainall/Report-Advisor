@@ -25,6 +25,7 @@ env:
 
 jobs:
   browser-smoke:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 25
     steps:

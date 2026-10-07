@@ -50,7 +50,7 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
         <div className="flex flex-wrap gap-2 text-[10px] font-black">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-ink-50 px-3 py-2 text-ink-700">
             <Fingerprint size={13} />
-            ثقة التحليل {result.confidence}%
+            ثقة استشارية {result.confidenceGovernance.overall}%
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-3 py-2 text-primary-900">
             <ShieldCheck size={13} />
@@ -66,6 +66,36 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
           {result.intelligence.businessQuestion}
         </div>
       </div>
+
+      <section className="rounded-2xl border border-ink-200 bg-ink-50/60 p-4" data-confidence-governance="true">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="section-kicker">CONFIDENCE GOVERNANCE</div>
+            <div className="mt-1 text-sm font-black text-ink-950">الثقة مفككة إلى أسباب وليست رقمًا تجميليًا</div>
+          </div>
+          <div className="rounded-xl bg-white px-3 py-2 text-[9px] font-black text-ink-700">
+            الكلية: {result.confidenceGovernance.overall}% · الأضعف: {result.confidenceGovernance.bottleneck?.label || 'غير متاح'}
+          </div>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+          {result.confidenceGovernance.dimensions.map((item) => (
+            <details key={item.key} className="rounded-xl border border-ink-200 bg-white p-3">
+              <summary className="cursor-pointer list-none">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[9px] font-black text-ink-700">{item.label}</span>
+                  <span className={'rounded-full px-2 py-1 text-[8px] font-black ' + (item.state === 'AVAILABLE' ? 'bg-emerald-50 text-emerald-800' : item.state === 'REVIEW' ? 'bg-amber-50 text-amber-900' : 'bg-ink-50 text-ink-500')}>{item.score}%</span>
+                </div>
+              </summary>
+              <div className="mt-2 space-y-1 text-[8px] leading-4 text-ink-500">
+                {item.basis.map((reason) => <div key={reason}>• {reason}</div>)}
+              </div>
+            </details>
+          ))}
+        </div>
+        <p className="mt-3 text-[9px] leading-5 text-ink-500">
+          هذه الدرجات حوكمة للجاهزية وليست احتمالات نجاح. الدرجة الكلية تستخدم أضعف بُعد متاح حتى لا يخفي المتوسط فجوة في الدليل أو الحساب.
+        </p>
+      </section>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {result.stages.map((item, index) => {

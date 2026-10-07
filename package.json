@@ -4,9 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.32.0",
     "@supabase/supabase-js": "^2.57.4",
+    "apache-arrow": "^17.0.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
+    "glpk.js": "^5.0.0",
     "lucide-react": "^0.446.0",
     "mammoth": "^1.12.1",
     "pdfjs-dist": "^6.2.108",
@@ -14,6 +17,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
+    "simple-statistics": "^7.12.1",
     "tesseract.js": "^7.0.0",
     "xlsx": "^0.18.5"
   },
@@ -27,12 +31,12 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
+    "playwright": "1.63.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
-    "vite": "^5.4.2",
-    "playwright": "1.63.0"
+    "vite": "^5.4.2"
   },
   "scripts": {
     "dev": "vite",
@@ -182,6 +186,7 @@
     "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts",
     "test:transactional-spine": "node scripts/transactional-spine-contract.test.mjs",
     "test:decision-experience-persistence": "node scripts/check-decision-experience-persistence-contract.mjs",
+    "test:scenario-persistence": "node scripts/scenario-persistence-contract.test.mjs",
     "test:parallel-heart-ui-contract": "node scripts/check-parallel-heart-ui-contract.mjs",
     "test:e2e-actor-provisioning": "node scripts/e2e-actor-provisioning-contract.test.mjs",
     "test:build-provenance": "node scripts/build-provenance-contract.test.mjs",
@@ -214,6 +219,7 @@
     "test:commercial-onboarding-experience": "node scripts/commercial-onboarding-experience.test.mjs",
     "test:commercial-login-value-surface": "node scripts/commercial-login-value-surface.test.mjs",
     "test:real-48-source-matrix": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs",
-    "test:real-48-source-matrix-contract": "node scripts/real-48-source-matrix-contract.test.mjs"
+    "test:real-48-source-matrix-contract": "node scripts/real-48-source-matrix-contract.test.mjs",
+    "test:brain-runtime": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/brain-runtime.test.mjs"
   }
 }

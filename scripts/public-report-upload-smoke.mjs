@@ -77,6 +77,12 @@ try {
   if (!tableText.includes('SKU-1') || !tableText.includes('WH-1') || !tableText.includes('صنف 1')) throw new Error('TRY_REPORT_SOURCE_TEXT_CORRUPTED');
   if (!body.includes('1.84') && !body.includes('تغطية 1.84')) throw new Error('TRY_REPORT_ADVISOR_COVERAGE_MISSING');
   if (!body.includes('إعادة الطلب')) throw new Error('TRY_REPORT_ADVISOR_ACTION_MISSING');
+
+  await page.getByRole('button', { name: 'محركات الحساب', exact: true }).click();
+  await page.getByRole('button', { name: 'شغّل استعلامًا حقيقيًا', exact: true }).click();
+  await page.getByText('DuckDB-Wasm', { exact: true }).waitFor({ state: 'visible', timeout: 90000 });
+  const engineBody = (await page.locator('body').innerText()).replace(/\\s+/g, ' ').trim();
+  if (!engineBody.includes('row_count')) throw new Error('DUCKDB_RESULT_MISSING');
   if (errors.length) throw new Error('TRY_REPORT_PAGEERROR:' + errors[0]);
   const metrics = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,

@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react';
-import { ArrowUpLeft, Info, RefreshCcw, ShieldCheck, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowUpLeft, CheckCircle2, Info, RefreshCcw, Save, ShieldCheck, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { formatCurrency } from '@/lib/format';
+import { fetchLatestGovernedScenario, isValidScenarioRecord, saveGovernedScenario, type ProfitabilityScenarioAssumptions } from '@/lib/governed-scenarios';
 
 type CanonicalScenarioPageProps = {
   baseRevenue: number;
   baseCost: number;
   currency: string;
+  sourceAsOf: string;
 };
 
 function formatDelta(value: number, currency: string) {
@@ -81,10 +83,12 @@ function SliderControl({
   );
 }
 
-export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: CanonicalScenarioPageProps) {
+export function CanonicalScenarioPage({ baseRevenue, baseCost, currency, sourceAsOf }: CanonicalScenarioPageProps) {
   const [priceChange, setPriceChange] = useState(5);
   const [volumeChange, setVolumeChange] = useState(10);
   const [costChange, setCostChange] = useState(0);
+  const [persistenceState, setPersistenceState] = useState<'loading' | 'ready' | 'saving' | 'saved' | 'error'>('loading');
+  const [persistenceMessage, setPersistenceMessage] = useState<string | null>(null);
 
   const scenario = useMemo(() => {
     const baseProfit = baseRevenue - baseCost;
@@ -114,6 +118,93 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: Canon
     };
   }, [baseCost, baseRevenue, costChange, priceChange, volumeChange]);
 
+
+  useEffect(() => {
+    let active = true;
+    const restore = async () => {
+      setPersistenceState('loading');
+      setPersistenceMessage(null);
+      try {
+        const saved = await fetchLatestGovernedScenario();
+        if (!active) return;
+        const sameBaseline = saved
+          && isValidScenarioRecord(saved)
+          && saved.assumptions.source.asOf === sourceAsOf
+          && saved.assumptions.source.currency === currency
+          && Math.abs(saved.assumptions.baseline.revenue - baseRevenue) < 0.000001
+          && Math.abs(saved.assumptions.baseline.cost - baseCost) < 0.000001;
+        if (sameBaseline) {
+          setPriceChange(saved.assumptions.variables.priceChange);
+          setVolumeChange(saved.assumptions.variables.volumeChange);
+          setCostChange(saved.assumptions.variables.costChange);
+          setPersistenceState('saved');
+          setPersistenceMessage('تمت إعادة قراءة آخر سيناريو محفوظ من قاعدة البيانات مع نفس قاعدة الحقيقة المالية.');
+        } else {
+          setPersistenceState('ready');
+          setPersistenceMessage('لم يوجد سيناريو محفوظ يطابق قاعدة الحقيقة المالية الحالية؛ الإعدادات الحالية تبدأ كتجربة جديدة.');
+        }
+      } catch (error) {
+        if (!active) return;
+        setPersistenceState('error');
+        setPersistenceMessage(error instanceof Error ? error.message : 'تعذر قراءة السيناريو المحفوظ.');
+      }
+    };
+    void restore();
+    return () => { active = false; };
+  }, [baseCost, baseRevenue, currency, sourceAsOf]);
+
+  const saveScenario = async () => {
+    setPersistenceState('saving');
+    setPersistenceMessage(null);
+    const assumptions: ProfitabilityScenarioAssumptions = {
+      schemaVersion: 1,
+      source: { type: 'profitability_snapshot', asOf: sourceAsOf, currency },
+      baseline: { revenue: baseRevenue, cost: baseCost },
+      variables: { priceChange, volumeChange, costChange },
+      constraints: {
+        priceMin: -20,
+        priceMax: 20,
+        volumeMin: -30,
+        volumeMax: 30,
+        costMin: -15,
+        costMax: 15,
+      },
+      boundary: 'DETERMINISTIC_SENSITIVITY_NOT_FORECAST',
+    };
+    try {
+      const result = scenario.profitDelta > 0
+        ? 'IMPROVES_PROFIT'
+        : scenario.profitDelta < 0
+          ? 'REDUCES_PROFIT'
+          : 'NEUTRAL';
+      await saveGovernedScenario(assumptions, {
+        baseline: {
+          revenue: baseRevenue,
+          cost: baseCost,
+          profit: scenario.baseProfit,
+          margin: scenario.baseMargin,
+        },
+        scenario: {
+          revenue: scenario.newRevenue,
+          cost: scenario.newCost,
+          profit: scenario.newProfit,
+          margin: scenario.newMargin,
+          revenueDelta: scenario.revenueDelta,
+          costDelta: scenario.costDelta,
+          profitDelta: scenario.profitDelta,
+          profitChange: scenario.profitChange,
+          marginDelta: scenario.marginDelta,
+        },
+        result,
+      });
+      setPersistenceState('saved');
+      setPersistenceMessage('تم حفظ تعريف السيناريو ونتيجته وبصمة التشغيل وإثبات المصدر، ويمكن إعادة قراءته بعد التحديث.');
+    } catch (error) {
+      setPersistenceState('error');
+      setPersistenceMessage(error instanceof Error ? error.message : 'تعذر حفظ السيناريو.');
+    }
+  };
+
   const outcomeTone = scenario.profitDelta > 0 ? 'success' : scenario.profitDelta < 0 ? 'danger' : 'neutral';
   const outcomeLabel = scenario.profitDelta > 0 ? 'يحسن الربح ضمن الافتراضات الحالية' : scenario.profitDelta < 0 ? 'يخفض الربح ضمن الافتراضات الحالية' : 'يحافظ على الربح ضمن الافتراضات الحالية';
 
@@ -133,6 +224,10 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: Canon
             <Link to="/intelligence" className="btn-ghost text-[10px]">العودة للذكاء</Link>
             <button type="button" onClick={reset} className="btn-secondary text-[10px]">
               <RefreshCcw size={13} aria-hidden="true" /> إعادة الضبط
+            </button>
+            <button type="button" onClick={() => void saveScenario()} disabled={persistenceState === 'saving' || persistenceState === 'loading'} className="btn-primary text-[10px] disabled:opacity-50">
+              {persistenceState === 'saving' ? <RefreshCcw size={13} className="animate-spin" aria-hidden="true" /> : <Save size={13} aria-hidden="true" />}
+              {persistenceState === 'saving' ? 'جارٍ الحفظ...' : 'حفظ السيناريو'}
             </button>
           </>
         }
@@ -163,6 +258,25 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: Canon
               <div className="text-[9px] text-slate-400">التكلفة</div>
               <div className="mt-1 text-sm font-black">{costChange > 0 ? '+' : ''}{costChange}%</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-ink-200 bg-white p-4 shadow-card" aria-live="polite">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className={'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ' + (persistenceState === 'error' ? 'bg-danger-50 text-danger-700' : persistenceState === 'saved' ? 'bg-success-50 text-success-700' : 'bg-primary-50 text-primary-700')}>
+              {persistenceState === 'saved' ? <CheckCircle2 size={17} aria-hidden="true" /> : <Save size={17} aria-hidden="true" />}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] font-black text-ink-900">
+                {persistenceState === 'loading' ? 'جارٍ قراءة الحالة المحفوظة...' : persistenceState === 'saved' ? 'السيناريو محفوظ ومربوط بقاعدة الحقيقة الحالية' : persistenceState === 'saving' ? 'جاري تثبيت السيناريو...' : persistenceState === 'error' ? 'تعذر حفظ/قراءة السيناريو' : 'السيناريو محلي حتى تضغط حفظ'}
+              </div>
+              <p className="mt-1 text-[9px] leading-5 text-ink-500">{persistenceMessage ?? 'التعريف والنتيجة لا ينتقلان إلى القرار قبل حفظهما صراحةً.'}</p>
+            </div>
+          </div>
+          <div className="shrink-0 rounded-xl bg-ink-50 px-3 py-2 text-[9px] font-bold text-ink-600">
+            المصدر: profitability snapshot · {sourceAsOf}
           </div>
         </div>
       </section>

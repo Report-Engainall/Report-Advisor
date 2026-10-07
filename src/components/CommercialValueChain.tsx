@@ -17,6 +17,11 @@ const toneClasses: Record<NonNullable<CommercialValueStage['tone']>, string> = {
   neutral: 'border-slate-200 bg-slate-50 text-slate-900',
 };
 
+function stageHref(href: string, demo?: boolean): string {
+  if (!demo) return href;
+  return href.includes('?') ? href + '&demo=1' : href + '?demo=1';
+}
+
 function StageIcon({ index, tone }: { index: number; tone: CommercialValueStage['tone'] }) {
   const icons = [Database, ShieldCheck, Sparkles, Lightbulb, Target, ListChecks, PlayCircle, CheckCircle2];
   const Icon = icons[index] ?? CircleAlert;
@@ -29,10 +34,12 @@ export function CommercialValueChain({
   stages,
   title = 'من المصدر إلى النتيجة',
   subtitle = 'المنتج لا يتوقف عند التقرير: كل طبقة تبين ما ثبت، وما يمكن فعله، وما لم يُثبت بعد.',
+  demo = false,
 }: {
   stages: CommercialValueStage[];
   title?: string;
   subtitle?: string;
+  demo?: boolean;
 }) {
   return (
     <section dir="rtl" aria-label="مسار القيمة من المصدر إلى النتيجة" className="ag-value-chain rounded-[20px] border border-slate-200 bg-white p-4 shadow-[0_22px_55px_-34px_rgba(15,23,42,.26)] lg:p-5">
@@ -63,7 +70,7 @@ export function CommercialValueChain({
               </>
             );
             return stage.href
-              ? <Link key={stage.label + index} to={stage.href} className="group rounded-2xl border border-slate-200 bg-slate-50/65 p-3 transition duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white hover:shadow-[0_16px_34px_-26px_rgba(79,70,229,.35)]">{content}</Link>
+              ? <Link key={stage.label + index} to={stageHref(stage.href, demo)} className="group rounded-2xl border border-slate-200 bg-slate-50/65 p-3 transition duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white hover:shadow-[0_16px_34px_-26px_rgba(79,70,229,.35)]">{content}</Link>
               : <article key={stage.label + index} className="rounded-2xl border border-slate-200 bg-slate-50/65 p-3">{content}</article>;
           })}
         </div>
