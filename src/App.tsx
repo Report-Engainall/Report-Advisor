@@ -19,6 +19,7 @@ import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { ReportContextProvider } from '@/components/ReportContext';
 import { isWorkspacePathVisible, readWorkspaceMode, readWorkspacePreferences } from '@/lib/workspace-mode';
 import { resolveNavigationItem } from '@/lib/navigation-registry';
+import { withActiveReportContext } from '@/lib/report-context-url';
 const Sidebar = lazy(() => import('@/components/Sidebar').then(m => ({ default: m.Sidebar })));
 const ImportPage = lazy(() => import('@/pages/ImportPage').then(m => ({ default: m.ImportPage })));
 const ExternalFileAnalysisPage = lazy(() => import('@/pages/ExternalFileAnalysisPage').then(m => ({ default: m.ExternalFileAnalysisPage })));
@@ -93,7 +94,7 @@ function MobileActionBar({ onOpenCommandPalette, onOpenAdvisor, advisorOpen }: {
           return (
             <Link
               key={path}
-              to={path}
+              to={withActiveReportContext(path, location.search)}
               className={"ag-mobile-item flex min-h-12 flex-col items-center justify-center gap-1 rounded-[11px] px-1 text-[10px] font-bold transition-colors " + (active ? "ag-mobile-item-active text-primary-800" : "text-ink-500 hover:bg-ink-50 hover:text-ink-900")}
               aria-current={active ? 'page' : undefined}
             >
