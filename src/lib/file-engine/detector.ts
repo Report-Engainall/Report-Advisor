@@ -59,6 +59,24 @@ const FORMAT_TO_MIME: Record<FileFormat, string> = {
   unknown: 'application/octet-stream',
 };
 
+function isLikelyTextBuffer(buffer: ArrayBuffer): boolean {
+  const bytes = new Uint8Array(buffer.slice(0, 64 * 1024));
+  if (!bytes.length) return false;
+
+  const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+  const replacementCount = [...utf8].filter((char) => char === '\uFFFD').length;
+  const controlCount = [...utf8].filter((char) => {
+    const code = char.charCodeAt(0);
+    return (code < 9 || (code > 13 && code < 32)) && code !== 0;
+  }).length;
+
+  const meaningful = utf8.replace(/[\s\uFEFF]/g, '');
+  const printableRatio = meaningful.length ? (meaningful.length - controlCount - replacementCount) / meaningful.length : 0;
+  if (replacementCount > Math.max(2, Math.floor(bytes.length / 128))) return false;
+  if (bytes.includes(0) && utf8.includes('\u0000')) return false;
+  return printableRatio >= 0.94 && /[\p{L}\p{N}]/u.test(meaningful);
+}
+
 const FORMAT_TO_CATEGORY: Record<FileFormat, FileCategory> = {
   xlsx: 'spreadsheet', xls: 'spreadsheet', xlsm: 'spreadsheet', csv: 'spreadsheet', tsv: 'spreadsheet', ods: 'spreadsheet',
   json: 'text', jsonl: 'text', xml: 'text', yaml: 'text', txt: 'text', markdown: 'text',
@@ -96,7 +114,12 @@ export function detectFormat(file: File, buffer: ArrayBuffer): FileDetectionResu
     }
   }
 
-  const detectedFormat: FileFormat = isMatch ? magicFormat : extFormat;
+  let detectedFormat: FileFormat = isMatch ? magicFormat : extFormat;
+  if (!isMatch && extFormat === 'unknown' && isLikelyTextBuffer(buffer)) {
+    detectedFormat = 'txt';
+    warnings.push('لم تُعرف امتدادات الملف، لكن محتواه نصي وقابل للتحليل؛ تم تحويله لمسار النص العام دون افتراض نموذج أعمال.');
+    isMatch = true;
+  }
   const mismatch = isMatch && magicFormat !== 'unknown' && extFormat !== 'unknown' && magicFormat !== extFormat;
 
   if (mismatch) {
@@ -104,7 +127,7 @@ export function detectFormat(file: File, buffer: ArrayBuffer): FileDetectionResu
   }
 
   if (detectedFormat === 'unknown') {
-    warnings.push('تعذر تحديد صيغة الملف');
+    warnings.push('تعذر تحديد صيغة الملف؛ يبدو الملف غير معروف أو ثنائيًا وغير قابل للاستخراج العام.');
   }
 
   if (extension === 'xlsb') {
