@@ -426,3 +426,75 @@ export async function persistHumanLearningFeedback(input: {
   }).select('*').single();
   if (error) throw error; return data;
 }
+
+
+export type PersistedDecisionOutcome = {
+  id?: string;
+  decisionFingerprint: string;
+  evidenceSnapshotId: string;
+  actionId?: string | null;
+  observedAt: string;
+  label: 'correct' | 'incorrect' | 'partial' | 'unknown';
+  actualValue?: number | null;
+  expectedValue?: number | null;
+  impactValue?: number | null;
+  notes?: string | null;
+};
+
+export async function persistDecisionOutcome(input: PersistedDecisionOutcome) {
+  const { data, error } = await supabase.rpc('record_decision_outcome', {
+    p_decision_fingerprint: input.decisionFingerprint,
+    p_evidence_snapshot_id: input.evidenceSnapshotId,
+    p_action_id: input.actionId ?? null,
+    p_observed_at: input.observedAt,
+    p_label: input.label,
+    p_actual_value: input.actualValue ?? null,
+    p_expected_value: input.expectedValue ?? null,
+    p_impact_value: input.impactValue ?? null,
+    p_notes: input.notes ?? null,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function readDecisionOutcomes(decisionFingerprint: string) {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_outcomes')
+    .select('id,decision_fingerprint,evidence_snapshot_id,action_id,observed_at,label,actual_value,expected_value,impact_value,notes,created_at,observed_by')
+    .eq('company_id', companyId)
+    .eq('decision_fingerprint', decisionFingerprint)
+    .order('observed_at', { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export function buildOutcomeLearningFromHistory(outcomes: Array<{
+  label: 'correct' | 'incorrect' | 'partial' | 'unknown';
+  actual_value?: number | null;
+  expected_value?: number | null;
+}>) {
+  const known = outcomes.filter(item => item.label !== 'unknown');
+  const comparable = outcomes.filter(item => Number.isFinite(item.actual_value) && Number.isFinite(item.expected_value));
+  const correct = known.filter(item => item.label === 'correct').length;
+  const accuracy = known.length ? correct / known.length : null;
+  const meanAbsoluteRelativeError = comparable.length
+    ? comparable.reduce((sum, item) => {
+        const actual = Number(item.actual_value);
+        const expected = Number(item.expected_value);
+        const base = Math.max(1, Math.abs(expected));
+        return sum + Math.abs(actual - expected) / base;
+      }, 0) / comparable.length
+    : null;
+  return {
+    state: known.length ? 'OBSERVED' as const : 'PENDING' as const,
+    observations: outcomes.length,
+    accuracy,
+    meanAbsoluteRelativeError,
+    learningState: comparable.length >= 3 ? 'CANDIDATE' as const : known.length ? 'REVIEW_REQUIRED' as const : 'NOT_READY' as const,
+    recommendation: comparable.length >= 3
+      ? 'راجع threshold والافتراضات مقابل النتيجة المرصودة؛ لا تطبق التغيير تلقائيًا.'
+      : 'اجمع نتائج إضافية قبل تعديل قاعدة القرار.',
+  };
+}
