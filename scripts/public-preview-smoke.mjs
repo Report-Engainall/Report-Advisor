@@ -1,8 +1,10 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const previewArgs = ['run', 'preview', '--', '--host', '127.0.0.1', '--port', '4174'];
+const port = 4300 + (process.pid % 200);
+const baseUrl = `http://127.0.0.1:${port}`;
+const previewArgs = ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(port)];
 const command = process.platform === 'win32' ? (process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe') : 'npm';
 const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'npm ' + previewArgs.join(' ')] : previewArgs;
 const child = spawn(command, args, {
@@ -21,7 +23,7 @@ try {
   let ready = false;
   for (let i = 0; i < 40; i += 1) {
     try {
-      const response = await fetch('http://127.0.0.1:4174/');
+      const response = await fetch(baseUrl + '/');
       if (response.ok) {
         ready = true;
         break;
@@ -46,7 +48,7 @@ try {
     const errors = [];
     page.removeAllListeners('pageerror');
     page.on('pageerror', error => errors.push(String(error)));
-    await page.goto('http://127.0.0.1:4174' + path, { waitUntil: 'networkidle' });
+    await page.goto(baseUrl + path, { waitUntil: 'networkidle' });
     const text = (await page.locator('body').innerText()).replace(/\\s+/g, ' ').trim();
     if (!text) throw new Error('PUBLIC_PREVIEW_BLANK:' + path);
     if (errors.length) throw new Error('PUBLIC_PREVIEW_PAGEERROR:' + path + ':' + errors[0]);
@@ -57,6 +59,10 @@ try {
   await browser.close();
   console.log('public-preview-smoke: PASS');
 } finally {
-  child.kill('SIGTERM');
+  if (process.platform === 'win32' && child.pid) {
+    spawnSync(process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe', ['/d', '/s', '/c', `taskkill /PID ${child.pid} /T /F`], { stdio: 'ignore' });
+  } else {
+    child.kill('SIGTERM');
+  }
   await wait(250);
 }
