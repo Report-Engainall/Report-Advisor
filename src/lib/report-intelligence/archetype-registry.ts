@@ -1,7 +1,7 @@
 import { matchCanonicalField, type CanonicalField } from './canonical-schema';
 import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator';
 import { deriveReportIntelligence } from './report-smart-insights';
-import { applyArchetypeRuleSet } from './archetype-evaluator';
+import { applyArchetypeRuleSet, type PersistedIntelligenceCalculation } from './archetype-evaluator';
 import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map';
 
 export type ArchetypeDomain =
@@ -270,7 +270,7 @@ export function runReportArchetype(
   input: Omit<AdvisoryPacketInput, 'archetypeId' | 'profileVersion'> & {
     archetypeId: string;
     profileVersion?: number | null;
-    report: Parameters<typeof deriveReportIntelligence>[0];
+    report: Parameters<typeof deriveReportIntelligence>[0] & { persistedIntelligenceCalculations?: PersistedIntelligenceCalculation[] };
   },
 ): {
   profile: ArchetypeProfile;
