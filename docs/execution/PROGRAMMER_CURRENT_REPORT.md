@@ -1,7 +1,7 @@
 SESSION HANDOFF = NOT READY
-REPORT_FOR_HEAD = 77c57c25bd89431b0c532982e9f8c12c3af69dbc
-UPDATED_AT = 2026-10-07T16:01:00Z
-CURRENT_EXACT_HEAD = 77c57c25bd89431b0c532982e9f8c12c3af69dbc
+REPORT_FOR_HEAD = e02a7967a86b0579a23dd21aa0b249e630cdbaea
+UPDATED_AT = 2026-10-07T16:13:30Z
+CURRENT_EXACT_HEAD = e02a7967a86b0579a23dd21aa0b249e630cdbaea
 BRANCH = exec/decision-completion-20261007
 PR = #867
 REPORT_STATUS = EXACT_HEAD_PROOF_AFTER_SECURITY_AND_PREVIEW_CONTRACT_FIXES
@@ -24,11 +24,11 @@ WHAT_IS_PROVEN
 - The exact-head codebase typecheck/production build and product contracts passed on af78f9bc5f8ecb9421b05164be38c5f1a124b395 before the later migration/test-contract commits.
 - Earlier live Netlify proof established the real route surface on the route-fix artifact.
 
-FIRST_ACTIVE_FAILURE = Exact-head certification and Full Product Browser E2E are running; no terminal PASS on 77c57c yet.
+FIRST_ACTIVE_FAILURE = Exact-head certification and Full Product Browser E2E are running; no terminal PASS on e02a7967a86b0579a23dd21aa0b249e630cdbaea.
 
 ROOT_CAUSE = The last terminal failures were governance/test drift rather than a new business-runtime defect: obsolete SECURITY DEFINER migration assertions, obsolete host-hijack preview assertions, and stale handoff metadata. Each was corrected at source and re-run from a newer exact head.
 
-NEXT_EXACT_ACTION = Consume Full Product Browser E2E and Final Certification for 77c57c25bd89431b0c532982e9f8c12c3af69dbc; fix only newly proven blockers.
+NEXT_EXACT_ACTION = Consume Full Product Browser E2E and Final Certification for e02a7967a86b0579a23dd21aa0b249e630cdbaea; do not release until exact-head terminal evidence is PASS.
 
 NOTES
 - Vercel free-plan build-rate-limit remains infrastructure/quota noise and is not the product verdict.
@@ -43,3 +43,8 @@ Commercial preview closure
 WHAT_I_ACTUALLY_DID = Closed preview route consistency, commercial buyer navigation, security-definer hardening, browser prerequisite ordering, and exact-head handoff alignment.
 
 WHAT_IS_PROVEN = Product Build/Commercial E2E have passed on earlier exact heads; current d8537eb commercial preview is deployed and browser/Final Certification are still pending on the latest exact head.
+
+SMART_REPORT_PRIMARY_BUYER_SURFACE
+- Added a brain-derived executive smart report as the first buyer-facing content in Proposal Demo.
+- Smart report answers WHAT, WHY, SO WHAT, WHAT NEXT, shows calculated brain metrics, decision gate, benchmark/outcome boundaries, evidence rows, and direct routes to the full smart report and decision experience.
+- /reports/smart/demo?demo=1 now opens the same smart-report-first experience before the raw preview table.
