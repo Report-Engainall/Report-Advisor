@@ -91,7 +91,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const openSearchResult = useCallback((item: UnifiedSearchResult) => {
     navigate(withActiveReportContext(item.path, location.search));
     onClose();
-  }, [navigate, onClose]);
+  }, [location.search, navigate, onClose]);
 
   const openCommand = useCallback((item: CommandItem) => {
     const next = [item.path, ...recentPaths.filter(path => path !== item.path)].slice(0, RECENT_LIMIT);
@@ -103,7 +103,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     }
     navigate(withActiveReportContext(item.path, location.search));
     onClose();
-  }, [navigate, onClose, recentPaths]);
+  }, [location.search, navigate, onClose, recentPaths]);
 
   useEffect(() => {
     if (!open) return;
