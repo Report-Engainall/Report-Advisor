@@ -695,6 +695,140 @@ async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Da
   }
 }
 
+
+function decodeTextBuffer(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+  if (utf8.includes('\uFFFD')) {
+    try {
+      const utf16 = new TextDecoder('utf-16le', { fatal: false }).decode(bytes);
+      if (utf16.replace(/\u0000/g, '').trim().length > utf8.replace(/\uFFFD/g, '').trim().length) return utf16;
+    } catch { /* fall through */ }
+  }
+  return utf8;
+}
+
+function parseLooseScalar(value: string): unknown {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) return trimmed.slice(1, -1).replace(/\\(["'])/g, '$1');
+  const lower = trimmed.toLowerCase();
+  if (lower === 'null' || lower === '~') return null;
+  if (lower === 'true') return true;
+  if (lower === 'false') return false;
+  const numericValue = parseNumber(trimmed);
+  if (numericValue !== null) return numericValue;
+  return trimmed;
+}
+
+function parseSimpleYaml(text: string): Row[] | null {
+  const lines = normalizeArabicDigits(text).replace(/\uFEFF/g, '').split(/\r?\n/).map((line) => line.replace(/\s+#.*$/, '').replace(/[ \t]+$/, '')).filter((line) => line.trim());
+  if (!lines.length) return null;
+  const rows: Row[] = [];
+  let current: Row | null = null;
+  let listMode = false;
+  for (const line of lines) {
+    const matchList = line.match(/^\s*-\s*(.*)$/);
+    if (matchList) {
+      if (current && Object.keys(current).length) rows.push(current);
+      current = {};
+      listMode = true;
+      const inline = matchList[1].trim();
+      if (inline) {
+        const separator = inline.indexOf(':');
+        if (separator > 0) current[inline.slice(0, separator).trim()] = parseLooseScalar(inline.slice(separator + 1));
+        else current.value = parseLooseScalar(inline);
+      }
+      continue;
+    }
+    const keyValue = line.match(/^\s{0,4}([^:#][^:]*?)\s*:\s*(.*)$/);
+    if (!keyValue) return null;
+    const key = keyValue[1].trim();
+    if (!key) return null;
+    if (!listMode && current == null) current = {};
+    if (!current) return null;
+    current[key] = parseLooseScalar(keyValue[2]);
+  }
+  if (current && Object.keys(current).length) rows.push(current);
+  return rows.length ? rows : null;
+}
+
+function decodeXmlEntities(value: string): string {
+  return value.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+}
+
+function parseSimpleXml(text: string): Row[] | null {
+  const normalized = text.replace(/\uFEFF/g, '').trim();
+  if (!normalized) return null;
+  if (typeof DOMParser !== 'undefined') {
+    try {
+      const documentNode = new DOMParser().parseFromString(normalized, 'application/xml');
+      if (!documentNode.querySelector('parsererror')) {
+        for (const parent of Array.from(documentNode.querySelectorAll('*'))) {
+          const children = Array.from(parent.children);
+          const groups = new Map<string, Element[]>();
+          for (const child of children) groups.set(child.tagName, [...(groups.get(child.tagName) ?? []), child]);
+          for (const group of groups.values()) {
+            if (group.length < 2) continue;
+            const rows = group.map((node) => {
+              const leaves = Array.from(node.children).filter((child) => child.children.length === 0);
+              return leaves.length >= 2 ? Object.fromEntries(leaves.map((leaf) => [leaf.tagName, leaf.textContent?.trim() ?? ''])) as Row : null;
+            }).filter((row): row is Row => Boolean(row));
+            if (rows.length) return rows;
+          }
+        }
+        const root = documentNode.documentElement;
+        const leaves = Array.from(root.children).filter((child) => child.children.length === 0);
+        if (leaves.length >= 2) return [Object.fromEntries(leaves.map((leaf) => [leaf.tagName, leaf.textContent?.trim() ?? ''])) as Row];
+      }
+    } catch { /* fall through */ }
+  }
+  const pairs: Row = {};
+  const pairRegex = /<([A-Za-z_][\w:.-]*)[^>]*>\s*([^<]+?)\s*<\/\1>/g;
+  for (const match of normalized.matchAll(pairRegex)) pairs[match[1]] = decodeXmlEntities(match[2].trim());
+  return Object.keys(pairs).length >= 2 ? [pairs] : null;
+}
+
+function stripRtfToText(input: string): string {
+  let text = input.replace(/\\'[0-9a-fA-F]{2}/g, (match) => String.fromCharCode(Number.parseInt(match.slice(2), 16)));
+  text = text.replace(/\\u(-?\d+)\??/g, (_match, value: string) => {
+    const code = Number(value);
+    return String.fromCharCode(code < 0 ? code + 65536 : code);
+  });
+  text = text.replace(/\\par[d]?/gi, '\n').replace(/\\line/gi, '\n').replace(/\\tab/gi, '\t');
+  text = text.replace(/\\[a-z]+-?\d* ?/gi, '').replace(/[{}]/g, '').replace(/\\\\/g, '\\');
+  return text.replace(/\r\n?/g, '\n').replace(/[ \t]+\n/g, '\n').trim();
+}
+
+async function parsePlainTextDocument(buffer: ArrayBuffer, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
+  const normalized = decodeTextBuffer(buffer).replace(/\uFEFF/g, '').trim();
+  if (!normalized) return [];
+  const lines = normalized.split(/\r?\n/).filter((line) => line.trim());
+  const delimiter = lines.length >= 2 ? detectDelimiter(lines[0]) : ',';
+  const fieldCounts = delimiter ? lines.slice(0, Math.min(lines.length, 20)).map((line) => parseCSVLine(line, delimiter).length) : [];
+  const tableLike = fieldCounts.length >= 2 && fieldCounts.filter((count) => count > 1).length >= Math.max(2, Math.ceil(fieldCounts.length * 0.6));
+  if (tableLike) {
+    const rows = parseCSVText(normalized, delimiter);
+    if (rows.length) return [await buildDataset(rows, fileName, sourceType)];
+  }
+  return buildTextDataset(normalized, fileName, sourceType, warning);
+}
+
+async function parseLegacyDoc(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  const bytes = new Uint8Array(buffer);
+  const candidates = [
+    decodeTextBuffer(buffer),
+    (() => { try { return new TextDecoder('windows-1252', { fatal: false }).decode(bytes); } catch { return ''; } })(),
+  ];
+  const scored = candidates.map((candidate) => {
+    const printable = (candidate.match(/[A-Za-z\u0600-\u06FF\u0750-\u077F0-9]{3,}/g) ?? []).join(' ');
+    return { printable, score: printable.length };
+  }).sort((a, b) => b.score - a.score);
+  const candidate = scored[0]?.printable ?? '';
+  if (candidate.length < 20) throw new Error('DOC_LEGACY_TEXT_EXTRACTION_UNAVAILABLE: الملف بصيغة DOC قديمة ولم ينتج نصًا موثوقًا؛ يلزم محول DOC→DOCX معتمد.');
+  return buildTextDataset(candidate, fileName, 'doc', 'DOC_LEGACY_HEURISTIC_TEXT_EXTRACTION_REVIEW');
+}
+
 export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true }); const datasets: Dataset[] = [];
   for (const sheetName of wb.SheetNames) { const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true }); const candidate = detectHeaderRow(matrix); if (!candidate) continue; const rows = rowsFromDetectedHeader(matrix, candidate) as Row[]; if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName)); }
@@ -714,10 +848,22 @@ async function parseJSONData(data: unknown, fileName: string, path = ''): Promis
 export async function parseFile(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
   switch (format) {
     case 'xlsx': case 'xls': case 'xlsm': case 'ods': return parseSpreadsheet(buffer, fileName, format);
-    case 'csv': return parseCSV(buffer, fileName); case 'tsv': return parseCSV(buffer, fileName, '\t'); case 'json': return parseJSON(buffer, fileName); case 'jsonl': return parseJSONL(buffer, fileName); case 'txt': case 'markdown': return parseCSV(buffer, fileName);
-    case 'pdf': return parsePdfText(buffer, fileName); case 'docx': return parseDocxText(buffer, fileName);
+    case 'csv': return parseCSV(buffer, fileName); case 'tsv': return parseCSV(buffer, fileName, '\t'); case 'json': return parseJSON(buffer, fileName); case 'jsonl': return parseJSONL(buffer, fileName);
+    case 'txt': case 'markdown': return parsePlainTextDocument(buffer, fileName, format);
+    case 'xml': {
+      const text = decodeTextBuffer(buffer);
+      const rows = parseSimpleXml(text);
+      return rows ? [await buildDataset(rows, fileName, 'xml')] : buildTextDataset(text, fileName, 'xml', 'XML_GENERIC_DOCUMENT_REVIEW');
+    }
+    case 'yaml': {
+      const text = decodeTextBuffer(buffer);
+      const rows = parseSimpleYaml(text);
+      return rows ? [await buildDataset(rows, fileName, 'yaml')] : buildTextDataset(text, fileName, 'yaml', 'YAML_GENERIC_DOCUMENT_REVIEW');
+    }
+    case 'rtf': return buildTextDataset(stripRtfToText(decodeTextBuffer(buffer)), fileName, 'rtf', 'RTF_GENERIC_TEXT_EXTRACTION');
+    case 'pdf': return parsePdfText(buffer, fileName); case 'docx': return parseDocxText(buffer, fileName); case 'doc': return parseLegacyDoc(buffer, fileName);
     case 'jpg': case 'jpeg': case 'png': case 'webp': case 'tiff': case 'bmp': return parseImageText(buffer, fileName);
-    case 'doc': case 'rtf': case 'xml': case 'yaml': case 'zip': throw new Error(`${format.toUpperCase()}_PARSER_UNAVAILABLE: هذا التنسيق يحتاج محولًا مخصصًا قبل الكتابة؛ لم يتم تخمين محتواه.`);
-    default: throw new Error(`Unsupported parser for format: ${format}`);
+    case 'zip': throw new Error('ZIP_ARCHIVE_CONTAINER: الملف حاوية مضغوطة؛ ارفع الملف التجاري الموجود بداخلها لتحليل محتواه مع حفظ سلامة المصدر.');
+    default: throw new Error('Unsupported parser for format: ' + format);
   }
 }
