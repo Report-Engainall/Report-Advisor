@@ -1,7 +1,7 @@
 SESSION HANDOFF = NOT READY
-REPORT_FOR_HEAD = e445f29047893204d804ea692944bde7170f4686
-UPDATED_AT = 2026-10-07T15:54:00Z
-CURRENT_EXACT_HEAD = e445f29047893204d804ea692944bde7170f4686
+REPORT_FOR_HEAD = 77c57c25bd89431b0c532982e9f8c12c3af69dbc
+UPDATED_AT = 2026-10-07T16:01:00Z
+CURRENT_EXACT_HEAD = 77c57c25bd89431b0c532982e9f8c12c3af69dbc
 BRANCH = exec/decision-completion-20261007
 PR = #867
 REPORT_STATUS = EXACT_HEAD_PROOF_AFTER_SECURITY_AND_PREVIEW_CONTRACT_FIXES
@@ -24,11 +24,11 @@ WHAT_IS_PROVEN
 - The exact-head codebase typecheck/production build and product contracts passed on af78f9bc5f8ecb9421b05164be38c5f1a124b395 before the later migration/test-contract commits.
 - Earlier live Netlify proof established the real route surface on the route-fix artifact.
 
-FIRST_ACTIVE_FAILURE = Exact-head CI certification is still running; no terminal PASS established on d8537eb yet.
+FIRST_ACTIVE_FAILURE = Exact-head certification and Full Product Browser E2E are running; no terminal PASS on 77c57c yet.
 
 ROOT_CAUSE = The last terminal failures were governance/test drift rather than a new business-runtime defect: obsolete SECURITY DEFINER migration assertions, obsolete host-hijack preview assertions, and stale handoff metadata. Each was corrected at source and re-run from a newer exact head.
 
-NEXT_EXACT_ACTION = Consume Full Product Browser E2E and Final Certification for d8537eb53cdacbe664736648892b44bde0529899; do not release until exact-head terminal evidence is PASS.
+NEXT_EXACT_ACTION = Consume Full Product Browser E2E and Final Certification for 77c57c25bd89431b0c532982e9f8c12c3af69dbc; fix only newly proven blockers.
 
 NOTES
 - Vercel free-plan build-rate-limit remains infrastructure/quota noise and is not the product verdict.
