@@ -10,10 +10,12 @@ on:
       - 'scripts/provision-e2e-actors.mjs'
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/public-preview-smoke.mjs'
       - 'scripts/real-48-source-matrix-preflight.mjs'
       - 'scripts/phase-f-live-resilience-probes.mjs'
       - 'scripts/rehydrate-legacy-corpus.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
+      - 'scripts/public-preview-smoke.mjs'
       - 'scripts/check-certification-boundary-integrity.mjs'
       - 'scripts/check-execution-enforcement-protocol.mjs'
       - 'scripts/execution-enforcement-adversarial-governance.test.mjs'
@@ -219,6 +221,7 @@ jobs:
           npm run test:benchmark-fail-closed
           npm run test:48-archetype-runtime
           npm run test:brain-runtime
+          npm run test:public-preview-smoke
       - name: Prepare rerunnable E2E actor credentials
         env:
           SECRET_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
