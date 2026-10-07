@@ -857,6 +857,7 @@ export function SmartReportPage() {
     archetypeId: report.archetypeId,
     evidenceSnapshotId: typeof report.renderedOutput.evidenceSnapshotId === 'string' ? report.renderedOutput.evidenceSnapshotId : null,
     evidencePassportId: typeof report.renderedOutput.evidencePassportId === 'string' ? report.renderedOutput.evidencePassportId : null,
+    evidenceVerified: report.reportVerificationState === 'VERIFIED',
     decisionOutcomes,
   }) : null, [report, decisionOutcomes]);
 
