@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = e33c08c7471f49fac44a14da4fdac7cc651aa297
-CURRENT_MAIN_HEAD = e33c08c7471f49fac44a14da4fdac7cc651aa297
-CURRENT_EXECUTION_HEAD = e33c08c7471f49fac44a14da4fdac7cc651aa297
+CURRENT_EXACT_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
+CURRENT_MAIN_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
+CURRENT_EXECUTION_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
 BRANCH = main
-PR = #889 merged
-CURRENT_PR_HEAD = 11c4abca93802053de2ace699328f74795993114
+PR = #905 merged
+CURRENT_PR_HEAD = 279315b31f4c6096b23f26b65470e4729d339c4c
 
 WHAT_ACTUALLY_HAPPENED
 - PR #884: Reports Center now renders the existing ReportIntelligencePanel and canonical row-level BusinessDataExplorer directly on the primary report surface.
@@ -47,13 +47,32 @@ NEXT_EXACT_ACTION = Produce fresh build/typecheck and authenticated browser evid
 LATEST PRODUCT HEAD NOTE = 11c4abca93802053de2ace699328f74795993114. Netlify production remains on the older published deploy 6ac3d608e2e37d0008cc0222; PR #889 Preview is READY on Netlify. Vercel is blocked by the free daily deployment/build-rate limit.
 
 
-## 2026-10-07 checkpoint — product continuity closure
-- MAIN HEAD: e33c08c7471f49fac44a14da4fdac7cc651aa297.
-- PR #894 merged: universal report-context continuity across global/product navigation.
-- PR #895 merged: fixed hook initialization order in ReportSourceContext before continuity normalization.
-- PR #896 merged: report context now exposes direct shortcuts to Command Center, Decision Inbox, and Executive Report.
-- Netlify PR previews for #894/#895/#896 reached READY on their respective commits.
-- Public Netlify production remains on the older deploy 6ac3d608e2e37d0008cc0222; this is NOT current-main proof.
-- Vercel remains blocked by the free build-rate limit; do not interpret that infrastructure limit as an application failure.
-- Exact authenticated business E2E and 48/48 certification are still OPEN gates; no false PASS.
-- NEXT EXACT ACTION: obtain same-head production deployment on a free host or authorized Netlify production path, then run authenticated full business E2E + 48/48 certification on e33c08c7471f49fac44a14da4fdac7cc651aa297.
+
+
+## 2026-10-08 checkpoint — source-agnostic file analysis closure
+- APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
+- PR #905 merged successfully: source-agnostic external file analysis.
+- Added generic parsing paths for TXT/Markdown, XML, YAML, RTF, legacy DOC review, plus explicit safe handling for ZIP containers.
+- Added source-agnostic file intelligence for risk/action language, dates, numeric evidence, content profile, proposed action, and evidence boundaries.
+- Added customer-facing GenericFileIntelligenceCard to the external file-analysis surface.
+- Final Execution Batch on 555b8b1865978ca7054537c7f23e579671c2e465: 30/30 deterministic gates PASS.
+- UI route completeness on 555b8b1865978ca7054537c7f23e579671c2e465: PASS.
+- Storage tenant isolation on 555b8b1865978ca7054537c7f23e579671c2e465: PASS.
+- PDF structured parser regression on 555b8b1865978ca7054537c7f23e579671c2e465: PASS.
+- Netlify Deploy Preview for #905 passed and publicly rendered the general file-analysis upload surface.
+- Vercel status remains infrastructure-limited by the Free daily deployment/build-rate limit and is not evidence of an application defect.
+- Fresh quality/build/certification/browser gates for the application HEAD are still open.
+- The prior Session Handoff failure was caused by persisted governance files still pointing to older HEADs; this checkpoint updates the recorded execution state to the current application HEAD.
+- Production Netlify is still not proven current until its published deploy commit matches the final application HEAD.
+
+CURRENT_OPEN_GATES
+- Fresh exact-head quality/typecheck/build for the post-#905 main.
+- Fresh exact-head final certification and full browser E2E.
+- Same-head production deployment.
+- GitHub Pages current-head proof if it becomes ready.
+
+CURRENT_ACTIVE_FAILURE
+- Infrastructure/proof only: Vercel Free deployment/build-rate limit.
+- No application parser failure is asserted on the current application HEAD; current quality/build/certification results are still pending.
+
+NEXT_EXACT_ACTION = Consume the current-head quality/typecheck/build result first; if clean, consume Final Certification + full browser E2E; then prove a same-head free production deployment. Do not certify from older SHAs.
