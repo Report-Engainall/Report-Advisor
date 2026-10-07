@@ -2,7 +2,7 @@ create or replace function public.lookup_e2e_actor_by_email(p_email text)
 returns table(user_id uuid, email text, raw_user_meta_data jsonb, created_at timestamptz)
 language sql
 security definer
-set search_path = auth, pg_catalog
+set search_path = pg_catalog
 as $$
   select u.id, u.email, u.raw_user_meta_data, u.created_at
   from auth.users u
@@ -19,7 +19,7 @@ create or replace function public.list_stale_e2e_actor_ids(p_before timestamptz,
 returns table(user_id uuid, created_at timestamptz)
 language sql
 security definer
-set search_path = auth, pg_catalog
+set search_path = pg_catalog
 as $$
   select u.id, u.created_at
   from auth.users u
