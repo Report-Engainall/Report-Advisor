@@ -333,7 +333,7 @@ function BuyerProofPanel() {
           النتيجة قابلة للإثبات، والتوقعات منفصلة عن النتائج الفعلية.
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/reports/inventory" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">افتح التقرير الذكي</Link>
+          <Link to="/reports/smart/demo" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-700 px-4 py-2.5 text-[10px] font-black text-white">افتح التقرير الذكي</Link>
           <Link to="/decision-experience" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-800">جرّب القرار</Link>
           <Link to="/try-report" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-ink-200 px-4 py-2.5 text-[10px] font-black text-ink-800">جرّب تقريرك الآن</Link>
         </div>
