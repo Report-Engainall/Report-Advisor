@@ -183,13 +183,15 @@ if (restoreTarget?.isConnected) requestAnimationFrame(() => restoreTarget.focus(
   const journeyPaths = ['/command-center','/decision-inbox','/decision-experience','/advisor-cases','/trust','/intelligence','/work-center','/replay','/benchmark','/reports/executive'];
   const reportContextPaths = [
     '/',
+    '/onboarding','/connections','/master-data',
     '/reports','/reports/smart/','/reports/executive','/reports/sales','/reports/purchases',
-    '/reports/inventory','/reports/inventory-intelligence','/reports/receivables','/reports/profitability','/reports/demand-velocity',
+    '/reports/inventory','/reports/inventory-intelligence','/reports/demand-velocity','/reports/receivables','/reports/profitability',
+    '/import','/import/analyze','/data-quality',
     '/analytics','/analytics/rfm','/analytics/abc','/analytics/aging','/analytics/liquidity',
     '/command-center','/decision-inbox','/decision-experience','/advisor-cases',
     '/intelligence','/intelligence/recommendations','/intelligence/forecasts','/intelligence/scenarios',
-    '/work-center','/operations','/trust','/replay','/benchmark','/data-quality','/metrics',
-    '/customers','/products','/inventory','/suppliers'
+    '/work-center','/operations','/trust','/replay','/benchmark','/metrics',
+    '/customers','/products','/inventory','/suppliers','/alternative-groups','/try-report'
   ];
   const showJourney = journeyPaths.some((path) => location.pathname === path || location.pathname.startsWith(path + '/'));
   const showReportContext = reportContextPaths.some((path) => location.pathname === path || location.pathname.startsWith(path + '/'));
