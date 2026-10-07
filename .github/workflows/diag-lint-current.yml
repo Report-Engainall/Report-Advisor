@@ -18,15 +18,22 @@ jobs:
         shell: bash
         run: |
           set +e
-          npm run lint > /tmp/lint.log 2>&1
+          ./node_modules/.bin/eslint . -f json > /tmp/lint.json
           code=$?
-          cat /tmp/lint.log
           node - <<'NODE'
           const fs = require('fs');
-          const text = fs.readFileSync('/tmp/lint.log','utf8');
-          for (const line of text.split(/\r?\n/)) {
-            if (!line.trim()) continue;
-            if (/error/i.test(line) && /no errors found/i.test(line) === false) console.log('::error title=ESLint error::' + line.replace(/%/g,'%25').replace(/\r/g,'%0D').replace(/\n/g,'%0A'));
+          const results = JSON.parse(fs.readFileSync('/tmp/lint.json','utf8'));
+          let errors = 0;
+          for (const file of results) {
+            for (const item of file.messages) {
+              if (item.severity !== 2) continue;
+              errors++;
+              const rel = file.filePath.replace(process.cwd() + '/', '');
+              const msg = item.message.replace(/%/g,'%25').replace(/\r/g,'%0D').replace(/\n/g,'%0A');
+              console.log('::error file=' + rel + ',line=' + (item.line ?? 1) + ',col=' + (item.column ?? 1) + '::' + msg);
+            }
           }
+          console.log('ESLINT_ERRORS=' + errors);
           NODE
+          cat /tmp/lint.json
           exit "$code"
