@@ -3,6 +3,8 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
+import { IntelligenceResultRail } from '@/components/IntelligenceResultRail';
 
 const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
   sales: { path: '/reports/sales', label: 'تقرير المبيعات' },
@@ -78,8 +80,28 @@ export function ReportSourceContext() {
   if (location.pathname.startsWith('/reports/smart/')) return null;
 
   const domain = report?.specialty ? DOMAIN_PATHS[report.specialty] : null;
+  const signal = selectExecutiveSignal(report.intelligence);
+  const recommendation = selectExecutiveRecommendation(report.intelligence, signal);
+  const evidence = signal?.evidence ?? recommendation?.evidence ?? [];
   return (
-    <section dir="rtl" className="report-context-compact mb-4 rounded-2xl border border-primary-200/70 bg-white/90 px-4 py-3 shadow-sm">
+    <div className="mb-4 space-y-3">
+      <IntelligenceResultRail
+        sourceLabel={report.sourcePath || 'التقرير الحالي'}
+        headline={signal?.message ?? report.intelligence.advisorBrief.headline ?? 'لا يوجد حكم استشاري مثبت من المصدر الحالي.'}
+        signalTitle={signal?.title ?? 'لا توجد إشارة مؤهلة'}
+        signalMessage={signal?.message ?? report.intelligence.summary ?? 'لا توجد نتيجة استثنائية مثبتة من المصدر الحالي.'}
+        evidence={evidence}
+        whyNow={recommendation?.whyNow ?? signal?.soWhat ?? 'لا توجد قرينة كافية لتحديد أولوية إضافية.'}
+        recommendationTitle={recommendation?.title ?? 'مراجعة الدليل قبل إنشاء توصية'}
+        recommendationAction={recommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'لا يوجد إجراء تنفيذي مؤهل قبل اكتمال الدليل.'}
+        measurement={recommendation?.measurement ?? report.intelligence.advisorBrief.measurement ?? 'لا توجد آلية قياس مثبتة بعد.'}
+        blocker={recommendation?.blocker ?? report.intelligence.advisorBrief.proofRequirement ?? 'اعتماد الدليل النهائي غير مثبت.'}
+        status={report.reportVerificationState === 'VERIFIED' ? 'الدليل موثق' : report.sourceTrustState === 'TRUSTED' ? 'الذكاء متاح · الاعتماد النهائي يحتاج مراجعة' : 'المراجعة مطلوبة'}
+        href={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
+        hrefLabel="التقرير الذكي الكامل"
+      />
+
+      <section dir="rtl" className="report-context-compact rounded-2xl border border-primary-200/70 bg-white/90 px-4 py-3 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -107,6 +129,7 @@ export function ReportSourceContext() {
           {domain ? <Link to={domain.path + '?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">{domain.label}</Link> : null}
         </div>
       </div>
-    </section>
+      </section>
+    </div>
   );
 }
