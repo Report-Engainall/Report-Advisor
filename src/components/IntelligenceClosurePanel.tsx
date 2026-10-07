@@ -203,7 +203,7 @@ export function IntelligenceClosurePanel({ rows, sourceHash = null, reportJobId 
       try {
         const companyId = await resolveCurrentCompanyId();
         if (!companyId) throw new Error('AUTHENTICATED_TENANT_REQUIRED');
-        const [views, portfolioRes, driftRes, forecastRes, learningRes, lineageRes, latest] = await Promise.all([
+        const [views, portfolioRes, driftRes, forecastRes, learningRes, lineageRes, outcomeRes, taskRes, latest] = await Promise.all([
           supabase.from('saved_views').select('id').eq('company_id', companyId),
           supabase.from('decision_portfolio_items').select('id,decision_key,priority_score,materiality_score,confidence_score,risk_consumption,status,evidence').eq('company_id', companyId).order('priority_score', { ascending:false }).limit(20),
           supabase.from('control_plane_drift_events').select('id,drift_key,domain,severity,status,deviation,evidence').eq('company_id', companyId).order('detected_at', { ascending:false }).limit(20),
