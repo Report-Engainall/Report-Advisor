@@ -184,6 +184,7 @@ function PreviewNavigation({ currentPath }: { currentPath: string }) {
       items: [
         ['/', 'لوحة الأعمال'],
         ['/reports', 'التقارير'],
+        ['/reports/smart/demo', 'التقرير الذكي · دليل وقرار'],
         ['/reports/executive', 'التقرير التنفيذي'],
       ],
     },
@@ -1406,7 +1407,7 @@ function ProposalCommercialDemoPage() {
             </div>
             <div className="mt-4 flex flex-wrap gap-2 print:hidden">
               <Link to="/" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
-              <Link to="/reports/executive" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
+              <Link to="/reports/smart/demo" className="btn-secondary text-xs"><Wand2 size={14} /> شاهد التقرير الذكي</Link><Link to="/reports/executive" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
             </div>
           </CardBody>
         </Card>
