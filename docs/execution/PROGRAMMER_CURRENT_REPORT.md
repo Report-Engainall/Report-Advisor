@@ -25,3 +25,17 @@ CHANGED_FILES_ACCOUNTED_FOR = PR #884 src/pages/ReportsPage.tsx; PR #886 scripts
 CURRENT PRODUCT HEAD = 11c4abca93802053de2ace699328f74795993114
 LATEST PRODUCT CHANGE = PR #889 merged: active report lineage is now carried through intelligence → Advisor → decision → work → replay → benchmark → trust, with an E2E contract.
 PROOF STATE = Netlify PR #889 preview READY; exact-head authenticated E2E/build/certification still not terminal; production still old.
+
+
+## Current execution checkpoint — 2026-10-07
+### Exact main
+`e33c08c7471f49fac44a14da4fdac7cc651aa297`
+
+### Product closure completed
+The active report context now remains attached across the global shell, mobile navigation, command palette, decision journey, and source-bound operating surfaces. The report context card exposes direct links to Command Center, Decision Inbox, Executive Report, Evidence, Intelligence, Advisor Cases, Decision, Work, Replay, Benchmark, and the matching domain report.
+
+### Verified deployment evidence
+Netlify previews for PRs #895 and #896 reached READY. The preview surfaces visibly render a real smart-report fixture with actual source rows, signal, recommendation, WHY/SO WHAT, decision state, work guidance, outcome/learning gaps, and benchmark fail-closed behavior.
+
+### Remaining release gate
+Production still points at older deploy `6ac3d608e2e37d0008cc0222`. Do not call production current until the published deploy commit is exactly `e33c08c7471f49fac44a14da4fdac7cc651aa297`.
