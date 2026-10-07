@@ -15,6 +15,7 @@ import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
 import { DecisionIntelligenceStudio } from '@/components/DecisionIntelligenceStudio';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
+import { supabase } from '@/lib/supabase';
 
 function textValue(value: unknown): string {
   if (value == null || value === '') return 'غير متاح';
@@ -746,6 +747,7 @@ export function SmartReportPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [decisionOutcomes, setDecisionOutcomes] = useState<Array<{ label: 'correct' | 'incorrect' | 'partial' | 'unknown'; actualValue?: number | null; expectedValue?: number | null }>>([]);
 
   useEffect(() => {
     let active = true;
@@ -767,6 +769,41 @@ export function SmartReportPage() {
     });
     return () => { active = false; };
   }, [jobId, searchParams]);
+
+  const decisionFingerprintCandidates = useMemo(() => {
+    if (!report?.jobId) return [];
+    const signal = selectExecutiveSignal(report.intelligence);
+    const recommendation = selectExecutiveRecommendation(report.intelligence, signal);
+    return [...new Set([
+      'report:' + report.jobId,
+      ...(recommendation?.action ? ['recommendation:' + recommendation.action] : []),
+    ])];
+  }, [report]);
+
+  useEffect(() => {
+    let active = true;
+    setDecisionOutcomes([]);
+    if (!decisionFingerprintCandidates.length) return () => { active = false; };
+    void supabase
+      .from('decision_outcomes')
+      .select('decision_fingerprint,label,actual_value,expected_value,observed_at')
+      .in('decision_fingerprint', decisionFingerprintCandidates)
+      .order('observed_at', { ascending: true })
+      .limit(100)
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          setDecisionOutcomes([]);
+          return;
+        }
+        setDecisionOutcomes((data ?? []).map((row) => ({
+          label: String(row.label) as 'correct' | 'incorrect' | 'partial' | 'unknown',
+          actualValue: row.actual_value == null ? null : Number(row.actual_value),
+          expectedValue: row.expected_value == null ? null : Number(row.expected_value),
+        })));
+      });
+    return () => { active = false; };
+  }, [decisionFingerprintCandidates]);
 
   const dataset = useMemo(() => {
     const first = report?.sourceAnalysis?.datasets?.[0];
@@ -820,7 +857,8 @@ export function SmartReportPage() {
     archetypeId: report.archetypeId,
     evidenceSnapshotId: typeof report.renderedOutput.evidenceSnapshotId === 'string' ? report.renderedOutput.evidenceSnapshotId : null,
     evidencePassportId: typeof report.renderedOutput.evidencePassportId === 'string' ? report.renderedOutput.evidencePassportId : null,
-  }) : null, [report]);
+    decisionOutcomes,
+  }) : null, [report, decisionOutcomes]);
 
   if (loading) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
   if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
