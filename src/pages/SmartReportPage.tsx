@@ -776,7 +776,7 @@ export function SmartReportPage() {
     const recommendation = selectExecutiveRecommendation(report.intelligence, signal);
     return [...new Set([
       'report:' + report.jobId,
-      ...(recommendation?.action ? ['recommendation:' + recommendation.action] : []),
+      ...(recommendation?.action ? ['recommendation:' + recommendation.id] : []),
     ])];
   }, [report]);
 
@@ -1121,6 +1121,7 @@ export function SmartReportPage() {
       reportJobId={report.jobId}
       archetypeId={report.archetypeId}
       recommendation={primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? null}
+      recommendationId={primaryRecommendation?.id ?? null}
     />
 
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
