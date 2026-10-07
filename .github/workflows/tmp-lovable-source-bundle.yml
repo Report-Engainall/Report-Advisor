@@ -1,0 +1,138 @@
+name: Temporary Lovable Source Bundle
+
+on:
+  push:
+    branches:
+      - tmp/lovable-transfer-20261007
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact requested source head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "ff9af3792735e3612cab2d47f53ee91692617bf8"
+
+      - name: Build Lovable transfer bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf lovable-transfer
+          mkdir -p lovable-transfer
+
+          git archive --format=tar HEAD | tar -x -C lovable-transfer
+
+          # Never ship runtime secrets or generated/local state.
+          find lovable-transfer -type f \\
+            \\( -name '.env' -o -name '.env.local' -o -name '.env.production' -o -name '.env.development' -o -name '*.pem' -o -name '*.key' \\) \\
+            -print -delete || true
+          rm -rf lovable-transfer/.git
+          rm -rf lovable-transfer/node_modules lovable-transfer/dist lovable-transfer/coverage lovable-transfer/artifacts
+
+          cat > lovable-transfer/LOVABLE_TRANSFER_README.md <<'EOF'
+# Report-Advisor — Lovable Transfer Package
+
+SOURCE SNAPSHOT
+- Repository: Report-Engainall/Report-Advisor
+- Execution source HEAD: ff9af3792735e3612cab2d47f53ee91692617bf8
+- Execution branch source: exec/decision-completion-20261007
+- Package branch: tmp/lovable-transfer-20261007
+- This package is a source snapshot for continuation work, not a request to rebuild the product.
+
+CRITICAL CONTINUATION RULE
+Preserve the existing architecture and implementation. Do not recreate working features from scratch.
+Inspect the existing source first. Complete missing pieces, connect existing pieces, repair incomplete implementations, and prove them.
+
+ALREADY CLOSED AT THIS SOURCE HEAD — DO NOT REBUILD
+- Governed Scenario Engine + persistence + readback + provenance + UI
+- Confidence Governance + UI exposure
+- Decision lifecycle
+- Transactional spine
+- 48-archetype runtime contract
+- Public browser runtime
+- Existing build/lint/diff validation
+
+KNOWN OPEN GATES AT HANDOFF
+- Authenticated Business E2E proof
+- 48 real-source proof (runtime contract is closed; real-source coverage still needs proof)
+- Causal Intelligence
+- Counterfactual / VOI completion beyond the governed Scenario foundation
+- Semantic Diff / Business + Data + Model + Recommendation Drift
+- Forecast Governance
+- Process Intelligence where event data supports it
+- Knowledge/Graph Intelligence
+- Cross-Domain Intelligence
+- Decision Policy
+- Decision Portfolio Intelligence
+- Outcome -> Learning governance loop
+- Human / Active Learning
+- Row / Cell provenance
+- Unified Knowledge Workspace
+- Persistent tenant-safe Saved Views
+- Full report advisory UX completion
+- Production proof
+
+PRODUCT NORTH STAR
+Any Source -> Truth -> Evidence -> Signal -> Decision -> Approval -> Action -> Outcome -> Learning -> Benchmark
+
+Value narrative:
+WHAT -> WHY -> SO WHAT -> IMPACT -> WHAT NEXT -> PROOF
+OWNER -> EXPECTED OUTCOME
+
+ANTI-FABRICATION RULE
+Never fabricate financial impact, benchmark, outcome, causality, confidence probability, or evidence. Unknown remains unknown and must be shown as such.
+
+TENANCY / SECURITY
+Preserve tenant isolation, company context rules, evidence binding, provenance, and readback. Never weaken fail-closed security to make a demo pass.
+
+LOW-CREDIT CONSTRAINT
+The product owner's remaining free monthly credit is 29%. Avoid costly remote/production runs when local, deterministic, staging, or browser-local proof is sufficient. Do not rerun already-proven work without a reason.
+
+MODIFICATION POLICY
+Existing files may be modified when required to complete an open capability, but preserve working behavior and avoid unnecessary rewrites. New files may be created only when the existing architecture has a genuine missing module/adapter/test/migration/UI surface.
+
+RECOMMENDED FIRST ACTION
+Read this file, package.json, docs/execution/CURRENT_SESSION_STATE.md, docs/execution/PROGRAMMER_CURRENT_REPORT.md, and the relevant source modules before changing anything.
+Then continue from the existing implementation and close all open capability gaps in parallel where dependencies allow.
+
+ACCEPTANCE LANGUAGE
+IMPLEMENTED != INTEGRATED != PERSISTED != UI-EXPOSED != READBACK-PROVEN != BROWSER-PROVEN != PRODUCTION-PROVEN != PRODUCT COMPLETE
+
+FINAL GOAL
+The customer must be able to use a real report and experience the complete governed advisory chain in the application, not merely see feature terminology or PASS-only contracts.
+EOF
+
+          git ls-files > lovable-transfer/LOVABLE_TRACKED_FILE_INVENTORY.txt
+
+          cat > lovable-transfer/LOVABLE_EXCLUDED_FILES.txt <<'EOF'
+Excluded intentionally from this transfer archive:
+- Git metadata (.git)
+- Runtime secrets (.env files)
+- Private key/certificate files (*.pem, *.key)
+- node_modules
+- build output (dist)
+- coverage
+- generated artifacts
+EOF
+
+          cd lovable-transfer
+          zip -qr ../Report-Advisor-Lovable-Transfer-ff9af379.zip .
+          cd ..
+          ls -lh Report-Advisor-Lovable-Transfer-ff9af379.zip
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-lovable-transfer-ff9af379
+          path: Report-Advisor-Lovable-Transfer-ff9af379.zip
+          if-no-files-found: error
+          retention-days: 7
