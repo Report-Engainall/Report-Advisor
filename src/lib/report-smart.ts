@@ -966,7 +966,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           ? archetypeRun.intelligence.advisorBrief
           : {
               ...archetypeRun.intelligence.advisorBrief,
-              headline: 'النموذج يحتاج مراجعة قبل الاعتماد: ' + archetypeRun.state + ' — الإشارة المصدرية/المحسوبة معروضة، لكن القرار التنفيذي محجوب حتى يكتمل النموذج المتخصص.',
+              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح، لكن القرار التنفيذي محجوب حتى يكتمل النموذج المتخصص.',
               proofRequirement: 'حالة النموذج: ' + archetypeRun.state + '؛ لا يُحوَّل الناتج إلى قرار معتمد قبل اكتمال الحقول/الدليل المطلوب.',
             },
       };
