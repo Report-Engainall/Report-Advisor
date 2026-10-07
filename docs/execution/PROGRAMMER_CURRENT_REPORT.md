@@ -1,43 +1,35 @@
-SESSION HANDOFF = ACTIVE
-PROGRAMMER_REPORT_STATUS = EXACT_HEAD_PROOF_AND_ENVIRONMENT_CLEANUP
-CURRENT EXECUTION HEAD = bf0dbf32fa98b64861f0acb308387b96da4bd773
-LATEST APP ROUTE-FIX HEAD = e6f0c6d19a18730cf0b29c4b7522c6971947bb8f
-BASE MAIN HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
+SESSION HANDOFF = NOT READY
+REPORT_FOR_HEAD = 7a0e9f44773f81cbac84d30a53e8df677f5341c8
+UPDATED_AT = 2026-10-07T15:05:00Z
+CURRENT_EXACT_HEAD = 7a0e9f44773f81cbac84d30a53e8df677f5341c8
 BRANCH = exec/decision-completion-20261007
 PR = #867
+REPORT_STATUS = EXACT_HEAD_PROOF_AFTER_SECURITY_AND_PREVIEW_CONTRACT_FIXES
 
-WHAT_ACTUALLY_CHANGED
-- Netlify host detection no longer hijacks real application routes into ProposalDemoPage.
-- Demo routes are explicit: /proposal-demo, ?demo=1, ?preview=1.
-- Added public-preview anti-hijack contract and browser smoke coverage.
-- brain.v1 remains the real unified intelligence runtime with fail-closed evidence.
-- Fixed parseDate/getTime crash and sparse-row metric math.
-- Added service-role-only indexed E2E actor lookup and bounded stale generated-actor cleanup.
-- Cleanup default is 250 actors per run, concurrency 5, to avoid reintroducing Auth/Postgres contention.
+WHAT_I_WAS_ASKED_TO_DO = Make the Report-Advisor product genuinely sellable by closing real product/runtime/proof gaps without restarting the project, and keep exact-head evidence authoritative.
 
-PROVEN NOW
-- Netlify deploy-preview on the route-fix code is READY/SUCCESS.
-- Live preview proves /reports/inventory is the real workspace/login surface and /proposal-demo is the explicit fixture demo.
-- Preview metadata identified product-code artifact e6f0c6d19a18730cf0b29c4b7522c6971947bb8f.
-- New staging RPCs are actually SECURITY DEFINER and ACL-restricted to postgres/service_role only.
-- Staging counts: 3,592 completed report jobs; 3,284 distinct source hashes; 489 source-analysis snapshots; 181 analyzed sources; 78 VERIFIED/READY passports; 78 VERIFIED/FULL snapshots; 42 distinct verified source hashes.
+WHAT_I_ACTUALLY_DID
+- Removed the Netlify host-based route hijack so real routes render AuthGate/AppShell; /proposal-demo and explicit preview/demo query modes are the only demo entry points.
+- Integrated brain.v1 across the intelligence path with fail-closed verified-evidence rules, real metrics/signals/benchmark/outcome/learning/work states.
+- Fixed sparse-row calculations, comparable internal benchmark grain, and the parseDate/getTime runtime crash.
+- Added indexed service-role-only E2E actor lookup plus bounded generated-user cleanup.
+- Hardened the new E2E SECURITY DEFINER functions with fixed pg_catalog search_path and explicit service_role-only EXECUTE grants.
+- Updated stale preview-route contracts so they verify the current explicit routing behavior instead of the deleted host-hijack implementation.
+- Repaired session handoff state to point at this exact head.
 
-ENVIRONMENT ROOT CAUSE
-- 5,176 tagged E2E users exist in staging; 3,915 generated ephemeral users are older than 24h.
-- Corpus tenants contain very large accumulated active memberships.
-- This is a concrete contributor to historical Auth/Postgres contention.
-- Cleanup is now bounded and targets only generated test identities; no direct mass deletion was executed manually.
+WHAT_IS_PROVEN
+- Production Build Gate: PASS on af78f9bc5f8ecb9421b05164be38c5f1a124b395.
+- Commercial Product Creation E2E: PASS on af78f9bc5f8ecb9421b05164be38c5f1a124b395.
+- Supabase staging verification: both E2E actor functions are fixed to search_path=pg_catalog; anon/authenticated cannot EXECUTE; service_role can EXECUTE.
+- The exact-head codebase typecheck/production build and product contracts passed on af78f9bc5f8ecb9421b05164be38c5f1a124b395 before the later migration/test-contract commits.
+- Earlier live Netlify proof established the real route surface on the route-fix artifact.
 
-NOT_PROVEN
-- Full Product Browser E2E terminal PASS on current exact execution head.
-- 48/48 real-source runtime proof.
-- Authenticated business E2E / tenant isolation.
-- Production runtime proof.
-- Certification / Product Complete.
+FIRST_ACTIVE_FAILURE = Latest exact head 7a0e9f44773f81cbac84d30a53e8df677f5341c8 is still running its terminal proof set; no terminal PASS has been established yet.
 
-INFRASTRUCTURE
-- Vercel currently fails with provider build-rate-limit/upgradeToPro. Treat this as quota failure, not product failure.
-- Netlify remains the live preview evidence channel.
+ROOT_CAUSE = The last terminal failures were governance/test drift rather than a new business-runtime defect: obsolete SECURITY DEFINER migration assertions, obsolete host-hijack preview assertions, and stale handoff metadata. Each was corrected at source and re-run from a newer exact head.
 
-NEXT EXACT ACTION
-Consume terminal Full Product Browser E2E for current exact execution head. Inspect actor cleanup/readback and authenticated browser proof first, then the blocking 48/48 real-source proof. Do not declare certification without exact-head terminal evidence.
+NEXT_EXACT_ACTION = Consume Full Product Browser E2E and Final Certification for 7a0e9f44773f81cbac84d30a53e8df677f5341c8. Do not declare product complete or release it to main until those exact-head runs and the 48/48 real-source proof terminate successfully.
+
+NOTES
+- Vercel free-plan build-rate-limit remains infrastructure/quota noise and is not the product verdict.
+- Netlify remains the available public preview/evidence channel.
