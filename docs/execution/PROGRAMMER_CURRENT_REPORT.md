@@ -1,24 +1,24 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 0e02e8812c2f89cbe032a2e56c2237a7971ae72a
-REFERENCE START HEAD = 8d60d5961b0a9c39bda5aadbeb9762898a7127c1
-CURRENT EXECUTION HEAD = 0e02e8812c2f89cbe032a2e56c2237a7971ae72a
-REPORT_FOR_HEAD = 0e02e8812c2f89cbe032a2e56c2237a7971ae72a
+CURRENT MAIN HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
+REFERENCE START HEAD = 83c55114a1ad02340af54b5664e4774dbea05a9d
+CURRENT EXECUTION HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
+REPORT_FOR_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
 BRANCH = main
 PR = N/A
-UPDATED_AT = 2026-10-07T22:30:00+03:00
+UPDATED_AT = 2026-10-08T00:35:00+03:00
 
-WHAT_I_WAS_ASKED_TO_DO = Continue execution until the customer can operate the real report, not merely read product terminology.
+WHAT_I_WAS_ASKED_TO_DO = Make external file analysis source-agnostic so a real customer can upload a common business file without choosing a pre-defined ERP report type.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = Merged #884 to surface intelligence + canonical rows in Reports Center, #886 to add an authenticated E2E proof contract for that exact customer surface, and #887 to fix the strict TypeScript import/compatibility diagnostics observed during Vercel build diagnostics.
+WHAT_I_ACTUALLY_DID = Merged #905: expanded the file engine for common generic formats, added source-agnostic content intelligence and a visible generic intelligence card, and added a regression contract for TXT/XML/YAML/RTF.
 
-WHAT_IS_PROVEN = The authoritative Supabase report remains job 16709d80-e012-40ef-9c12-6fd8255897f8 for تقارير ادارية.xlsx, source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313, ACCEPTED + VERIFIED + READY evidence passport, 332 authoritative rows, quality 98. Public Netlify previews show the customer-facing intelligence/source surface. The exact current main is 0e02e881....
+WHAT_IS_PROVEN = PR #905 merged into main at 555b8b1865978ca7054537c7f23e579671c2e465. Final Execution Batch passed 30/30 deterministic gates; UI route completeness, storage tenant isolation, and PDF structured parser regression passed on the same HEAD. Netlify PR preview #905 passed and publicly rendered the file-analysis surface. Vercel remains blocked by the Free deployment/build-rate limit.
 
-FIRST_ACTIVE_FAILURE = Vercel diagnostic typechecking exposed strict ESM import-specifier errors and one Array.prototype.at compatibility error. Those exact source-level failures were corrected and merged as #887. Fresh exact-head proof is still required.
+FIRST_ACTIVE_FAILURE = The Session Handoff Contract initially failed because persisted execution docs still referenced older HEADs after #905; this checkpoint aligns the state/report with the current application HEAD. Vercel remains an infrastructure limit, not an application failure.
 
-NEXT_EXACT_ACTION = Run/consume fresh exact-head typecheck/build and authenticated E2E for 0e02e881..., then consume 48/48 intelligence and final certification. Treat any older deployment/CI as historical only.
+NEXT_EXACT_ACTION = Consume fresh current-head quality/typecheck/build and certification/browser results for the post-#905 main; then prove same-head production deployment. Treat Vercel Free-rate failure as infrastructure-only.
 
 CHANGED_FILES_ACCOUNTED_FOR = PR #884 src/pages/ReportsPage.tsx; PR #886 scripts/real-business-e2e.mjs; PR #887 strict TypeScript import specifiers + archetype evaluator Array access across 11 runtime files.
 
@@ -39,3 +39,19 @@ Netlify previews for PRs #895 and #896 reached READY. The preview surfaces visib
 
 ### Remaining release gate
 Production still points at older deploy `6ac3d608e2e37d0008cc0222`. Do not call production current until the published deploy commit is exactly `e33c08c7471f49fac44a14da4fdac7cc651aa297`.
+
+
+## 2026-10-08 checkpoint — PR #905 source-agnostic file intelligence
+### Application result
+The external file analysis path now accepts common text/structured formats without forcing a predefined business specialty. It preserves raw line evidence for unstructured content and derives generic intelligence from observed evidence.
+
+### Evidence
+- Main application HEAD: 555b8b1865978ca7054537c7f23e579671c2e465.
+- PR #905: merged.
+- Final Execution Batch: 30/30 deterministic gates PASS on the application HEAD before this governance-only checkpoint.
+- UI route completeness: PASS.
+- Storage tenant isolation: PASS.
+- PDF structured parser regression: PASS.
+- Netlify Deploy Preview for #905: READY / public.
+### Remaining proof
+Quality/typecheck/build, full browser E2E, Final Certification, and same-head production are still open. No production PASS is claimed.
