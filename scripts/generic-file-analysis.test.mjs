@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import { parseFile } from '../src/lib/file-engine/adapters.ts';
+import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
+
+function buffer(value: string): ArrayBuffer {
+  return new TextEncoder().encode(value).buffer;
+}
+
+async function main() {
+  const cases = [
+    { format: 'txt' as const, name: 'risk.txt', source: 'توجد مشكلة في المخزون\nيجب مراجعة الكميات المتأخرة\nالإجمالي 1200 ريال', expectedRows: 3 },
+    { format: 'xml' as const, name: 'sales.xml', source: '<root><row><product>صنف 1</product><total>100</total></row><row><product>صنف 2</product><total>200</total></row></root>', expectedRows: 2 },
+    { format: 'yaml' as const, name: 'sales.yaml', source: '- product: صنف 1\n  total: 100\n- product: صنف 2\n  total: 200', expectedRows: 2 },
+    { format: 'rtf' as const, name: 'note.rtf', source: '{\\rtf1\\ansi خطر تأخير\\par يجب المراجعة\\par}', expectedRows: 2 },
+  ];
+  for (const item of cases) {
+    const datasets = await parseFile(buffer(item.source), item.name, item.format);
+    assert.equal(datasets.length, 1, item.format + ' should produce one dataset');
+    assert.equal(datasets[0].rowCount, item.expectedRows, item.format + ' row count');
+    const intelligence = buildGenericFileIntelligence(datasets[0], item.format);
+    assert.ok(intelligence.summary.length > 20, item.format + ' summary');
+    assert.ok(intelligence.guidance.boundary.includes('لا يحول'), item.format + ' evidence boundary');
+  }
+  console.log('GENERIC FILE ANALYSIS PASS');
+}
+
+await main();
