@@ -1271,6 +1271,7 @@ function ProposalCommercialDemoPage() {
       </section>
 
       <CommercialValueChain
+        demo
         title="ما الذي يراه العميل عندما يشتري الأغبري؟"
         subtitle="عرض واحد يربط إدخال المصدر بالدليل والذكاء والقرار والتنفيذ والنتيجة؛ كل مرحلة تقود إلى مساحة فعلية داخل المنصة."
         stages={[
