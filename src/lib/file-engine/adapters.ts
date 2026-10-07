@@ -702,7 +702,7 @@ function decodeTextBuffer(buffer: ArrayBuffer): string {
   if (utf8.includes('\uFFFD')) {
     try {
       const utf16 = new TextDecoder('utf-16le', { fatal: false }).decode(bytes);
-      if (utf16.replace(/\u0000/g, '').trim().length > utf8.replace(/\uFFFD/g, '').trim().length) return utf16;
+      if (utf16.replaceAll(String.fromCharCode(0), '').trim().length > utf8.replace(/\uFFFD/g, '').trim().length) return utf16;
     } catch { /* fall through */ }
   }
   return utf8;
