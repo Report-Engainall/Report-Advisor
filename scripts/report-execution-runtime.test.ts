@@ -1,7 +1,7 @@
 import { buildRenderedOutput } from '../src/lib/import/canonical-production-adapter.ts';
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
-import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
+import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint, type ReportExecutionStage } from '../src/lib/report-execution/checkpoint.ts';
 import { InMemoryReportQueue } from '../src/lib/report-execution/queue.ts';
 import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
@@ -88,15 +88,15 @@ const renderResult = await durableRunner.runDurableProductionLifecycle({
     autonomy: { trustHealthy: false, evidenceQuality: 0.9, confidence: 0.9, riskBudgetValid: true, criticalDrift: false, rollbackVerified: false, isolationVerified: false },
     evidence: [{ key: 'evidence-1', source: 'sha-render-test', observedAt: new Date().toISOString(), quality: 0.9 }],
   },
-  executeStage: async (stage: any) => {
+  executeStage: async (stage: ReportExecutionStage) => {
     renderStages.push('execute:' + stage);
     if (stage === 'rendered') return { sourceHash: 'sha-render-test', sourceBound: true, outputs: [{ key: 'executive', path: '/reports/executive' }] };
   },
-}, fakeStore as any);
+}, fakeStore as unknown as SupabaseReportExecutionStore);
 assert.deepEqual(renderStages, ['execute:fingerprinted', 'execute:extracted', 'execute:canonicalized', 'execute:validated', 'execute:analyzed', 'execute:decisioned', 'execute:committed', 'execute:rendered']);
 assert.deepEqual(checkpointStages, ['fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered']);
 assert.ok(Array.isArray(completionEvidence[0]?.renderedOutput?.outputs));
-assert.equal((renderResult as any).renderedOutput.sourceBound, true);
+assert.equal((renderResult as { renderedOutput: { sourceBound: boolean } }).renderedOutput.sourceBound, true);
 
 const renderedSource = buildRenderedOutput({
   importId: 'import-render-test',
