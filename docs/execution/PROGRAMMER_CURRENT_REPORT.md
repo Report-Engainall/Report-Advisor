@@ -1,41 +1,50 @@
 SESSION HANDOFF = ACTIVE
-PROGRAMMER_REPORT_STATUS = BRAIN_CLOSURE_WAITING_FOR_EXACT_HEAD_PROOF
-CURRENT CODE HEAD = 2e95e5fb626e1d9c2759a6568353a21b5377cacd
-BASE MAIN HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
+PROGRAMMER_REPORT_STATUS = EXACT_HEAD_PROOF_AND_ENVIRONMENT_CLEANUP
+CURRENT CODE HEAD = 96d6d4dc02d399d1089169bb092fc5e6402983e3
 BRANCH = exec/decision-completion-20261007
 PR = #867
-
-OBJECTIVE
-منتج Business Decision Operating System فعلي: مصدر → حقيقة → دليل → إشارة → لماذا → ماذا يعني → توصية → قرار → اعتماد → عمل → نتيجة → تعلّم.
+BASE MAIN HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
 
 WHAT_ACTUALLY_CHANGED
-- brain.v1 runtime موحّد للمقاييس والإشارات والـinternal benchmark والـoutcome والـlearning والـwork proposal.
-- fail-closed decision readiness عند غياب Evidence Passport/Snapshot verified.
-- decision_outcomes + recommendation_outcomes أصبحا مدخلًا للـbrain بدل إبقاء Outcome/Learning كحالات نصية.
-- recommendation.id أصبح الهوية الكانونية؛ لم نعد نحاول تخزين rec:* كـUUID داخل operational_task_proposals.
-- الحسابات sparse-row safe والـbenchmark entity-comparable.
-- Live runtime crash getTime/parseDate تم إصلاحه وثبتت المعاينة بعد الإصلاح.
-- فحص المعمارية أكد وجود كود وعقود فعلية لـ Advisor Case وDecision Cockpit وBusiness Questions وDuckDB/Apache Arrow وSemantic Metrics وApproval/Work/Outcome.
+- Removed Netlify/host-based route hijack from App.tsx. Real routes no longer become ProposalDemoPage automatically.
+- Public preview is now explicit via /proposal-demo, ?demo=1, or ?preview=1.
+- Added public-preview smoke contract that rejects host-based hijacking and checks the real /reports/inventory route reaches the workspace/login surface.
+- brain.v1 closure remains: metrics -> signals -> benchmark -> recommendation -> work -> outcome -> learning, fail-closed on verified evidence.
+- Added indexed service-role E2E actor lookup and bounded stale generated-actor cleanup.
+- Added workflow cleanup bounds and made the public route contract part of Full Product Browser E2E.
 
-PROVEN
-- Netlify preview للرأس 9e04447b8a7a794c7ea549c62258aae35ef8c9e5 كان READY.
-- TinyFish فحص المعاينة بعد الإصلاح وعرض بيانات Fixture فعلية: 12 صفًا/11 حقلًا، تغطية المخزون، SKU-2/WH-3 = 1.84، وWHY/SO WHAT/next-step من نفس المصدر.
-- source metadata في preview أثبتت exact source SHA للرأس 9e04447.
-- benchmark-only changes بعد ذلك لا تغيّر واجهة fixture الأساسية، لكنها تحتاج إثبات exact-head في CI.
+LIVE PROOF
+- Netlify deploy-preview for current head 96d6d4dc02d399d1089169bb092fc5e6402983e3 = SUCCESS.
+- TinyFish exact preview:
+  /reports/inventory => real application landing/workspace-login surface, not ProposalDemoPage.
+  /proposal-demo => explicit fixture demo with 12 source rows/11 fields and 1.84 low-coverage signal.
+- Preview metadata reports aghbari-source-sha = 96d6d4dc02d399d1089169bb092fc5e6402983e3.
+
+ENVIRONMENT FINDINGS
+- Supabase staging contains 5,176 tagged full-product E2E users; 3,915 generated ephemeral users are older than 24 hours.
+- Corpus tenants contain large accumulated active memberships.
+- This accumulation is a concrete contributor to previous Auth/Postgres contention.
+- Indexed lookup + cleanup is implemented, and the cleanup migration is applied to staging.
+- Current cleanup only targets generated @e2e.report-advisor.invalid actors.
+
+REAL SOURCE STATE
+- 3,592 completed report jobs.
+- 3,284 distinct source hashes.
+- 489 source analysis snapshots / 181 distinct analyzed sources.
+- 78 VERIFIED/READY evidence passports across 42 distinct sources.
+- 78 VERIFIED/FULL evidence snapshots across 42 distinct sources.
+- 48/48 runtime proof remains NOT_PROVEN; proof script derives archetypes from canonical source-analysis data.
 
 NOT_PROVEN
-- Full Product Browser E2E للرأس 2e95e5fb626e1d9c2759a6568353a21b5377cacd لم يصل إلى terminal.
-- 48/48 real-source runtime proof غير مثبت.
-- Authenticated business E2E + tenant isolation غير مثبت.
-- Production runtime proof غير مثبت.
-لذلك لا إعلان CERTIFIED أو PRODUCT COMPLETE حتى الآن.
+- Full Product Browser E2E exact-head terminal PASS.
+- 48/48 real-source runtime proof.
+- Authenticated business E2E + tenant isolation.
+- Production runtime proof.
+- Product certification.
 
-FIRST ACTIVE FAILURE RECENTLY CLOSED
-- TypeError: getTime is not a function بسبب parseDate string في brain growth.
-- Supabase staging Auth/Postgres contention كان سبب فشل CI سابقًا؛ لم يظهر كفشل منتج جديد في الجولة الحالية.
-
-DO NOT REPEAT
-لا تعاد طبقات Scenario/Confidence/Transactional Spine المغلقة دون regression على exact HEAD. لا تعتبر Preview PASS بديلًا عن authenticated E2E أو 48/48 أو production.
+INFRASTRUCTURE NOTE
+- Vercel current status is failure only because of free build-rate-limit/upgradeToPro. Do not use this as a product defect signal.
+- Netlify is the current deploy-proof channel for this session.
 
 NEXT EXACT ACTION
-استهلاك terminal CI على exact code head 2e95e5fb626e1d9c2759a6568353a21b5377cacd؛ Full Product Browser E2E أولًا، ثم 48/48 real-source blocking proof، ثم authenticated business E2E ثم certification/production فقط عند توفر الإثبات.
+Consume terminal GitHub Actions for exact head 96d6d4dc02d399d1089169bb092fc5e6402983e3. Inspect Full Product Browser E2E first, especially actor cleanup and authenticated browser result; then inspect blocking 48/48 proof. No certification claim before terminal evidence.
