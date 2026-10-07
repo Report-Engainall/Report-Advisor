@@ -1,0 +1,148 @@
+name: Lovable Deep Foundations Coverage Bundle
+on:
+  push:
+    branches:
+      - tmp/lovable-transfer-20261007
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout exact product head
+        uses: actions/checkout@v4
+        with:
+          ref: ff9af3792735e3612cab2d47f53ee91692617bf8
+          fetch-depth: 1
+
+      - name: Build deep foundations package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/pack /tmp/pack.zip
+          mkdir -p /tmp/pack/src/lib /tmp/pack/src/components/intelligence /tmp/pack/src/pages
+          mkdir -p /tmp/pack/supabase/migrations /tmp/pack/scripts /tmp/pack/tests /tmp/pack/.github/workflows /tmp/pack/docs /tmp/pack/fixtures
+
+          copy_if_exists() {
+            local p="$1"
+            if [ -e "$p" ]; then
+              mkdir -p "/tmp/pack/$(dirname "$p")"
+              cp -a "$p" "/tmp/pack/$p"
+            fi
+          }
+
+          copy_glob_dir() {
+            local d="$1"
+            if [ -d "$d" ]; then
+              mkdir -p "/tmp/pack/$d"
+              find "$d" -type f -print0 | while IFS= read -r -d '' f; do
+                mkdir -p "/tmp/pack/$(dirname "$f")"
+                cp -a "$f" "/tmp/pack/$f"
+              done
+            fi
+          }
+
+          copy_glob_dir "src/lib/intelligence"
+          copy_glob_dir "src/lib/report-intelligence"
+          copy_glob_dir "src/lib/product-intelligence"
+          copy_glob_dir "src/lib/free-toolbox"
+          copy_glob_dir "src/lib/file-engine"
+          copy_glob_dir "src/lib/import-pipeline"
+          copy_glob_dir "src/lib/analytics"
+          copy_glob_dir "src/lib/decision-automation"
+          copy_glob_dir "src/lib/decision"
+          copy_glob_dir "src/lib/document-intelligence"
+
+          for f in             src/lib/universal-report-intelligence.ts             src/lib/advancedIntelligence.ts             src/lib/workspace-mode.ts             src/lib/dataLineage.ts             src/lib/report-decisions.ts             src/lib/financialDecisionEngines.ts
+          do copy_if_exists "$f"; done
+
+          for f in             src/components/UniversalIntelligenceChain.tsx             src/components/ReportIntelligencePanel.tsx             src/components/ClaimEvidenceCard.tsx             src/components/CommercialValueChain.tsx             src/components/ReportDecisionCockpit.tsx
+          do copy_if_exists "$f"; done
+
+          for f in             src/components/intelligence/BusinessQuestionRail.tsx             src/pages/DecisionExperiencePage.tsx             src/pages/DecisionInboxPage.tsx             src/pages/IntelligencePage.tsx             src/pages/InventoryIntelligencePage.tsx             src/pages/PublicDemoWorkspacePage.tsx
+          do copy_if_exists "$f"; done
+
+          # Proof: keep the tests/contracts that exercise these foundations.
+          find scripts -maxdepth 1 -type f \( -iname '*decision*' -o -iname '*evidence*' -o -iname '*provenance*' -o -iname '*forecast*' -o -iname '*outcome*' -o -iname '*workspace*' -o -iname '*intelligence*' -o -iname '*release-drift*' \) -print0 |
+            while IFS= read -r -d '' f; do
+              mkdir -p "/tmp/pack/$(dirname "$f")"; cp -a "$f" "/tmp/pack/$f"; done
+
+          find tests -maxdepth 2 -type f \( -iname '*decision*' -o -iname '*evidence*' -o -iname '*provenance*' -o -iname '*forecast*' -o -iname '*outcome*' -o -iname '*intelligence*' -o -iname '*workspace*' \) -print0 |
+            while IFS= read -r -d '' f; do
+              mkdir -p "/tmp/pack/$(dirname "$f")"; cp -a "$f" "/tmp/pack/$f"; done
+
+          if [ -d tests/fixtures/realistic-reports/48-archetypes ]; then
+            mkdir -p /tmp/pack/tests/fixtures/realistic-reports
+            cp -a tests/fixtures/realistic-reports/48-archetypes /tmp/pack/tests/fixtures/realistic-reports/
+          fi
+
+          # Proof: the relevant SQL boundaries/migrations, without dumping unrelated history.
+          find supabase/migrations -maxdepth 1 -type f \( -iname '*decision*' -o -iname '*evidence*' -o -iname '*provenance*' -o -iname '*forecast*' -o -iname '*outcome*' -o -iname '*intelligence*' -o -iname '*drift*' -o -iname '*watched*' -o -iname '*source-decision*' \) -print0 |
+            while IFS= read -r -d '' f; do
+              mkdir -p /tmp/pack/supabase/migrations; cp -a "$f" /tmp/pack/supabase/migrations/; done
+
+          for f in             .github/REAL_REPORT_REPROCESS_TRIGGER.txt             .github/workflows/decision-dml-boundary.yml             .github/workflows/decision-runtime-authorization.yml             .github/workflows/decision-runtime-e2e.yml             .github/workflows/document-provenance-runtime.yml             .github/workflows/recommendation-outcome-dml-boundary.yml             .github/workflows/release-decision-provenance.yml             .github/workflows/release-drift-guard.yml             .github/workflows/security-provenance-certification.yml             .github/workflows/real-report-reprocess.yml
+          do copy_if_exists "$f"; done
+
+          copy_if_exists docs/requirements/decision-intelligence-contract.md
+          find docs/evidence docs/EVIDENCE -maxdepth 1 -type f \( -iname '*decision*' -o -iname '*provenance*' -o -iname '*evidence*' -o -iname '*drift*' \) -print0 2>/dev/null |
+            while IFS= read -r -d '' f; do
+              mkdir -p "/tmp/pack/$(dirname "$f")"; cp -a "$f" "/tmp/pack/$f"; done
+
+          cat > /tmp/pack/LOVABLE_DEEP_FOUNDATIONS_MANIFEST.md <<'EOF'
+# Report-Advisor — Lovable Deep Foundations & Coverage Pack
+Source of truth: ff9af3792735e3612cab2d47f53ee91692617bf8
+
+## Purpose
+This is an intelligent supplement to the full transfer package, the gap-acceleration package,
+and the existing-foundations package. It deliberately collects the strongest adjacent
+foundations, proof contracts, UI surfaces, analytics/toolbox modules, domain intelligence,
+import/provenance code, and tenant/decision SQL boundaries that Lovable should inspect
+BEFORE claiming a capability is "missing" or creating a duplicate implementation.
+
+## Required behavior
+1. Inspect these files against the full transfer package.
+2. Treat each existing module as a FOUNDATION TO EXTEND/INTEGRATE/PROVE unless its code
+   clearly lacks the required capability.
+3. Never create parallel engines merely because a file name is different.
+4. Preserve the existing fail-closed truth/evidence/provenance/tenant boundaries.
+5. For every claimed gap, identify: existing foundation -> missing layer -> integration point -> UI -> persistence -> readback -> browser proof.
+6. Do not spend paid/remote credit when a deterministic/local implementation or existing foundation suffices.
+
+## Important distinction
+Existing foundation != product-complete. A module may be mathematically useful but not
+integrated into the universal advisory chain, persisted, tenant-safe, UI-exposed, or browser-proven.
+The correct action is therefore targeted extension and integration, not reimplementation.
+
+## Gap candidates that need special verification
+- VOI / information-collection economics
+- true counterfactual reasoning
+- semantic/business drift beyond simple row diff
+- unified forecast governance
+- process reconstruction/bottlenecks/rework
+- navigable evidence knowledge graph
+- cross-domain intelligence
+- decision portfolio optimization
+- outcome -> learning -> active/human learning
+- row/cell provenance
+- persistent tenant-safe saved views
+- unified advisory workspace/narrative UX
+
+## Provenance
+No secrets, env files, node_modules, build output, or private credentials are included.
+EOF
+
+          cd /tmp
+          zip -qr Report-Advisor-Lovable-Deep-Foundations-ff9af379.zip pack
+          unzip -t Report-Advisor-Lovable-Deep-Foundations-ff9af379.zip
+          sha256sum Report-Advisor-Lovable-Deep-Foundations-ff9af379.zip
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Report-Advisor-Lovable-Deep-Foundations-ff9af379
+          path: /tmp/Report-Advisor-Lovable-Deep-Foundations-ff9af379.zip
+          if-no-files-found: error
