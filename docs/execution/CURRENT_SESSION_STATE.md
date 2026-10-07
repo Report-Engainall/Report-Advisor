@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = eda8932be50a58a95a61e5c75de0742b2f99d793
+CURRENT_EXACT_HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
 CURRENT_MAIN_HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
-CURRENT_EXECUTION_HEAD = eda8932be50a58a95a61e5c75de0742b2f99d793
+CURRENT_EXECUTION_HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
 BRANCH = exec/decision-completion-20261007
 PR = #867
-CURRENT_PR_HEAD = eda8932be50a58a95a61e5c75de0742b2f99d793
+CURRENT_PR_HEAD = 78c72852a45470e24a1fc3321ae3daa05fa304ad
 
 WHAT_ACTUALLY_HAPPENED
 - Closed the intelligence workspace runtime/UI/persistence gap across causal hypotheses, counterfactuals, VOI, semantic and business drift, forecast governance, process intelligence, evidence-backed knowledge graph, cross-domain join guards, decision policy/portfolio ranking, outcome-to-learning, and row/cell provenance.
@@ -29,18 +29,18 @@ WHAT_IS_PROVEN
 - Supabase intelligence workspace migration is applied to staging with RLS enabled; authenticated CRUD readback for the newly added tables is not claimed.
 
 CURRENT_OPEN_GATES
-- Final Certification Gate for e8e3f270616efa43cbc6d28d24e49877c7e58019.
+- Final Certification Gate for 78c72852a45470e24a1fc3321ae3daa05fa304ad.
 - Authenticated business browser E2E and tenant-isolation proof remain NOT_PROVEN pending provisioned actors/backend secrets.
 - 48 real-source runtime proof remains NOT_PROVEN pending the governed real corpus plus authenticated/service-role execution.
 - Production runtime proof remains NOT_PROVEN; no manual production deployment is being used to manufacture evidence.
 
 CURRENT_ACTIVE_FAILURE
-- Session Handoff Contract reported an unaccounted workflow file; this state record explicitly accounts for the session and will be rechecked at the new HEAD.
-- UI route completeness reported PublicDemoWorkspacePage.tsx as unreachable; the orphan page is now removed rather than bypassing the contract.
-- Any remaining CI failure must be treated as first-failure evidence from the new HEAD, not inferred from older runs.
+- The exact 9a8e3051 live-proof failures were traced to shared staging contention: Supabase Auth /token and Admin requests timed out while concurrent live workflows drove statement timeouts.
+- The PR gate was corrected so Full Product Browser E2E is the authoritative live PR proof; heavy auxiliary staging proofs are manual, and Phase F no longer runs on PRs.
+- The 48/48 real-source preflight is now blocking; any remaining failure must be treated as exact-head evidence, not inferred from the old contention runs.
 
 ROOT_CAUSE
-- The certification performance gate treated dedicated Web Worker bundles as if they were initial UI-thread chunks, while the actual critical path was also carrying a static DashboardPage entry.
-- Session handoff records and route reachability had drifted behind the execution branch.
+- Earlier certification drift was closed; the current live-proof risk was concurrent staging pressure from multiple PR workflows sharing Supabase Auth/Postgres.
+- The current CI shape keeps Full Product Browser E2E as the authoritative PR live proof and prevents auxiliary live suites from consuming staging during the same PR run.
 
-NEXT_EXACT_ACTION = Consume terminal CI for eda8932be50a58a95a61e5c75de0742b2f99d793; fix only the first newly proven failure; then consume same-head browser/certification artifacts. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.
+NEXT_EXACT_ACTION = Consume terminal CI for 78c72852a45470e24a1fc3321ae3daa05fa304ad; first inspect Full Product Browser E2E and its 48/48 real-source gate, then use manual auxiliary staging proofs only after the integrated PR proof is terminal. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.
