@@ -1,9 +1,9 @@
-import type { CanonicalField } from './canonical-schema';
-import { evaluateBusinessQuestion, sortBusinessQuestions, type BusinessQuestion } from './business-question-engine';
-import { buildBusinessQuestionSet, type BusinessArchetype } from './business-question-catalog';
-import { buildClaimsFromReportIntelligence } from './report-claim-adapter';
-import type { ClaimProvenance, Claim } from './claim-ledger';
-import type { ReportIntelligence } from './report-smart-insights';
+import type { CanonicalField } from './canonical-schema.js';
+import { evaluateBusinessQuestion, sortBusinessQuestions, type BusinessQuestion } from './business-question-engine.js';
+import { buildBusinessQuestionSet, type BusinessArchetype } from './business-question-catalog.js';
+import { buildClaimsFromReportIntelligence } from './report-claim-adapter.js';
+import type { ClaimProvenance, Claim } from './claim-ledger.js';
+import type { ReportIntelligence } from './report-smart-insights.js';
 
 export type AdvisoryPacket = {
   claims: Claim[];
