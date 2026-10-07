@@ -78,6 +78,7 @@ type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
   tenantId?: string | null;
   evidenceSnapshotId?: string | null;
   evidencePassportId?: string | null;
+  evidenceVerified?: boolean;
   availableFields?: CanonicalField[];
   decisionOutcomes?: Array<{ label: 'correct' | 'incorrect' | 'partial' | 'unknown'; actualValue?: number | null; expectedValue?: number | null }>;
 };
@@ -318,7 +319,7 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     reportJobId: input.reportJobId ?? null,
     archetypeId: archetype?.id ?? null,
     availableFields: fields,
-    evidenceVerified: advisory.proofState === 'VERIFIED',
+    evidenceVerified: input.evidenceVerified === true && advisory.proofState === 'VERIFIED',
     evidenceSnapshotId: input.evidenceSnapshotId ?? null,
     evidencePassportId: input.evidencePassportId ?? null,
     recommendation: recommendation ? {
