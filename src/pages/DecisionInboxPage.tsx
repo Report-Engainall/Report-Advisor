@@ -359,7 +359,7 @@ export function DecisionInboxPage() {
               <div className="text-[9px] font-black tracking-[.14em] text-primary-800">SOURCE-BOUND DECISION INBOX</div>
               <h2 className="mt-1 text-base font-black text-ink-950">قرارات التقرير الحالي فقط</h2>
               <p className="mt-1 text-[10px] leading-5 text-ink-700">تم تقييد الصندوق على نفس التقرير والبصمة المصدرية؛ لا تختلط قرارات تقارير أخرى.</p>
-              <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-500"><span className="rounded-full bg-white px-2 py-1 font-mono">job={contextReportJobId{'}'}</span><span className="rounded-full bg-white px-2 py-1 font-mono">hash={contextSourceHash{'}'}</span><span className="rounded-full bg-white px-2 py-1 font-black">{'{'}contextItems.length{'}'} قرار مرتبط</span></div>
+              <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-500"><span className="rounded-full bg-white px-2 py-1 font-mono">job={contextReportJobId}</span><span className="rounded-full bg-white px-2 py-1 font-mono">hash={contextSourceHash}</span><span className="rounded-full bg-white px-2 py-1 font-black">{contextItems.length} قرار مرتبط</span></div>
             </div>
             <Link to={'/reports/smart/' + encodeURIComponent(contextReportJobId) + '?sourceHash=' + encodeURIComponent(contextSourceHash)} className="btn-primary text-[10px]">العودة إلى التقرير الذكي <FileSearch size={12}/></Link>
           </div>
