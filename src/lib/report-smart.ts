@@ -960,15 +960,16 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       });
 
       archetypeState = archetypeRun.state;
-      intelligence = archetypeRun.state === 'SUPPORTED'
-        ? archetypeRun.intelligence
-        : {
-            ...baseIntelligence,
-            advisorBrief: {
-              ...baseIntelligence.advisorBrief,
-              headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح دون اعتماد النموذج المتخصص.',
+      intelligence = {
+        ...archetypeRun.intelligence,
+        advisorBrief: archetypeRun.state === 'SUPPORTED'
+          ? archetypeRun.intelligence.advisorBrief
+          : {
+              ...archetypeRun.intelligence.advisorBrief,
+              headline: 'النموذج يحتاج مراجعة قبل الاعتماد: ' + archetypeRun.state + ' — الإشارة المصدرية/المحسوبة معروضة، لكن القرار التنفيذي محجوب حتى يكتمل النموذج المتخصص.',
+              proofRequirement: 'حالة النموذج: ' + archetypeRun.state + '؛ لا يُحوَّل الناتج إلى قرار معتمد قبل اكتمال الحقول/الدليل المطلوب.',
             },
-          };
+      };
     } catch (error) {
       runtimeWarnings.push('تعذر تشغيل النموذج المتخصص لهذا المصدر؛ تم الإبقاء على الذكاء المصدرّي المتاح وحالة المراجعة.');
       console.error('[SmartReport] runReportArchetype failed', error);
