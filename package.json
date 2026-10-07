@@ -81,6 +81,7 @@
     "test:k-to-s-deep-closure": "node scripts/check-k-to-s-deep-closure.mjs",
     "test:master-requirements": "node scripts/check-master-requirements-contract.mjs",
     "test:file-engine-regressions": "node --experimental-strip-types scripts/check-file-engine-regressions.ts",
+    "test:generic-file-analysis": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/generic-file-analysis.test.mjs",
     "test:business-key-regressions": "node scripts/check-business-key-regressions.mjs",
     "test:import-classifier-regressions": "node scripts/check-import-classifier-regressions.mjs",
     "test:incremental-import-ledger": "node --experimental-strip-types scripts/incremental-import-ledger.test.ts",
