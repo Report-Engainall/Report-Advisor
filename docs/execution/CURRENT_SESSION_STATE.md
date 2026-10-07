@@ -1,46 +1,44 @@
-SESSION HANDOFF = READY
-ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
+SESSION HANDOFF = ACTIVE
+ACTION_STATUS = BRAIN_CLOSURE_EXECUTION
+CURRENT_EXACT_HEAD = 24fc414844f4102feefa9262e8ab46e02fbd31dd
 CURRENT_MAIN_HEAD = d0620d988c1dbf93d50ca3b9086f6a244f659f41
-CURRENT_EXECUTION_HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
+CURRENT_EXECUTION_HEAD = 24fc414844f4102feefa9262e8ab46e02fbd31dd
 BRANCH = exec/decision-completion-20261007
 PR = #867
-CURRENT_PR_HEAD = bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0
 
-WHAT_ACTUALLY_HAPPENED
-- Closed the intelligence workspace runtime/UI/persistence gap across causal hypotheses, counterfactuals, VOI, semantic and business drift, forecast governance, process intelligence, evidence-backed knowledge graph, cross-domain join guards, decision policy/portfolio ranking, outcome-to-learning, and row/cell provenance.
-- Added tenant-scoped persistence for saved views, causal hypotheses, VOI requests, and report cell lineage with RLS enabled; demo preview intentionally does not persist tenant decisions.
-- Integrated the closure surface into Decision Intelligence Studio and the source-bound public Sales/Inventory preview surfaces using the same fixture-derived rows and data-quality state.
-- Fixed GLPK Node/browser loading and DuckDB Arrow table replacement semantics used by the decision workspace.
-- Fixed certification performance semantics: dedicated Worker bundles are excluded from the UI-thread chunk ceiling, while the critical-path limit remains 900KB.
-- Lazy-loaded DashboardPage so the exact client critical path is now 876.4KB instead of 911.0KB.
-- Fixed Netlify production workflow concurrency to be workflow-scoped.
-- Removed the unreferenced PublicDemoWorkspacePage.tsx so UI route completeness reflects actual reachable page components.
+OBJECTIVE
+إغلاق عقل المنتج فعليًا من Source → Truth → Evidence → Signal → Why → So What → Recommendation → Decision → Approval → Work → Outcome → Learning، مع عدم اختلاق أي إثبات.
 
-WHAT_IS_PROVEN
-- Exact local build PASS after the latest dashboard lazy-load change.
-- Performance budget PASS: critical 876.4KB <= 900KB; largest client JS 487.8KB <= 600KB after dedicated Worker classification.
-- Phase-11 performance closure PASS.
-- Decision Intelligence Studio browser smoke PASS.
-- Public preview smoke PASS for /proposal-demo, /reports/inventory?demo=1, /reports/sales?demo=1, /decision-experience?demo=1, and /try-report.
-- Real-48 source matrix contract PASS.
-- E2E actor provisioning contract PASS.
-- Automatic Vercel preview status for e8e3f270 is PASS; no manual production deployment was used.
-- Supabase intelligence workspace migration is applied to staging with RLS enabled; authenticated CRUD readback for the newly added tables is not claimed.
+WHAT_ACTUALLY_CHANGED
+- أُنشئ brain.v1 runtime موحد للمقاييس والإشارات والمقارنة الداخلية والنتيجة والتعلم ومقترح العمل.
+- رُبط brain runtime داخل Universal Report Intelligence وأصبح له حضور في Smart Report UI.
+- أُغلقت أهلية القرار fail-closed: sourceHash + reportJobId وحدهما لا يكفيان؛ التوصية القابلة للعمل تتطلب evidenceVerified + Evidence Snapshot + Evidence Passport.
+- أُضيفت حدود حسابية آمنة: row-aligned للحسابات الصفية، aggregate صريح للنسب غير الصفية، وتصحيح parseDate قبل حساب النمو.
+- رُبطت نتائج القرار المحفوظة decision_outcomes ونتائج التوصيات recommendation_outcomes مجددًا بالعقل لتغذية Outcome → Learning.
+- أُثبتت هوية recommendation عبر recommendation.id بدل نص الإجراء.
+- أُضيف حفظ مقترح العمل إلى operational_task_proposals مع tenant/RLS boundary موجودة.
+- أُضيف عقد اختبار brain-runtime واختبار fail-closed عند غياب الدليل الموثق.
+- عولج Runtime crash حي كان سببه getTime على قيمة parseDate النصية.
 
-CURRENT_OPEN_GATES
-- Final Certification Gate for bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0.
-- Authenticated business browser E2E and tenant-isolation proof remain NOT_PROVEN pending provisioned actors/backend secrets.
-- 48 real-source runtime proof remains NOT_PROVEN pending the governed real corpus plus authenticated/service-role execution.
-- Production runtime proof remains NOT_PROVEN; no manual production deployment is being used to manufacture evidence.
+LIVE_PROOF
+- Netlify deploy-preview للرأس الحالي 24fc414844f4102feefa9262e8ab46e02fbd31dd = READY.
+- Vercel preview للرأس الحالي = READY.
+- TinyFish فحص preview بعد الإصلاح ووجد محتوى أعمال فعليًا بدل شاشة الخطأ:
+  inventory: آخر صف منخفض التغطية SKU-2 / WH-3 = 1.84.
+  sales/proposal demo: fixture 28-inventory-stockout-reorder.csv، 12 صفًا، 11 حقلًا، تغطية الصفوف وحالاتها مشتقة من نفس البيانات.
+- metadata في preview تثبت aghbari-source-sha = 24fc414844f4102feefa9262e8ab46e02fbd31dd.
+- لا توجد حاليًا دلالة على Runtime Crash في المعاينة بعد إصلاح parseDate.
 
-CURRENT_ACTIVE_FAILURE
-- The exact 9a8e3051 live-proof failures were traced to shared staging contention: Supabase Auth /token and Admin requests timed out while concurrent live workflows drove statement timeouts.
-- The PR gate was corrected so Full Product Browser E2E is the authoritative live PR proof; heavy auxiliary staging proofs are manual, and Phase F no longer runs on PRs.
-- The 48/48 real-source preflight is now blocking; any remaining failure must be treated as exact-head evidence, not inferred from the old contention runs.
+NOT_PROVEN_YET
+- Full Product Browser E2E على الرأس الحالي ما زال PENDING.
+- 48/48 real-source runtime proof على الرأس الحالي ما زال غير proven.
+- Authenticated business E2E + tenant isolation غير proven.
+- Production runtime proof غير proven.
+- لا إعلان CERTIFIED/PRODUCT COMPLETE حتى تغلق البوابات السابقة.
 
-ROOT_CAUSE
-- Earlier certification drift was closed; the current live-proof risk was concurrent staging pressure from multiple PR workflows sharing Supabase Auth/Postgres.
-- The current CI shape keeps Full Product Browser E2E as the authoritative PR live proof and prevents auxiliary live suites from consuming staging during the same PR run.
+FIRST_ACTIVE_FAILURE
+الفشل الحي السابق كان TypeError: f.getTime is not a function داخل IntelligenceClosurePanel/brain-runtime، بسبب parseDate الذي يعيد string. أُصلح واختُبر حيًا على preview.
+الفشل السابق للـCI كان ضغط Supabase staging (Auth/Postgres contention) وليس خللًا جديدًا في المنتج.
 
-NEXT_EXACT_ACTION = After staging returns healthy, consume terminal CI for bb1285a4eba4e9ba25930d3b1a0e90ee3627eed0; inspect Full Product Browser E2E and the blocking 48/48 real-source proof first. Do not rerun closed Scenario, Confidence, or Transactional Spine work unless the new HEAD proves a regression.
+NEXT_EXACT_ACTION
+انتظر terminal GitHub Actions على 24fc414844f4102feefa9262e8ab46e02fbd31dd؛ افحص Full Product Browser E2E أولًا، ثم blocking 48/48 proof. لا تعِد اختبارات مغلقة ولا تعلن certification قبل الإثبات الحقيقي.
