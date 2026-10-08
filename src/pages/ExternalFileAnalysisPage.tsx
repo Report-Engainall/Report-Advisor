@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsheet, FileText, Loader2, ShieldCheck, Sparkles, Upload } from 'lucide-react';
+import { AlertCircle, ArrowLeft, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsheet, FileText, Loader2, ShieldCheck, Sparkles, Upload } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
@@ -235,6 +235,7 @@ export function ExternalFileAnalysisPage() {
 
   const dataset = datasets[active] ?? null;
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
+  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
     specialty: specialty ?? null,
     rowCount: dataset.rowCount,
@@ -243,7 +244,6 @@ export function ExternalFileAnalysisPage() {
     sourcePath: file?.name ?? dataset.name,
     sourceHash: file?.hash ?? null,
   }) : null, [dataset, file, specialty]);
-  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
   const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
@@ -285,6 +285,40 @@ export function ExternalFileAnalysisPage() {
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
     {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
+    {file && universalIntelligence && <Card className="overflow-hidden border-primary-100 bg-[linear-gradient(135deg,rgba(247,245,255,.98),rgba(255,255,255,.98)_55%,rgba(255,249,236,.98))]">
+      <CardBody>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="section-kicker">مسار القرار · مصدر مربوط</div>
+            <h2 className="mt-1 text-lg font-black text-ink-950">من الملف الخام إلى نتيجة قابلة للتنفيذ</h2>
+            <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">المصدر لا يتوقف عند المعاينة: كل مرحلة تحتفظ بالبصمة والدليل، ولا تُعرض نتيجة غير مثبتة كحقيقة.</p>
+          </div>
+          <button type="button" onClick={() => {
+            const selected = selectedFileRef.current;
+            if (selected) navigate('/import', { state: { preloadedFile: selected } });
+          }} className="btn-primary inline-flex items-center gap-2 whitespace-nowrap">
+            <Sparkles size={15}/> تشغيل المسار الكامل
+          </button>
+        </div>
+        <div className="mt-5 grid gap-2 md:grid-cols-3 xl:grid-cols-6">
+          {[
+            ['01', 'المصدر', 'الملف + SHA-256'],
+            ['02', 'الاستخراج', 'صيغة / نص / صفوف'],
+            ['03', 'الحقيقة', 'جودة + مطابقة + حدود'],
+            ['04', 'الإشارة', 'ماذا يستحق الانتباه؟'],
+            ['05', 'التوصية', 'ماذا نفعل ولماذا الآن؟'],
+            ['06', 'القرار والعمل', 'قرار → اعتماد → عمل → نتيجة'],
+          ].map(([n, title, detail], index, items) => (
+            <div key={n} className="relative rounded-xl border border-ink-100 bg-white/85 p-3 shadow-sm">
+              <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{n}</div>
+              <div className="mt-1 text-xs font-black text-ink-900">{title}</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-400">{detail}</div>
+              {index < items.length - 1 && <ArrowLeft className="absolute -left-2.5 top-1/2 hidden -translate-y-1/2 text-primary-300 xl:block" size={14}/>}
+            </div>
+          ))}
+        </div>
+      </CardBody>
+    </Card>}
     {file && universalIntelligence && <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4">
         <div className="flex items-center justify-between gap-4">

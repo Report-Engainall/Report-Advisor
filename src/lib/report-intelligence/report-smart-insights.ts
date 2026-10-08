@@ -418,6 +418,8 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         const stock = numeric(rowValue(row.data, stockKey));
         if (stock == null) continue;
         totalStock += stock;
+        const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
+        const rowRef = row.row_number == null ? '' : 'الصف=' + row.row_number + ' · ';
         if (stock < 0) {
           negativeStockRows += 1;
           if (negativeStockSamples.length < 5) negativeStockSamples.push(rowRef + productName + ' · الرصيد=' + stock);
@@ -428,8 +430,6 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         const netSales = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
         const sourceStockoutDays = stockoutDaysKey ? numeric(rowValue(row.data, stockoutDaysKey)) : null;
         const salesForCoverage = netSales;
-        const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
-        const rowRef = row.row_number == null ? '' : 'الصف=' + row.row_number + ' · ';
         // Coverage is a time measure. Prefer the source's own stockout period;
         // otherwise derive days from current stock / daily sales rate.
         let coverageDays: number | null = null;
@@ -440,6 +440,12 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         } else if (dailyRate != null && dailyRate > 0) {
           coverageDays = stock / dailyRate;
           coverageBasis = 'stockField=' + stockKey + ' dailySalesField=' + dailyRateKey;
+        } else if (netSales != null && netSales > 0) {
+          // Some operational inventory sheets expose demand only as sales quantity
+          // per source row. Treat this strictly as a row-level coverage proxy, not
+          // as calendar days; the recommendation remains gated by lead-time data.
+          coverageDays = stock / netSales;
+          coverageBasis = 'stockField=' + stockKey + ' salesField=' + netSalesKey + ' coverageMode=source_row_demand_proxy';
         }
         if (coverageDays != null && Number.isFinite(coverageDays) && coverageDays >= 0 && coverageDays <= 30) {
           lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage ?? 0, sales: salesForCoverage ?? 0, coverageDays, basis: coverageBasis });
@@ -530,6 +536,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           'stockField=' + stockKey,
           ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : []),
           ...(stockoutDaysKey ? ['stockoutDaysField=' + stockoutDaysKey] : []),
+          ...(lowCoverageRows.some((item) => item.basis.includes('coverageMode=source_row_demand_proxy')) ? ['coverageMode=source_row_demand_proxy'] : []),
           'coverageThresholdDays=30',
           'affectedRows=' + lowCoverageRows.length,
           'sample=' + coverageSample,
