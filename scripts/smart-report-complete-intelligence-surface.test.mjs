@@ -44,3 +44,17 @@ if (!fetchBlock.includes('const resolvedSourceHash')) throw new Error('Smart rep
 if (fetchBlock.includes(".eq('source_hash', sourceHash)")) throw new Error('Smart report contains an unbound sourceHash query reference');
 if (!fetchBlock.includes('if (normalizedSourceHash && resolvedSourceHash !== normalizedSourceHash)')) throw new Error('Explicit source hash mismatch must still be rejected');
 console.log('smart-report-context-lineage: PASS');
+
+for (const marker of [
+  'ag-report-hero-stat',
+  'ag-report-tech-meta',
+  'smart-report-source-hash',
+  'smart-report-job-id',
+  'جاهزية القرار',
+  'الثقة المصدرية',
+  'السجلات الموثقة',
+]) {
+  if (!smartReportPage.includes(marker)) throw new Error('Smart Report executive result surface marker missing: ' + marker);
+}
+console.log('smart-report-executive-result-surface: PASS');
+
