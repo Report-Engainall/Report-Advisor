@@ -1,19 +1,19 @@
 ## CURRENT EXECUTION REPORT — 2026-10-09
 
-APPLICATION_HEAD = 901db4bd6bf029d111e1429e66ba51be9bb272d0
+APPLICATION_HEAD = 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911
 
-WHAT_I_WAS_ASKED_TO_DO = Continue closing the Report-Advisor product journey, keep source-bound file intelligence visible to customers, resolve the first release blocker, and keep code, proof, and governance state aligned.
+WHAT_I_WAS_ASKED_TO_DO = Continue closing the Report-Advisor customer journey, expose source-bound analysis, remove the first release blockers, preserve strict evidence boundaries, and keep code/tests/governance tied to exact revisions.
 
 WHAT_I_ACTUALLY_DID =
-- Merged PR #910 (fa1ab4cbade9b01685507aa966c10f700a03f576) for universal file analysis and the visible source-to-decision value chain.
-- Opened PR #911 and changed DashboardPage from an eager import to a React.lazy route import, using the existing Suspense navigation boundary. This keeps the route while deferring its 24KB page module and associated dependencies until the dashboard route is opened.
-- Ran exact-source typecheck and production build; critical assets decreased from 952.1KB to 917.6KB without increasing the configured 950KB ceiling.
-- Ran route completeness, navigation parity, file-engine contract and 21-format capability checks, generic file analysis, advisor intelligence, source-report workspace, product intelligence contract, complete smart-report/context-lineage surface, and Phase 11 performance closure contract. All passed.
-- Replaced stale top-level execution metadata in CURRENT_SESSION_STATE.md and this report; the subsequent commits are governance-only and report the application proof head below.
+- PR #910 merged to main: repaired initialization errors in file intelligence and added the visible source-to-decision chain plus route into the existing import workflow.
+- PR #911 changed DashboardPage to React.lazy using the existing Suspense boundary. The page and URL remain available; the initial entry no longer eagerly includes that dashboard module.
+- Fixed scripts/check-performance-budget.mjs so text assets are found by file extension; gzip-text now measures 1071.0KB rather than the invalid 0.0KB.
+- Fixed scripts/check-session-handoff-contract.mjs so changed Git paths are split on actual newlines and checked individually; stale execution docs cannot hide an unreported source file.
+- Built exact head 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8. After the source split, critical assets measured 917.6KB under the unchanged 950KB cap. Typecheck, UI route parity, file-engine contracts, generic analysis, advisor recommendations, source-report workspace, smart-report lineage, and Phase 11 performance closure passed.
 
-WHAT_IS_PROVEN = On application head 901db4bd6bf029d111e1429e66ba51be9bb272d0: typecheck PASS; build PASS; performance budget PASS (917.6KB / 950KB; largest JS 488.9KB / 600KB); UI route completeness PASS (47 routes); sidebar/navigation parity PASS (43 canonical navigation links); file-engine architecture PASS; 21 declared formats explicitly dispatched; generic file analysis PASS; report advisor intelligence/recommendations PASS; source-report workspace PASS; intelligence product contract PASS; smart-report complete intelligence surface, generic intelligence, context lineage and executive-result surface PASS; Phase 11 E2E/performance closure PASS.
+WHAT_IS_PROVEN = Exact code head 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8: TypeScript typecheck PASS; production build PASS with matching provenance; critical assets 917.6KB / 950KB PASS; gzip-text 1071.0KB / 2000KB PASS; largest JS 488.9KB / 600KB PASS; UI route completeness PASS (47 routes); sidebar parity PASS (43 canonical navigation links); file-engine architecture PASS; 21 declared formats explicitly dispatched; generic file analysis PASS; report advisor intelligence/recommendations PASS; source-report workspace PASS; intelligence product contract PASS; smart-report complete intelligence/generic intelligence/context lineage/executive-result checks PASS; Phase 11 E2E/performance-closure contract PASS.
 
 PROOF_STATUS
 - IMPLEMENTED = YES
@@ -21,22 +21,23 @@ PROOF_STATUS
 - UI_EXPOSED = YES on the PR #910 preview; production route awaits deployment
 - TYPECHECK_PROVEN = YES
 - BUILD_PROVEN = YES
-- PERFORMANCE_BUDGET_PROVEN = YES on application head 901db4bd6bf029d111e1429e66ba51be9bb272d0
+- PERFORMANCE_BUDGET_PROVEN = YES on code head 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8
+- SESSION_HANDOFF_GUARD_FIXED = YES; a fresh PASS must be recorded against the final docs-only head
 - BROWSER_PROVEN = PENDING for authenticated upload-to-decision
-- READBACK_PROVEN = NOT PROVEN for the full real-tenant journey
+- REAL_TENANT_READBACK_PROVEN = NOT PROVEN for the full journey
 - PRODUCTION_PROVEN = NO
 - REAL_SOURCE_48_ARCHETYPE_PROVEN = NO
 - PRODUCT_COMPLETE = NO
 
-FIRST_ACTIVE_FAILURE = Production Netlify deploy run 37856344741 failed because NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repository Actions secrets are missing; main-head authenticated E2E and real-report resume also remain unproven.
-ROOT_CAUSE = The production deployment workflow has no Netlify credentials in repository Actions secrets. Separately, the eager DashboardPage import pushed the entry assets just over the strict critical-byte budget; lazy loading the page now passes the same threshold.
-NEXT_EXACT_ACTION = Obtain clean exact-head checks for PR #911; merge it only after applicable gates pass; configure NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID privately in GitHub repository Actions settings; rerun Netlify production deployment; verify published commit provenance, upload a real file, and prove persisted report -> evidence -> recommendation -> decision/work/outcome before declaring product complete.
+FIRST_ACTIVE_FAILURE = Netlify production deploy run 37856344741 could not publish because NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repository Actions secrets are absent/empty. A separate main-head Browser E2E run remained open, with actor provisioning and real-report resume already failed in that run.
+ROOT_CAUSE = The deploy workflow lacks repository Netlify secrets. Before the latest route-splitting fix, the entry assets exceeded the 950KB gate by 2.1KB. Two verification scripts also used over-escaped regex patterns, making gzip size report zero and preventing per-path handoff validation; those scripts are corrected at this code head.
+NEXT_EXACT_ACTION = Consume fresh exact-head CI on PR #911 and correct only any real terminal blocker; merge after relevant checks pass; privately configure NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID in GitHub Actions settings; rerun Netlify production deploy; verify commit provenance and perform an authenticated real-file upload through persisted report, evidence, recommendation, decision/work and outcome before marking production or product complete.
 
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT EXECUTION HEAD = 901db4bd6bf029d111e1429e66ba51be9bb272d0
-REPORT_FOR_HEAD = 901db4bd6bf029d111e1429e66ba51be9bb272d0
+CURRENT EXECUTION HEAD = 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8
+REPORT_FOR_HEAD = 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8
 UPDATED_AT = 2026-10-09
 
 ## 2026-10-08 checkpoint — PR #905 source-agnostic file intelligence
