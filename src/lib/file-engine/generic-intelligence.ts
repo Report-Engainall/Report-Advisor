@@ -98,7 +98,6 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
   const entityColumn = find('customer_name', 'supplier_name', 'product_name', 'اسم العميل', 'اسم المورد', 'اسم المنتج', 'اسم الصنف', 'العميل', 'المورد');
   const totalColumn = find('total', 'grand total', 'total amount', 'net_amount', 'الإجمالي الكلي', 'اجمالي الفاتورة', 'الإجمالي');
   const statusColumn = find('customer_status', 'status', 'حالة الزبون', 'حالة العميل', 'الحالة');
-  const tierColumn = find('abc_classification', 'risk_indicator', 'تصنيف الأهمية', 'مؤشر المخاطر والفرص');
   const monthOrder = ['january','february','march','april','may','june','july','august','september','october','november','december'];
   const monthColumns = dataset.columns.map((column) => ({ column, key: headerKey(column) }))
     .filter(({ column, key }) => key.startsWith('monthly_sales_') || /^(يناير|فبراير|مارس|ابريل|أبريل|مايو|يونيو|يوليو|اغسطس|أغسطس|سبتمبر|اكتوبر|أكتوبر|نوفمبر|ديسمبر)$/.test(normalize(column.name)))
