@@ -497,8 +497,33 @@ function DecisionExperienceGeneralPage() {
             <CardHeader title="اختيار التوصية" subtitle="حدد عنصرًا حقيقيًا من المصدر." />
             <CardBody>
               <div className="space-y-2">
-                {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {reportJobIdParam && sourceSignal && (
+                  <div className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <div className="text-[9px] font-black text-primary-700">إشارة التقرير الحالي</div>
+                        <div className="mt-1 text-sm font-black text-ink-950">{sourceSignal.title}</div>
+                      </div>
+                      <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-primary-800">{sourceSignal.severity}</span>
+                    </div>
+                    <div className="mt-2 text-[10px] leading-5 text-ink-700">{sourceSignal.message}</div>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      <div className="rounded-xl bg-white p-3"><div className="text-[9px] text-ink-400">الدليل</div><div className="mt-1 text-[10px] font-bold text-ink-800">{sourceSignal.evidence.filter((item) => item.startsWith('sample=')).slice(0, 2).map((item) => item.replace(/^sample=/, '')).join(' · ') || 'دليل المصدر محفوظ داخل التقرير.'}</div></div>
+                      <div className="rounded-xl bg-white p-3"><div className="text-[9px] text-ink-400">التوصية</div><div className="mt-1 text-[10px] font-bold text-ink-800">{sourceRecommendation?.title ?? 'لم تُنشأ مسودة قرار بعد'}</div></div>
+                    </div>
+                    {!selected && (
+                      <div className="mt-3">
+                        {sourceProposalError && <div role="alert" className="mb-2 rounded-lg border border-danger-200 bg-danger-50 px-3 py-2 text-[9px] font-bold text-danger-800">{sourceProposalError}</div>}
+                        <button type="button" onClick={() => void createSourceProposal()} disabled={sourceProposalBusy} className="btn-primary w-full justify-center text-[10px] disabled:opacity-50">
+                          {sourceProposalBusy ? 'جارٍ إنشاء مسودة القرار...' : sourceReport?.reportVerificationState === 'VERIFIED' ? 'إنشاء مسودة قرار مرتبطة بهذا التقرير' : 'أكمل توثيق الدليل أولًا'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {(!reportJobIdParam || selected) && recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
+                {!reportJobIdParam && !recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {reportJobIdParam && !sourceSignal && <EmptyState title="لا توجد إشارة مصدرية" message="التقرير الحالي لم ينتج إشارة قابلة للتحويل إلى قرار؛ لا نعرض توصيات من تقارير أخرى." />}
               </div>
             </CardBody>
           </Card>
