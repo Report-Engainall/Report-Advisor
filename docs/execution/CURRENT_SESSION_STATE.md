@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+CURRENT_EXACT_HEAD = 74fc46dd5440bde3f1db392d20363fb51b686a00
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+CURRENT_EXECUTION_HEAD = 74fc46dd5440bde3f1db392d20363fb51b686a00
 BRANCH = fix/generic-smart-report-cross-surface-20261008
-PR = pending
-CURRENT_PR_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+PR = #906
+CURRENT_PR_HEAD = 74fc46dd5440bde3f1db392d20363fb51b686a00
 
 WHAT_ACTUALLY_HAPPENED
 - Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
@@ -26,13 +26,14 @@ CURRENT_OPEN_GATES
 - Same-head production deployment after certification.
 
 CURRENT_ACTIVE_FAILURE
-- Proof gap only at this checkpoint: the former certification failure was the stale 900KB expectation versus the actual 950KB performance contract. That mismatch is repaired in this branch; fresh gates must prove the repair.
+- XML repeated-row fallback and Node normalizer runtime issues were found by exact-head Quality/Browser runs and repaired on the current branch. Fresh gates must prove the repaired head.
+- No production-current claim is made.
 
 ROOT_CAUSE
 - Generic file intelligence existed on the upload/preview surface but was not automatically carried into the persisted Smart Report when the source had no recognized business specialty.
 - Final certification had a hard-coded 900KB critical budget while the canonical performance contract had already moved to 950KB.
 
-NEXT_EXACT_ACTION = Open the repair PR, consume the first fresh exact-head CI/browser failure, then merge only after Final Certification and browser proof are green. After merge, prove same-head production.
+NEXT_EXACT_ACTION = Consume current-head Quality, Product Build, Browser, and Final Certification terminal results; merge PR #906 only on PASS, then prove same-head production.
 - PR #884: Reports Center now renders the existing ReportIntelligencePanel and canonical row-level BusinessDataExplorer directly on the primary report surface.
 - PR #886: authenticated real-business E2E now explicitly certifies the Reports Center itself: current report job/source hash/source path, intelligence panel, recommendation state, row search, row summary, and row-detail handoff.
 - PR #887: normalized strict TypeScript runtime import specifiers across the report-intelligence/report-execution files and replaced the unsupported Array.prototype.at usage identified by the Vercel diagnostic build.
