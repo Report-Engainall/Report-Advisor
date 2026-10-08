@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+CURRENT_EXACT_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+CURRENT_EXECUTION_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-CURRENT_PR_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+CURRENT_PR_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
 
 WHAT_ACTUALLY_HAPPENED
 - Added the executive visual refinement layer in src/index.css: unified ink/indigo/brass shell, redesigned sidebar/topbar hierarchy, stronger page headers, cleaner journey rail, calmer card/table treatment, and a premium Smart Report result surface without changing business calculations or evidence semantics.
@@ -103,9 +103,17 @@ NEXT_EXACT_ACTION = Consume the current-head quality/typecheck/build result firs
 
 
 ## 2026-10-08 checkpoint — executive visual refinement
-APPLICATION HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+APPLICATION HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
 UI_SCOPE = Shell / Sidebar / Topbar / Journey rail / Page headers / Cards / Tables / Smart Report surfaces / Mobile action bar
 STATUS = IMPLEMENTED + INTEGRATED; terminal build/browser proof pending
 DESIGN_DIRECTION = dark ink shell + indigo intelligence + restrained brass accent; remove legacy green/teal wash and reduce admin-CRUD visual density
 NO_LOGIC_CHANGE = true
 NEXT_EXACT_ACTION = consume fresh exact-head visual/build/browser gates for d347f6a1683f808723388d26019497f6b78c539f4; do not certify production from deployment READY alone.
+
+
+## 2026-10-08 — source-bound intelligence UI closure pass
+APPLICATION HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+STATUS = IMPLEMENTED + INTEGRATED; Vercel exact-head deployment BUILDING at checkpoint
+CHANGE = Added SourceIntelligenceRibbon to SourceBoundReportSurface so executive/trust/decision/work surfaces all receive the same live report intelligence context: signal, why-now, so-what, next action, measurement, evidence count, and direct evidence/decision navigation.
+CONSTRAINTS = Uses persisted report.intelligence only; no fabricated values; preserves reportJobId + sourceHash lineage and fail-closed evidence semantics.
+NEXT_EXACT_ACTION = Consume exact-head Vercel build result; then trigger/consume CI gates available for the PR and repair only terminal failures before merge.
