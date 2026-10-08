@@ -2,10 +2,10 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 21586845371893a381e93721a0fc1de6de20eee7
 REFERENCE START HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT EXECUTION HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
-REPORT_FOR_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+CURRENT EXECUTION HEAD = 0aa2a99fcbcab3d7c62acd3acfc74407d388973a0
+REPORT_FOR_HEAD = b133d8c361bb0d7f6a3448c3b29497d278f35774
 BRANCH = fix/generic-smart-report-cross-surface-20261008
-PR = pending
+PR = #906
 UPDATED_AT = 2026-10-08T17:55:00+03:00
 
 WHAT_I_WAS_ASKED_TO_DO = Continue from current main without rebuilding; make generic file intelligence persist into Smart Reports, connect the result to customer-facing screens, and close certification/browser proof gaps.
@@ -25,9 +25,9 @@ WHAT_IS_PROVEN =
 - The old Full Product Browser E2E failure on f0e0d844 was caused by a missing normalizer.js import and then cascading missing actor env; the current report-smart-insights.ts import now points to normalizer.js and must be freshly certified at this branch head.
 - No production-current claim is made.
 
-FIRST_ACTIVE_FAILURE = Fresh exact-head certification/browser evidence is pending for the repair branch.
-ROOT_CAUSE = Generic intelligence was not propagated into the persisted Smart Report for specialty-null sources, and the certification contract was out of sync with the canonical 950KB performance budget.
-NEXT_EXACT_ACTION = Open the repair PR, consume fresh exact-head CI/browser failures, then merge only after Final Certification + Full Product Browser E2E pass; finally prove same-head production.
+FIRST_ACTIVE_FAILURE = XML generic-parser regression was detected by Quality: repeated child rows were collapsed by the fallback container match. The parser fix is committed on the repair branch; certification/browser must rerun.
+ROOT_CAUSE = Generic intelligence was not propagated into persisted Smart Reports for specialty-null sources; certification was out of sync with the canonical 950KB budget; and the XML fallback treated the outer container as a single row when repeated child row tags existed.
+NEXT_EXACT_ACTION = Consume the post-XML-fix Quality/Final Certification/Full Product Browser E2E runs for PR #906, then merge only after terminal PASS and prove same-head production.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
