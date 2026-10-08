@@ -234,7 +234,9 @@ export function ExternalFileAnalysisPage() {
   }
 
   const dataset = datasets[active] ?? null;
+  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
+  const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
     specialty: specialty ?? null,
     rowCount: dataset.rowCount,
@@ -243,8 +245,6 @@ export function ExternalFileAnalysisPage() {
     sourcePath: file?.name ?? dataset.name,
     sourceHash: file?.hash ?? null,
   }) : null, [dataset, file, specialty]);
-  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
-  const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
     unmapped: dataset.columns.filter(c => !c.mappedField).length,
