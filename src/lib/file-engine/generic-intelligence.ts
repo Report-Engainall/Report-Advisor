@@ -148,13 +148,16 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
   const totalValue = totalColumn
     ? dataset.rows.reduce((sum, row) => sum + (numericValue(valueFor(row, totalColumn)) ?? 0), 0)
     : null;
+  const totalMismatchCount = rowsWithMonthlyAndStatedTotalPlaceholder(dataset, totalColumn, monthColumns, valueFor, numericValue);
   const topEvidence = topRecords.map((item) => item.name + ' · ' + totalColumn?.name + ': ' + numberLabel(item.value ?? 0));
   const inspect = [
     'الصفوف ' + dataset.rowCount.toLocaleString('ar-YE') + ' · الأعمدة ' + dataset.columnCount.toLocaleString('ar-YE'),
     'حقول رقمية/قابلة للقياس: ' + numericColumns.length.toLocaleString('ar-YE'),
     ...numericSummary,
+    ...(portfolioLike ? ['ملف نشاط العملاء: ربط الحالة والقياسات الشهرية والإجمالي من العناوين المرصودة', 'حالة منقطع في المصدر: ' + stoppedCount.toLocaleString('ar-YE')] : []),
     ...(statusSummary.length ? ['توزيع ' + statusColumn?.name + ': ' + statusSummary.join(' · ')] : []),
     ...(totalValue !== null ? ['مجموع ' + totalColumn?.name + ': ' + numberLabel(totalValue) + ' (العملة كما في المصدر/غير مفترضة)'] : []),
+    ...(portfolioLike ? ['فحص الاتساق: ' + totalMismatchCount.toLocaleString('ar-YE') + ' سجلًا يختلف فيه الإجمالي عن مجموع الأشهر بأكثر من 1%'] : []),
     ...monthStats.map((month) => month.label + ': مجموع ' + numberLabel(month.total) + ' · سجلات بقيمة موجبة ' + month.active.toLocaleString('ar-YE')),
     ...(topEvidence.length ? ['أعلى السجلات حسب ' + totalColumn?.name + ': ' + topEvidence.join(' · ')] : []),
     ...(change !== null && latest && previous ? ['التغير من ' + previous.label + ' إلى ' + latest.label + ': ' + (change >= 0 ? '+' : '') + numberLabel(change) + '%'] : []),
@@ -163,7 +166,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     ? 'تحليل جدولي: ' + dataset.rowCount.toLocaleString('ar-YE') + ' سجلًا، ' + dataset.columnCount + ' عمودًا؛ ' + (statusColumn?.name ?? 'حالة') + ' يحتوي ' + stoppedCount.toLocaleString('ar-YE') + ' سجلًا مصنفًا كمنقطع/متوقف ضمن قيم المصدر. ' + (totalValue !== null ? ' مجموع ' + totalColumn?.name + ' = ' + numberLabel(totalValue) + '.' : '')
     : 'تحليل جدولي فعلي: ' + dataset.rowCount.toLocaleString('ar-YE') + ' سجلًا و' + dataset.columnCount + ' عمودًا؛ جرى تلخيص ' + numericColumns.length + ' حقلًا رقميًا/قابلًا للقياس وعرض توزيع الحقول التصنيفية المتاحة.';
   const headline = portfolioLike && stoppedCount
-    ? 'رُصدت ' + stoppedCount.toLocaleString('ar-YE') + ' سجلات تحمل حالة انقطاع/توقف كما وردت في المصدر؛ يلزم التحقق من تعريف الحالة وتاريخ آخر تعامل.'
+    ? 'ملف نشاط العملاء: رُصدت ' + stoppedCount.toLocaleString('ar-YE') + ' سجلات تحمل حالة انقطاع/توقف كما وردت في المصدر؛ يلزم التحقق من تعريف الحالة وتاريخ آخر تعامل.'
     : portfolioLike
       ? 'تم تحليل ملف نشاط العملاء وربط قيم الإجمالي والتصنيف وحالة العميل والأشهر الموجودة في المصدر.'
       : 'تم بناء ملخص للجدول من قيمه الفعلية، مع فصل القياسات الرقمية عن التصنيفات النصية.';
@@ -224,7 +227,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     blocker: 'تحتاج الحالة إلى تعريف داخلي وتاريخ آخر تعامل لإثبات الانقطاع الفعلي.',
     limitation: 'النتائج وصفية ومشتقة من القيم المرصودة فقط؛ لا توجد مقارنة خارجية أو عملة مفترضة.',
   }];
-  if (portfolioLike && rowsWithMonthlyAndStatedTotalPlaceholder(dataset, totalColumn, monthColumns, valueFor, numericValue) > 0) {
+  if (portfolioLike && totalMismatchCount > 0) {
     recommendations.push({
       id: 'generic:table:reconcile-totals', status: 'PROPOSED', priority: 'medium',
       title: 'طابق الإجمالي مع مجموع الفترات', action: 'أعد حساب مجموع الفترات لكل سجل وقارنه بحقل الإجمالي؛ راجع الفروق المتجاوزة لحد السماح قبل اعتماد أرقام التقرير.',
