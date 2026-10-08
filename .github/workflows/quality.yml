@@ -69,6 +69,7 @@ jobs:
           npm run test:phase-l-runtime
           npm run test:phase-m-certification
           npm run test:production-release-blockers
+          npm run test:production-saas-certification
       - name: Architecture contract
         run: npm run test:contracts
       - name: Phase 3 import truth
