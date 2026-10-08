@@ -1,5 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
+import { buildGenericFileIntelligence } from './file-engine/generic-intelligence.ts';
+import type { ColumnProfile, Dataset } from './file-engine/types.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 
