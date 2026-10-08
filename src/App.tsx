@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode, useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
+void import('@/styles/executive-visual-refinement.css');
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import { Header } from '@/components/Header';
