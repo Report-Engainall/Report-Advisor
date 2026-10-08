@@ -339,6 +339,53 @@ function resolveImportJobId(
   return analysisImportId;
 }
 
+function buildGenericDatasetForReport(input: {
+  sourcePath: string;
+  sourceAnalysis: SmartReportDetail['sourceAnalysis'];
+  canonicalRows: SmartReportDetail['canonicalRows'];
+  qualityScore: number | null;
+}): Dataset | null {
+  const rows = input.canonicalRows
+    .map((row) => row.data)
+    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object'));
+  if (!rows.length) return null;
+
+  const sourceDataset = input.sourceAnalysis?.datasets?.find((dataset) => dataset && typeof dataset === 'object') as Record<string, unknown> | undefined;
+  const sourceColumns = Array.isArray(sourceDataset?.columns) ? sourceDataset.columns : [];
+  const fallbackNames = Object.keys(rows[0] ?? {});
+  const rawColumns = sourceColumns.length ? sourceColumns : fallbackNames.map((name) => ({ name }));
+
+  const columns = rawColumns.map((column) => {
+    const item = column && typeof column === 'object' ? column as Record<string, unknown> : { name: String(column ?? '') };
+    return {
+      name: String(item.name ?? item.mappedField ?? 'حقل المصدر'),
+      mappedField: item.mappedField == null ? null : String(item.mappedField),
+      mappingConfidence: Number.isFinite(Number(item.mappingConfidence)) ? Number(item.mappingConfidence) : 0,
+      requiresReview: item.requiresReview === true,
+      mappingEvidence: item.mappingEvidence && typeof item.mappingEvidence === 'object' ? item.mappingEvidence as ColumnProfile['mappingEvidence'] : undefined,
+      dataType: String(item.dataType ?? 'unknown') as ColumnProfile['dataType'],
+      nullCount: Number.isFinite(Number(item.nullCount)) ? Number(item.nullCount) : 0,
+      uniqueCount: Number.isFinite(Number(item.uniqueCount)) ? Number(item.uniqueCount) : 0,
+      uniqueRatio: Number.isFinite(Number(item.uniqueRatio)) ? Number(item.uniqueRatio) : 0,
+      sampleValues: Array.isArray(item.sampleValues) ? item.sampleValues : [],
+      statistics: item.statistics && typeof item.statistics === 'object' ? item.statistics as ColumnProfile['statistics'] : { count: rows.length },
+      qualityIssues: Array.isArray(item.qualityIssues) ? item.qualityIssues.map(String) : [],
+    } as ColumnProfile;
+  });
+
+  return {
+    id: String(sourceDataset?.id ?? input.sourcePath),
+    name: String(sourceDataset?.name ?? input.sourcePath),
+    source: String(sourceDataset?.source ?? input.sourcePath),
+    sheet: sourceDataset?.sheet == null ? undefined : String(sourceDataset.sheet),
+    rowCount: input.sourceAnalysis?.rowCount == null ? rows.length : Number(input.sourceAnalysis.rowCount),
+    columnCount: input.sourceAnalysis?.columnCount == null ? columns.length : Number(input.sourceAnalysis.columnCount),
+    columns,
+    rows,
+    preview: rows.slice(0, 50),
+    qualityScore: input.qualityScore == null ? 0 : Number(input.qualityScore),
+  };
+}
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
   const rendered = renderedOutputOf(job.evidence) ?? {};
   const path = String(job.source_path ?? '');
