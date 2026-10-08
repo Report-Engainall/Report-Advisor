@@ -498,7 +498,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         negativeStockRows >= Math.max(5, Math.round(rows.length * 0.05)) ? 'critical' : 'high',
         'أرصدة مخزون سالبة',
         'يوجد ' + negativeStockRows + ' سجلًا برصيد سلبي؛ وهذا يمنع الاعتماد على حالة المخزون كما هي دون مطابقة الحركة والمستندات.',
-        ['stockField=' + stockKey, 'negativeRows=' + negativeStockRows, 'sourceRows=' + rows.length, ...(negativeStockSamples.length ? ['samples=' + negativeStockSamples.join(' || ')] : [])],
+        ['stockField=' + stockKey, 'negativeRows=' + negativeStockRows, 'sourceRows=' + rows.length, ...negativeStockSamples.map((sample) => 'sample=' + sample)],
         negativeStockRows,
       );
       if (zeroStockWithSalesRows > 0) addSignal(
@@ -507,7 +507,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         zeroStockWithSalesRows >= 5 ? 'critical' : 'high',
         'أصناف بلا رصيد مع وجود حركة بيع',
         'يوجد ' + zeroStockWithSalesRows + ' صنفًا بلا رصيد مع مؤشر بيع/طلب؛ هذه قائمة أولوية لفحص النفاد والتوريد.',
-        ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows, ...(stockoutSamples.length ? ['samples=' + stockoutSamples.join(' || ')] : [])],
+        ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows, ...stockoutSamples.map((sample) => 'sample=' + sample)],
         zeroStockWithSalesRows,
       );
       if (lowCoverageRows.length > 0) {
