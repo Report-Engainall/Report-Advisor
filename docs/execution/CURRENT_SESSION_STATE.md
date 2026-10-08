@@ -1,13 +1,38 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-CURRENT_MAIN_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-CURRENT_EXECUTION_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-BRANCH = main
-PR = #905 merged
-CURRENT_PR_HEAD = 279315b31f4c6096b23f26b65470e4729d339c4c
+CURRENT_EXACT_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
+CURRENT_EXECUTION_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+BRANCH = fix/generic-smart-report-cross-surface-20261008
+PR = pending
+CURRENT_PR_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
 
 WHAT_ACTUALLY_HAPPENED
+- Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
+- Generic intelligence is rebuilt from canonical report rows after import, so risk/action language, dates, numeric evidence, findings, recommendations, measurement, and evidence boundaries survive into the persisted Smart Report.
+- SmartReportPage now exposes the generic intelligence card for generic reports; the Reports Center and downstream source-bound surfaces continue to consume report.intelligence from the same report context.
+- Final certification performance contract was aligned with the actual 950KB critical asset limit; the 600KB largest-JS-chunk limit remains unchanged.
+- Added a regression marker requiring the generic intelligence layer to be customer-visible on the Smart Report route.
+
+WHAT_IS_PROVEN
+- Product Build Gate on main 21586845371893a381e93721a0fc1de6de20eee7 passed before this branch: exact-head typecheck, production build, smart-report surface, evidence boundary, customer-facing report surface, and upload UI contracts.
+- Current branch commits are source-controlled, but Final Certification / Full Product Browser E2E have not yet produced terminal proof for the branch head.
+- No production-current claim is made.
+
+CURRENT_OPEN_GATES
+- Fresh PR exact-head Final Certification Gate.
+- Fresh PR exact-head Full Product Browser E2E.
+- Fresh PR quality gate.
+- Same-head production deployment after certification.
+
+CURRENT_ACTIVE_FAILURE
+- Proof gap only at this checkpoint: the former certification failure was the stale 900KB expectation versus the actual 950KB performance contract. That mismatch is repaired in this branch; fresh gates must prove the repair.
+
+ROOT_CAUSE
+- Generic file intelligence existed on the upload/preview surface but was not automatically carried into the persisted Smart Report when the source had no recognized business specialty.
+- Final certification had a hard-coded 900KB critical budget while the canonical performance contract had already moved to 950KB.
+
+NEXT_EXACT_ACTION = Open the repair PR, consume the first fresh exact-head CI/browser failure, then merge only after Final Certification and browser proof are green. After merge, prove same-head production.
 - PR #884: Reports Center now renders the existing ReportIntelligencePanel and canonical row-level BusinessDataExplorer directly on the primary report surface.
 - PR #886: authenticated real-business E2E now explicitly certifies the Reports Center itself: current report job/source hash/source path, intelligence panel, recommendation state, row search, row summary, and row-detail handoff.
 - PR #887: normalized strict TypeScript runtime import specifiers across the report-intelligence/report-execution files and replaced the unsupported Array.prototype.at usage identified by the Vercel diagnostic build.
