@@ -32,16 +32,25 @@ try {
   if (!ready) throw new Error('TRY_REPORT_SERVER_NOT_READY');
 
   const { chromium } = await import('playwright');
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+      : {}),
+  });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
 
   await page.goto(baseUrl + '/try-report', { waitUntil: 'networkidle' });
   await page.locator('input[type="file"]').setInputFiles(fixture);
-  await page.getByText('تم التعرف على المصدر', { exact: false }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.waitForFunction(
+    () => document.body.innerText.includes('28-inventory-stockout-reorder.csv'),
+    null,
+    { timeout: 15000 },
+  );
 
-  const body = (await page.locator('body').innerText()).replace(/\\s+/g, ' ').trim();
+  const body = (await page.locator('body').innerText()).replace(/\s+/g, ' ').trim();
   if (errors.length) throw new Error('TRY_REPORT_PAGEERROR:' + errors.join(' | '));
   const required = [
     '28-inventory-stockout-reorder.csv',
@@ -49,20 +58,16 @@ try {
     'الصفوف',
     'الأعمدة',
     'التقرير الاستشاري الأولي',
-    'من المصدر إلى قرار قابل للتنفيذ',
+    'من الملف الخام إلى نتيجة قابلة للتنفيذ',
     'المصدر',
     'الاستخراج',
-    'كشف الحقيقة',
+    'الحقيقة',
     'الإشارة',
-    'لماذا',
-    'ماذا يعني',
     'التوصية',
     'القياس',
     'القرار',
-    'العمل',
+    'القرار والعمل',
     'النتيجة',
-    'التعلّم',
-    'المقارنة',
     'ماذا نفعل الآن؟',
     'حد الدليل',
     'تحويل إلى تقرير ذكي'
@@ -75,8 +80,9 @@ try {
   const tableText = await page.locator('table').last().innerText();
   if (!tableText.includes('DOC-28-001') || !tableText.includes('DOC-28-012')) throw new Error('TRY_REPORT_SOURCE_RANGE_MISSING');
   if (!tableText.includes('SKU-1') || !tableText.includes('WH-1') || !tableText.includes('صنف 1')) throw new Error('TRY_REPORT_SOURCE_TEXT_CORRUPTED');
-  if (!body.includes('1.84') && !body.includes('تغطية 1.84')) throw new Error('TRY_REPORT_ADVISOR_COVERAGE_MISSING');
-  if (!body.includes('إعادة الطلب')) throw new Error('TRY_REPORT_ADVISOR_ACTION_MISSING');
+  // This fixture has sales quantities but no daily-sales-rate or stockout-days field.
+  // The preliminary report must not invent a days-of-coverage claim or a reorder quantity.
+  if (body.includes('تغطية 1.84') || body.includes('1.84 يوم')) throw new Error('TRY_REPORT_UNSUPPORTED_COVERAGE_CLAIM');
   if (errors.length) throw new Error('TRY_REPORT_PAGEERROR:' + errors[0]);
   const metrics = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,

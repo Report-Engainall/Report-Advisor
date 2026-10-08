@@ -2,6 +2,18 @@ import { normalizeColumnName } from './normalizer.ts';
 import type { SynonymEntry } from './types';
 
 let synonymCache: Map<string, { canonical: string; confidence: number }> | null = null;
+let synonymLoadPromise: Promise<Map<string, { canonical: string; confidence: number }>> | null = null;
+const REMOTE_SYNONYM_LOOKUP_TIMEOUT_MS = 1200;
+
+function withTimeout<T>(value: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('REMOTE_SYNONYM_LOOKUP_TIMEOUT')), timeoutMs);
+    Promise.resolve(value).then(
+      result => { clearTimeout(timer); resolve(result); },
+      error => { clearTimeout(timer); reject(error); },
+    );
+  });
+}
 
 const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['sku', 'sku', 96], ['item code', 'sku', 96], ['product code', 'sku', 96], ['item id', 'sku', 92], ['رقم الصنف', 'sku', 98], ['كود الصنف', 'sku', 98], ['رمز الصنف', 'sku', 96],
@@ -26,7 +38,46 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
 async function getBrowserSupabase() { if (typeof window === 'undefined') throw new Error('BROWSER_SUPABASE_UNAVAILABLE_IN_SERVER_FILE_ENGINE'); const { supabase } = await import('../supabase'); return supabase; }
 
-export async function loadSynonyms(): Promise<Map<string, { canonical: string; confidence: number }>> { if (synonymCache) return synonymCache; const map = createBuiltinMap(); if (typeof window !== 'undefined') { const { supabase } = await import('../supabase'); const { data, error } = await supabase.from('synonym_dictionary').select('*').eq('is_active', true); if (!error && data) for (const entry of data as SynonymEntry[]) { const key = normalizeColumnName(entry.synonym); const existing = map.get(key); if (!existing || entry.confidence > existing.confidence) map.set(key, { canonical: entry.canonical_field, confidence: entry.confidence }); } } synonymCache = map; return map; }
+export async function loadSynonyms(): Promise<Map<string, { canonical: string; confidence: number }>> {
+  if (synonymCache) return synonymCache;
+  if (synonymLoadPromise) return synonymLoadPromise;
+
+  synonymLoadPromise = (async () => {
+    const map = createBuiltinMap();
+    if (typeof window !== 'undefined') {
+      try {
+        const { data, error } = await withTimeout(
+          (async () => {
+            const { supabase } = await import('../supabase');
+            return supabase.from('synonym_dictionary').select('*').eq('is_active', true);
+          })(),
+          REMOTE_SYNONYM_LOOKUP_TIMEOUT_MS,
+        );
+        if (!error && data) {
+          for (const entry of data as SynonymEntry[]) {
+            const key = normalizeColumnName(entry.synonym);
+            const existing = map.get(key);
+            if (!existing || entry.confidence > existing.confidence) {
+              map.set(key, { canonical: entry.canonical_field, confidence: entry.confidence });
+            }
+          }
+        }
+      } catch {
+        // File analysis must remain usable when the optional remote dictionary is
+        // unavailable. The deterministic built-in Arabic/English map is sufficient
+        // to continue parsing and visibly report the source rather than hang.
+      }
+    }
+    synonymCache = map;
+    return map;
+  })();
+
+  try {
+    return await synonymLoadPromise;
+  } finally {
+    synonymLoadPromise = null;
+  }
+}
 export function clearSynonymCache(): void { synonymCache = null; }
 export interface ColumnMapping { sourceColumn: string; mappedField: string | null; confidence: number; requiresReview: boolean; }
 export async function mapColumns(sourceColumns: string[]): Promise<ColumnMapping[]> { const synonyms = await loadSynonyms(); return sourceColumns.map(col => { const normalized = normalizeColumnName(col); const match = synonyms.get(normalized); if (match) return { sourceColumn: col, mappedField: match.canonical, confidence: match.confidence, requiresReview: match.confidence < 80 }; const partialMatch = findPartialMatch(normalized, synonyms); return partialMatch ? { sourceColumn: col, mappedField: partialMatch.canonical, confidence: partialMatch.confidence, requiresReview: true } : { sourceColumn: col, mappedField: null, confidence: 0, requiresReview: true }; }); }
