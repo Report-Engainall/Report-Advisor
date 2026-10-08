@@ -4,7 +4,7 @@ import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 
 const PRODUCT_SAVE_TIMEOUT_MS = 25000;
 
-async function runBounded<T>(operation: (signal: AbortSignal) => Promise<T>, timeoutMessage: string): Promise<T> {
+async function runBounded<T>(operation: (signal: AbortSignal) => PromiseLike<T> | T, timeoutMessage: string): Promise<T> {
   const controller = new AbortController();
   let timeoutId: number | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
@@ -14,7 +14,7 @@ async function runBounded<T>(operation: (signal: AbortSignal) => Promise<T>, tim
     }, PRODUCT_SAVE_TIMEOUT_MS);
   });
   try {
-    return await Promise.race([operation(controller.signal), timeoutPromise]);
+    return await Promise.race([Promise.resolve(operation(controller.signal)), timeoutPromise]);
   } finally {
     if (timeoutId !== undefined) window.clearTimeout(timeoutId);
   }
