@@ -266,6 +266,11 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
       'max=' + metric.max.toFixed(2),
     ];
     const outliers = numericOutlierCount(metric);
+    const sourceSamples = dataset.rows
+      .map((row, index) => ({ row: index + 1, value: toNumber(row[metric.column.name] ?? row[metric.column.mappedField ?? '']) }))
+      .filter((item): item is { row: number; value: number } => item.value != null)
+      .slice(0, 2)
+      .map((item) => 'sample=الصف ' + item.row + ' · ' + metric.column.name + '=' + item.value.toLocaleString('ar-YE', { maximumFractionDigits: 2 }));
 
     if (outliers.count >= Math.max(2, Math.ceil(metric.usableRows * 0.05))) {
       metricSignals.push({
@@ -273,7 +278,7 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
         severity: outliers.count >= Math.ceil(metric.usableRows * 0.15) ? 'high' : 'medium',
         title: 'قيم شاذة تستحق الفحص: ' + metric.column.name,
         message: 'ظهرت ' + outliers.count + ' قيم خارج نطاق التوزيع المعتاد للحقل، بين ' + metric.min.toLocaleString('ar-YE') + ' و' + metric.max.toLocaleString('ar-YE') + '.',
-        evidence: [...evidenceBase, 'outlierCount=' + outliers.count, 'lowerFence=' + outliers.lower.toFixed(2), 'upperFence=' + outliers.upper.toFixed(2)],
+        evidence: [...evidenceBase, 'outlierCount=' + outliers.count, 'lowerFence=' + outliers.lower.toFixed(2), 'upperFence=' + outliers.upper.toFixed(2), ...sourceSamples],
         affectedRows: outliers.count,
         soWhat: 'هذا قد يمثل حالة حقيقية مهمة أو خطأ إدخال؛ يجب فحص الصفوف الشاذة قبل بناء قرار عليها.',
         impact: 'الأثر المالي/التشغيلي غير مثبت؛ المثبت هو وجود قيم خارج النطاق الإحصائي.',
@@ -289,7 +294,7 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
         severity: metric.missingRows / Math.max(1, dataset.rowCount) >= 0.3 ? 'high' : 'medium',
         title: 'نقص واضح في الحقل: ' + metric.column.name,
         message: 'الحقل مفقود في ' + metric.missingRows + ' من ' + dataset.rowCount + ' سجلًا؛ أي ' + ((metric.missingRows / dataset.rowCount) * 100).toFixed(1) + '%.',
-        evidence: [...evidenceBase, 'missingRows=' + metric.missingRows, 'missingShare=' + ((metric.missingRows / dataset.rowCount) * 100).toFixed(1) + '%'],
+        evidence: [...evidenceBase, 'missingRows=' + metric.missingRows, 'missingShare=' + ((metric.missingRows / dataset.rowCount) * 100).toFixed(1) + '%', ...sourceSamples],
         affectedRows: metric.missingRows,
         soWhat: 'أي إجمالي أو اتجاه يعتمد على هذا الحقل قد يكون جزئيًا؛ يجب معرفة سبب النقص قبل اعتماد الاستنتاج.',
         impact: 'قد يخفض النقص من اكتمال القرار، ولا يُفترض أثر مالي.',
@@ -306,7 +311,7 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
         severity: Math.abs(metric.changePct) >= 35 ? 'high' : 'medium',
         title: 'اتجاه ملحوظ في ' + metric.column.name,
         message: 'متوسط الجزء الأحدث من السجلات يشير إلى ' + direction + ' بنحو ' + Math.abs(metric.changePct).toFixed(1) + '% مقارنة بالبداية.',
-        evidence: [...evidenceBase, 'firstMean=' + (metric.firstMean ?? 0).toFixed(2), 'lastMean=' + (metric.lastMean ?? 0).toFixed(2), 'changePct=' + metric.changePct.toFixed(1) + '%'],
+        evidence: [...evidenceBase, 'firstMean=' + (metric.firstMean ?? 0).toFixed(2), 'lastMean=' + (metric.lastMean ?? 0).toFixed(2), 'changePct=' + metric.changePct.toFixed(1) + '%', ...sourceSamples],
         affectedRows: metric.usableRows,
         soWhat: 'الاتجاه يستحق تفسيرًا بحسب البعد التجاري الذي يمثله الحقل، لكنه لا يثبت السبب وحده.',
         impact: 'المثبت هو التغير الحسابي؛ الأثر التجاري يحتاج ربط الحقل بسياق القرار.',
