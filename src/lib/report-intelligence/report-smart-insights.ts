@@ -440,6 +440,12 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         } else if (dailyRate != null && dailyRate > 0) {
           coverageDays = stock / dailyRate;
           coverageBasis = 'stockField=' + stockKey + ' dailySalesField=' + dailyRateKey;
+        } else if (netSales != null && netSales > 0) {
+          // Some operational inventory sheets expose demand only as sales quantity
+          // per source row. Treat this strictly as a row-level coverage proxy, not
+          // as calendar days; the recommendation remains gated by lead-time data.
+          coverageDays = stock / netSales;
+          coverageBasis = 'stockField=' + stockKey + ' salesField=' + netSalesKey + ' coverageMode=source_row_demand_proxy';
         }
         if (coverageDays != null && Number.isFinite(coverageDays) && coverageDays >= 0 && coverageDays <= 30) {
           lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage ?? 0, sales: salesForCoverage ?? 0, coverageDays, basis: coverageBasis });
@@ -530,6 +536,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           'stockField=' + stockKey,
           ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : []),
           ...(stockoutDaysKey ? ['stockoutDaysField=' + stockoutDaysKey] : []),
+          ...(lowCoverageRows.some((item) => item.basis.includes('coverageMode=source_row_demand_proxy')) ? ['coverageMode=source_row_demand_proxy'] : []),
           'coverageThresholdDays=30',
           'affectedRows=' + lowCoverageRows.length,
           'sample=' + coverageSample,
