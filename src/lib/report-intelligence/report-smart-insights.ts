@@ -45,6 +45,7 @@ export type ReportRecommendation = {
   risk: string;
   blocker: string;
   limitation: string;
+  deadlineHint?: string;
 };
 
 export type ReportForecast = {
@@ -862,6 +863,20 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       limitation: isDemandPressure
         ? 'لا يمكن تحويل الضغط إلى خسارة مالية مستقبلية أو كمية شراء دون بيانات تكلفة/مهلة توريد/نقطة إعادة الطلب.'
         : signal.impact || 'لا يمكن إثبات أثر مالي أو سببي أوسع من المصدر الحالي.',
+      deadlineHint:
+        signal.id === 'inventory:imminent-stockout-7d'
+          ? 'التدخل خلال 7 أيام وفق فترة النفاد المثبتة في المصدر.'
+          : signal.id === 'inventory:stockout'
+            ? 'المراجعة قبل قرار التوريد أو التسوية التالي.'
+            : signal.id === 'inventory:negative-stock'
+              ? 'قبل أي تسوية رصيد أو قرار شراء جديد.'
+              : signal.id === 'inventory:movement-reconciliation'
+                ? 'قبل اعتماد التقرير أو استخدام الرصيد في قرار تنفيذي.'
+                : isDemandPressure
+                  ? 'قبل دورة إعادة الطلب التالية.'
+                  : signal.severity === 'critical' || signal.severity === 'high'
+                    ? 'قبل اعتماد القرار التنفيذي المبني على هذه الإشارة.'
+                    : 'قبل تحويل الإشارة إلى إجراء تنفيذي.',
     };
   });
 }
