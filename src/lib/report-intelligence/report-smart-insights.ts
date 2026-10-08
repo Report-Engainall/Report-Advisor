@@ -405,7 +405,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       let totalStock = 0;
       let totalDailyRate = 0;
       let dailyRateRows = 0;
-      const lowCoverageRows: Array<{ name: string; stock: number; demand: number; coverageDays: number; basis: string }> = [];
+      const lowCoverageRows: Array<{ name: string; stock: number; demand: number; sales: number; coverageDays: number; basis: string }> = [];
       const datedDemandRows: Array<{ date: Date; sales: number }> = [];
       const fastMovingProducts: Array<{ name: string; rate: number }> = [];
       const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
@@ -440,7 +440,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           coverageBasis = 'stockField=' + stockKey + ' dailySalesField=' + dailyRateKey;
         }
         if (coverageDays != null && Number.isFinite(coverageDays) && coverageDays >= 0 && coverageDays <= 30) {
-          lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage ?? 0, coverageDays, basis: coverageBasis });
+          lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage ?? 0, sales: salesForCoverage ?? 0, coverageDays, basis: coverageBasis });
         }
         if (dateKey && salesForCoverage != null && salesForCoverage > 0) {
           const date = parseDateValue(rowValue(row.data, dateKey));
@@ -518,7 +518,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           .slice(0, 5)
           .map(item => item.name + ':' + item.coverageDays.toFixed(1) + ' يوم')
           .join('، ');
-        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + (Number(item.demand) || 0), 0);
+        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + (Number(item.sales) || 0), 0);
         const allSales = rows.reduce((sum, row) => {
           const value = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
           return sum + (value != null && value > 0 ? value : 0);
