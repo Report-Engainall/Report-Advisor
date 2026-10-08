@@ -1,41 +1,46 @@
-SESSION HANDOFF = READY
+SESSION HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-BRANCH = ux/smart-report-commercial-20261008
-PR = #908
-CURRENT_PR_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
+CURRENT_EXACT_HEAD = 901db4bd6bf029d111e1429e66ba51be9bb272d0
+CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+CURRENT_EXECUTION_HEAD = 901db4bd6bf029d111e1429e66ba51be9bb272d0
+BRANCH = captain/critical-bundle-proof-20261009
+PR = #911
+CURRENT_PR_HEAD = 901db4bd6bf029d111e1429e66ba51be9bb272d0 (application proof head; following commits synchronize governance docs only)
 
 WHAT_ACTUALLY_HAPPENED
-- Smart Report result-first executive surface is implemented: trust, records, evidence, decision readiness, result, risk, opportunity, action, with sourceHash/jobId kept as secondary audit metadata.
-- Removed 902 characters of redundant Smart Report CSS while preserving the strict performance budget. The critical budget was measured at 949.9KB and passed the 950KB ceiling in the preceding application proof.
-- Purchases now reads the canonical dashboard snapshot alongside purchase rows and exposes the shared report-truth state.
-- Product creation now uses bounded save/readback handling and authoritative tenant resolution.
-- Full Product Browser E2E now watches src/components/ProductCreateDialog.tsx so product-creation changes cannot bypass browser proof.
-- Governance state is being synchronized after the handoff guard correctly detected stale execution documents.
+- PR #910 merged to main: fixes universal file-analysis initialization and adds the visible source-to-decision path in the file-analysis screen.
+- Opened PR #911 to load DashboardPage through React.lazy rather than bundling it into the initial entry; no route or dashboard behavior was removed.
+- Fresh exact-source build reduced measured critical assets from 952.1KB to 917.6KB without changing the 950KB limit.
+- Updated route and intelligence contracts remain in place; this checkpoint does not claim full production readiness.
 
 WHAT_IS_PROVEN
-- Current execution checkout is 257c179eb2b68589eb341007fb51b5f035e6a1b4.
-- Immediate predecessor proof included Product Build PASS, Final Certification PASS, canonical truth PASS, UI route completeness PASS, Cloudflare compatibility PASS, Golden Evidence PASS, OCR PASS, and performance 949.9KB PASS.
-- Vercel previews were built from the same product branch during this wave.
-- Production currentness is NOT claimed.
+- Application code head: 901db4bd6bf029d111e1429e66ba51be9bb272d0; PR #911.
+- TypeScript typecheck: PASS.
+- Production build: PASS.
+- Performance budget: PASS, critical assets 917.6KB against the unchanged 950KB limit; largest JS 488.9KB against 600KB.
+- UI route completeness: PASS (47 routes / 43 canonical navigation links); sidebar route parity PASS.
+- File-engine architecture PASS; 21 declared formats explicitly dispatched.
+- Generic file analysis, advisor intelligence/recommendations, source-report workspace, intelligence product contract, full smart-report surface/context lineage, and Phase 11 performance-closure contract: PASS.
+- Current public preview for PR #910 responds, and its /try-report route exposes the file-analysis upload entry point.
 
 CURRENT_OPEN_GATES
-- Full Product Browser E2E.
-- Device-Independent Browser E2E.
-- Storage Tenant Runtime E2E.
-- Commercial Product Creation E2E.
-- Final Certification for any post-certification governance head.
-- Same-head merge to main and production proof.
+- PR #911 needs fresh GitHub CI on its complete final branch head before merge.
+- Full authenticated browser proof of upload -> persisted report -> evidence -> recommendation -> decision/work/outcome is not proven.
+- The main-head Full Product Browser E2E run 37856344734 was still in progress at last read; E2E actor provisioning and real-open-report resume had failed earlier in that run.
+- Real-source 48/48 archetype proof is not established by the local contract tests.
+- Production Netlify is still on an older commit and does not yet expose the merged PR #910 file-analysis path.
 
 CURRENT_ACTIVE_FAILURE
-- Previous blocker: Session Handoff Contract rejected stale governance coverage after application changes. No application defect is asserted from that governance failure.
+- Deploy Netlify Production run 37856344741 failed at publish because repository Actions secrets NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID were empty/missing.
+- The main-head quality/certification gate failed the critical-asset budget by 2.1KB; PR #911 reduces the current measured value to 917.6KB locally, but CI must re-run on the candidate head.
+- Session Handoff Contract on main rejected stale persisted report lineage; this checkpoint updates the execution docs with a source head that is an ancestor of the documentation-only handoff commits.
 
 ROOT_CAUSE
-- CURRENT_SESSION_STATE.md and PROGRAMMER_CURRENT_REPORT.md still pointed to older execution heads after the Smart Report, purchases, product-save, and browser-trigger changes.
+- DashboardPage was eagerly imported into the app entry even though workspace routes support lazy loading; this added avoidable first-load code.
+- Prior governance documents referenced old, non-ancestor execution heads.
+- Netlify production release is blocked by missing deploy credentials, not by a failed application build.
 
-NEXT_EXACT_ACTION = Consume terminal current-head Browser/Device/Storage/Commercial results; fix only the first terminal application failure; then merge PR #908 into #906, merge #906 to main, and prove same-head production.
+NEXT_EXACT_ACTION = Consume exact-head CI for PR #911, merge only after its relevant checks are clean, configure NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID privately in GitHub Actions settings, rerun the production deploy, then prove the live /try-report and authenticated upload-to-decision journey on the deployed commit. Do not mark PRODUCT_COMPLETE or PRODUCTION_PROVEN before that evidence.
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
