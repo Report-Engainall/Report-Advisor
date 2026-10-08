@@ -408,12 +408,17 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       const datedDemandRows: Array<{ date: Date; sales: number }> = [];
       const fastMovingProducts: Array<{ name: string; rate: number }> = [];
       const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
+      const negativeStockSamples: string[] = [];
+      const stockoutSamples: string[] = [];
 
       for (const row of rows) {
         const stock = numeric(rowValue(row.data, stockKey));
         if (stock == null) continue;
         totalStock += stock;
-        if (stock < 0) negativeStockRows += 1;
+        if (stock < 0) {
+          negativeStockRows += 1;
+          if (negativeStockSamples.length < 5) negativeStockSamples.push(rowRef + productName + ' · الرصيد=' + stock);
+        }
         if (stock <= 0) zeroStockRows += 1;
 
         const dailyRate = dailyRateKey ? numeric(rowValue(row.data, dailyRateKey)) : null;
@@ -421,6 +426,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         const sourceStockoutDays = stockoutDaysKey ? numeric(rowValue(row.data, stockoutDaysKey)) : null;
         const salesForCoverage = netSales;
         const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
+        const rowRef = row.row_number == null ? '' : 'الصف=' + row.row_number + ' · ';
         // Coverage is a time measure. Prefer the source's own stockout period;
         // otherwise derive days from current stock / daily sales rate.
         let coverageDays: number | null = null;
@@ -443,9 +449,13 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           totalDailyRate += dailyRate;
           dailyRateRows += 1;
           fastMovingProducts.push({ name: productName, rate: dailyRate });
-          if (stock <= 0) zeroStockWithSalesRows += 1;
+          if (stock <= 0) {
+            zeroStockWithSalesRows += 1;
+            if (stockoutSamples.length < 5) stockoutSamples.push(rowRef + productName + ' · الرصيد=' + stock + ' · معدل البيع اليومي=' + dailyRate);
+          }
         } else if (netSales != null && netSales > 0 && stock <= 0) {
           zeroStockWithSalesRows += 1;
+          if (stockoutSamples.length < 5) stockoutSamples.push(rowRef + productName + ' · الرصيد=' + stock + ' · صافي المبيعات=' + netSales);
         }
 
         const stockoutDays = stockoutDaysKey ? numeric(rowValue(row.data, stockoutDaysKey)) : null;
@@ -488,7 +498,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         negativeStockRows >= Math.max(5, Math.round(rows.length * 0.05)) ? 'critical' : 'high',
         'أرصدة مخزون سالبة',
         'يوجد ' + negativeStockRows + ' سجلًا برصيد سلبي؛ وهذا يمنع الاعتماد على حالة المخزون كما هي دون مطابقة الحركة والمستندات.',
-        ['stockField=' + stockKey, 'negativeRows=' + negativeStockRows, 'sourceRows=' + rows.length],
+        ['stockField=' + stockKey, 'negativeRows=' + negativeStockRows, 'sourceRows=' + rows.length, ...(negativeStockSamples.length ? ['samples=' + negativeStockSamples.join(' || ')] : [])],
         negativeStockRows,
       );
       if (zeroStockWithSalesRows > 0) addSignal(
@@ -497,7 +507,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         zeroStockWithSalesRows >= 5 ? 'critical' : 'high',
         'أصناف بلا رصيد مع وجود حركة بيع',
         'يوجد ' + zeroStockWithSalesRows + ' صنفًا بلا رصيد مع مؤشر بيع/طلب؛ هذه قائمة أولوية لفحص النفاد والتوريد.',
-        ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows],
+        ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows, ...(stockoutSamples.length ? ['samples=' + stockoutSamples.join(' || ')] : [])],
         zeroStockWithSalesRows,
       );
       if (lowCoverageRows.length > 0) {
