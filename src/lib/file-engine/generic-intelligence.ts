@@ -283,8 +283,9 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   const actionCount = countMatches(lines, ACTION_TERMS);
   const dateCount = (allText.match(/\b(?:\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b/g) ?? []).length;
   const base = deriveReportIntelligence({ specialty: null, rowCount: dataset.rowCount, sourceAnalysis: { datasets: [dataset] }, canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })) });
-  const signals: ReportSignal[] = [];
-  if (riskLines.length) {
+  const tableProfile = profileStructuredTable(dataset);
+  const signals: ReportSignal[] = tableProfile ? [...tableProfile.signals] : [];
+  if (!tableProfile && riskLines.length) {
     const severity = riskCount >= 5 ? 'high' : riskCount >= 2 ? 'medium' : 'low';
     signals.push({
       id: 'generic:file:risk-language', severity, title: 'إشارات مخاطر أو استثناءات داخل المحتوى',
@@ -295,7 +296,7 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
       priority: severity === 'high' ? 'P1' : 'P2', priorityReason: ['risk_terms=' + riskCount, 'evidence_lines=' + riskLines.length],
     });
   }
-  if (actionLines.length) {
+  if (!tableProfile && actionLines.length) {
     signals.push({
       id: 'generic:file:action-language', severity: riskLines.length ? 'medium' : 'low', title: 'لغة قرار أو إجراء داخل الملف',
       message: 'رُصدت ' + actionCount + ' إشارات مرتبطة بالإجراء/المراجعة/الاعتماد.',
@@ -318,21 +319,31 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   const keywordEvidence = keywords.map((item) => item.word + ':' + item.count).join(' · ');
   return {
     ...base,
-    businessQuestion: 'ماذا يقول هذا الملف فعليًا، وما الإشارات التي تستحق انتباهًا أو إجراءً؟',
-    summary: 'تم فحص ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى من ' + format + '. التحليل استخرج إشارات المخاطر، لغة الإجراء، التواريخ، والمقاطع الرقمية دون افتراض نموذج أعمال.',
-    signals,
-    recommendations: signals.length ? [recommendation, ...base.recommendations.filter((item) => !item.id.startsWith('generic:file:'))] : [recommendation],
-    findings: [genericFinding, ...base.findings], risks: riskLines.length ? [genericFinding, ...base.risks] : base.risks, opportunities: !riskLines.length && !actionLines.length ? [genericFinding, ...base.opportunities] : base.opportunities,
+    businessQuestion: tableProfile
+      ? 'ما أهم القياسات والفئات في هذا الجدول، وأي استثناءات تستحق المراجعة قبل القرار؟'
+      : 'ماذا يقول هذا الملف فعليًا، وما الإشارات التي تستحق انتباهًا أو إجراءً؟',
+    summary: tableProfile?.summary ?? ('تم فحص ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى من ' + format + '. التحليل استخرج إشارات المخاطر، لغة الإجراء، التواريخ، والمقاطع الرقمية دون افتراض نموذج أعمال.'),
+    signals: tableProfile ? tableProfile.signals : signals,
+    recommendations: tableProfile ? tableProfile.recommendations : (signals.length ? [recommendation] : [recommendation]),
+    findings: [tableProfile?.finding ?? genericFinding, ...base.findings],
+    risks: tableProfile ? (tableProfile.statusCount > 0 ? [tableProfile.finding, ...base.risks] : base.risks) : (riskLines.length ? [genericFinding, ...base.risks] : base.risks),
+    opportunities: tableProfile ? base.opportunities : (!riskLines.length && !actionLines.length ? [genericFinding, ...base.opportunities] : base.opportunities),
     guidance: {
-      ...base.guidance, focus: riskLines[0] ? 'بنود المخاطر/الاستثناءات' : actionLines[0] ? 'بنود الإجراء والاعتماد' : 'فهم محتوى الملف',
-      inspect: [...riskLines.slice(0, 3), ...actionLines.slice(0, 2), ...numbers.slice(0, 2), ...(keywordEvidence ? ['الكلمات البارزة: ' + keywordEvidence] : [])],
+      ...base.guidance,
+      focus: tableProfile?.headline ?? (riskLines[0] ? 'بنود المخاطر/الاستثناءات' : actionLines[0] ? 'بنود الإجراء والاعتماد' : 'فهم محتوى الملف'),
+      inspect: tableProfile?.inspect ?? [...riskLines.slice(0, 3), ...actionLines.slice(0, 2), ...numbers.slice(0, 2), ...(keywordEvidence ? ['الكلمات البارزة: ' + keywordEvidence] : [])],
       boundary: 'التحليل العام يحفظ الدليل كما ورد في الملف. لا يحول النص الوصفي إلى حقيقة تجارية أو أثر مالي دون مصدر إضافي.',
     },
     advisorBrief: {
-      health: riskLines.length ? 'REVIEW_REQUIRED' : actionLines.length ? 'ATTENTION' : 'HEALTHY',
-      headline: riskLines[0] ?? actionLines[0] ?? ('الملف قابل للفحص العام: ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى.'),
-      topFinding: genericFinding, topRisk: riskLines.length ? genericFinding : null, topOpportunity: !riskLines.length && !actionLines.length ? genericFinding : null,
-      recommendedAction: recommendation.action, ownerHint: recommendation.ownerHint, expectedOutcome: recommendation.expectedOutcome, measurement: recommendation.measurement,
+      health: tableProfile ? (tableProfile.statusCount > 0 ? 'REVIEW_REQUIRED' : 'ATTENTION') : (riskLines.length ? 'REVIEW_REQUIRED' : actionLines.length ? 'ATTENTION' : 'HEALTHY'),
+      headline: tableProfile?.headline ?? (riskLines[0] ?? actionLines[0] ?? ('الملف قابل للفحص العام: ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى.')),
+      topFinding: tableProfile?.finding ?? genericFinding,
+      topRisk: tableProfile ? (tableProfile.statusCount > 0 ? tableProfile.finding : null) : (riskLines.length ? genericFinding : null),
+      topOpportunity: tableProfile ? null : (!riskLines.length && !actionLines.length ? genericFinding : null),
+      recommendedAction: tableProfile?.recommendations[0]?.action ?? recommendation.action,
+      ownerHint: tableProfile?.recommendations[0]?.ownerHint ?? recommendation.ownerHint,
+      expectedOutcome: tableProfile?.recommendations[0]?.expectedOutcome ?? recommendation.expectedOutcome,
+      measurement: tableProfile?.recommendations[0]?.measurement ?? recommendation.measurement,
       proofRequirement: 'كل ادعاء يجب أن يبقى مرتبطًا بالمصدر والبصمة والدليل المستخرج؛ لا اعتماد تلقائي للنتيجة النهائية.',
     },
   };
