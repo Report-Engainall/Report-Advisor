@@ -366,6 +366,8 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   if (actionSignal) signals.push(actionSignal);
   signals.push(...metricSignals);
 
+  const keywordEvidence = keywords.map((item) => item.word + ':' + item.count).join(' · ');
+
   const rankedSignals = [...signals].sort((a, b) => {
     const severityRank: Record<string, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
     return (severityRank[b.severity] ?? 0) - (severityRank[a.severity] ?? 0)
@@ -430,8 +432,6 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   const summary = metrics.length
     ? 'تم تحليل ' + dataset.rowCount.toLocaleString('ar-YE') + ' سجلًا و' + dataset.columnCount + ' حقلًا، مع استخراج ' + metrics.length + ' مؤشرات رقمية قابلة للحساب، ثم اختبار الاتجاه والقيم الشاذة ونقص البيانات والتركيز.'
     : 'تم فحص ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى من ' + format + ' واستخراج الإشارات النصية والأرقام والتواريخ وحدود الإثبات.';
-
-  const keywordEvidence = keywords.map((item) => item.word + ':' + item.count).join(' · ');
 
   return {
     ...base,
