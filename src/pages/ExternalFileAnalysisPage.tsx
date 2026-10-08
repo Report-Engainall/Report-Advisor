@@ -23,18 +23,50 @@ function fileIcon(format: FileFormat) {
 }
 
 function inferSpecialty(dataset: Dataset): 'inventory' | 'sales' | 'purchases' | 'receivables' | 'payments' | undefined {
-  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\\s_./-]+/g, '');
+  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\s_./-]+/g, '');
   const fields = new Set([
     ...dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
     ...dataset.columns.map((column) => normalize(column.name)),
   ]);
-  const has = (...aliases: string[]) => aliases.some((alias) => fields.has(alias) || [...fields].some((field) => field.includes(alias)));
-  if (has('current_stock', 'currentstock', 'stockout_days', 'stockoutdays', 'daily_sales_rate', 'dailysalesrate', 'salesqty') || (has('currentstock', 'الرصيدالحالي', 'المخزونالحالي') && has('productcode', 'salesqty', 'warehouse'))) return 'inventory';
-  if (has('supplier_name', 'suppliername', 'المورد') && has('total', 'net_amount', 'netamount')) return 'purchases';
-  if (has('balance', 'الرصيدالمستحق', 'المتبقي') && (has('paid_amount', 'paidamount', 'paid', 'المدفوع') || has('credit', 'دائن'))) return 'receivables';
-  if (has('paid_amount', 'paidamount', 'paid', 'المدفوع') && !has('total', 'net_amount', 'netamount')) return 'payments';
-  if (has('customer_name', 'customername', 'customer', 'client', 'العميل') && has('total', 'net_amount', 'netamount', 'salesqty')) return 'sales';
-  if (has('sales_qty', 'salesqty', 'كميةالمبيعات') && (has('product_name', 'productname', 'product', 'item', 'productcode', 'sku') || has('warehouse', 'المستودع'))) return 'inventory';
+  const hasAny = (...aliases: string[]) => aliases.some((alias) => fields.has(alias) || [...fields].some((field) => field.includes(alias)));
+  const hasPair = (a: string[], b: string[]) => hasAny(...a) && hasAny(...b);
+  const hasTriple = (a: string[], b: string[], c: string[]) => hasAny(...a) && hasAny(...b) && hasAny(...c);
+
+  const inventory = hasTriple(
+    ['current_stock', 'currentstock', 'الرصيدالحالي', 'المخزونالحالي'],
+    ['sales_qty', 'salesqty', 'كميةالمبيعات'],
+    ['productcode', 'product_code', 'sku', 'productname', 'product_name', 'warehouse', 'المستودع', 'المخزن'],
+  ) || hasTriple(
+    ['stockout_days', 'stockoutdays', 'الفترةالمتوقعةلنفادالكمية', 'أيامالنفاد'],
+    ['sales_qty', 'salesqty', 'كميةالمبيعات', 'daily_sales_rate', 'dailysalesrate', 'معدل البيع اليومي'],
+    ['productcode', 'product_code', 'sku', 'productname', 'product_name', 'warehouse', 'المستودع', 'المخزن'],
+  );
+  if (inventory) return 'inventory';
+
+  if (hasTriple(
+    ['supplier_name', 'suppliername', 'المورد'],
+    ['total', 'net_amount', 'netamount', 'amount', 'الإجمالي', 'المبلغ'],
+    ['purchase', 'purchases', 'المشتريات', 'quantity', 'qty', 'كمية', 'document', 'invoice_number', 'رقمالفاتورة'],
+  )) return 'purchases';
+
+  if (hasTriple(
+    ['balance', 'الرصيدالمستحق', 'المتبقي', 'outstanding'],
+    ['paid_amount', 'paidamount', 'paid', 'المدفوع'],
+    ['customer_name', 'customername', 'customer', 'client', 'العميل', 'invoice_number', 'invoice', 'رقمالفاتورة'],
+  )) return 'receivables';
+
+  if (hasTriple(
+    ['customer_name', 'customername', 'customer', 'client', 'العميل'],
+    ['total', 'net_amount', 'netamount', 'salesqty', 'sales_qty', 'المبيعات'],
+    ['invoice_number', 'invoice', 'document_number', 'document', 'date', 'invoice_date', 'التاريخ'],
+  )) return 'sales';
+
+  if (hasTriple(
+    ['paid_amount', 'paidamount', 'paid', 'المدفوع'],
+    ['payment', 'payment_id', 'receipt', 'receipt_number', 'السداد', 'دفعة', 'إيصال'],
+    ['date', 'payment_date', 'document', 'invoice_number', 'reference', 'التاريخ', 'رقم المستند'],
+  )) return 'payments';
+
   return undefined;
 }
 
@@ -234,7 +266,9 @@ export function ExternalFileAnalysisPage() {
   }
 
   const dataset = datasets[active] ?? null;
+  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
+  const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
     specialty: specialty ?? null,
     rowCount: dataset.rowCount,
@@ -243,8 +277,6 @@ export function ExternalFileAnalysisPage() {
     sourcePath: file?.name ?? dataset.name,
     sourceHash: file?.hash ?? null,
   }) : null, [dataset, file, specialty]);
-  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
-  const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
     unmapped: dataset.columns.filter(c => !c.mappedField).length,
@@ -285,11 +317,11 @@ export function ExternalFileAnalysisPage() {
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
     {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
-    {file && universalIntelligence && <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+    {file && universalIntelligence && <details open className="progressive-disclosure rounded-[20px] border border-indigo-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4">
         <div className="flex items-center justify-between gap-4">
-          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والدليل الفني متاحان للمراجعة دون إغراق النتيجة التنفيذية.</div></div>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح التفاصيل</span>
+          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والدليل الفني ظاهر الآن مع النتيجة التنفيذية؛ يمكن طيه فقط إذا أراد المستخدم شاشة أكثر اختصارًا.</div></div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">طي التفاصيل</span>
         </div>
       </summary>
       <div className="border-t border-ink-100 p-3 lg:p-4"><UniversalIntelligenceChain result={universalIntelligence}/></div>

@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-BRANCH = ux/smart-report-commercial-20261008
-PR = #908
-CURRENT_PR_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
+CURRENT_EXACT_HEAD = 6643cb91fb64506c2778edf919c5491578c43d60
+CURRENT_MAIN_HEAD = eb28b2f9dd3501706611e3618e7db729beff21d6
+CURRENT_EXECUTION_HEAD = 6643cb91fb64506c2778edf919c5491578c43d60
+BRANCH = fix/general-smart-report-engine-20261008
+PR = #909
+CURRENT_PR_HEAD = 6643cb91fb64506c2778edf919c5491578c43d60
 
 WHAT_ACTUALLY_HAPPENED
 - Smart Report result-first executive surface is implemented: trust, records, evidence, decision readiness, result, risk, opportunity, action, with sourceHash/jobId kept as secondary audit metadata.
@@ -30,12 +30,13 @@ CURRENT_OPEN_GATES
 - Same-head merge to main and production proof.
 
 CURRENT_ACTIVE_FAILURE
-- Previous blocker: Session Handoff Contract rejected stale governance coverage after application changes. No application defect is asserted from that governance failure.
+- The prior generic evidence-boundary assertion, missing phase-L quality gate, and stale governance head were repaired on PR #909.
+- Fresh browser/storage/commercial runs remain exposed to live Supabase PGRST002/503/504 instability; this is not being mislabeled as a UI defect.
 
 ROOT_CAUSE
 - CURRENT_SESSION_STATE.md and PROGRAMMER_CURRENT_REPORT.md still pointed to older execution heads after the Smart Report, purchases, product-save, and browser-trigger changes.
 
-NEXT_EXACT_ACTION = Consume terminal current-head Browser/Device/Storage/Commercial results; fix only the first terminal application failure; then merge PR #908 into #906, merge #906 to main, and prove same-head production.
+NEXT_EXACT_ACTION = Consume fresh exact-head quality and certification results; then retry Browser/Device/Storage/Commercial proof after the live Supabase runtime stabilizes; merge PR #909 only after terminal application failures are cleared.
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
