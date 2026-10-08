@@ -180,8 +180,10 @@ function isExtractionArtifactHeader(value: unknown): boolean {
   return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key) || /^20\d{2}-?$/.test(key);
 }
 
-function canonicalSourceField(value: unknown): string | null {
+function canonicalSourceField(value: unknown, specialty?: ReportInput['specialty']): string | null {
   const key = normalized(value);
+  const inventoryBalanceKeys = ['\u0627\u0644\u0631\u0635\u064a\u062f','\u0627\u0644\u0631\u0635\u064a\u062f\u0627\u0644\u062d\u0627\u0644\u064a','\u0627\u0644\u0645\u062e\u0632\u0648\u0646\u0627\u0644\u062d\u0627\u0644\u064a','\u0627\u0644\u0643\u0645\u064a\u0629\u0627\u0644\u0645\u062a\u0648\u0641\u0631\u0629','\u0627\u0644\u0643\u0645\u064a\u0629\u0627\u0644\u0645\u062a\u0627\u062d\u0629','currentstock','onhand'];
+  if (specialty === 'inventory' && inventoryBalanceKeys.includes(key)) return 'current_stock';
   const aliases: Array<[string, string[]]> = [
     ['date', ['date','invoice_date','التاريخ','تاريخالفاتورة','التاريخ2026']],
     ['invoice_number', ['invoice_number','invoice number','invoice_no','رقمالفاتورة','رقمالفاتوره']],
@@ -233,7 +235,7 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
         const name = text(column.name ?? column.mappedField);
         if (!name || isExtractionArtifactHeader(name)) return null;
         const declaredMapped = text(column.mappedField);
-        const semanticMapped = canonicalSourceField(name);
+        const semanticMapped = canonicalSourceField(name, report.specialty);
         const genericDeclared = /^(unknown|unmapped|غير.?معين|غير.?معرّف|undefined|null)$/i.test(declaredMapped);
         // The original header is the strongest local semantic evidence. Prefer
         // it over stale/placeholder persisted mappings so runtime intelligence
