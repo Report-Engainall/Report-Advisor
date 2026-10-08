@@ -57,7 +57,7 @@ async function main() {
     assert.equal(datasets[0].rowCount, item.expectedRows, item.format + ' row count');
     const intelligence = buildGenericFileIntelligence(datasets[0], item.format);
     assert.ok(intelligence.summary.length > 20, item.format + ' summary');
-    assert.ok(intelligence.guidance.boundary.includes('لا يحول'), item.format + ' evidence boundary');
+    assert.ok(intelligence.guidance.boundary.includes('لا يحوّل'), item.format + ' evidence boundary');
   }
   console.log('GENERIC FILE ANALYSIS PASS');
 }
