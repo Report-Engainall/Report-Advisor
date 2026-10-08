@@ -351,7 +351,7 @@ function SourceIntelligenceRibbon({ report }: { report: SmartReportDetail }) {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[9px] font-black tracking-[.16em] text-primary-700">LIVE REPORT INTELLIGENCE</span>
+            <span className="text-[9px] font-black tracking-[.16em] text-primary-700">ذكاء التقرير الحالي</span>
             <span className="rounded-full border border-primary-200 bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">
               {sourceState}
             </span>
