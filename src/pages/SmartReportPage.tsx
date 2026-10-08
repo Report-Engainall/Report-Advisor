@@ -1267,11 +1267,11 @@ export function SmartReportPage() {
       <div className="grid gap-3 md:grid-cols-3">
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-slate-400">REPORT JOB ID</div>
-          <div data-testid="smart-report-job-id" className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
+          <div  className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
         </div>
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE HASH</div>
-          <div data-testid="smart-report-source-hash" className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
+          <div  className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
         </div>
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE</div>
