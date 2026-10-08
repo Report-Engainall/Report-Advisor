@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 276a8fc73839ca6a50eedf4d9ba1ae86a9c570d6
+CURRENT_EXACT_HEAD = fe7bc6e0b5f5ef51835d4b39733665d2eae920ce
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 276a8fc73839ca6a50eedf4d9ba1ae86a9c570d6
+CURRENT_EXECUTION_HEAD = fe7bc6e0b5f5ef51835d4b39733665d2eae920ce
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-CURRENT_PR_HEAD = 276a8fc73839ca6a50eedf4d9ba1ae86a9c570d6
+CURRENT_PR_HEAD = fe7bc6e0b5f5ef51835d4b39733665d2eae920ce
 
 WHAT_ACTUALLY_HAPPENED
 - Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
