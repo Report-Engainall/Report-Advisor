@@ -19,12 +19,21 @@ type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 function deriveAnalyticalReportQuality(dataset: Dataset, format: FileFormat, fileName: string): number {
-  const supportedStructured = ['xlsx', 'xls', 'xlsm', 'ods', 'csv', 'tsv', 'json', 'jsonl'].includes(format);
-  if (!supportedStructured || dataset.rowCount < 10 || dataset.columnCount < 3) return 0;
+  // The import gate is a source-readiness gate, not a business-model gate.
+  // Structured tables get a stronger analytical score, while readable documents,
+  // text, JSON/XML/YAML, and OCR/image datasets are still eligible for the same
+  // canonical report lifecycle when extraction produced actual content.
+  const structuredFormats = ['xlsx', 'xls', 'xlsm', 'ods', 'csv', 'tsv', 'json', 'jsonl'];
+  const readableFormats = [
+    ...structuredFormats,
+    'xml', 'yaml', 'txt', 'markdown', 'pdf', 'docx', 'doc', 'rtf',
+    'jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp',
+  ];
+  if (!readableFormats.includes(format) || dataset.rowCount <= 0 || dataset.columnCount <= 0) return 0;
 
   const totalCells = Math.max(1, dataset.rowCount * dataset.columnCount);
-  const nonEmptyCells = dataset.columns.reduce((sum, column) => sum + (dataset.rowCount - column.nullCount), 0);
-  const completeness = Math.round((nonEmptyCells / totalCells) * 100);
+  const nonEmptyCells = dataset.columns.reduce((sum, column) => sum + Math.max(0, dataset.rowCount - column.nullCount), 0);
+  const completeness = Math.min(100, Math.round((nonEmptyCells / totalCells) * 100));
   const numericColumns = dataset.columns.filter(column => ['integer', 'decimal', 'currency', 'percentage'].includes(column.dataType)).length;
   const numericRatio = dataset.columnCount ? numericColumns / dataset.columnCount : 0;
   const semanticSignals = [
@@ -36,20 +45,22 @@ function deriveAnalyticalReportQuality(dataset: Dataset, format: FileFormat, fil
     dataset.columns.some(column => Boolean(column.mappedField)),
   ].filter(Boolean).length;
 
-  const rowDepth = dataset.rowCount >= 1000 ? 100 : dataset.rowCount >= 100 ? 95 : dataset.rowCount >= 25 ? 85 : 70;
-  const structureScore = Math.round(
-    (Math.min(100, completeness) * 0.45) +
-    (Math.min(100, numericRatio * 100) * 0.30) +
-    (rowDepth * 0.15) +
+  const rowDepth = dataset.rowCount >= 1000 ? 100
+    : dataset.rowCount >= 100 ? 95
+      : dataset.rowCount >= 25 ? 85
+        : dataset.rowCount >= 10 ? 75
+          : dataset.rowCount >= 3 ? 65
+            : 55;
+  const structureScore = Math.min(100, Math.round(
+    (completeness * 0.45) +
+    (Math.min(100, numericRatio * 100) * (structuredFormats.includes(format) ? 0.25 : 0.10)) +
+    (rowDepth * (structuredFormats.includes(format) ? 0.20 : 0.35)) +
     (Math.min(100, semanticSignals * 16.7) * 0.10),
-  );
+  ));
 
-  // This is a report-shape signal, not a canonical truth claim. It only raises
-  // obviously tabular, sufficiently deep analytical sources above the raw mapping
-  // score; canonical field mappings and evidence remain visible separately.
-  return structureScore >= 72 ? structureScore : 0;
+  const minimumReadableScore = structuredFormats.includes(format) ? 60 : 50;
+  return structureScore >= minimumReadableScore ? structureScore : 0;
 }
-
 function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
   const columnCount = dataset.columns.length;
   const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
