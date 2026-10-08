@@ -482,7 +482,8 @@ function DecisionExperienceGeneralPage() {
             <CardHeader title="مرشحات القرار" subtitle="التوصية هي مرشح، وليست نتيجة تنفيذية محفوظة." />
             <CardBody>
               <div className="space-y-3">
-                {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
+                {!reportJobIdParam && recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
+                {reportJobIdParam && sourceSignal && <div className="rounded-xl border border-primary-200 bg-primary-50/60 p-3 text-[10px] leading-5 text-primary-950">هذه الصفحة مرتبطة بالتقرير الحالي. انتقل إلى <button type="button" onClick={() => navigateStage('evidence')} className="font-black underline">الدليل</button> لإنشاء أو فتح التوصية المصدرية لهذا التقرير.</div>}
                 {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
