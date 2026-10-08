@@ -1,13 +1,15 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 5e397180467a245bbff6967e9fbf02b786892eff
+CURRENT_EXACT_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 5e397180467a245bbff6967e9fbf02b786892eff
+CURRENT_EXECUTION_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-CURRENT_PR_HEAD = 5e397180467a245bbff6967e9fbf02b786892eff
+CURRENT_PR_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
 
 WHAT_ACTUALLY_HAPPENED
+- Added the executive visual refinement layer in src/index.css: unified ink/indigo/brass shell, redesigned sidebar/topbar hierarchy, stronger page headers, cleaner journey rail, calmer card/table treatment, and a premium Smart Report result surface without changing business calculations or evidence semantics.
+- The visual pass is source-controlled on the PR branch at application commit d347f6a1683f808723388d26019497f6b78c539f4. Build/browser/production proof for this new commit is not claimed yet.
 - Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
 - Generic intelligence is rebuilt from canonical report rows after import, so risk/action language, dates, numeric evidence, findings, recommendations, measurement, and evidence boundaries survive into the persisted Smart Report.
 - SmartReportPage now exposes the generic intelligence card for generic reports; the Reports Center and downstream source-bound surfaces continue to consume report.intelligence from the same report context.
@@ -98,3 +100,12 @@ CURRENT_ACTIVE_FAILURE
 - No application parser failure is asserted on the current application HEAD; current quality/build/certification results are still pending.
 
 NEXT_EXACT_ACTION = Consume the current-head quality/typecheck/build result first; if clean, consume Final Certification + full browser E2E; then prove a same-head free production deployment. Do not certify from older SHAs.
+
+
+## 2026-10-08 checkpoint — executive visual refinement
+APPLICATION HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+UI_SCOPE = Shell / Sidebar / Topbar / Journey rail / Page headers / Cards / Tables / Smart Report surfaces / Mobile action bar
+STATUS = IMPLEMENTED + INTEGRATED; terminal build/browser proof pending
+DESIGN_DIRECTION = dark ink shell + indigo intelligence + restrained brass accent; remove legacy green/teal wash and reduce admin-CRUD visual density
+NO_LOGIC_CHANGE = true
+NEXT_EXACT_ACTION = consume fresh exact-head visual/build/browser gates for d347f6a1683f808723388d26019497f6b78c539f4; do not certify production from deployment READY alone.
