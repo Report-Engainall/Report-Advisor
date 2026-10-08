@@ -51,4 +51,15 @@ for (const { path: surfacePath, content } of customerFacingSurfaces) {
 }
 
 assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(Decision ROI|Business Replay|Money Recovery|Outcome follow-up)\b/.test(content)));
+const realBusinessE2E = fs.readFileSync('scripts/real-business-e2e.mjs', 'utf8');
+assert.ok(realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor"), 'Real business E2E must use a deterministic Evidence Passport locator');
+assert.ok(!realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).waitFor"), 'Real business E2E must not retain a non-unique Evidence Passport locator');
+assert.ok(reports.includes('export function SalesReportPage'), 'Sales report surface must remain present');
+assert.ok(reports.includes('export function PurchasesReportPage'), 'Purchases report surface must remain present');
+const salesBlock = reports.slice(reports.indexOf('export function SalesReportPage'), reports.indexOf('export function PurchasesReportPage'));
+const purchasesBlock = reports.slice(reports.indexOf('export function PurchasesReportPage'), reports.indexOf('export function InventoryReportPage'));
+assert.ok(!salesBlock.includes('fetchDashboardSnapshot(6)'), 'Sales report must not depend on the global dashboard snapshot RPC');
+assert.ok(!purchasesBlock.includes('fetchDashboardSnapshot(6)'), 'Purchases report must not depend on the global dashboard snapshot RPC');
+console.log('DOMAIN_REPORT_DIRECT_DATA_CONTRACT_PASS');
+
 console.log('CUSTOMER_FACING_REPORT_SURFACE_CONTRACT_PASS');

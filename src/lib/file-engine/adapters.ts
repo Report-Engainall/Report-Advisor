@@ -788,9 +788,25 @@ function parseSimpleXml(text: string): Row[] | null {
   for (const block of normalized.matchAll(blockRegex)) {
     const tag = block[1];
     const inner = block[2];
-    if (new RegExp('<' + tag + '\\b', 'i').test(inner)) continue;
-    const row: Row = {};
+    const nestedBlocks = [...inner.matchAll(/<([A-Za-z_][\w:.-]*)[^>]*>[\s\S]*?<\/\1>/g)].map((match) => match[1]);
+    const repeatedTags = [...new Set(nestedBlocks.filter((nestedTag) => nestedBlocks.filter((candidate) => candidate === nestedTag).length > 1))];
     const pairRegex = /<([A-Za-z_][\w:.-]*)[^>]*>\s*([^<]+?)\s*<\/\1>/g;
+    for (const nestedTag of repeatedTags) {
+      const nestedRegex = /<([A-Za-z_][\w:.-]*)[^>]*>([\s\S]*?)<\/\1>/g;
+      const nestedRows: Row[] = [];
+      for (const nestedMatch of inner.matchAll(nestedRegex)) {
+        if (nestedMatch[1] !== nestedTag) continue;
+        const row: Row = {};
+        for (const match of String(nestedMatch[2] ?? '').matchAll(pairRegex)) row[match[1]] = decodeXmlEntities(match[2].trim());
+        if (Object.keys(row).length >= 2) nestedRows.push(row);
+      }
+      if (nestedRows.length >= 2) {
+        grouped.set(nestedTag, nestedRows);
+        break;
+      }
+    }
+    if (grouped.size) continue;
+    const row: Row = {};
     for (const match of inner.matchAll(pairRegex)) row[match[1]] = decodeXmlEntities(match[2].trim());
     if (Object.keys(row).length >= 2) grouped.set(tag, [...(grouped.get(tag) ?? []), row]);
   }

@@ -1,13 +1,37 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-CURRENT_MAIN_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-CURRENT_EXECUTION_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-BRANCH = main
-PR = #905 merged
-CURRENT_PR_HEAD = 279315b31f4c6096b23f26b65470e4729d339c4c
+CURRENT_EXACT_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
+CURRENT_EXECUTION_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+BRANCH = fix/generic-smart-report-cross-surface-20261008
+PR = #906
+CURRENT_PR_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
 
 WHAT_ACTUALLY_HAPPENED
+- Added the executive visual refinement layer in src/index.css: unified ink/indigo/brass shell, redesigned sidebar/topbar hierarchy, stronger page headers, cleaner journey rail, calmer card/table treatment, and a premium Smart Report result surface without changing business calculations or evidence semantics.
+- The visual pass is source-controlled on the PR branch at application commit d347f6a1683f808723388d26019497f6b78c539f4. Build/browser/production proof for this new commit is not claimed yet.
+- Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
+- Generic intelligence is rebuilt from canonical report rows after import, so risk/action language, dates, numeric evidence, findings, recommendations, measurement, and evidence boundaries survive into the persisted Smart Report.
+- SmartReportPage now exposes the generic intelligence card for generic reports; the Reports Center and downstream source-bound surfaces continue to consume report.intelligence from the same report context.
+- Final certification performance contract was aligned with the actual 950KB critical asset limit; the 600KB largest-JS-chunk limit remains unchanged.
+- Added a regression marker requiring the generic intelligence layer to be customer-visible on the Smart Report route.
+
+WHAT_IS_PROVEN
+- Product Build Gate on main 21586845371893a381e93721a0fc1de6de20eee7 passed before this branch: exact-head typecheck, production build, smart-report surface, evidence boundary, customer-facing report surface, and upload UI contracts.
+- Current branch commits are source-controlled, but Final Certification / Full Product Browser E2E have not yet produced terminal proof for the branch head.
+- No production-current claim is made.
+
+CURRENT_OPEN_GATES
+- Fresh PR exact-head Final Certification Gate.
+- Fresh PR exact-head Full Product Browser E2E.
+- Fresh PR quality gate.
+- Same-head production deployment after certification.
+
+CURRENT_ACTIVE_FAILURE
+- Previous browser proof failed on heavy domain RPCs triggered before source-bound rendering, offset-based canonical reads, a benign current_company_id refresh wait, and an ambiguous Evidence Passport locator. All four causes are repaired on the current branch; report identity proof now also uses the source-bound smart-report link.
+- Both are repaired on the current head: domain report pages no longer call the global dashboard snapshot RPC, and the E2E locator uses .first().
+
+NEXT_EXACT_ACTION = Consume fresh exact-head Product Build, Quality, Full Product Browser E2E and Final Certification terminal results for PR #906; merge only on terminal PASS, then prove same-head production.
 - PR #884: Reports Center now renders the existing ReportIntelligencePanel and canonical row-level BusinessDataExplorer directly on the primary report surface.
 - PR #886: authenticated real-business E2E now explicitly certifies the Reports Center itself: current report job/source hash/source path, intelligence panel, recommendation state, row search, row summary, and row-detail handoff.
 - PR #887: normalized strict TypeScript runtime import specifiers across the report-intelligence/report-execution files and replaced the unsupported Array.prototype.at usage identified by the Vercel diagnostic build.
@@ -76,3 +100,20 @@ CURRENT_ACTIVE_FAILURE
 - No application parser failure is asserted on the current application HEAD; current quality/build/certification results are still pending.
 
 NEXT_EXACT_ACTION = Consume the current-head quality/typecheck/build result first; if clean, consume Final Certification + full browser E2E; then prove a same-head free production deployment. Do not certify from older SHAs.
+
+
+## 2026-10-08 checkpoint — executive visual refinement
+APPLICATION HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+UI_SCOPE = Shell / Sidebar / Topbar / Journey rail / Page headers / Cards / Tables / Smart Report surfaces / Mobile action bar
+STATUS = IMPLEMENTED + INTEGRATED; terminal build/browser proof pending
+DESIGN_DIRECTION = dark ink shell + indigo intelligence + restrained brass accent; remove legacy green/teal wash and reduce admin-CRUD visual density
+NO_LOGIC_CHANGE = true
+NEXT_EXACT_ACTION = consume fresh exact-head visual/build/browser gates for d347f6a1683f808723388d26019497f6b78c539f4; do not certify production from deployment READY alone.
+
+
+## 2026-10-08 — source-bound intelligence UI closure pass
+APPLICATION HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+STATUS = IMPLEMENTED + INTEGRATED; Vercel exact-head deployment BUILDING at checkpoint
+CHANGE = Added SourceIntelligenceRibbon to SourceBoundReportSurface so executive/trust/decision/work surfaces all receive the same live report intelligence context: signal, why-now, so-what, next action, measurement, evidence count, and direct evidence/decision navigation.
+CONSTRAINTS = Uses persisted report.intelligence only; no fabricated values; preserves reportJobId + sourceHash lineage and fail-closed evidence semantics.
+NEXT_EXACT_ACTION = Consume exact-head Vercel build result; then trigger/consume CI gates available for the PR and repair only terminal failures before merge.

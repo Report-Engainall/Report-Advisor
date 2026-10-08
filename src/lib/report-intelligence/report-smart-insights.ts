@@ -1,4 +1,4 @@
-import { parseDate, parseNumber } from '../file-engine/normalizer.js';
+import { parseDate, parseNumber } from '../file-engine/normalizer.ts';
 
 export type ReportSignalSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 

@@ -31,6 +31,12 @@ if (recommendationBlock.includes('recommendations.slice(')) throw new Error('Rec
 
 console.log('smart-report-complete-intelligence-surface: PASS');
 
+const smartReportPage = fs.readFileSync(new URL('../src/pages/SmartReportPage.tsx', import.meta.url), 'utf8');
+if (!smartReportPage.includes("GenericFileIntelligenceCard")) throw new Error('Smart Report page must expose source-agnostic intelligence');
+if (!smartReportPage.includes('smart-report-generic-intelligence')) throw new Error('Smart Report generic intelligence test marker missing');
+if (!smartReportPage.includes('!report.specialty')) throw new Error('Generic intelligence must remain available when no business specialty is inferred');
+console.log('smart-report-generic-intelligence-surface: PASS');
+
 const smartReportSource = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
 const fetchStart = smartReportSource.indexOf('export async function fetchSmartReport');
 const fetchBlock = fetchStart >= 0 ? smartReportSource.slice(fetchStart) : '';

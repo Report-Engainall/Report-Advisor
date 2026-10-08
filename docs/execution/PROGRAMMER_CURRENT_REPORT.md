@@ -1,14 +1,56 @@
+## EXECUTIVE VISUAL REFINEMENT — APPLICATION RESULT
+APPLICATION_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+PR = #906
+
+WHAT_I_ACTUALLY_DID
+- Added a final presentation layer in src/index.css instead of changing business logic: dark ink executive shell, stronger sidebar navigation, cleaner command header, clearer journey rail, premium page headers, calmer card/table hierarchy, upgraded form controls, and stronger Smart Report visual hierarchy.
+- Removed the visual dominance of the legacy green/teal treatment by overriding the shared shell with the existing indigo + restrained brass product direction.
+- Kept source/evidence/report identity, calculations, fail-closed states, and route lineage untouched.
+
+PROOF_STATUS
+- IMPLEMENTED = YES
+- INTEGRATED = YES
+- PERSISTED = YES (Git)
+- UI_EXPOSED = YES (shared classes + Smart Report selectors)
+- READBACK_PROVEN = YES (PR diff contains the refinement layer)
+- BUILD_PROVEN = PENDING
+- BROWSER_PROVEN = PENDING
+- PRODUCTION_PROVEN = NO
+- PRODUCT_COMPLETE = NO
+
+FIRST_ACTIVE_FAILURE = None newly established by the visual pass; fresh terminal build/browser evidence has not yet been produced for the visual commit.
+NEXT_EXACT_ACTION = Consume fresh exact-head Product Build, Quality, Full Product Browser E2E, and Final Certification results after the visual pass; fix only the first terminal application failure.
+
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-REFERENCE START HEAD = 83c55114a1ad02340af54b5664e4774dbea05a9d
-CURRENT EXECUTION HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-REPORT_FOR_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-BRANCH = main
-PR = N/A
-UPDATED_AT = 2026-10-08T00:35:00+03:00
+CURRENT MAIN HEAD = 21586845371893a381e93721a0fc1de6de20eee7
+REFERENCE START HEAD = 21586845371893a381e93721a0fc1de6de20eee7
+CURRENT EXECUTION HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+REPORT_FOR_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+BRANCH = fix/generic-smart-report-cross-surface-20261008
+PR = #906
+UPDATED_AT = 2026-10-08T21:00:00+03:00
 
-WHAT_I_WAS_ASKED_TO_DO = Make external file analysis source-agnostic so a real customer can upload a common business file without choosing a pre-defined ERP report type.
+WHAT_I_WAS_ASKED_TO_DO = Continue from current main without rebuilding; make generic file intelligence persist into Smart Reports, connect the result to customer-facing screens, and close certification/browser proof gaps.
+
+OBJECTIVE = Any uploaded source -> extraction -> generic or specialty truth -> evidence -> signals -> findings -> recommendation -> measurement -> decision/action, with the same reportJobId/sourceHash lineage across the customer journey.
+
+WHAT_I_ACTUALLY_DID =
+- Added a canonical adapter in src/lib/report-smart.ts that reconstructs a Dataset from the authoritative source-analysis metadata plus canonical rows and invokes buildGenericFileIntelligence when no business specialty is inferred.
+- This moves risk/action language, dates, numeric evidence, generic findings, recommendation, measurement, and evidence boundary from the preview-only path into the persisted Smart Report intelligence object.
+- Added a visible GenericFileIntelligenceCard to SmartReportPage for generic reports, using the same report.intelligence object consumed by the existing intelligence/advisory surfaces.
+- Aligned scripts/check-phase11-e2e-performance-closure.mjs with the actual 950KB critical asset ceiling while retaining the 600KB largest-JS-chunk ceiling.
+- Added a smart-report contract assertion for the generic intelligence surface.
+
+WHAT_IS_PROVEN =
+- Current main 21586845371893a381e93721a0fc1de6de20eee7 has a successful Product Build Gate, proving typecheck/build plus the existing smart-report/customer-facing contracts on the exact main HEAD.
+- The old Final Certification failure on main was reproduced from Actions: PHASE11_E2E_PERFORMANCE_CLOSURE_FAIL because the gate expected 900KB while scripts/check-performance-budget.mjs defined 950KB.
+- The old Full Product Browser E2E failure on f0e0d844 was caused by a missing normalizer.js import and then cascading missing actor env; the current report-smart-insights.ts import now points to normalizer.js and must be freshly certified at this branch head.
+- No production-current claim is made.
+
+FIRST_ACTIVE_FAILURE = The fresh exact-head gates exposed two concrete issues: ReportsPage supplied no required period to ReportTruthBar at the sales/purchases surfaces, causing TypeScript failure; the downstream Browser E2E/actor errors were cascades because canonical heart regressions failed before actor preparation.
+ROOT_CAUSE = Sales and purchases report surfaces were rewritten to direct domain data but retained a required ReportTruthBar period contract. Browser actor/server setup is conditional on the canonical regression step, so its skipped preparation produced secondary emailA/connection-refused findings.
+NEXT_EXACT_ACTION = Consume the new exact-head gates after the period-contract fix and governance synchronization; fix only the first terminal application failure, then merge PR #906 only on terminal PASS and verify same-head production.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
@@ -56,3 +98,11 @@ The external file analysis path now accepts common text/structured formats witho
 - Netlify Deploy Preview for #905: READY / public.
 ### Remaining proof
 Quality/typecheck/build, full browser E2E, Final Certification, and same-head production are still open. No production PASS is claimed.
+
+
+## 2026-10-08 — source-bound intelligence UI closure pass
+APPLICATION HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+STATUS = IMPLEMENTED + INTEGRATED; Vercel exact-head deployment BUILDING at checkpoint
+CHANGE = Added SourceIntelligenceRibbon to SourceBoundReportSurface so executive/trust/decision/work surfaces all receive the same live report intelligence context: signal, why-now, so-what, next action, measurement, evidence count, and direct evidence/decision navigation.
+CONSTRAINTS = Uses persisted report.intelligence only; no fabricated values; preserves reportJobId + sourceHash lineage and fail-closed evidence semantics.
+NEXT_EXACT_ACTION = Consume exact-head Vercel build result; then trigger/consume CI gates available for the PR and repair only terminal failures before merge.

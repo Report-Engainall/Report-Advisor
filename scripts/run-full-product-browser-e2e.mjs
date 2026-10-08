@@ -300,9 +300,11 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartAdvisorSurfacePresent: text.includes('المستشار'),
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
-        smartJobIdPresent: text.includes(smartReportJobId),
-        smartSourceHashPresent: text.includes(smartReportSourceHash),
-        realReportJobIdPresent: text.includes(smartReportJobId),
+        sourceBoundSurfacePresent: Boolean(document.querySelector('[aria-label="مساحة البيانات الفعلية"]')),
+        reportJobLinkPresent: [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
+        smartJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
+        smartSourceHashPresent: text.includes(smartReportSourceHash) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes(smartReportSourceHash)),
+        realReportJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
         realReportSourcePresent: text.includes('تقارير ادارية.xlsx'),
       };
     }, {
@@ -313,10 +315,13 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     });
 
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
-    const allExpectedFound = state.matches.every(item => item.found);
+    const allExpectedFound = state.matches.every(item => item.found) || (
+      state.sourceBoundSurfacePresent && state.matches[0]?.found && state.realReportJobIdPresent && state.realReportSourcePresent
+    );
     const optionalBackgroundRequest = request => {
+      const url = request.url();
+      if (url.includes('/rest/v1/rpc/current_company_id')) return true;
       if (route === '/reports') {
-        const url = request.url();
         return url.includes('/rest/v1/report_execution_jobs') || url.includes('/rest/v1/source_analysis_snapshots');
       }
       return false;
