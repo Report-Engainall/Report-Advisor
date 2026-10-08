@@ -249,7 +249,6 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   });
 
   const signals: ReportSignal[] = [];
-  const findings: BusinessFinding[] = [];
   const recommendations: ReportRecommendation[] = [];
 
   const metrics = numericMetrics(dataset);
