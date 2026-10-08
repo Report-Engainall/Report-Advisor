@@ -927,19 +927,32 @@ export function SmartReportPage() {
           </div>
           <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">حكم المستشار: ماذا ينبغي أن تعرفه الإدارة الآن؟</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{advisorHeadline}</p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE</div>
-              <div className="mt-1 break-words text-[11px] font-bold text-slate-100">{report.sourcePath}</div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><ShieldCheck size={13}/> الثقة المصدرية</div>
+              <div className="mt-2 text-sm font-black text-white">{stateLabel(report.sourceTrustState ?? report.trustState)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.qualityScore == null ? "جودة غير متاحة" : "جودة المصدر " + report.qualityScore + "%"}</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source-hash">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE HASH</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.sourceHash}</div>
+            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><FileSearch size={13}/> السجلات الموثقة</div>
+              <div className="mt-2 text-sm font-black text-white">{reportRowCountLabel(report.rowCount)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.authoritativeCurrentRowCount == null ? "العدد المعتمد غير متاح" : "المعتمد " + formatNumber(report.authoritativeCurrentRowCount)}</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-job-id">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">REPORT JOB ID</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.jobId}</div>
+            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><CheckCircle2 size={13}/> الدليل</div>
+              <div className="mt-2 text-sm font-black text-white">{reportVerificationLabel(report.reportVerificationState)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.evidenceStatus ? stateLabel(report.evidenceStatus) : "حالة الدليل غير متاحة"}</div>
             </div>
+            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><ShieldCheck size={13}/> جاهزية القرار</div>
+              <div className="mt-2 text-sm font-black text-white">{stateLabel(String(output.decisionReadiness ?? output.decisionStatus ?? "NOT_READY"))}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.specialty ? "تحليل متخصص" : "تحليل عام من بنية المصدر"}</div>
+            </div>
+          </div>
+          <div className="ag-report-tech-meta mt-3 flex flex-wrap gap-x-4 gap-y-1.5 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+            <span data-testid="smart-report-source" className="min-w-0 truncate text-[9px] font-bold text-slate-300">المصدر: {report.sourcePath}</span>
+            <span data-testid="smart-report-source-hash" className="max-w-full truncate font-mono text-[8px] text-slate-500">SHA: {report.sourceHash}</span>
+            <span data-testid="smart-report-job-id" className="max-w-full truncate font-mono text-[8px] text-slate-500">JOB: {report.jobId}</span>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
