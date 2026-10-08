@@ -100,21 +100,52 @@ function normalizeKeys(rows: ReconciledCanonicalImportRow[]): Set<string> {
 }
 
 function inferSpecialty(entityType: CanonicalImportEntityType, rows: ReconciledCanonicalImportRow[], sourcePath = ''): string | null {
+  const genericSource = entityType === 'generic:source-data';
   if (entityType.startsWith('generic:')) {
     const explicit = entityType.slice('generic:'.length);
     if (explicit && explicit !== 'source-data') return explicit;
   }
-  const keys = normalizeKeys(rows);
-  const has = (...tokens: string[]) => tokens.some(token => [...keys].some(key => key.includes(token)));
-  if (has('supplier', 'مورد') && has('quantity', 'qty', 'netamount', 'شراء')) return 'purchases';
-  if (has('customer', 'عميل', 'ذمم', 'receivable', 'credit') && has('balance', 'الرصيد', 'amount', 'netamount')) return 'receivables';
-  if (has('customer', 'عميل') && has('invoice', 'فاتورة') && has('total', 'amount', 'netamount', 'اجمالي')) return 'sales';
-  if (has('payment', 'payments', 'دائن', 'مدين', 'cash', 'تحصيل')) return 'payments';
-  if (has('quantity', 'qty', 'netamount', 'sales', 'مبيعات')) return 'sales';
-  if (has('stock', 'inventory', 'مخزون', 'currentstock', 'sellingprice', 'costprice', 'سعر')) return 'inventory';
 
-  // Filename is a fallback signal only after the structural/content pass above.
-  // It never creates canonical fields or financial truth by itself.
+  const keys = normalizeKeys(rows);
+  const hasAny = (...tokens: string[]) => tokens.some(token => [...keys].some(key => key.includes(token)));
+  const hasPair = (a: string[], b: string[]) => hasAny(...a) && hasAny(...b);
+  const hasTriple = (a: string[], b: string[], c: string[]) => hasAny(...a) && hasAny(...b) && hasAny(...c);
+
+  const inventoryId = ['sku', 'product', 'item', 'الصنف', 'منتج', 'مخزن', 'warehouse'];
+  const inventoryStock = ['stock', 'inventory', 'currentstock', 'current_stock', 'balance', 'الرصيد', 'المخزون'];
+  const inventoryDemand = ['salesqty', 'sales_qty', 'sales', 'qty', 'quantity', 'daily_sales_rate', 'dailysalesrate', 'مبيعات', 'كمية', 'معدل البيع'];
+  const inventoryStockout = ['stockout', 'stockoutdays', 'أيام النفاد', 'الفترة المتوقعة لنفاد'];
+  if (
+    hasTriple(inventoryStock, inventoryDemand, inventoryId)
+    || hasTriple(inventoryStockout, inventoryDemand, inventoryId)
+    || hasTriple(inventoryStock, inventoryStockout, inventoryId)
+  ) return 'inventory';
+
+  if (
+    hasTriple(['supplier', 'vendor', 'مورد'], ['amount', 'total', 'netamount', 'quantity', 'qty', 'مبلغ', 'إجمالي', 'كمية'], ['purchase', 'purchases', 'invoice', 'document', 'date', 'شراء', 'مشتريات', 'فاتورة'])
+  ) return 'purchases';
+
+  if (
+    hasTriple(['balance', 'outstanding', 'receivable', 'الرصيد', 'المتبقي', 'مدين', 'ذمم'], ['paid', 'payment', 'settled', 'مدفوع', 'سداد', 'تحصيل'], ['customer', 'client', 'invoice', 'عميل', 'زبون', 'فاتورة'])
+    || hasTriple(['balance', 'outstanding', 'receivable', 'الرصيد', 'المتبقي', 'مدين', 'ذمم'], ['customer', 'client', 'invoice', 'عميل', 'زبون', 'فاتورة'], ['aging', 'due', 'overdue', 'استحقاق', 'عمر'])
+  ) return 'receivables';
+
+  if (
+    hasTriple(['customer', 'client', 'عميل', 'زبون'], ['amount', 'total', 'netamount', 'sales', 'revenue', 'مبلغ', 'إجمالي', 'مبيعات', 'إيراد'], ['invoice', 'document', 'date', 'فاتورة', 'مستند', 'تاريخ'])
+  ) return 'sales';
+
+  if (
+    hasPair(['paid', 'payment', 'receipt', 'مدفوع', 'سداد', 'تحصيل', 'دفع'], ['date', 'document', 'reference', 'invoice', 'تاريخ', 'مستند', 'مرجع', 'فاتورة'])
+  ) return 'payments';
+
+  if (
+    hasTriple(['margin', 'profit', 'grossprofit', 'ربح', 'هامش'], ['revenue', 'sales', 'amount', 'netamount', 'إيراد', 'مبيعات', 'مبلغ'], ['period', 'date', 'month', 'year', 'فترة', 'تاريخ', 'شهر', 'سنة'])
+  ) return 'profitability';
+
+  if (genericSource) return null;
+
+  // Filename is a fallback only for non-generic import types. It never creates
+  // canonical fields or financial truth by itself for source-agnostic uploads.
   const path = sourcePath.normalize('NFKC').toLowerCase();
   if (/ذمم|ديون|تحصيل|receivable|aging/.test(path)) return 'receivables';
   if (/مشتريات|شراء|purchase/.test(path)) return 'purchases';
