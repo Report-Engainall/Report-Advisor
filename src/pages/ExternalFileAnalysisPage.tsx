@@ -23,18 +23,50 @@ function fileIcon(format: FileFormat) {
 }
 
 function inferSpecialty(dataset: Dataset): 'inventory' | 'sales' | 'purchases' | 'receivables' | 'payments' | undefined {
-  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\\s_./-]+/g, '');
+  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\s_./-]+/g, '');
   const fields = new Set([
     ...dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
     ...dataset.columns.map((column) => normalize(column.name)),
   ]);
-  const has = (...aliases: string[]) => aliases.some((alias) => fields.has(alias) || [...fields].some((field) => field.includes(alias)));
-  if (has('current_stock', 'currentstock', 'stockout_days', 'stockoutdays', 'daily_sales_rate', 'dailysalesrate', 'salesqty') || (has('currentstock', 'الرصيدالحالي', 'المخزونالحالي') && has('productcode', 'salesqty', 'warehouse'))) return 'inventory';
-  if (has('supplier_name', 'suppliername', 'المورد') && has('total', 'net_amount', 'netamount')) return 'purchases';
-  if (has('balance', 'الرصيدالمستحق', 'المتبقي') && (has('paid_amount', 'paidamount', 'paid', 'المدفوع') || has('credit', 'دائن'))) return 'receivables';
-  if (has('paid_amount', 'paidamount', 'paid', 'المدفوع') && !has('total', 'net_amount', 'netamount')) return 'payments';
-  if (has('customer_name', 'customername', 'customer', 'client', 'العميل') && has('total', 'net_amount', 'netamount', 'salesqty')) return 'sales';
-  if (has('sales_qty', 'salesqty', 'كميةالمبيعات') && (has('product_name', 'productname', 'product', 'item', 'productcode', 'sku') || has('warehouse', 'المستودع'))) return 'inventory';
+  const hasAny = (...aliases: string[]) => aliases.some((alias) => fields.has(alias) || [...fields].some((field) => field.includes(alias)));
+  const hasPair = (a: string[], b: string[]) => hasAny(...a) && hasAny(...b);
+  const hasTriple = (a: string[], b: string[], c: string[]) => hasAny(...a) && hasAny(...b) && hasAny(...c);
+
+  const inventory = hasTriple(
+    ['current_stock', 'currentstock', 'الرصيدالحالي', 'المخزونالحالي'],
+    ['sales_qty', 'salesqty', 'كميةالمبيعات'],
+    ['productcode', 'product_code', 'sku', 'productname', 'product_name', 'warehouse', 'المستودع', 'المخزن'],
+  ) || hasTriple(
+    ['stockout_days', 'stockoutdays', 'الفترةالمتوقعةلنفادالكمية', 'أيامالنفاد'],
+    ['sales_qty', 'salesqty', 'كميةالمبيعات', 'daily_sales_rate', 'dailysalesrate', 'معدل البيع اليومي'],
+    ['productcode', 'product_code', 'sku', 'productname', 'product_name', 'warehouse', 'المستودع', 'المخزن'],
+  );
+  if (inventory) return 'inventory';
+
+  if (hasTriple(
+    ['supplier_name', 'suppliername', 'المورد'],
+    ['total', 'net_amount', 'netamount', 'amount', 'الإجمالي', 'المبلغ'],
+    ['purchase', 'purchases', 'المشتريات', 'quantity', 'qty', 'كمية', 'document', 'invoice_number', 'رقمالفاتورة'],
+  )) return 'purchases';
+
+  if (hasTriple(
+    ['balance', 'الرصيدالمستحق', 'المتبقي', 'outstanding'],
+    ['paid_amount', 'paidamount', 'paid', 'المدفوع'],
+    ['customer_name', 'customername', 'customer', 'client', 'العميل', 'invoice_number', 'invoice', 'رقمالفاتورة'],
+  )) return 'receivables';
+
+  if (hasTriple(
+    ['customer_name', 'customername', 'customer', 'client', 'العميل'],
+    ['total', 'net_amount', 'netamount', 'salesqty', 'sales_qty', 'المبيعات'],
+    ['invoice_number', 'invoice', 'document_number', 'document', 'date', 'invoice_date', 'التاريخ'],
+  )) return 'sales';
+
+  if (hasTriple(
+    ['paid_amount', 'paidamount', 'paid', 'المدفوع'],
+    ['payment', 'payment_id', 'receipt', 'receipt_number', 'السداد', 'دفعة', 'إيصال'],
+    ['date', 'payment_date', 'document', 'invoice_number', 'reference', 'التاريخ', 'رقم المستند'],
+  )) return 'payments';
+
   return undefined;
 }
 
