@@ -1,14 +1,33 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-REFERENCE START HEAD = 83c55114a1ad02340af54b5664e4774dbea05a9d
-CURRENT EXECUTION HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-REPORT_FOR_HEAD = 555b8b1865978ca7054537c7f23e579671c2e465
-BRANCH = main
-PR = N/A
-UPDATED_AT = 2026-10-08T00:35:00+03:00
+CURRENT MAIN HEAD = 21586845371893a381e93721a0fc1de6de20eee7
+REFERENCE START HEAD = 21586845371893a381e93721a0fc1de6de20eee7
+CURRENT EXECUTION HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+REPORT_FOR_HEAD = 8e3a279f1123fbd8c5f5e0bb9db2bfcc1718c0e9
+BRANCH = fix/generic-smart-report-cross-surface-20261008
+PR = pending
+UPDATED_AT = 2026-10-08T17:55:00+03:00
 
-WHAT_I_WAS_ASKED_TO_DO = Make external file analysis source-agnostic so a real customer can upload a common business file without choosing a pre-defined ERP report type.
+WHAT_I_WAS_ASKED_TO_DO = Continue from current main without rebuilding; make generic file intelligence persist into Smart Reports, connect the result to customer-facing screens, and close certification/browser proof gaps.
+
+OBJECTIVE = Any uploaded source -> extraction -> generic or specialty truth -> evidence -> signals -> findings -> recommendation -> measurement -> decision/action, with the same reportJobId/sourceHash lineage across the customer journey.
+
+WHAT_I_ACTUALLY_DID =
+- Added a canonical adapter in src/lib/report-smart.ts that reconstructs a Dataset from the authoritative source-analysis metadata plus canonical rows and invokes buildGenericFileIntelligence when no business specialty is inferred.
+- This moves risk/action language, dates, numeric evidence, generic findings, recommendation, measurement, and evidence boundary from the preview-only path into the persisted Smart Report intelligence object.
+- Added a visible GenericFileIntelligenceCard to SmartReportPage for generic reports, using the same report.intelligence object consumed by the existing intelligence/advisory surfaces.
+- Aligned scripts/check-phase11-e2e-performance-closure.mjs with the actual 950KB critical asset ceiling while retaining the 600KB largest-JS-chunk ceiling.
+- Added a smart-report contract assertion for the generic intelligence surface.
+
+WHAT_IS_PROVEN =
+- Current main 21586845371893a381e93721a0fc1de6de20eee7 has a successful Product Build Gate, proving typecheck/build plus the existing smart-report/customer-facing contracts on the exact main HEAD.
+- The old Final Certification failure on main was reproduced from Actions: PHASE11_E2E_PERFORMANCE_CLOSURE_FAIL because the gate expected 900KB while scripts/check-performance-budget.mjs defined 950KB.
+- The old Full Product Browser E2E failure on f0e0d844 was caused by a missing normalizer.js import and then cascading missing actor env; the current report-smart-insights.ts import now points to normalizer.js and must be freshly certified at this branch head.
+- No production-current claim is made.
+
+FIRST_ACTIVE_FAILURE = Fresh exact-head certification/browser evidence is pending for the repair branch.
+ROOT_CAUSE = Generic intelligence was not propagated into the persisted Smart Report for specialty-null sources, and the certification contract was out of sync with the canonical 950KB performance budget.
+NEXT_EXACT_ACTION = Open the repair PR, consume fresh exact-head CI/browser failures, then merge only after Final Certification + Full Product Browser E2E pass; finally prove same-head production.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
