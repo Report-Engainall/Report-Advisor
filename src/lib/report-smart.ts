@@ -1081,14 +1081,11 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         : archetypeState === 'SUPPORTED' && evidenceStatus === 'VERIFIED'
           ? 'READY'
           : 'REVIEW_REQUIRED';
-  const runtimeTrustState =
-    typeof effectiveRendered.trustState === 'string'
-      ? effectiveRendered.trustState
-      : effectiveRendered.evidenceStatus === 'VERIFIED' || effectiveRendered.evidenceVerificationStatus === 'VERIFIED'
-        ? 'TRUSTED'
-        : canonicalAnalysisScope === 'FULL_SOURCE'
-          ? null
-          : 'REVIEW';
+  const runtimeTrustState = typeof effectiveRendered.trustState === 'string'
+    ? effectiveRendered.trustState
+    : effectiveRendered.evidenceStatus === 'VERIFIED' || effectiveRendered.evidenceVerificationStatus === 'VERIFIED'
+      ? 'TRUSTED'
+      : null;
 
   const runtimeRendered = {
     ...effectiveRendered,
