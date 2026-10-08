@@ -4,16 +4,19 @@ import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 
 const PRODUCT_SAVE_TIMEOUT_MS = 25000;
 
-async function runBounded(operation: (signal: AbortSignal) => unknown, timeoutMessage: string): Promise<unknown> {
+async function runBounded<T>(operation: (signal: AbortSignal) => Promise<T>, timeoutMessage: string): Promise<T> {
   const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), PRODUCT_SAVE_TIMEOUT_MS);
+  let timeoutId: number | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      controller.abort();
+      reject(new Error(timeoutMessage));
+    }, PRODUCT_SAVE_TIMEOUT_MS);
+  });
   try {
-    return await operation(controller.signal);
-  } catch (cause) {
-    if (controller.signal.aborted) throw new Error(timeoutMessage);
-    throw cause;
+    return await Promise.race([operation(controller.signal), timeoutPromise]);
   } finally {
-    window.clearTimeout(timer);
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
   }
 }
 
@@ -66,7 +69,10 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
     setSuccess(null);
     setError(null);
     try {
-      const companyId = await resolveCurrentCompanyId();
+      const companyId = await runBounded(
+        (signal) => resolveCurrentCompanyId(signal),
+        'PRODUCT_SAVE_TIMEOUT',
+      );
       if (!companyId) throw new Error('TENANT_REQUIRED');
       const rpcResult = await runBounded(
         (signal) => supabase.rpc('import_upsert_product', {
