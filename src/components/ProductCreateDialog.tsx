@@ -69,14 +69,11 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
     setSuccess(null);
     setError(null);
     try {
-      const companyId = await runBounded(
-        (signal) => resolveCurrentCompanyId(signal),
-        'PRODUCT_SAVE_TIMEOUT',
-      );
-      if (!companyId) throw new Error('TENANT_REQUIRED');
+      const authoritativeCompanyId = await resolveCurrentCompanyId();
+      if (!authoritativeCompanyId) throw new Error('TENANT_REQUIRED');
       const rpcResult = await runBounded(
         (signal) => supabase.rpc('import_upsert_product', {
-          p_company_id: companyId,
+          p_company_id: authoritativeCompanyId,
           p_sku: normalizedSku,
           p_name: normalizedName,
           p_unit: normalizedUnit,
@@ -95,7 +92,7 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
         (signal) => supabase
           .from('products')
           .select('id,sku,name,company_id')
-          .eq('company_id', companyId)
+          .eq('company_id', authoritativeCompanyId)
           .eq('sku', normalizedSku)
           .abortSignal(signal)
           .maybeSingle(),
@@ -104,7 +101,7 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
       if (readbackResult.error) throw readbackResult.error;
       const readback = readbackResult.data;
       if (!readback?.id) throw new Error('PRODUCT_PERSISTENCE_READBACK_FAILED');
-      if (String(readback.company_id) !== String(companyId)) throw new Error('PRODUCT_TENANT_READBACK_MISMATCH');
+      if (String(readback.company_id) !== String(authoritativeCompanyId)) throw new Error('PRODUCT_TENANT_READBACK_MISMATCH');
 
       setSuccess(`تم حفظ المنتج والتحقق منه: ${String(readback.name ?? normalizedName)} (${String(readback.sku ?? normalizedSku)})`);
       onCreated();
