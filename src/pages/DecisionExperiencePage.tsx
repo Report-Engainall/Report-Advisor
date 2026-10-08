@@ -10,7 +10,9 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
-import { fetchDecisionWorkItems, fetchSourceDecisionProposals, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
+import { createSourceDecisionProposal, fetchDecisionWorkItems, fetchSourceDecisionProposals, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -146,6 +148,9 @@ function DecisionExperienceGeneralPage() {
   const [decisionError, setDecisionError] = useState<string | null>(null);
   const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
   const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
+  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
+  const [sourceProposalBusy, setSourceProposalBusy] = useState(false);
+  const [sourceProposalError, setSourceProposalError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
