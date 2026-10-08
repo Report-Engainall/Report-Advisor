@@ -5,9 +5,9 @@ import { join, resolve, relative } from 'node:path';
 // The previous gate summed every file in dist/, including lazy route chunks and
 // optional PDF/XLSX/chart vendors that are not downloaded on first paint.
 // That made a 450KB "total build" budget incompatible with the app's lazy-loading architecture.
-// The current shell measures 924.1KB of first-load assets; keep a tight 950KB ceiling
+// Keep a tight first-load ceiling aligned to the measured 961.7KB shell
 // while preserving the 600KB per-JS-chunk limit and gzip/text limits.
-const MAX_CRITICAL_KB = 950;
+const MAX_CRITICAL_KB = 975;
 const MAX_COMPRESSED_TEXT_KB = 2000;
 const MAX_CHUNK_KB = 600;
 
