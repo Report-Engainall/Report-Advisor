@@ -753,10 +753,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     runtimeWarnings.push('تم ربط التقرير بالاستيراد الكانوني الفعلي من سجل الاعتماد لنفس بصمة المصدر؛ معرف تنفيذ التقرير مختلف عن معرف الاستيراد الكانوني.');
   }
 
-  let canonicalOffset = 0;
+  let canonicalCursorRowNumber = 0;
   let canonicalFetchError = false;
 
-  while (canonicalOffset < canonicalFetchLimit) {
+  while (canonicalRows.length < canonicalFetchLimit) {
     const canonicalSourceQuery = supabase
       .from('canonical_dataset_records')
       .select('row_number,data,import_job_id')
@@ -765,8 +765,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
     const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
     const canonicalPageQuery = canonicalScopedQuery
+      .gt('row_number', canonicalCursorRowNumber)
       .order('row_number', { ascending: true })
-      .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
+      .limit(canonicalFetchPageSize);
     const { data: pageRows, error: pageError } = await maybeAbort(canonicalPageQuery, options.signal);
 
     if (pageError) {
@@ -780,12 +781,20 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .map((row) => ({
         row_number: Number(row.row_number ?? 0),
         data: row.data as Record<string, unknown>,
-      }));
+      }))
+      .filter((row) => Number.isFinite(row.row_number) && row.row_number > canonicalCursorRowNumber);
 
     canonicalRows.push(...normalizedPage);
 
-    if ((pageRows ?? []).length < canonicalFetchPageSize) break;
-    canonicalOffset += canonicalFetchPageSize;
+    if (!normalizedPage.length || (pageRows ?? []).length < canonicalFetchPageSize) break;
+
+    const lastRowNumber = normalizedPage[normalizedPage.length - 1]?.row_number ?? canonicalCursorRowNumber;
+    if (lastRowNumber <= canonicalCursorRowNumber) {
+      canonicalFetchError = true;
+      runtimeWarnings.push('توقفت قراءة الصفوف الكانونية لأن مؤشر الصفحة لم يتقدم؛ تم منع الحلقة غير المنتهية دون اختلاق بيانات.');
+      break;
+    }
+    canonicalCursorRowNumber = lastRowNumber;
   }
 
   const canonicalFetchCeilingReached = canonicalRows.length >= canonicalFetchLimit;
