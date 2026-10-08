@@ -1063,6 +1063,26 @@ export function SmartReportPage() {
         </article>
       </div>
 
+      {advisorEvidence.filter((item) => item.startsWith('sample=')).length > 0 && (
+        <section className="mt-3 rounded-2xl border border-primary-200 bg-white p-4" aria-label="الدليل الحاسم من المصدر">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="section-kicker text-primary-700">الدليل الحاسم</div>
+              <div className="mt-1 text-sm font-black text-ink-950">صفوف فعلية صنعت الإشارة الحالية</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-500">هذه أمثلة مباشرة من المصدر، وليست قيمًا تجريبية أو ملخصات منفصلة.</div>
+            </div>
+            <span className="rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">{advisorEvidence.filter((item) => item.startsWith('sample=')).length} أدلة</span>
+          </div>
+          <div className="mt-3 grid gap-2 lg:grid-cols-2">
+            {advisorEvidence.filter((item) => item.startsWith('sample=')).slice(0, 6).map((item) => (
+              <div key={item} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3 text-[10px] leading-5 text-ink-800">
+                {item.replace(/^sample=/, '')}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="mt-3 grid gap-3 md:grid-cols-3">
         <article className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="text-[9px] font-black tracking-[.12em] text-ink-400">ماذا يعني ذلك؟</div>
