@@ -2,11 +2,11 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 21586845371893a381e93721a0fc1de6de20eee7
 REFERENCE START HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT EXECUTION HEAD = e8e2856d2ee3eccc84432cbb83033e4ffff5cc9c0
-REPORT_FOR_HEAD = e8e2856d2ee3eccc84432cbb83033e4ffff5cc9c
+CURRENT EXECUTION HEAD = 5e397180467a245bbff6967e9fbf02b786892eff
+REPORT_FOR_HEAD = 5e397180467a245bbff6967e9fbf02b786892eff
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-UPDATED_AT = 2026-10-08T17:55:00+03:00
+UPDATED_AT = 2026-10-08T19:02:00+03:00
 
 WHAT_I_WAS_ASKED_TO_DO = Continue from current main without rebuilding; make generic file intelligence persist into Smart Reports, connect the result to customer-facing screens, and close certification/browser proof gaps.
 
@@ -25,9 +25,9 @@ WHAT_IS_PROVEN =
 - The old Full Product Browser E2E failure on f0e0d844 was caused by a missing normalizer.js import and then cascading missing actor env; the current report-smart-insights.ts import now points to normalizer.js and must be freshly certified at this branch head.
 - No production-current claim is made.
 
-FIRST_ACTIVE_FAILURE = Fresh browser proof on the previous certified head exposed: (1) get_dashboard_snapshot statement-timeout 500s on /reports/sales and /reports/purchases, and (2) a non-deterministic Evidence Passport locator in real-business E2E. Both are repaired on the current head: domain report pages now read their direct domain data and no longer invoke the global dashboard snapshot RPC; Evidence Passport lookup is deterministic via .first().
-ROOT_CAUSE = Domain report routes inherited a global dashboard aggregation dependency that is not required to render those reports and could timeout under the E2E tenant load. The browser proof also used a non-unique text locator.
-NEXT_EXACT_ACTION = Consume fresh exact-head Build/Quality/Final Certification/Full Product Browser E2E; merge PR #906 only on terminal PASS, then prove same-head production.
+FIRST_ACTIVE_FAILURE = The fresh exact-head gates exposed two concrete issues: ReportsPage supplied no required period to ReportTruthBar at the sales/purchases surfaces, causing TypeScript failure; the downstream Browser E2E/actor errors were cascades because canonical heart regressions failed before actor preparation.
+ROOT_CAUSE = Sales and purchases report surfaces were rewritten to direct domain data but retained a required ReportTruthBar period contract. Browser actor/server setup is conditional on the canonical regression step, so its skipped preparation produced secondary emailA/connection-refused findings.
+NEXT_EXACT_ACTION = Consume the new exact-head gates after the period-contract fix and governance synchronization; fix only the first terminal application failure, then merge PR #906 only on terminal PASS and verify same-head production.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
