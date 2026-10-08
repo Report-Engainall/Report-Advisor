@@ -54,7 +54,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
     ? report.renderedOutput.evidenceSnapshotId.trim()
     : '';
   const nextHref = evidenceReady
-    ? '/decision-experience?stage=decision&reportJobId=' + job + '&sourceHash=' + hash
+    ? '/decision-experience?stage=evidence&reportJobId=' + job + '&sourceHash=' + hash
     : '/trust?reportJobId=' + job + '&sourceHash=' + hash;
   const [caseState, setCaseState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [savedProposalId, setSavedProposalId] = useState<string | null>(null);
