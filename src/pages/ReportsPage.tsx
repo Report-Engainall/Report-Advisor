@@ -535,7 +535,7 @@ export function SalesReportPage(){
   const exportSales=async()=>{const rows=await fetchSalesExportRows();downloadReportArtifact('sales-report','تقرير المبيعات',['رقم الفاتورة','العميل','التاريخ','الإجمالي','المدفوع','الحالة'],rows.map(r=>({'رقم الفاتورة':r.invoice_number,'العميل':r.customer,'التاريخ':r.invoice_date,'الإجمالي':r.total,'المدفوع':r.paid_amount,'الحالة':r.status})));};
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
     <PageHeader title="تقرير المبيعات" subtitle="سجلات المبيعات الحالية مع الحقيقة المصدرية" actions={<div className="flex items-center gap-2"><button onClick={()=>void exportSales()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={()=>window.print()} className="btn-primary print-hide text-xs">طباعة</button></div>}/>
-    <ReportTruthBar status={total==null?'INSUFFICIENT_DATA':'CALCULATED'} note="هذه الصفحة تقرأ سجلات المبيعات مباشرة ولا تعتمد على لقطة Dashboard عامة."/>
+    <ReportTruthBar status={total==null?'INSUFFICIENT_DATA':'CALCULATED'} period="غير محددة من اللقطة الحالية" note="هذه الصفحة تقرأ سجلات المبيعات مباشرة ولا تعتمد على لقطة Dashboard عامة."/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي المبيعات</div><div className="text-xl font-bold text-ink-900">{total==null?'غير متاح':formatCurrency(total)}</div></CardBody></Card>
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">عدد الفواتير</div><div className="text-xl font-bold text-ink-900">{formatNumber(invoiceCount??invoices.length)}</div></CardBody></Card>
@@ -566,7 +566,7 @@ export function PurchasesReportPage(){
   const exportPurchases=async()=>{const rows=await fetchPurchaseExportRows();downloadReportArtifact('purchase-report','تقرير المشتريات',['رقم الفاتورة','المورد','التاريخ','الإجمالي','المدفوع','الحالة'],rows.map(r=>({'رقم الفاتورة':r.invoice_number,'المورد':r.supplier,'التاريخ':r.invoice_date,'الإجمالي':r.total,'المدفوع':r.paid_amount,'الحالة':r.status})));};
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
     <PageHeader title="تقرير المشتريات" subtitle="سجلات المشتريات والموردين الحالية" actions={<div className="flex items-center gap-2"><button onClick={()=>void exportPurchases()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={()=>window.print()} className="btn-primary print-hide text-xs">طباعة</button></div>}/>
-    <ReportTruthBar status={summary.total==null?'INSUFFICIENT_DATA':'CALCULATED'} note="المشتريات تقرأ مباشرة من سجلات الشراء ولا تعتمد على لقطة Dashboard عامة."/>
+    <ReportTruthBar status={summary.total==null?'INSUFFICIENT_DATA':'CALCULATED'} period="غير محددة من اللقطة الحالية" note="المشتريات تقرأ مباشرة من سجلات الشراء ولا تعتمد على لقطة Dashboard عامة."/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي المشتريات</div><div className="text-xl font-bold text-ink-900">{formatCurrency(summary.total)}</div></CardBody></Card>
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">عدد الفواتير</div><div className="text-xl font-bold text-ink-900">{formatNumber(summary.count)}</div></CardBody></Card>
