@@ -1,77 +1,41 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+CURRENT_EXACT_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
-BRANCH = fix/generic-smart-report-cross-surface-20261008
-PR = #906
-CURRENT_PR_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+CURRENT_EXECUTION_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
+BRANCH = ux/smart-report-commercial-20261008
+PR = #908
+CURRENT_PR_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
 
 WHAT_ACTUALLY_HAPPENED
-- Added the executive visual refinement layer in src/index.css: unified ink/indigo/brass shell, redesigned sidebar/topbar hierarchy, stronger page headers, cleaner journey rail, calmer card/table treatment, and a premium Smart Report result surface without changing business calculations or evidence semantics.
-- The visual pass is source-controlled on the PR branch at application commit d347f6a1683f808723388d26019497f6b78c539f4. Build/browser/production proof for this new commit is not claimed yet.
-- Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
-- Generic intelligence is rebuilt from canonical report rows after import, so risk/action language, dates, numeric evidence, findings, recommendations, measurement, and evidence boundaries survive into the persisted Smart Report.
-- SmartReportPage now exposes the generic intelligence card for generic reports; the Reports Center and downstream source-bound surfaces continue to consume report.intelligence from the same report context.
-- Final certification performance contract was aligned with the actual 950KB critical asset limit; the 600KB largest-JS-chunk limit remains unchanged.
-- Added a regression marker requiring the generic intelligence layer to be customer-visible on the Smart Report route.
+- Smart Report result-first executive surface is implemented: trust, records, evidence, decision readiness, result, risk, opportunity, action, with sourceHash/jobId kept as secondary audit metadata.
+- Removed 902 characters of redundant Smart Report CSS while preserving the strict performance budget. The critical budget was measured at 949.9KB and passed the 950KB ceiling in the preceding application proof.
+- Purchases now reads the canonical dashboard snapshot alongside purchase rows and exposes the shared report-truth state.
+- Product creation now uses bounded save/readback handling and authoritative tenant resolution.
+- Full Product Browser E2E now watches src/components/ProductCreateDialog.tsx so product-creation changes cannot bypass browser proof.
+- Governance state is being synchronized after the handoff guard correctly detected stale execution documents.
 
 WHAT_IS_PROVEN
-- Product Build Gate on main 21586845371893a381e93721a0fc1de6de20eee7 passed before this branch: exact-head typecheck, production build, smart-report surface, evidence boundary, customer-facing report surface, and upload UI contracts.
-- Current branch commits are source-controlled, but Final Certification / Full Product Browser E2E have not yet produced terminal proof for the branch head.
-- No production-current claim is made.
+- Current execution checkout is 257c179eb2b68589eb341007fb51b5f035e6a1b4.
+- Immediate predecessor proof included Product Build PASS, Final Certification PASS, canonical truth PASS, UI route completeness PASS, Cloudflare compatibility PASS, Golden Evidence PASS, OCR PASS, and performance 949.9KB PASS.
+- Vercel previews were built from the same product branch during this wave.
+- Production currentness is NOT claimed.
 
 CURRENT_OPEN_GATES
-- Fresh PR exact-head Final Certification Gate.
-- Fresh PR exact-head Full Product Browser E2E.
-- Fresh PR quality gate.
-- Same-head production deployment after certification.
+- Full Product Browser E2E.
+- Device-Independent Browser E2E.
+- Storage Tenant Runtime E2E.
+- Commercial Product Creation E2E.
+- Final Certification for any post-certification governance head.
+- Same-head merge to main and production proof.
 
 CURRENT_ACTIVE_FAILURE
-- Previous browser proof failed on heavy domain RPCs triggered before source-bound rendering, offset-based canonical reads, a benign current_company_id refresh wait, and an ambiguous Evidence Passport locator. All four causes are repaired on the current branch; report identity proof now also uses the source-bound smart-report link.
-- Both are repaired on the current head: domain report pages no longer call the global dashboard snapshot RPC, and the E2E locator uses .first().
-
-NEXT_EXACT_ACTION = Consume fresh exact-head Product Build, Quality, Full Product Browser E2E and Final Certification terminal results for PR #906; merge only on terminal PASS, then prove same-head production.
-- PR #884: Reports Center now renders the existing ReportIntelligencePanel and canonical row-level BusinessDataExplorer directly on the primary report surface.
-- PR #886: authenticated real-business E2E now explicitly certifies the Reports Center itself: current report job/source hash/source path, intelligence panel, recommendation state, row search, row summary, and row-detail handoff.
-- PR #887: normalized strict TypeScript runtime import specifiers across the report-intelligence/report-execution files and replaced the unsupported Array.prototype.at usage identified by the Vercel diagnostic build.
-- PR #889: preserved reportJobId + sourceHash across intelligence, Advisor cases, decision, work, replay, benchmark, and trust navigation; added E2E lineage assertions; merged into current main.
-- PR #891: Advisor Cases now filters and displays only cases for the active report context when reportJobId + sourceHash are supplied; E2E proof added.
-- PR #892: Decision Inbox now filters and displays only decisions for the active report context and preserves lineage into work/replay; E2E proof added.
-- The product logic was not changed by #887; only runtime import specifiers and one compatibility-safe array access were changed.
-- Fail-closed rules remain: no fabricated decision, outcome, benchmark, or purchase quantity.
-
-WHAT_IS_PROVEN
-- Supabase authoritative inventory report job 16709d80-e012-40ef-9c12-6fd8255897f8 is completed for تقارير ادارية.xlsx.
-- Source hash: sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
-- Evidence passport: ACCEPTED + VERIFIED + READY; 332 authoritative canonical rows; quality score 98.
-- Netlify preview for PR #885 proved the customer-visible Smart Report and Reports Center intelligence/source content on a public preview surface.
-- Netlify preview for PR #887 is publicly reachable and renders the Reports Center smart-result content after the TypeScript-import fix.
-- Vercel diagnostic build for commit 1af890d... reached READY after app build, while its type diagnostics exposed 32 strict-resolution/compatibility errors; PR #887 addresses those exact reported errors.
-- GitHub Actions terminal workflow evidence for current main is not exposed by the connected workflow-run reader; do not substitute older CI runs.
-
-CURRENT_OPEN_GATES
-- Fresh exact-head typecheck/build proof for 11c4abca...
-- Fresh exact-head full authenticated browser E2E execution on 0c88d941..., including the Reports Center contract from #886 and the report-lineage continuity contract from #889.
-- 48/48 intelligence evidence gate and Final Certification on 0c88d941...
-- Same-head production deployment.
-- Vercel deployment remains subject to the current build-rate status; old production deployment is not proof for current main.
-
-CURRENT_ACTIVE_FAILURE
-- Infrastructure/proof gap: exact-head CI/browser/certification evidence is not yet terminal for 11c4abca...
-- No new application logic failure is asserted after #889; #889 is navigation/lineage continuity only and requires fresh exact-head browser/build evidence.
+- Previous blocker: Session Handoff Contract rejected stale governance coverage after application changes. No application defect is asserted from that governance failure.
 
 ROOT_CAUSE
-- The customer-facing intelligence was previously fragmented from the Reports Center.
-- The later diagnostic build surfaced a repository-wide strict-resolution mismatch in selected runtime TypeScript imports plus one unsupported Array.prototype.at usage.
-- The strict TypeScript fix (#887), report-lineage continuity fix (#889), Advisor source-binding fix (#891), and Decision Inbox source-binding fix (#892) are merged without changing business calculations or evidence semantics.
+- CURRENT_SESSION_STATE.md and PROGRAMMER_CURRENT_REPORT.md still pointed to older execution heads after the Smart Report, purchases, product-save, and browser-trigger changes.
 
-NEXT_EXACT_ACTION = Produce fresh build/typecheck and authenticated browser evidence for 11c4abca...; consume the first newly proven failure only; then run 48/48 intelligence and final certification. Do not certify the product from older SHAs.
-
-LATEST PRODUCT HEAD NOTE = 11c4abca93802053de2ace699328f74795993114. Netlify production remains on the older published deploy 6ac3d608e2e37d0008cc0222; PR #889 Preview is READY on Netlify. Vercel is blocked by the free daily deployment/build-rate limit.
-
-
-
+NEXT_EXACT_ACTION = Consume terminal current-head Browser/Device/Storage/Commercial results; fix only the first terminal application failure; then merge PR #908 into #906, merge #906 to main, and prove same-head production.
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
