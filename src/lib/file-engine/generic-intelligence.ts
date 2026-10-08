@@ -123,8 +123,8 @@ function percentile(sorted: number[], p: number): number {
   return sorted[low] + (sorted[high] - sorted[low]) * (index - low);
 }
 
-function buildNumericMetric(dataset: Dataset, column: ColumnProfile): NumericMetric | null {
-  const values = dataset.rows.map((row) => toNumber(row[column.name] ?? row[column.mappedField ?? ''])).filter((v): v is number => v != null);
+function buildNumericMetric(dataset: Dataset, column: ColumnProfile, rows: Array<Record<string, unknown>> = dataset.rows): NumericMetric | null {
+  const values = rows.map((row) => toNumber(row[column.name] ?? row[column.mappedField ?? ''])).filter((v): v is number => v != null);
   if (values.length < 2) return null;
   const sorted = [...values].sort((a, b) => a - b);
   const sum = values.reduce((total, value) => total + value, 0);
@@ -159,10 +159,36 @@ function formatMetric(metric: NumericMetric, suffix = ''): string {
   return metric.mean.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + suffix;
 }
 
-function numericMetrics(dataset: Dataset): NumericMetric[] {
+function dateColumn(dataset: Dataset): ColumnProfile | null {
+  const candidates = dataset.columns.filter((column) => {
+    const key = normalize(column.name + ' ' + (column.mappedField ?? ''));
+    return column.dataType === 'date' || /(^|[^a-z])(date|time|year|month|period|تاريخ|وقت|سنه|سنة|شهر|فترة)($|[^a-z])/.test(key);
+  });
+  return candidates[0] ?? null;
+}
+
+function chronologicallyOrderedRows(dataset: Dataset): { rows: Array<Record<string, unknown>>; mode: 'chronological' | 'source-order' } {
+  const column = dateColumn(dataset);
+  if (!column) return { rows: dataset.rows, mode: 'source-order' };
+  const dated = dataset.rows.map((row, index) => ({
+    row,
+    index,
+    time: Date.parse(String(row[column.name] ?? row[column.mappedField ?? ''] ?? '')),
+  }));
+  const valid = dated.filter((item) => Number.isFinite(item.time));
+  if (valid.length < Math.max(3, Math.ceil(dataset.rowCount * 0.5))) return { rows: dataset.rows, mode: 'source-order' };
+  return {
+    rows: [...dated]
+      .sort((a, b) => (Number.isFinite(a.time) ? a.time : Number.POSITIVE_INFINITY) - (Number.isFinite(b.time) ? b.time : Number.POSITIVE_INFINITY) || a.index - b.index)
+      .map((item) => item.row),
+    mode: 'chronological',
+  };
+}
+
+function numericMetrics(dataset: Dataset, rows: Array<Record<string, unknown>> = dataset.rows): NumericMetric[] {
   return dataset.columns
     .filter((column) => ['integer', 'decimal', 'currency', 'percentage', 'unit'].includes(column.dataType) || column.statistics?.count === dataset.rowCount)
-    .map((column) => buildNumericMetric(dataset, column))
+    .map((column) => buildNumericMetric(dataset, column, rows))
     .filter((item): item is NumericMetric => Boolean(item && item.usableRows >= Math.max(3, Math.ceil(dataset.rowCount * 0.15))))
     .sort((a, b) => b.usableRows - a.usableRows || Math.abs(b.mean) - Math.abs(a.mean))
     .slice(0, 16);
@@ -251,7 +277,8 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   const signals: ReportSignal[] = [];
   const recommendations: ReportRecommendation[] = [];
 
-  const metrics = numericMetrics(dataset);
+  const ordered = chronologicallyOrderedRows(dataset);
+  const metrics = numericMetrics(dataset, ordered.rows);
   const metricSignals: ReportSignal[] = [];
 
   for (const metric of metrics.slice(0, 8)) {
@@ -310,7 +337,7 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
         severity: Math.abs(metric.changePct) >= 35 ? 'high' : 'medium',
         title: 'اتجاه ملحوظ في ' + metric.column.name,
         message: 'متوسط الجزء الأحدث من السجلات يشير إلى ' + direction + ' بنحو ' + Math.abs(metric.changePct).toFixed(1) + '% مقارنة بالبداية.',
-        evidence: [...evidenceBase, 'firstMean=' + (metric.firstMean ?? 0).toFixed(2), 'lastMean=' + (metric.lastMean ?? 0).toFixed(2), 'changePct=' + metric.changePct.toFixed(1) + '%', ...sourceSamples],
+        evidence: [...evidenceBase, 'order=' + ordered.mode, 'firstMean=' + (metric.firstMean ?? 0).toFixed(2), 'lastMean=' + (metric.lastMean ?? 0).toFixed(2), 'changePct=' + metric.changePct.toFixed(1) + '%', ...sourceSamples],
         affectedRows: metric.usableRows,
         soWhat: 'الاتجاه يستحق تفسيرًا بحسب البعد التجاري الذي يمثله الحقل، لكنه لا يثبت السبب وحده.',
         impact: 'المثبت هو التغير الحسابي؛ الأثر التجاري يحتاج ربط الحقل بسياق القرار.',
