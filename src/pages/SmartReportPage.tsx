@@ -875,6 +875,7 @@ export function SmartReportPage() {
   const advisorMeasurement = primaryRecommendation?.measurement
     || report.intelligence.advisorBrief.measurement
     || 'لا توجد آلية قياس مثبتة بعد.';
+  const advisorDeadline = primaryRecommendation?.deadlineHint || 'التوقيت يحدد بعد اعتماد الدليل والمالك.';
   const advisorOwner = primaryRecommendation?.ownerHint
     || report.intelligence.advisorBrief.ownerHint
     || executiveSignal?.ownerHint
@@ -1053,6 +1054,10 @@ export function SmartReportPage() {
             <div className="rounded-xl border border-amber-200 bg-white/70 p-3">
               <div className="text-[9px] font-black text-ink-400">المعيار</div>
               <div className="mt-1 text-[10px] leading-5 text-ink-800">{advisorMeasurement}</div>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-white/70 p-3">
+              <div className="text-[9px] font-black text-ink-400">التوقيت</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-800">{advisorDeadline}</div>
             </div>
           </div>
         </article>
