@@ -51,7 +51,9 @@ for (const { path: surfacePath, content } of customerFacingSurfaces) {
 }
 
 assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(Decision ROI|Business Replay|Money Recovery|Outcome follow-up)\b/.test(content)));
-assert.ok(!smart.includes("getByText('EVIDENCE PASSPORT', { exact: false }).waitFor"), 'Real business E2E must use a deterministic Evidence Passport locator');
+const realBusinessE2E = fs.readFileSync('scripts/real-business-e2e.mjs', 'utf8');
+assert.ok(realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor"), 'Real business E2E must use a deterministic Evidence Passport locator');
+assert.ok(!realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).waitFor"), 'Real business E2E must not retain a non-unique Evidence Passport locator');
 assert.ok(reports.includes('export function SalesReportPage'), 'Sales report surface must remain present');
 assert.ok(reports.includes('export function PurchasesReportPage'), 'Purchases report surface must remain present');
 const salesBlock = reports.slice(reports.indexOf('export function SalesReportPage'), reports.indexOf('export function PurchasesReportPage'));
