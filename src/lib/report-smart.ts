@@ -915,17 +915,27 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const persistedCalculationRows = (persistedIntelligenceCalculations ?? []) as Array<Record<string, unknown>>;
 
   const intelligenceGateReasons: string[] = [];
-  if (!analysis || String(analysis.analysis_status ?? '') !== 'analyzed') intelligenceGateReasons.push('التحليل المصدرّي غير مكتمل');
-  if (Number(analysis?.quality_score ?? 0) < 85) intelligenceGateReasons.push('جودة المصدر أقل من حد الاعتماد الذكي');
-  if (blockingReviewColumns.length > 0) {
+  const generalAnalysisMode = !specialty;
+  // A generic report can still produce truthful intelligence from its canonical
+  // rows even when it is not ready for a specialized/archetype decision.
+  if ((!analysis || String(analysis.analysis_status ?? '') !== 'analyzed') && !generalAnalysisMode) {
+    intelligenceGateReasons.push('التحليل المصدرّي غير مكتمل');
+  }
+  if (Number(analysis?.quality_score ?? 0) < 85 && !generalAnalysisMode) {
+    intelligenceGateReasons.push('جودة المصدر أقل من حد الاعتماد المتخصص');
+  }
+  if (blockingReviewColumns.length > 0 && !generalAnalysisMode) {
     intelligenceGateReasons.push('توجد مراجعة لازمة في حقول أساسية: ' + blockingReviewColumns.map((column) => String(column.name ?? column.mappedField ?? 'غير مسمى')).join('، '));
   }
-  if (blockingQualityIssueColumns.length > 0) {
+  if (blockingQualityIssueColumns.length > 0 && !generalAnalysisMode) {
     intelligenceGateReasons.push('توجد مشكلة جودة في حقول أساسية: ' + blockingQualityIssueColumns.map((column) => String(column.name ?? column.mappedField ?? 'غير مسمى')).join('، '));
   }
-  if (missingRequiredFields.length > 0) intelligenceGateReasons.push('حقول أساسية مفقودة: ' + missingRequiredFields.join(', '));
+  if (missingRequiredFields.length > 0 && !generalAnalysisMode) {
+    intelligenceGateReasons.push('حقول أساسية مفقودة: ' + missingRequiredFields.join(', '));
+  }
   if (!canonicalRowsComplete || canonicalRowsPartial) intelligenceGateReasons.push('الصفوف الكانونية غير مكتملة');
   if (canonicalCommitGap != null && canonicalCommitGap > 0) intelligenceGateReasons.push('يوجد فجوة بين الصفوف المصدرية والصفوف الكانونية');
+  if (generalAnalysisMode && canonicalRows.length === 0) intelligenceGateReasons.push('لا توجد صفوف مصدرية قابلة للتحليل العام');
   const intelligenceEligible = intelligenceGateReasons.length === 0;
 
   const nonBlockingQualityWarnings = sourceColumns
@@ -992,7 +1002,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   );
   if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
 
-  const availableFields = [...new Set(sourceColumnDescriptors(sourceAnalysis, canonicalRows).flatMap((column) => {
+  const availableFields = [...new Set(sourceColumnDescriptors(sourceAnalysis, canonicalRows, specialty).flatMap((column) => {
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
     const name = String(column.name ?? '').trim();
     return [mapped, name].filter(Boolean);
