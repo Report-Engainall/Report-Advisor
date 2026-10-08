@@ -285,11 +285,11 @@ export function ExternalFileAnalysisPage() {
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
     {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
-    {file && universalIntelligence && <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+    {file && universalIntelligence && <details open className="progressive-disclosure rounded-[20px] border border-indigo-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4">
         <div className="flex items-center justify-between gap-4">
-          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والدليل الفني متاحان للمراجعة دون إغراق النتيجة التنفيذية.</div></div>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح التفاصيل</span>
+          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والدليل الفني ظاهر الآن مع النتيجة التنفيذية؛ يمكن طيه فقط إذا أراد المستخدم شاشة أكثر اختصارًا.</div></div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">طي التفاصيل</span>
         </div>
       </summary>
       <div className="border-t border-ink-100 p-3 lg:p-4"><UniversalIntelligenceChain result={universalIntelligence}/></div>
