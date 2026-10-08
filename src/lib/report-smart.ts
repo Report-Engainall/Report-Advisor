@@ -187,7 +187,7 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
   }
   for (const row of canonicalRows.slice(0, 500)) {
     for (const name of Object.keys(row.data ?? {})) {
-      const mapped = normalizeBusinessField(name);
+      const mapped = normalizeBusinessField(name, specialty);
       if (mapped && !output.has(mapped)) output.set(mapped, { name, mappedField: mapped, mappingConfidence: 80 });
     }
   }
