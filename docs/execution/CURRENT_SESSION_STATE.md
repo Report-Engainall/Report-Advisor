@@ -1,47 +1,51 @@
-SESSION HANDOFF = NOT READY
+SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8
+CURRENT_EXACT_HEAD = be8154369561d88b645df199134a8f8a2c643705
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8
+CURRENT_EXECUTION_HEAD = be8154369561d88b645df199134a8f8a2c643705
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911
-CURRENT_PR_HEAD = 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8 (application and verification-code head; subsequent commits synchronize governance docs only)
+CURRENT_PR_HEAD = be8154369561d88b645df199134a8f8a2c643705 (application and verification-code head; subsequent commits synchronize governance docs only)
 
 WHAT_ACTUALLY_HAPPENED
 - PR #910 merged to main: fixes universal file-analysis initialization and adds the visible source-to-decision path in the file-analysis screen.
 - PR #911 defers DashboardPage through React.lazy; the route and screen remain, while initial entry code is reduced.
 - Corrected the performance budget's escaped file-extension matcher so gzip-text is measured rather than falsely reported as 0.0KB.
 - Corrected the session-handoff contract's escaped newline matcher so it validates every changed path rather than allowing an unreported code file to hide after the first documentation path.
-- Fresh exact-source build is complete; see metrics below.
+- Fixed the public upload hang: file parsing no longer waits indefinitely on the optional remote `synonym_dictionary` query. Remote lookup is bounded to 1.2 seconds and falls back to the built-in Arabic/English synonym map on timeout or network failure.
+- Corrected `scripts/public-report-upload-smoke.mjs` to wait for actual parsed-source evidence and validate the source-to-decision journey shown by this screen. Removed false fixture assertions for 1.84-day coverage/reorder because this source does not provide a daily-sales-rate or stockout-days field.
+- Built exact commit `be8154369561d88b645df199134a8f8a2c643705`; typecheck, performance budget, generic file analysis, file-engine contract, and the official Playwright upload smoke all passed. Browser proof loaded the 12-row/11-column fixture from the Netlify PR #911 preview with no page errors or horizontal overflow.
 
 WHAT_IS_PROVEN
-- Verification code head: 58811c1ef5b3a21a3f698fbf729d935bfb14bbf8; PR #911.
+- Verification code head: be8154369561d88b645df199134a8f8a2c643705; PR #911.
 - TypeScript typecheck: PASS.
 - Production build: PASS; build provenance embeds the exact verification code head.
-- Performance budget: PASS; critical assets 917.6KB / 950KB, gzip-text 1071.0KB / 2000KB, largest JS 488.9KB / 600KB.
+- Performance budget: PASS; critical assets 917.6KB / 950KB, gzip-text 1071.1KB / 2000KB, largest JS 488.9KB / 600KB.
 - UI route completeness: PASS (47 routes / 43 canonical navigation links); sidebar route parity PASS.
 - File-engine architecture PASS; 21 declared formats explicitly dispatched.
 - Generic file analysis, advisor intelligence/recommendations, source-report workspace, intelligence product contract, full smart-report/context-lineage surface, and Phase 11 performance-closure contract: PASS.
+- Netlify PR #911 preview at the exact commit returned HTTP 200; the browser upload produced the expected 12 source rows/11 columns, executive report, source-to-decision journey and continuation action, with no JavaScript errors or horizontal overflow.
 - Session handoff checker now rejects stale reports when any individual changed path falls outside governance docs; the successful handoff run will be recorded only after this checkpoint is synchronized.
 
 CURRENT_OPEN_GATES
-- PR #911 requires terminal CI on its final branch head before merge.
+- Terminal CI for PR #911 at be8154369561d88b645df199134a8f8a2c643705 is not yet proven complete; merge only after relevant checks finish and pass.
 - Full authenticated browser proof of upload -> persisted report -> evidence -> recommendation -> decision/work/outcome is not proven.
-- Main-head Full Product Browser E2E run 37856344734 was still in progress at last read; actor provisioning and real-open-report resume had failed earlier in that run.
+- Full Product Browser E2E remains pending on the latest PR head; the earlier main-head run had actor provisioning and real-open-report resume failures.
 - Real-source 48/48 archetype proof is not established by the local contract tests.
-- Production Netlify remains on an older commit and does not yet expose the merged PR #910 file-analysis path.
+- Production Netlify remains on older commit 858ef8e3e5bc5bf74430555eadfb9e6767be348b; only the PR #911 preview reflects commit be8154369561d88b645df199134a8f8a2c643705.
 
 CURRENT_ACTIVE_FAILURE
-- Deploy Netlify Production run 37856344741 failed at publish because repository Actions secrets NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are missing/empty.
-- The previous main-head quality/certification runs failed the critical-byte budget by 2.1KB; the measured candidate is now 917.6KB while retaining the 950KB limit.
-- The earlier Session Handoff Contract failure came from stale report lineage; the validator itself also had a broken newline splitter, now fixed. The docs-only checkpoint immediately following this code head restores accurate coverage.
+- PR #911 terminal CI remains pending at the latest code head; its Netlify preview is READY and the real-file upload browser check passed.
+- Production release remains blocked because GitHub Actions secrets NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are missing/empty.
+- Authenticated persisted upload-to-decision/outcome and 48/48 real-source archetype proof remain open; do not mark product complete.
 
 ROOT_CAUSE
+- The public upload spinner was caused by an unbounded wait on the optional remote synonym dictionary before local file mapping could finish; the current source now caps that wait and falls back to built-in Arabic/English synonyms.
 - DashboardPage was eagerly imported into the application entry despite the existing lazy-route pattern.
 - The performance and session-handoff scripts had over-escaped regular expressions; one hid gzip delivery size and the other failed to inspect each changed path independently.
 - Production release remains blocked by missing GitHub Actions Netlify credentials, not by the local application build.
 
-NEXT_EXACT_ACTION = Run and consume terminal exact-head CI for PR #911; merge only after its relevant gates pass; configure NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID privately in GitHub repository Actions settings; rerun the production deploy; then prove the live /try-report and authenticated upload-to-decision journey on the deployed commit. Do not mark PRODUCT_COMPLETE or PRODUCTION_PROVEN before that evidence.
+NEXT_EXACT_ACTION = Consume terminal exact-head CI for PR #911; verify its updated deploy-preview upload smoke; merge only after relevant gates pass; configure NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID privately in GitHub repository Actions settings; rerun production deploy; then prove the authenticated upload-to-persisted-report/evidence/recommendation/decision-work/outcome journey on the production commit. Do not mark PRODUCT_COMPLETE or PRODUCTION_PROVEN before that evidence.
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
