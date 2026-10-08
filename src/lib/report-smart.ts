@@ -1081,11 +1081,24 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         : archetypeState === 'SUPPORTED' && evidenceStatus === 'VERIFIED'
           ? 'READY'
           : 'REVIEW_REQUIRED';
+  const runtimeTrustState =
+    effectiveRendered.trustState != null
+      ? String(effectiveRendered.trustState)
+      : canonicalCommitVerified &&
+          canonicalCommitGap === 0 &&
+          canonicalAnalysisScope === 'FULL_SOURCE'
+        ? 'TRUSTED'
+        : canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' || canonicalAnalysisScope === 'PARTIAL_FETCH_ERROR'
+          ? 'REVIEW'
+          : null;
+
   const runtimeRendered = {
     ...effectiveRendered,
     // Persisted renderedOutput may carry a stale specialty from the original
     // execution. The runtime source analysis is authoritative for classification.
     sourceSpecialty: specialty ?? effectiveRendered.sourceSpecialty ?? null,
+    trustState: runtimeTrustState,
+    sourceTrustState: runtimeTrustState,
     archetypeId: detectedArchetype.profile?.id ?? null,
     archetypeVersion: detectedArchetype.profile?.version ?? null,
     profileVersion: detectedArchetype.profile?.version ?? null,
@@ -1107,7 +1120,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     entityType: entityTypeFrom(String(job.job_key ?? '')),
     rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
-    trustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    trustState: runtimeTrustState,
     specialty,
     canonicalRows,
     intelligence,
@@ -1122,7 +1135,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalCommitCount,
     canonicalCommitVerified,
     canonicalAnalysisScope,
-    sourceTrustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    sourceTrustState: runtimeTrustState,
     reportVerificationState: canonicalCommitQueryFailed || !canonicalRowsComplete || canonicalRowsPartial
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
