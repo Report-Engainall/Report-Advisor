@@ -233,8 +233,13 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
         if (!name || isExtractionArtifactHeader(name)) return null;
         const declaredMapped = text(column.mappedField);
         const semanticMapped = canonicalSourceField(name);
-        const mappedField = declaredMapped || semanticMapped;
-        return { ...column, name, mappedField: mappedField || null };
+        const genericDeclared = /^(unknown|unmapped|غير.?معين|غير.?معرّف|undefined|null)$/i.test(declaredMapped);
+        // The original header is the strongest local semantic evidence. Prefer
+        // it over stale/placeholder persisted mappings so runtime intelligence
+        // and the mapping table cannot disagree about the same source field.
+        const mappedField = semanticMapped ?? (genericDeclared ? '' : declaredMapped);
+        const mappingConfidence = semanticMapped ? Math.max(Number(column.mappingConfidence ?? 0), 96) : Number(column.mappingConfidence ?? 0);
+        return { ...column, name, mappedField: mappedField || null, mappingConfidence };
       }
       const name = text(item);
       if (!name || isExtractionArtifactHeader(name)) return null;
