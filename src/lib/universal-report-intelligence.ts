@@ -181,15 +181,22 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
   const primaryFinding = intelligence.findings?.[0] ?? intelligence.risks?.[0] ?? intelligence.opportunities?.[0] ?? null;
   const hasRows = stats.rows > 0;
   const quality = stats.completeness ?? null;
+  const mappingRatio = stats.total ? stats.mapped / stats.total : 0;
+  const evidenceRatio = signal
+    ? Math.min(1, (signal.evidence?.filter((item) => String(item).includes('='))?.length ?? 0) / 3)
+    : 0;
+  // This is confidence in the *analysis result*, not a cosmetic quality score.
+  // Keep semantic coverage and source completeness visible in the calculation and
+  // prevent a high signal count from masking weak field definitions.
   const confidence = Math.max(
     0,
     Math.min(
       100,
       Math.round(
-        (hasRows ? 45 : 0)
-        + (quality == null ? 15 : quality * 0.35)
-        + (stats.total ? (stats.mapped / stats.total) * 20 : 0)
-        + (signal ? 10 : 0),
+        (hasRows ? 30 : 0)
+        + (quality == null ? 0 : quality * 0.30)
+        + mappingRatio * 25
+        + evidenceRatio * 15,
       ),
     ),
   );
