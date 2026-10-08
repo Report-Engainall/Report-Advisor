@@ -189,7 +189,7 @@ function DecisionExperienceGeneralPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [reportJobIdParam, sourceHashParam, sourceDecisionId]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { if (requestedStage && STAGES.some((item) => item.id === requestedStage)) setStage(requestedStage); }, [requestedStage]);
@@ -198,6 +198,11 @@ function DecisionExperienceGeneralPage() {
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read), [alerts]);
   const selectedStatus = selected?.status ?? null;
+  const sourceSignal = useMemo(() => sourceReport ? selectExecutiveSignal(sourceReport.intelligence) : null, [sourceReport]);
+  const sourceRecommendation = useMemo(
+    () => sourceReport && sourceSignal ? selectExecutiveRecommendation(sourceReport.intelligence, sourceSignal) : null,
+    [sourceReport, sourceSignal],
+  );
   useEffect(() => {
     let active = true;
     setDecisionError(null);
@@ -326,6 +331,56 @@ function DecisionExperienceGeneralPage() {
   const selectRecommendation = (id: string, next: Stage = 'evidence') => {
     setSelectedId(id);
     navigateStage(next, id);
+  };
+  const createSourceProposal = async () => {
+    if (!sourceReport || !sourceSignal) {
+      setSourceProposalError('لا توجد إشارة مصدرية قابلة للتحويل إلى قرار.');
+      return;
+    }
+    const evidenceSnapshotId = typeof sourceReport.renderedOutput?.evidenceSnapshotId === 'string'
+      ? sourceReport.renderedOutput.evidenceSnapshotId.trim()
+      : '';
+    if (sourceReport.reportVerificationState !== 'VERIFIED' || !evidenceSnapshotId || sourceReport.evidenceStatus === 'PENDING_EVIDENCE') {
+      setSourceProposalError('لا يمكن إنشاء مسودة قرار قبل اكتمال لقطة الدليل وتوثيقها.');
+      return;
+    }
+    setSourceProposalBusy(true);
+    setSourceProposalError(null);
+    try {
+      const proposal = await createSourceDecisionProposal({
+        reportJobId: sourceReport.jobId,
+        sourceHash: sourceReport.sourceHash,
+        signalId: sourceSignal.id,
+        signalTitle: sourceSignal.title,
+        signalMessage: sourceSignal.message,
+        severity: sourceSignal.severity,
+        evidence: sourceSignal.evidence,
+        evidenceSnapshotId,
+        recommendationContext: sourceRecommendation ? {
+          action: sourceRecommendation.action,
+          why: sourceRecommendation.why,
+          whyNow: sourceRecommendation.whyNow,
+          expectedOutcome: sourceRecommendation.expectedOutcome,
+          owner: sourceRecommendation.ownerHint || null,
+          impact: sourceRecommendation.impact,
+          measurement: sourceRecommendation.measurement,
+          risk: sourceRecommendation.risk,
+          blocker: sourceRecommendation.blocker,
+          limitation: sourceRecommendation.limitation,
+        } : null,
+      });
+      if (!proposal.recommendationId) throw new Error('SOURCE_PROPOSAL_RECOMMENDATION_ID_MISSING');
+      const nextParams = new URLSearchParams(params);
+      nextParams.set('stage', 'decision');
+      nextParams.set('sourceDecisionId', proposal.id);
+      nextParams.set('recommendationId', proposal.recommendationId);
+      setParams(nextParams, { replace: true });
+      setSelectedId(proposal.recommendationId);
+    } catch (cause) {
+      setSourceProposalError(cause instanceof Error ? cause.message : 'تعذر إنشاء مسودة القرار المصدرية');
+    } finally {
+      setSourceProposalBusy(false);
+    }
   };
 
   const relatedWorkItems = useMemo(() => {
