@@ -247,8 +247,26 @@ export function CustomerReportSurface({
   title: string;
 }) {
   const actualMatches = report.specialty === expectedSpecialty;
-  const displayTitle = actualMatches ? 'تقرير ' + title : reportTitle(report);
+  const displayTitle = 'تقرير ' + title;
   const metrics = numericColumns(report);
+  const contractMetric = (() => {
+    if (expectedSpecialty === 'inventory') {
+      return {
+        label: 'عدد الأصناف',
+        value: actualMatches ? (report.authoritativeCurrentRowCount ?? report.rowCount ?? null) : null,
+        kind: 'count' as const,
+      };
+    }
+    const totalMetric = metrics.find((item) => {
+      const field = String(item.mappedField ?? '').trim();
+      return field === 'total' || field === 'sales' || field === 'purchases' || field === 'net_amount';
+    });
+    return {
+      label: expectedSpecialty === 'purchases' ? 'إجمالي المشتريات' : 'إجمالي المبيعات',
+      value: actualMatches ? (totalMetric?.value ?? null) : null,
+      kind: 'money' as const,
+    };
+  })();
   const contributors = contributionRows(report);
   const advisor = report.intelligence.advisorBrief;
   const topSignal = selectExecutiveSignal(report.intelligence);
@@ -326,7 +344,20 @@ export function CustomerReportSurface({
           <div className="text-[10px] font-bold text-slate-400">{metrics.length} مؤشرات رئيسية</div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {metrics.slice(0, 4).map(({ mappedField, value }, index) => (
+          <div className="rounded-2xl border border-indigo-200 bg-indigo-50/55 p-4">
+            <div className="text-[10px] font-bold text-indigo-700">{contractMetric.label}</div>
+            <div className="mt-2 text-2xl font-black tabular-nums text-slate-950">
+              {contractMetric.value == null
+                ? 'غير متاح'
+                : contractMetric.kind === 'count'
+                  ? formatNumber(contractMetric.value)
+                  : formatCurrency(contractMetric.value)}
+            </div>
+            <div className="mt-1 text-[9px] leading-5 text-slate-500">
+              {actualMatches ? 'من السجلات الكانونية الحالية.' : 'القيمة غير متاحة لأن المصدر الحالي لا يثبت هذا التخصص.'}
+            </div>
+          </div>
+          {metrics.slice(0, 3).map(({ mappedField, value }, index) => (
             <div key={(mappedField ?? 'field') + index} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-[10px] font-bold text-slate-500">{compactFieldLabel(mappedField ?? '')}</div>
               <div className="mt-2 text-2xl font-black tabular-nums text-slate-950">{/amount|total|sales|purchase|profit|value|balance|cost|revenue|مبلغ|إجمالي|مبيعات|مشتريات|ربح|قيمة|رصيد|تكلفة/i.test(mappedField ?? '') ? formatCurrency(value) : formatNumber(value)}</div>
