@@ -130,242 +130,239 @@ export function PublicSmartReportDemoPage() {
   const coverage = totalSales > 0 ? totalStock / totalSales : 0;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#f6f7fb] px-3 py-4 sm:px-5 lg:px-7">
-      <div className="mx-auto max-w-[1500px] space-y-5 pb-10">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link to="/proposal-demo" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 text-xs font-black text-ink-700 hover:bg-ink-50">
+    <div dir="rtl" className="min-h-screen bg-[#f4f5f9] px-3 py-4 sm:px-5 lg:px-8">
+      <div className="mx-auto max-w-[1440px] space-y-4 pb-10">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <Link
+            to="/proposal-demo"
+            className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-ink-200 bg-white px-3.5 text-xs font-black text-ink-700 transition hover:border-primary-300 hover:bg-primary-50"
+          >
             <ArrowLeft size={14} />
             العودة إلى العرض التجاري
           </Link>
-          <div className="flex items-center gap-2 text-[10px] font-black">
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-900">تقرير ذكي فعلي في مسار العرض</span>
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-black">
+            <span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-2 text-primary-800">تقرير تجريبي مربوط بالمصدر</span>
             <span className="rounded-full border border-ink-200 bg-white px-3 py-2 text-ink-600">{SOURCE_NAME}</span>
           </div>
-        </div>
+        </header>
 
-        <section className="overflow-hidden rounded-[28px] border border-slate-700 bg-[linear-gradient(135deg,#07111d,#102b31_60%,#171622)] p-5 text-white shadow-[0_28px_90px_-42px_rgba(15,23,42,.9)] lg:p-8">
-          <div className="grid gap-6 xl:grid-cols-[1.35fr_.65fr] xl:items-end">
+        <section className="overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#0a1020_0%,#111d3a_58%,#312e81_100%)] p-5 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,.9)] lg:p-7">
+          <div className="relative grid gap-6 xl:grid-cols-[1.45fr_.55fr] xl:items-stretch">
             <div>
-              <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.16em] text-emerald-200">
-                <ShieldCheck size={14} />
-                SMART REPORT · SOURCE BOUND
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/20 bg-white/5 px-3 py-1.5 text-[9px] font-black tracking-[.14em] text-indigo-100">
+                <ShieldCheck size={13} />
+                التقرير الذكي
               </div>
-              <h1 className="mt-2 text-3xl font-black tracking-tight lg:text-4xl">هذا هو التقرير الذكي الذي يجب أن يراه العميل</h1>
-              <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-300">
-                لا يبدأ بالجدول. يبدأ بالحكم: ماذا حدث، لماذا يستحق الانتباه، ماذا يعني للإدارة، وما الإجراء الذي يمكن متابعته وقياسه.
+              <h1 className="mt-4 max-w-4xl text-3xl font-black tracking-tight lg:text-5xl">الحكم أولًا. الدليل تحته. الإجراء بعده.</h1>
+              <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-200/80">
+                هذا التقرير أخذ 12 سجلًا حقيقيًا من نفس المصدر، وحوّلها إلى إشارة تشغيلية وتوصية قابلة للمراجعة دون اختلاق قرار أو نتيجة.
               </p>
-              <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-bold text-slate-200">
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">المصدر: {SOURCE_NAME}</span>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{SOURCE_ROWS.length} صفًا</span>
-                <span className="rounded-full border border-white/10 bg-white/5">11 حقلًا</span>
-                <span className="rounded-full border border-white/10 bg-white/5">{analysis.signals.length} إشارات</span>
-                <span className="rounded-full border border-white/10 bg-white/5">{analysis.recommendations.length} توصيات</span>
+
+              <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-2xl border border-white/10 bg-white/[.06] p-3">
+                  <div className="text-[9px] text-slate-300/60">التغطية</div>
+                  <div className="mt-1 text-2xl font-black tabular-nums">{metricNumber(coverage)}x</div>
+                  <div className="mt-1 text-[9px] text-slate-300/55">إجمالي الرصيد ÷ المبيعات</div>
+                </div>
+                <div className="rounded-2xl border border-amber-200/10 bg-amber-100/[.06] p-3">
+                  <div className="text-[9px] text-amber-100/65">تحت الحد</div>
+                  <div className="mt-1 text-2xl font-black tabular-nums">{lowCoverageRows.length}</div>
+                  <div className="mt-1 text-[9px] text-amber-100/55">من أصل {SOURCE_ROWS.length} سجلًا</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[.06] p-3">
+                  <div className="text-[9px] text-slate-300/60">اتجاه الطلب</div>
+                  <div className="mt-1 text-2xl font-black tabular-nums">+57%</div>
+                  <div className="mt-1 text-[9px] text-slate-300/55">متوسط الجزء الأحدث مقابل البداية</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[.06] p-3">
+                  <div className="text-[9px] text-slate-300/60">الرصيد</div>
+                  <div className="mt-1 text-2xl font-black tabular-nums">{metricNumber(totalStock)}</div>
+                  <div className="mt-1 text-[9px] text-slate-300/55">وحدة مثبتة في المصدر</div>
+                </div>
               </div>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/[.06] p-5">
-              <div className="text-[9px] font-black tracking-[.16em] text-emerald-200">EXECUTIVE JUDGMENT</div>
-              <div className="mt-2 text-xl font-black leading-8">{signal?.message ?? analysis.advisorBrief.headline}</div>
-              <div className="mt-3 text-[11px] leading-5 text-slate-300">
-                التغطية الحالية الكلية = {metricNumber(coverage)}x، و{lowCoverageRows.length} صفوف تقع تحت حد التغطية 2.00x.
+
+            <div className="rounded-[24px] border border-amber-200/20 bg-black/15 p-5 backdrop-blur-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-[9px] font-black tracking-[.14em] text-amber-100">الحكم التنفيذي</div>
+                <span className="rounded-full border border-amber-100/15 bg-amber-100/10 px-2.5 py-1 text-[8px] font-black text-amber-100">P1</span>
+              </div>
+              <div className="mt-3 text-xl font-black leading-8">{signal?.message ?? analysis.advisorBrief.headline}</div>
+              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.05] p-3">
+                <div className="text-[9px] text-slate-300/55">الإجراء المطلوب</div>
+                <div className="mt-1 text-sm font-black leading-6 text-white">{recommendation?.title ?? analysis.advisorBrief.recommendedAction}</div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  to="/try-report"
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-amber-300 px-3.5 py-2 text-[10px] font-black text-[#111827] hover:bg-amber-200"
+                >
+                  حلّل ملفك الحقيقي
+                  <ArrowLeft size={13} />
+                </Link>
+                <a href="#الدليل" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[10px] font-black text-white hover:bg-white/10">
+                  شاهد الدليل
+                  <ArrowUpLeft size={13} />
+                </a>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {[
-            ['الصفوف المصدرية', String(SOURCE_ROWS.length), 'كل صفوف الـFixture مستخدمة'],
-            ['الإشارة', String(analysis.signals.length), 'إشارات مشتقة من نفس المصدر'],
-            ['التوصيات', String(analysis.recommendations.length), 'أفعال مقترحة وليست نتائج منجزة'],
-            ['جاهزية الإجراء', statusLabel(universal.advisory.actionState), 'لا تُحوّل الفجوة إلى قرار مزيف'],
-            ['النتيجة', statusLabel(universal.advisory.outcomeState), 'لا توجد نتيجة مستقبلية مخترعة'],
-          ].map(([label, value, detail]) => (
-            <article key={label} className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
-              <div className="text-[9px] font-black text-ink-400">{label}</div>
-              <div className="mt-2 text-lg font-black text-ink-950">{value}</div>
-              <div className="mt-1 text-[10px] leading-5 text-ink-500">{detail}</div>
-            </article>
-          ))}
-        </section>
-
-        <section className="grid gap-4 xl:grid-cols-[1.25fr_.75fr]">
-          <div className="rounded-[22px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
+        <section className="grid gap-3 lg:grid-cols-3">
+          <article className="rounded-[22px] border border-ink-200 bg-white p-5 shadow-sm lg:col-span-2">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <div className="section-kicker">ADVISOR BRIEF</div>
-                <h2 className="mt-1 text-xl font-black text-ink-950">الحكم التنفيذي</h2>
+                <div className="section-kicker text-primary-700">قرار الإدارة</div>
+                <h2 className="mt-1 text-2xl font-black tracking-tight text-ink-950">ما الذي يجب أن يعرفه المدير خلال 30 ثانية؟</h2>
               </div>
               <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[10px] font-black text-amber-900">
-                {analysis.advisorBrief.health === 'REVIEW_REQUIRED' ? 'يحتاج تدخلًا' : 'انتباه'}
+                {statusLabel(universal.advisory.actionState)}
               </span>
             </div>
-            <div className="mt-4 rounded-2xl bg-ink-950 p-5 text-white">
-              <div className="text-[9px] font-black text-primary-200">ماذا حدث؟</div>
-              <div className="mt-1 text-lg font-black leading-8">{analysis.advisorBrief.headline}</div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <article className="rounded-2xl border border-ink-100 bg-ink-50/60 p-4">
+                <div className="text-[9px] font-black text-ink-400">ماذا حدث؟</div>
+                <div className="mt-2 text-sm font-black leading-6 text-ink-950">{analysis.advisorBrief.headline}</div>
+              </article>
+              <article className="rounded-2xl border border-primary-100 bg-primary-50/60 p-4">
+                <div className="text-[9px] font-black text-primary-700">لماذا الآن؟</div>
+                <div className="mt-2 text-sm font-black leading-6 text-primary-950">{recommendation?.whyNow ?? signal?.soWhat ?? 'توجد إشارة تحتاج مراجعة.'}</div>
+              </article>
+              <article className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+                <div className="text-[9px] font-black text-amber-800">ماذا نفعل الآن؟</div>
+                <div className="mt-2 text-sm font-black leading-6 text-amber-950">{recommendation?.action ?? analysis.advisorBrief.recommendedAction}</div>
+              </article>
             </div>
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
-              <div className="rounded-2xl border border-ink-100 bg-ink-50/60 p-4">
-                <div className="text-[9px] font-black text-ink-400">لماذا الآن؟</div>
-                <div className="mt-2 text-sm font-bold leading-6 text-ink-900">{recommendation?.whyNow ?? signal?.soWhat ?? 'توجد إشارة تحتاج تفسيرًا.'}</div>
-              </div>
-              <div className="rounded-2xl border border-ink-100 bg-ink-50/60 p-4">
-                <div className="text-[9px] font-black text-ink-400">ماذا يعني؟</div>
-                <div className="mt-2 text-sm font-bold leading-6 text-ink-900">{signal?.soWhat ?? analysis.advisorBrief.proofRequirement}</div>
-              </div>
-              <div className="rounded-2xl border border-primary-100 bg-primary-50/60 p-4">
-                <div className="text-[9px] font-black text-primary-700">ماذا نفعل الآن؟</div>
-                <div className="mt-2 text-sm font-black leading-6 text-primary-950">{recommendation?.action ?? analysis.advisorBrief.recommendedAction}</div>
+
+            <div className="mt-3 grid gap-3 md:grid-cols-[.8fr_1.2fr]">
+              <div className="rounded-2xl bg-[#0d1424] p-4 text-white">
+                <div className="text-[9px] font-black text-indigo-200">المعنى للإدارة</div>
+                <div className="mt-2 text-sm font-black leading-6">{signal?.soWhat ?? analysis.advisorBrief.proofRequirement}</div>
               </div>
               <div className="rounded-2xl border border-ink-100 bg-white p-4">
-                <div className="text-[9px] font-black text-ink-400">كيف نقيس؟</div>
-                <div className="mt-2 text-sm font-bold leading-6 text-ink-900">{recommendation?.measurement ?? analysis.advisorBrief.measurement}</div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div><div className="text-[9px] text-ink-400">المالك</div><div className="mt-1 text-sm font-black text-ink-950">{recommendation?.ownerHint ?? analysis.advisorBrief.ownerHint}</div></div>
+                  <div><div className="text-[9px] text-ink-400">القياس</div><div className="mt-1 text-[11px] font-bold leading-5 text-ink-800">{recommendation?.measurement ?? analysis.advisorBrief.measurement}</div></div>
+                  <div><div className="text-[9px] text-ink-400">مانع الاعتماد</div><div className="mt-1 text-[11px] font-bold leading-5 text-ink-800">{recommendation?.blocker ?? analysis.advisorBrief.proofRequirement}</div></div>
+                </div>
               </div>
+            </div>
+          </article>
+
+          <aside className="rounded-[22px] border border-ink-200 bg-[#0c1220] p-5 text-white shadow-sm">
+            <div className="flex items-center gap-2 text-indigo-100">
+              <Target size={16} />
+              <div className="text-[9px] font-black tracking-[.14em]">حالة القرار</div>
+            </div>
+            <div className="mt-3 text-2xl font-black">{statusLabel(universal.advisory.actionState)}</div>
+            <p className="mt-2 text-[11px] leading-6 text-slate-300">
+              لا يوجد قرار معتمد داخل المعاينة. هذه الإشارة جاهزة للمراجعة، وليست قرار شراء منفذًا.
+            </p>
+            <div className="mt-4 space-y-2">
+              <div className="rounded-xl bg-white/[.05] p-3"><div className="text-[9px] text-slate-400">النتيجة</div><div className="mt-1 text-sm font-black">{statusLabel(universal.advisory.outcomeState)}</div></div>
+              <div className="rounded-xl bg-white/[.05] p-3"><div className="text-[9px] text-slate-400">البيانات</div><div className="mt-1 text-sm font-black">{SOURCE_ROWS.length} سجلًا · 11 حقلًا</div></div>
+              <div className="rounded-xl bg-white/[.05] p-3"><div className="text-[9px] text-slate-400">المصدر</div><div className="mt-1 break-all text-[10px] font-bold text-slate-200">{SOURCE_NAME}</div></div>
+            </div>
+          </aside>
+        </section>
+
+        <section className="rounded-[22px] border border-ink-200 bg-white p-5 shadow-sm" id="الدليل">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="section-kicker text-primary-700">الدليل الحاسم</div>
+              <h2 className="mt-1 text-2xl font-black tracking-tight text-ink-950">ثلاثة سجلات تحت حد التغطية</h2>
+              <p className="mt-1 text-xs leading-6 text-ink-500">هذه هي الصفوف التي صنعت الإشارة. اضغط على تفاصيل الإثبات لاحقًا لرؤية السجل الكامل.</p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-[10px] font-black">
+              <span className="rounded-full bg-amber-50 px-3 py-1.5 text-amber-900">{lowCoverageRows.length} يحتاج معالجة</span>
+              <span className="rounded-full bg-ink-50 px-3 py-1.5 text-ink-700">{SOURCE_ROWS.length - lowCoverageRows.length} ضمن الحد</span>
             </div>
           </div>
 
-          <div className="rounded-[22px] border border-amber-200 bg-amber-50/70 p-5 shadow-card lg:p-6">
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            {lowCoverageRows.map((row) => {
+              const itemCoverage = row.salesQty > 0 ? row.currentStock / row.salesQty : null;
+              return (
+                <article key={row.documentNo} className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-[9px] font-mono text-amber-800">{row.documentNo}</div>
+                      <div className="mt-1 text-lg font-black text-amber-950">{row.productCode}</div>
+                      <div className="mt-1 text-[10px] text-amber-900">{row.productName} · {row.warehouse}</div>
+                    </div>
+                    <div className="rounded-xl bg-white px-2.5 py-2 text-center shadow-sm">
+                      <div className="text-[8px] text-ink-400">التغطية</div>
+                      <div className="mt-1 text-sm font-black tabular-nums text-amber-900">{itemCoverage == null ? '—' : metricNumber(itemCoverage) + 'x'}</div>
+                    </div>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-white/80 p-2.5"><div className="text-[8px] text-ink-400">المبيعات</div><div className="mt-1 text-sm font-black tabular-nums text-ink-950">{metricNumber(row.salesQty)}</div></div>
+                    <div className="rounded-xl bg-white/80 p-2.5"><div className="text-[8px] text-ink-400">الرصيد</div><div className="mt-1 text-sm font-black tabular-nums text-ink-950">{metricNumber(row.currentStock)}</div></div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-ink-100 bg-ink-50/60 p-4">
             <div className="flex items-center gap-2">
-              <Target size={17} className="text-amber-800" />
-              <h2 className="text-lg font-black text-amber-950">قرار الإدارة</h2>
+              <FileSearch size={15} className="text-primary-700" />
+              <div className="text-sm font-black text-ink-950">حدود الاستنتاج</div>
             </div>
-            <div className="mt-4 rounded-2xl border border-amber-200 bg-white/80 p-4">
-              <div className="text-[9px] font-black text-amber-700">حالة القرار</div>
-              <div className="mt-2 text-lg font-black text-amber-950">{statusLabel(universal.advisory.actionState)}</div>
-              <p className="mt-2 text-[11px] leading-5 text-amber-900">
-                لا يوجد قرار معتمد داخل المعاينة العامة. المطلوب هو مراجعة الدليل قبل إنشاء قرار فعلي.
-              </p>
-            </div>
-            <div className="mt-3 grid gap-2">
-              <div className="rounded-xl bg-white/80 p-3">
-                <div className="text-[9px] font-black text-amber-700">المالك المقترح</div>
-                <div className="mt-1 text-xs font-black text-amber-950">{recommendation?.ownerHint ?? analysis.advisorBrief.ownerHint}</div>
-              </div>
-              <div className="rounded-xl bg-white/80 p-3">
-                <div className="text-[9px] font-black text-amber-700">مانع الاعتماد</div>
-                <div className="mt-1 text-[11px] leading-5 text-amber-950">{recommendation?.blocker ?? analysis.advisorBrief.proofRequirement}</div>
-              </div>
-              <div className="rounded-xl bg-white/80 p-3">
-                <div className="text-[9px] font-black text-amber-700">حالة النتيجة</div>
-                <div className="mt-1 text-xs font-black text-amber-950">{statusLabel(universal.advisory.outcomeState)}</div>
-              </div>
-            </div>
+            <p className="mt-2 text-[11px] leading-6 text-ink-600">
+              المصدر يثبت الرصيد والمبيعات والتغطية فقط. لا توجد مهلة توريد أو نقطة إعادة طلب أو كمية شراء معتمدة؛ لذلك النظام يحدد أولوية المراجعة ولا يخترع كمية شراء.
+            </p>
           </div>
         </section>
 
-        <UniversalIntelligenceChain result={universal} />
-
-        <CommercialValueChain
-          title="من المصدر إلى النتيجة — الحالة الفعلية لهذا التقرير"
-          subtitle="السلسلة لا تدّعي تنفيذًا أو نتيجة لم تحدث. كل مرحلة تعرض ما ثبت وما يحتاج خطوة لاحقة."
-          stages={[
-            { label: 'المصدر', englishLabel: 'SOURCE', status: 'VERIFIED', detail: SOURCE_NAME + ' · ' + SOURCE_ROWS.length + ' سجلًا', tone: 'trusted' },
-            { label: 'الحقيقة', englishLabel: 'TRUTH', status: 'VERIFIED', detail: '11 حقلًا مربوطة بقاعدة المخزون', tone: 'trusted' },
-            { label: 'الإشارة', englishLabel: 'SIGNAL', status: signal ? 'DERIVED' : 'NOT_AVAILABLE', detail: signal?.title ?? 'لا توجد إشارة مؤهلة', tone: 'active' },
-            { label: 'التوصية', englishLabel: 'RECOMMENDATION', status: recommendation ? 'PROPOSED' : 'NOT_AVAILABLE', detail: recommendation?.title ?? 'لا توجد توصية مؤهلة', tone: 'active' },
-            { label: 'القرار', englishLabel: 'DECISION', status: 'REVIEW_REQUIRED', detail: 'يتطلب اعتماد الدليل قبل الإنشاء', tone: 'attention' },
-            { label: 'العمل', englishLabel: 'WORK', status: 'REVIEW_REQUIRED', detail: 'لم يُنفّذ إجراء خارجي من المعاينة', tone: 'attention' },
-            { label: 'النتيجة', englishLabel: 'OUTCOME', status: 'INSUFFICIENT', detail: 'تُقاس بعد التنفيذ فقط', tone: 'neutral' },
-            { label: 'التعلّم', englishLabel: 'LEARNING', status: 'GAP_DETECTED', detail: 'لا توجد نتيجة لاحقة مثبتة بعد', tone: 'neutral' },
-          ]}
-        />
-
-        <section className="rounded-[22px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <section className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#eff3ff,#ffffff)] p-5 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="section-kicker">TOP SIGNALS</div>
-              <h2 className="mt-1 text-xl font-black text-ink-950">الإشارات والتوصيات المرتبطة بالمصدر</h2>
-              <p className="mt-1 text-xs leading-5 text-ink-500">كل بطاقة تحمل قرائن المصدر وحدود الاستنتاج حتى لا تتحول الأرقام إلى كلام عام.</p>
-            </div>
-            <span className="text-[10px] font-black text-ink-400">{analysis.signals.length} إشارات · {analysis.recommendations.length} توصيات</span>
-          </div>
-          <div className="mt-4 grid gap-3 lg:grid-cols-2">
-            {analysis.signals.slice(0, 6).map((item) => (
-              <article key={item.id} className="rounded-2xl border border-ink-200 bg-ink-50/60 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-sm font-black text-ink-950">{item.title}</div>
-                  <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[9px] font-black text-ink-600">{item.priority}</span>
-                </div>
-                <p className="mt-2 text-[11px] font-bold leading-5 text-ink-800">{item.message}</p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {item.evidence.slice(0, 5).map((evidence) => <span key={evidence} className="rounded-lg bg-white px-2 py-1 font-mono text-[8px] text-ink-500">{evidence}</span>)}
-                </div>
-                <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/70 p-3 text-[10px] leading-5 text-primary-950">
-                  <b>ماذا نفعل؟</b> {analysis.recommendations.find((candidate) => candidate.id === 'rec:' + item.id)?.action ?? 'راجع الدليل المرتبط قبل أي إجراء.'}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-[22px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-          <div className="flex items-center gap-2">
-            <FileSearch size={17} className="text-primary-700" />
-            <div>
-              <div className="section-kicker">SOURCE EVIDENCE</div>
-              <h2 className="mt-1 text-xl font-black text-ink-950">الدليل الذي بُني عليه الحكم</h2>
-            </div>
-          </div>
-          <div className="mt-4 overflow-x-auto rounded-2xl border border-ink-200">
-            <table className="min-w-[900px] w-full text-right text-[10px]">
-              <thead className="bg-ink-950 text-white">
-                <tr>
-                  {[
-                    ['المستند','documentNo'],
-                    ['الصنف','productCode'],
-                    ['المستودع','warehouse'],
-                    ['المبيعات','salesQty'],
-                    ['الرصيد','currentStock'],
-                    ['التغطية','coverage'],
-                    ['الحالة','status'],
-                  ].map(([label, key]) => <th key={key} className="px-3 py-3 font-black">{label}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {SOURCE_ROWS.map((row) => {
-                  const itemCoverage = row.salesQty > 0 ? row.currentStock / row.salesQty : null;
-                  const low = itemCoverage != null && itemCoverage < 2;
-                  return (
-                    <tr key={row.documentNo} className={low ? 'bg-amber-50/70' : 'bg-white'}>
-                      <td className="px-3 py-2.5 font-mono">{row.documentNo}</td>
-                      <td className="px-3 py-2.5 font-black">{row.productCode}</td>
-                      <td className="px-3 py-2.5">{row.warehouse}</td>
-                      <td className="px-3 py-2.5 tabular-nums">{metricNumber(row.salesQty)}</td>
-                      <td className="px-3 py-2.5 tabular-nums">{metricNumber(row.currentStock)}</td>
-                      <td className="px-3 py-2.5 tabular-nums">{itemCoverage == null ? 'غير متاح' : metricNumber(itemCoverage) + 'x'}</td>
-                      <td className="px-3 py-2.5 font-black">
-                        {low ? <span className="inline-flex items-center gap-1 text-amber-900"><CircleAlert size={12}/> يحتاج معالجة</span> : <span className="inline-flex items-center gap-1 text-emerald-800"><CheckCircle2 size={12}/> ضمن الحد</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] leading-5 text-amber-950">
-            حد الدليل: المصدر يثبت الرصيد والمبيعات والتغطية فقط. لا توجد مهلة توريد أو نقطة إعادة طلب أو كمية شراء معتمدة في هذا المصدر، لذلك النظام لا يخترعها.
-          </div>
-        </section>
-
-        <section className="rounded-[22px] border border-primary-200 bg-primary-50/50 p-5 lg:p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="text-[9px] font-black tracking-[.14em] text-primary-700">NEXT BUSINESS ACTION</div>
-              <h2 className="mt-1 text-lg font-black text-primary-950">انقل هذا التقرير إلى قرار حقيقي</h2>
-              <p className="mt-1 text-[11px] leading-5 text-primary-900">
-                هذه الصفحة تثبت أن التقرير الذكي أصبح منتجًا مرئيًا. أما القرار الفعلي فيحتاج جلسة عمل مصادق عليها ولقطة دليل معتمدة قبل الكتابة إلى مسار القرار.
-              </p>
+              <div className="section-kicker text-primary-700">الخطوة التالية</div>
+              <h2 className="mt-1 text-xl font-black text-ink-950">انقل الإشارة من الشاشة إلى القرار</h2>
+              <p className="mt-1 text-xs leading-6 text-ink-600">راجع الأصناف الثلاثة، ثبّت المسؤول والموعد، ثم اعتمد كمية الشراء فقط بعد اكتمال بيانات التوريد ونقطة إعادة الطلب.</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Link to="/try-report" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary-700 px-4 text-[10px] font-black text-white hover:bg-primary-800">
-                جرّب رفع تقريرك الحقيقي <ArrowUpLeft size={13} />
-              </Link>
-              <Link to="/proposal-demo" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary-200 bg-white px-4 text-[10px] font-black text-primary-800 hover:bg-primary-100">
-                عُد إلى العرض التجاري <ArrowLeft size={13} />
-              </Link>
+              <Link to="/try-report" className="btn-primary inline-flex items-center gap-2 text-xs">ارفع تقريرك الحقيقي <ArrowLeft size={13}/></Link>
+              <Link to="/proposal-demo" className="btn-secondary inline-flex items-center gap-2 text-xs">استكشف المنتج <ArrowLeft size={13}/></Link>
             </div>
           </div>
         </section>
+
+        <details className="rounded-[22px] border border-ink-200 bg-white shadow-sm">
+          <summary className="cursor-pointer list-none px-5 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="section-kicker">الإثبات التفصيلي</div>
+                <h2 className="mt-1 text-lg font-black text-ink-950">افتح طبقة المصدر والمنهجية والتتبّع</h2>
+                <p className="mt-1 text-[10px] leading-5 text-ink-500">التفاصيل التقنية موجودة، لكنها لا تزاحم الحكم التنفيذي.</p>
+              </div>
+              <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح</span>
+            </div>
+          </summary>
+
+          <div className="space-y-4 border-t border-ink-100 p-4 lg:p-5">
+            <UniversalIntelligenceChain result={universal} />
+            <CommercialValueChain
+              title="من المصدر إلى النتيجة"
+              subtitle="السلسلة تبقى مرتبطة بنفس المصدر، ولا تدعي تنفيذًا أو نتيجة غير موجودة."
+              stages={[
+                { label: 'المصدر', englishLabel: 'SOURCE', status: 'VERIFIED', detail: SOURCE_NAME + ' · ' + SOURCE_ROWS.length + ' سجلًا', tone: 'trusted' },
+                { label: 'الحقيقة', englishLabel: 'TRUTH', status: 'VERIFIED', detail: '11 حقلًا مربوطة بقاعدة المخزون', tone: 'trusted' },
+                { label: 'الإشارة', englishLabel: 'SIGNAL', status: signal ? 'DERIVED' : 'NOT_AVAILABLE', detail: signal?.title ?? 'لا توجد إشارة مؤهلة', tone: 'active' },
+                { label: 'التوصية', englishLabel: 'RECOMMENDATION', status: recommendation ? 'PROPOSED' : 'NOT_AVAILABLE', detail: recommendation?.title ?? 'لا توجد توصية مؤهلة', tone: 'active' },
+                { label: 'القرار', englishLabel: 'DECISION', status: 'REVIEW_REQUIRED', detail: 'يحتاج اعتماد الدليل قبل الإنشاء', tone: 'attention' },
+                { label: 'العمل', englishLabel: 'WORK', status: 'REVIEW_REQUIRED', detail: 'لم يُنفذ إجراء خارجي في المعاينة', tone: 'attention' },
+                { label: 'النتيجة', englishLabel: 'OUTCOME', status: 'INSUFFICIENT', detail: 'تُقاس بعد التنفيذ فقط', tone: 'neutral' },
+                { label: 'التعلّم', englishLabel: 'LEARNING', status: 'GAP_DETECTED', detail: 'لا توجد نتيجة لاحقة مثبتة بعد', tone: 'neutral' },
+              ]}
+            />
+          </div>
+        </details>
       </div>
     </div>
   );
+}
 }
