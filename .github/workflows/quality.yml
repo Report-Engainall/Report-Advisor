@@ -53,13 +53,18 @@ jobs:
         run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - name: Phase 1 foundation closure
         run: node scripts/check-phase1-foundation-closure.mjs
-      - name: Core build and static quality
-        run: |
-          npm run typecheck
-          npm run lint
-          npm run build
-          npm run perf:budget
-          npm run test:production-scale
+      - name: Quality workflow contract
+        run: npm run test:quality-workflow-contract
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Performance budget
+        run: npm run perf:budget
+      - name: Production scale
+        run: npm run test:production-scale
       - name: Master and production certification contracts
         run: |
           npm run test:master-requirements
@@ -67,9 +72,15 @@ jobs:
           npm run test:continuous-trust
           npm run test:phase-k-runtime
           npm run test:phase-l-runtime
+          npm run test:phase-l-resumable-execution
           npm run test:phase-m-certification
-          npm run test:production-release-blockers
           npm run test:production-saas-certification
+      - name: Production release blockers
+        run: npm run test:production-release-blockers
+      - name: Global tenant RLS
+        run: npm run test:global-tenant-rls
+      - name: Import RPC tenant context
+        run: npm run test:import-rpc-tenant-context
       - name: Architecture contract
         run: npm run test:contracts
       - name: Generic smart-report engine
@@ -79,8 +90,11 @@ jobs:
           node scripts/check-import-direct-write-guard.mjs
           npm run test:import-transaction-contract
           npm run test:import-runtime-governance
-          npm run test:import-business-key
           npm run test:canonical-import-mapping
+      - name: Import business key
+        run: npm run test:import-business-key
+      - name: Report truth contract
+        run: npm run test:report-truth
       - name: Operational resilience
         run: |
           npm run test:operational-resilience
