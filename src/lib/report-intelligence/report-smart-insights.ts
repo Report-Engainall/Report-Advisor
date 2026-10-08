@@ -520,7 +520,9 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           .slice(0, 5)
           .map(item => item.name + ':' + item.coverageDays.toFixed(1) + ' يوم')
           .join('، ');
-        const lowCoverageSalesKnown = lowCoverageRows.filter((item) => item.sales != null && Number.isFinite(item.sales) && item.sales > 0);\n        const lowCoverageSales = lowCoverageSalesKnown.reduce((sum, item) => sum + (item.sales as number), 0);\n        const lowCoverageSalesCoverage = lowCoverageRows.length ? lowCoverageSalesKnown.length / lowCoverageRows.length : 0;
+        const lowCoverageSalesKnown = lowCoverageRows.filter((item) => item.sales != null && Number.isFinite(item.sales) && item.sales > 0);
+        const lowCoverageSales = lowCoverageSalesKnown.reduce((sum, item) => sum + (item.sales as number), 0);
+        const lowCoverageSalesCoverage = lowCoverageRows.length ? lowCoverageSalesKnown.length / lowCoverageRows.length : 0;
         const allSales = rows.reduce((sum, row) => {
           const value = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
           return sum + (value != null && value > 0 ? value : 0);
