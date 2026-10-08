@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
+import * as XLSX from 'xlsx';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
@@ -91,6 +92,77 @@ try {
   if (metrics.scrollWidth > metrics.clientWidth + 2) throw new Error('TRY_REPORT_HORIZONTAL_OVERFLOW');
 
   console.log('TRY_REPORT_UPLOAD_PASS rows=12 columns=11');
+
+  // Browser-level customer Excel matrix regression: the full customer portfolio
+  // path must not collapse to a generic unmapped-field alert.
+  const portfolioRows = [
+    {
+      'اسم العميل': 'عميل مستمر',
+      'يناير': 100, 'فبراير': 120, 'مارس': 110, 'أبريل': 130,
+      'مايو': 140, 'يونيو': 150, 'يوليو': 160, 'أغسطس': 180,
+      'الإجمالي الكلي': 1090, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'منتظم مستمر', 'عدد أشهر التعامل': 8,
+      'متوسط الشهر الفعلي': 136.25, 'الشهر الأعلى شراءً': 'أغسطس',
+      'نسبة النمو (يوليو-أغسطس)': 0.125,
+    },
+    {
+      'اسم العميل': 'عميل منقطع مهم',
+      'يناير': 20, 'فبراير': 0, 'مارس': 0, 'أبريل': 30,
+      'مايو': 0, 'يونيو': 0, 'يوليو': 0, 'أغسطس': 0,
+      'الإجمالي الكلي': 65, 'حالة الزبون': 'منقطع',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'خطر انقطاع (VIP)', 'عدد أشهر التعامل': 2,
+      'متوسط الشهر الفعلي': 25, 'الشهر الأعلى شراءً': 'أبريل',
+      'نسبة النمو (يوليو-أغسطس)': -1,
+    },
+    {
+      'اسم العميل': 'عميل آخر',
+      'يناير': 10, 'فبراير': 20, 'مارس': 30, 'أبريل': 40,
+      'مايو': 50, 'يونيو': 60, 'يوليو': 70, 'أغسطس': 80,
+      'الإجمالي الكلي': 360, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة ب', 'مؤشر المخاطر والفرص': 'نشاط معتاد',
+      'عدد أشهر التعامل': 8, 'متوسط الشهر الفعلي': 45,
+      'الشهر الأعلى شراءً': 'أغسطس', 'نسبة النمو (يوليو-أغسطس)': 0.1429,
+    },
+  ];
+  const customerWorkbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(customerWorkbook, XLSX.utils.json_to_sheet(portfolioRows), 'ملخص العملاء');
+  const customerExcel = XLSX.write(customerWorkbook, { type: 'buffer', bookType: 'xlsx' });
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'customer-portfolio.xlsx',
+    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    buffer: customerExcel,
+  });
+  await page.waitForFunction(
+    () => document.body.innerText.includes('customer-portfolio.xlsx'),
+    null,
+    { timeout: 15000 },
+  );
+  const customerBody = (await page.locator('body').innerText()).replace(/\\s+/g, ' ').trim();
+  const customerRequired = [
+    'customer-portfolio.xlsx',
+    'عملاء مهمون مصنّفون في المصدر كمنقطعين',
+    'عميل منقطع مهم',
+    'ملف نشاط العملاء',
+    'فحص الاتساق',
+    'أعلى العملاء قيمة',
+    'حالة منقطع في المصدر',
+    'ماذا نفعل الآن؟',
+    'حد الدليل',
+  ];
+  for (const item of customerRequired) {
+    if (!customerBody.includes(item)) throw new Error('CUSTOMER_XLSX_MISSING:' + item);
+  }
+  const customerRowCount = await page.locator('table').last().locator('tbody tr').count();
+  if (customerRowCount !== 3) throw new Error('CUSTOMER_XLSX_ROW_COUNT:' + customerRowCount);
+  if (errors.length) throw new Error('CUSTOMER_XLSX_PAGEERROR:' + errors.join(' | '));
+  const customerMetrics = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  if (customerMetrics.scrollWidth > customerMetrics.clientWidth + 2) throw new Error('CUSTOMER_XLSX_HORIZONTAL_OVERFLOW');
+  console.log('STRUCTURED_XLSX_CUSTOMER_PORTFOLIO_PASS rows=3 columns=17 status/trend/reconciliation');
   console.log('public-report-upload-smoke: PASS');
   await browser.close();
 } finally {
