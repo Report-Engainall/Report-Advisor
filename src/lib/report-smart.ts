@@ -1084,13 +1084,11 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const runtimeTrustState =
     effectiveRendered.trustState != null
       ? String(effectiveRendered.trustState)
-      : sourceRowCount != null &&
-          canonicalRowsComplete &&
+      : canonicalRowsComplete &&
           !canonicalRowsPartial &&
-          canonicalAnalysisScope === 'FULL_SOURCE' &&
           Number(analysis?.quality_score ?? effectiveRendered.qualityScore ?? 0) >= 85
         ? 'TRUSTED'
-        : canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' || canonicalAnalysisScope === 'PARTIAL_FETCH_ERROR'
+        : canonicalAnalysisScope !== 'FULL_SOURCE'
           ? 'REVIEW'
           : null;
 
