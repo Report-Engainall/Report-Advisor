@@ -72,6 +72,8 @@ jobs:
           npm run test:production-saas-certification
       - name: Architecture contract
         run: npm run test:contracts
+      - name: Generic smart-report engine
+        run: npm run test:generic-file-analysis
       - name: Phase 3 import truth
         run: |
           node scripts/check-import-direct-write-guard.mjs
