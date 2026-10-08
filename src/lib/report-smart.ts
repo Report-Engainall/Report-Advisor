@@ -99,8 +99,9 @@ function isExtractionArtifactHeader(value: unknown): boolean {
   return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key) || /^20\d{2}-?$/.test(key);
 }
 
-function normalizeBusinessField(value: unknown): string | null {
+function normalizeBusinessField(value: unknown, specialty?: string | null): string | null {
   const key = String(value ?? '').trim().toLowerCase().normalize('NFKC').replace(/[\s_-]+/g, '');
+  if (specialty === 'inventory' && ['الرصيد','الرصيدالحالي','المخزونالحالي','الكميةالمتوفرة','الكميةالمتاحة','currentstock','onhand'].includes(key)) return 'current_stock';
   const aliases: Array<[string,string[]]> = [
     ['date',['date','التاريخ','تاريخالفاتورة','التاريخ2026']],
     ['invoice_number',['invoice_number','invoice number','رقمالفاتورة','رقمالفاتوره']],
@@ -134,7 +135,7 @@ function normalizeBusinessField(value: unknown): string | null {
   return null;
 }
 
-function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefined, canonicalRows: Array<{data:Record<string,unknown>}> = []) {
+function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefined, canonicalRows: Array<{data:Record<string,unknown>}> = [], specialty?: string | null) {
   const output = new Map<string, Record<string, unknown>>();
   const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
   for (const dataset of datasets) {
@@ -146,7 +147,7 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
         const name = String(item.name ?? item.mappedField ?? '').trim();
         if (!name || isExtractionArtifactHeader(name)) continue;
         const declaredMapped = String(item.mappedField ?? '').trim();
-        const semanticMapped = normalizeBusinessField(name);
+        const semanticMapped = normalizeBusinessField(name, specialty);
         const mapped = String(semanticMapped ?? declaredMapped ?? '').trim();
         const originalQualityIssues = Array.isArray(item.qualityIssues)
           ? item.qualityIssues.map(String)
@@ -179,7 +180,7 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
       } else {
         const name = String(column ?? '').trim();
         if (!name || isExtractionArtifactHeader(name)) continue;
-        const mapped = normalizeBusinessField(name);
+        const mapped = normalizeBusinessField(name, specialty);
         output.set(mapped || name, { name, mappedField: mapped, mappingConfidence: mapped ? 85 : 0 });
       }
     }
@@ -393,7 +394,7 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
 
   const specialty = resolveEffectiveSpecialty(rendered.sourceSpecialty, analysis);
 
-  const availableFields = [...new Set(sourceColumnDescriptors(analysis).flatMap((column) => {
+  const availableFields = [...new Set(sourceColumnDescriptors(analysis, [], specialty).flatMap((column) => {
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
     const name = String(column.name ?? '').trim();
     return [mapped, name].filter(Boolean);
@@ -857,7 +858,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const sourceAnalysisDatasets = Array.isArray(analysis?.datasets)
     ? analysis.datasets.filter((dataset): dataset is Record<string, unknown> => Boolean(dataset) && typeof dataset === 'object')
     : [];
-  const sourceColumns = sourceColumnDescriptors(sourceAnalysis, canonicalRows);
+  const sourceColumns = sourceColumnDescriptors(sourceAnalysis, canonicalRows, specialty);
   const specialtyCoreFields: Record<string, string[]> = {
     payments: ['date', 'balance', 'credit'],
     sales: ['date', 'invoice_number', 'customer_name', 'total'],
