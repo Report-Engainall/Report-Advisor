@@ -2,8 +2,8 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 21586845371893a381e93721a0fc1de6de20eee7
 REFERENCE START HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT EXECUTION HEAD = 4aefed639cde541bba61d956d1284c3594953a4a0
-REPORT_FOR_HEAD = 4aefed639cde541bba61d956d1284c3594953a4a
+CURRENT EXECUTION HEAD = 672532ee1c1448c187f265a8a9be90a6540631040
+REPORT_FOR_HEAD = 672532ee1c1448c187f265a8a9be90a654063104
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
 UPDATED_AT = 2026-10-08T17:55:00+03:00
@@ -25,9 +25,9 @@ WHAT_IS_PROVEN =
 - The old Full Product Browser E2E failure on f0e0d844 was caused by a missing normalizer.js import and then cascading missing actor env; the current report-smart-insights.ts import now points to normalizer.js and must be freshly certified at this branch head.
 - No production-current claim is made.
 
-FIRST_ACTIVE_FAILURE = Previous browser proof failed on heavy domain RPCs triggered before source-bound rendering, offset-based canonical reads, a benign current_company_id refresh wait, and an ambiguous Evidence Passport locator. All four causes are repaired on the current branch; report identity proof now also uses the source-bound smart-report link.
-ROOT_CAUSE = Generic intelligence was not persisted for specialty-null reports; certification budget was stale at 900KB; XML fallback needed explicit repeated-child row materialization; browser Node runtime needed a TypeScript normalizer import.
-NEXT_EXACT_ACTION = Consume exact-head Product Build, Quality, Full Product Browser E2E and Final Certification terminal results for PR #906; merge only on terminal PASS, then prove same-head production.
+FIRST_ACTIVE_FAILURE = Fresh browser proof on the previous certified head exposed: (1) get_dashboard_snapshot statement-timeout 500s on /reports/sales and /reports/purchases, and (2) a non-deterministic Evidence Passport locator in real-business E2E. Both are repaired on the current head: domain report pages now read their direct domain data and no longer invoke the global dashboard snapshot RPC; Evidence Passport lookup is deterministic via .first().
+ROOT_CAUSE = Domain report routes inherited a global dashboard aggregation dependency that is not required to render those reports and could timeout under the E2E tenant load. The browser proof also used a non-unique text locator.
+NEXT_EXACT_ACTION = Consume fresh exact-head Build/Quality/Final Certification/Full Product Browser E2E; merge PR #906 only on terminal PASS, then prove same-head production.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
