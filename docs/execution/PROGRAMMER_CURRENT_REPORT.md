@@ -2,8 +2,8 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 21586845371893a381e93721a0fc1de6de20eee7
 REFERENCE START HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT EXECUTION HEAD = 2e49dd940e93b9289793673594e7859c6731a16f0
-REPORT_FOR_HEAD = 2e49dd940e93b9289793673594e7859c6731a16f
+CURRENT EXECUTION HEAD = d3e85b13a1779414c18a6c430a13ffac335b4a960
+REPORT_FOR_HEAD = d3e85b13a1779414c18a6c430a13ffac335b4a96
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
 UPDATED_AT = 2026-10-08T17:55:00+03:00
@@ -25,7 +25,7 @@ WHAT_IS_PROVEN =
 - The old Full Product Browser E2E failure on f0e0d844 was caused by a missing normalizer.js import and then cascading missing actor env; the current report-smart-insights.ts import now points to normalizer.js and must be freshly certified at this branch head.
 - No production-current claim is made.
 
-FIRST_ACTIVE_FAILURE = The corrected XML guard still failed its regression because the outer-container fallback stopped scanning before materializing repeated child records; the new patch now materializes repeated nested records. Browser also failed the Node intelligence runtime because report-smart-insights.ts referenced normalizer.js; the import now points to normalizer.ts.
+FIRST_ACTIVE_FAILURE = The repeated-XML materializer patch was syntactically corrupted by escaping and failed typecheck. It has now been replaced with a simpler static nested-tag regex; the Node normalizer import is also corrected to .ts.
 ROOT_CAUSE = Generic intelligence was not persisted for specialty-null reports; certification budget was stale at 900KB; XML fallback needed explicit repeated-child row materialization; browser Node runtime needed a TypeScript normalizer import.
 NEXT_EXACT_ACTION = Re-run exact-head Product Build, Quality, Full Product Browser E2E, then Final Certification on the repaired head; merge only on terminal PASS and prove same-head production.
 
