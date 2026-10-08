@@ -788,7 +788,9 @@ function parseSimpleXml(text: string): Row[] | null {
   for (const block of normalized.matchAll(blockRegex)) {
     const tag = block[1];
     const inner = block[2];
-    if (new RegExp('<' + tag + '\\b', 'i').test(inner)) continue;
+    const nestedBlocks = [...inner.matchAll(/<([A-Za-z_][\\w:.-]*)[^>]*>[\\s\\S]*?<\\/\\1>/g)].map((match) => match[1]);
+    const repeatedNestedTag = nestedBlocks.some((nestedTag) => nestedBlocks.filter((candidate) => candidate === nestedTag).length > 1);
+    if (repeatedNestedTag) continue;
     const row: Row = {};
     const pairRegex = /<([A-Za-z_][\w:.-]*)[^>]*>\s*([^<]+?)\s*<\/\1>/g;
     for (const match of inner.matchAll(pairRegex)) row[match[1]] = decodeXmlEntities(match[2].trim());
