@@ -533,7 +533,7 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(response, 'CURRENT_REPORT_SMART_BROWSER_JOB_READBACK_MISSING');
   const jobRows = await response.json();
   assert.equal(jobRows.length, 1); assert.equal(jobRows[0].id, report.reportJobId); assert.equal(jobRows[0].source_hash, CURRENT_REPORT_SOURCE_HASH); assert.equal(jobRows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
   const before = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(before, 'current smart report');
   assert.ok(before.includes('EVIDENCE PASSPORT'));
@@ -552,7 +552,7 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes('القرار'), 'Smart Report decision state missing');
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
   const after = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(after, 'current smart report refresh');
   assert.ok(after.includes('EVIDENCE PASSPORT'));
