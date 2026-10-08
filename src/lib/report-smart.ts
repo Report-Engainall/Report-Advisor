@@ -1081,12 +1081,16 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         : archetypeState === 'SUPPORTED' && evidenceStatus === 'VERIFIED'
           ? 'READY'
           : 'REVIEW_REQUIRED';
+  const sourceRowsAreComplete =
+    !canonicalRowsPartial &&
+    sourceRowCount != null &&
+    actualCanonicalRowCount === sourceRowCount &&
+    canonicalAnalysisScope === 'FULL_SOURCE';
+  const sourceQualityIsStrong = Number(analysis?.quality_score ?? effectiveRendered.qualityScore ?? 0) >= 85;
   const runtimeTrustState =
     effectiveRendered.trustState != null
       ? String(effectiveRendered.trustState)
-      : canonicalCommitVerified &&
-          canonicalCommitGap === 0 &&
-          canonicalAnalysisScope === 'FULL_SOURCE'
+      : sourceRowsAreComplete && sourceQualityIsStrong
         ? 'TRUSTED'
         : canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' || canonicalAnalysisScope === 'PARTIAL_FETCH_ERROR'
           ? 'REVIEW'
