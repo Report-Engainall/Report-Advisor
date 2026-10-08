@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, decideSourceDecisionApproval, fetchSourceDecisionAuditTrace, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type DecisionAuditTrace, type SourceDecisionState } from '@/lib/report-decisions';
 import { getAuthenticatedUser } from '@/lib/auth-session';
@@ -322,6 +323,88 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
           <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-xs font-black text-[#111827]">التقرير الذكي <ArrowLeft size={13}/></Link>
           <Link to={'/decision-experience?stage=evidence&reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-black text-white">الدليل والقرار <ArrowLeft size={13}/></Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+
+function SourceIntelligenceRibbon({ report }: { report: SmartReportDetail }) {
+  const signal = selectExecutiveSignal(report.intelligence);
+  const recommendation = selectExecutiveRecommendation(report.intelligence, signal);
+  const brief = report.intelligence.advisorBrief;
+  const evidenceState = stateLabel(report.reportVerificationState);
+  const sourceState = stateLabel(report.sourceTrustState ?? report.trustState);
+  const hasSignal = Boolean(signal);
+  const hasRecommendation = Boolean(recommendation);
+  const evidenceCount = signal?.evidence?.length ?? recommendation?.evidence?.length ?? 0;
+  const decisionQuery = '/decision-experience?stage=evidence&reportJobId=' +
+    encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash);
+
+  return (
+    <section
+      data-testid="source-bound-intelligence-ribbon"
+      aria-label="ذكاء التقرير الحالي"
+      className="relative overflow-hidden rounded-[22px] border border-primary-200 bg-[radial-gradient(circle_at_8%_0%,rgba(99,102,241,.10),transparent_18rem),linear-gradient(145deg,#ffffff,#f6f7ff)] p-4 shadow-[0_18px_44px_-36px_rgba(15,23,42,.55)] lg:p-5"
+    >
+      <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-amber-300 via-primary-500 to-primary-800" />
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[9px] font-black tracking-[.16em] text-primary-700">LIVE REPORT INTELLIGENCE</span>
+            <span className="rounded-full border border-primary-200 bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">
+              {sourceState}
+            </span>
+            <span className="rounded-full border border-ink-200 bg-white px-2 py-1 text-[8px] font-black text-ink-600">
+              الدليل: {evidenceState}
+            </span>
+          </div>
+          <h2 className="mt-1.5 text-lg font-black tracking-tight text-ink-950 lg:text-xl">
+            {signal?.title ?? brief.headline ?? report.intelligence.summary ?? 'تحليل التقرير جاهز للمراجعة'}
+          </h2>
+          <p className="mt-1.5 max-w-4xl text-[11px] leading-6 text-ink-600">
+            {signal?.message ?? report.intelligence.summary ?? brief.recommendedAction ?? 'لا توجد إشارة تنفيذية كافية في المصدر الحالي.'}
+          </p>
+        </div>
+        <Link to={decisionQuery} className="btn-primary shrink-0 text-[10px]">
+          افتح الدليل والقرار <ArrowLeft size={13}/>
+        </Link>
+      </div>
+
+      <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+        <article className="rounded-xl border border-ink-200 bg-white p-3">
+          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">WHY NOW</div>
+          <div className="mt-1 text-[10px] font-black leading-5 text-ink-900">
+            {recommendation?.whyNow ?? signal?.priorityReason?.[0] ?? 'لا توجد أولوية إضافية مثبتة.'}
+          </div>
+        </article>
+        <article className="rounded-xl border border-ink-200 bg-white p-3">
+          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">SO WHAT</div>
+          <div className="mt-1 text-[10px] font-black leading-5 text-ink-900">
+            {signal?.soWhat ?? recommendation?.impact ?? 'لا توجد دلالة تنفيذية إضافية مثبتة.'}
+          </div>
+        </article>
+        <article className="rounded-xl border border-primary-200 bg-primary-50/60 p-3">
+          <div className="text-[8px] font-black tracking-[.12em] text-primary-700">WHAT NEXT</div>
+          <div className="mt-1 text-[10px] font-black leading-5 text-primary-950">
+            {recommendation?.action ?? brief.recommendedAction ?? 'لا توجد توصية مصدرية كافية للاعتماد الآن.'}
+          </div>
+        </article>
+        <article className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+          <div className="text-[8px] font-black tracking-[.12em] text-amber-800">MEASURE</div>
+          <div className="mt-1 text-[10px] font-black leading-5 text-amber-950">
+            {recommendation?.measurement ?? brief.measurement ?? 'لا يوجد مقياس نتيجة مثبت بعد.'}
+          </div>
+        </article>
+        <article className="rounded-xl border border-ink-200 bg-white p-3">
+          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">PROOF</div>
+          <div className="mt-1 text-[10px] font-black leading-5 text-ink-900">
+            {evidenceCount > 0 ? evidenceCount + ' عناصر دليل مرتبطة بالإشارة/التوصية' : 'الدليل التفصيلي غير كافٍ لرفع الحكم.'}
+          </div>
+          <div className="mt-1 text-[8px] text-ink-500">
+            {hasSignal ? 'إشارة مصدرية موجودة' : 'لا توجد إشارة استثنائية مثبتة'} · {hasRecommendation ? 'توصية موجودة' : 'لا توجد توصية كافية'}
+          </div>
+        </article>
       </div>
     </section>
   );
@@ -1225,6 +1308,7 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
       <SourceHeader report={report}/>
+      <SourceIntelligenceRibbon report={report}/>
       {body}
     </div>
   );
