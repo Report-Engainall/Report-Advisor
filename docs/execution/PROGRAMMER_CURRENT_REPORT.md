@@ -26,10 +26,10 @@ PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 21586845371893a381e93721a0fc1de6de20eee7
 REFERENCE START HEAD = 21586845371893a381e93721a0fc1de6de20eee7
 CURRENT EXECUTION HEAD = d347f6a1683f808723388d26019497f6b78c539f4
-REPORT_FOR_HEAD = d347f6a1683f808723388d26019497f6b78c539f4
+REPORT_FOR_HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-UPDATED_AT = 2026-10-08T21:10:00+03:00
+UPDATED_AT = 2026-10-08T21:00:00+03:00
 
 WHAT_I_WAS_ASKED_TO_DO = Continue from current main without rebuilding; make generic file intelligence persist into Smart Reports, connect the result to customer-facing screens, and close certification/browser proof gaps.
 
@@ -98,3 +98,11 @@ The external file analysis path now accepts common text/structured formats witho
 - Netlify Deploy Preview for #905: READY / public.
 ### Remaining proof
 Quality/typecheck/build, full browser E2E, Final Certification, and same-head production are still open. No production PASS is claimed.
+
+
+## 2026-10-08 — source-bound intelligence UI closure pass
+APPLICATION HEAD = e3c78f94e078043877fb71e735300315f9f6de4e
+STATUS = IMPLEMENTED + INTEGRATED; Vercel exact-head deployment BUILDING at checkpoint
+CHANGE = Added SourceIntelligenceRibbon to SourceBoundReportSurface so executive/trust/decision/work surfaces all receive the same live report intelligence context: signal, why-now, so-what, next action, measurement, evidence count, and direct evidence/decision navigation.
+CONSTRAINTS = Uses persisted report.intelligence only; no fabricated values; preserves reportJobId + sourceHash lineage and fail-closed evidence semantics.
+NEXT_EXACT_ACTION = Consume exact-head Vercel build result; then trigger/consume CI gates available for the PR and repair only terminal failures before merge.
