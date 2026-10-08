@@ -2014,31 +2014,4 @@ body{background:#f4f6fa;color:#0f172a}}
 @media(max-width:1279px){.ag-sidebar{width:268px!important}}@media(max-width:767px){.ag-topbar,.ag-topbar>div{height:60px!important}.ag-main .ag-journey{top:60px!important}.ag-main .ag-page-header{padding:16px!important;border-radius:18px!important}.ag-main .ag-page-header h1{font-size:1.35rem!important}.ag-smart-report-surface #executive-layer{min-height:0!important}}
 }
 
-/* Smart Report commercial composition pass — keep technical identity secondary. */
-@layer components{
-  .ag-smart-report-surface .ag-report-hero-stat{
-    min-height:108px;
-    transition:transform .18s ease,border-color .18s ease,background-color .18s ease,box-shadow .18s ease;
-  }
-  .ag-smart-report-surface .ag-report-hero-stat:hover{
-    transform:translateY(-2px);
-    border-color:rgba(165,180,252,.28)!important;
-    background:rgba(255,255,255,.065)!important;
-    box-shadow:0 16px 30px -24px rgba(2,6,23,.82);
-  }
-  .ag-smart-report-surface .ag-report-tech-meta{
-    color:#94a3b8;
-    border-color:rgba(255,255,255,.08)!important;
-  }
-  @media(max-width:767px){
-    .ag-smart-report-surface .ag-report-tech-meta{
-      display:grid;
-      gap:.4rem;
-      overflow:hidden;
-    }
-    .ag-smart-report-surface .ag-report-tech-meta span{
-      display:block;
-      max-width:100%;
-    }
-  }
-}
+
