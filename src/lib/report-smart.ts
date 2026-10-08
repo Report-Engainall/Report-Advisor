@@ -952,6 +952,24 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       canonicalRows,
       persistedIntelligenceCalculations: persistedCalculationRows,
     });
+
+    // Keep source-agnostic intelligence alive after canonical import. Generic
+    // files must not lose their content-derived signals when moving from /try-report
+    // into the persisted Smart Report route.
+    if (!specialty) {
+      const genericDataset = buildGenericDatasetForReport({
+        sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
+        sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
+        canonicalRows,
+        qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+      });
+      if (genericDataset) {
+        baseIntelligence = buildGenericFileIntelligence(
+          genericDataset,
+          String(sourceAnalysis?.sourceFormat ?? 'generic'),
+        );
+      }
+    }
   } catch (error) {
     runtimeWarnings.push('تعذر اشتقاق طبقة الذكاء من هذا المصدر؛ تم إظهار حالة مراجعة بدل تجميد التقرير.');
     console.error('[SmartReport] deriveReportIntelligence failed', error);
