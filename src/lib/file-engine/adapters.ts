@@ -117,12 +117,20 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   const normalized = normalizeRows(rows);
   if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
   const columns = Object.keys(normalized[0]); const mappings = await mapColumns(columns); const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
-  for (const col of columnProfiles) { if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة'); if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة'); if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود'); }
+  // Keep mapping confidence and data quality as separate dimensions. An unmapped
+  // field is a semantic gap, not proof that its values are bad. Conversely, a
+  // well-mapped field with many blanks should reduce data quality. Do not apply
+  // the same quality issue twice; the column profile already records it once.
+  for (const col of columnProfiles) {
+    if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة');
+  }
   const cleanedRows = normalized.map((row) => Object.fromEntries(columnProfiles.map((col) => [col.name, cleanValue(row[col.name], col.dataType)])) as Row);
   const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
   const mappingBase = columnProfiles.length ? columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length : 0;
-  const reviewPenalty = columnProfiles.reduce((sum, column) => sum + (column.requiresReview ? 15 : 0), 0);
-  const qualityScore = Math.max(0, Math.min(100, Math.round(mappingBase - reviewPenalty)));
+  const completenessBase = columnProfiles.length && normalized.length
+    ? columnProfiles.reduce((sum, column) => sum + (1 - (column.nullCount / normalized.length)) * 100, 0) / columnProfiles.length
+    : 0;
+  const qualityScore = Math.max(0, Math.min(100, Math.round(completenessBase * 0.7 + mappingBase * 0.3)));
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
