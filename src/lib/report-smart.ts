@@ -1081,13 +1081,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         : archetypeState === 'SUPPORTED' && evidenceStatus === 'VERIFIED'
           ? 'READY'
           : 'REVIEW_REQUIRED';
-  const runtimeTrustState = effectiveRendered.trustState != null
-    ? String(effectiveRendered.trustState)
-    : !canonicalRowsPartial &&
-        actualCanonicalRowCount === Number(effectiveRendered.rowCount) &&
-        Number(analysis?.quality_score ?? effectiveRendered.qualityScore) >= 85
+  const runtimeTrustState = effectiveRendered.trustState || (
+    !canonicalRowsPartial &&
+    actualCanonicalRowCount == effectiveRendered.rowCount &&
+    +(analysis?.quality_score ?? effectiveRendered.qualityScore) >= 85
       ? 'TRUSTED'
-      : canonicalAnalysisScope === 'FULL_SOURCE' ? null : 'REVIEW';
+      : canonicalAnalysisScope === 'FULL_SOURCE' ? null : 'REVIEW'
+  );
 
   const runtimeRendered = {
     ...effectiveRendered,
