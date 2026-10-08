@@ -107,8 +107,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
       return index(a.key) - index(b.key);
     });
   const numericColumns = dataset.columns.filter((column) =>
-    ['integer','decimal','currency','percentage'].includes(column.dataType)
-    || (column.uniqueCount > 1 && column.statistics.count > 0 && column.statistics.count / Math.max(1, dataset.rowCount) >= 0.7),
+    ['integer','decimal','currency','percentage'].includes(column.dataType),
   );
   const statusCounts = new Map<string, number>();
   if (statusColumn) {
