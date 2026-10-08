@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = c426a3a0189a9cde797eac621f368e672d45d714
+CURRENT_EXACT_HEAD = 276a8fc73839ca6a50eedf4d9ba1ae86a9c570d6
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = c426a3a0189a9cde797eac621f368e672d45d714
+CURRENT_EXECUTION_HEAD = 276a8fc73839ca6a50eedf4d9ba1ae86a9c570d6
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-CURRENT_PR_HEAD = c426a3a0189a9cde797eac621f368e672d45d714
+CURRENT_PR_HEAD = 276a8fc73839ca6a50eedf4d9ba1ae86a9c570d6
 
 WHAT_ACTUALLY_HAPPENED
 - Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
@@ -26,10 +26,10 @@ CURRENT_OPEN_GATES
 - Same-head production deployment after certification.
 
 CURRENT_ACTIVE_FAILURE
-- Browser E2E found two independent closure gaps on the previous head: get_dashboard_snapshot statement timeout on /reports/sales and /reports/purchases, and a non-deterministic Evidence Passport locator in the business E2E.
+- Previous browser proof failed on heavy domain RPCs triggered before source-bound rendering, offset-based canonical reads, a benign current_company_id refresh wait, and an ambiguous Evidence Passport locator. All four causes are repaired on the current branch; report identity proof now also uses the source-bound smart-report link.
 - Both are repaired on the current head: domain report pages no longer call the global dashboard snapshot RPC, and the E2E locator uses .first().
 
-NEXT_EXACT_ACTION = Consume fresh Product Build, Quality, Final Certification, and Full Product Browser E2E on the current head; merge PR #906 only when all terminal gates pass, then prove same-head production.
+NEXT_EXACT_ACTION = Consume exact-head Product Build, Quality, Full Product Browser E2E and Final Certification terminal results for PR #906; merge only on terminal PASS, then prove same-head production.
 - PR #884: Reports Center now renders the existing ReportIntelligencePanel and canonical row-level BusinessDataExplorer directly on the primary report surface.
 - PR #886: authenticated real-business E2E now explicitly certifies the Reports Center itself: current report job/source hash/source path, intelligence panel, recommendation state, row search, row summary, and row-detail handoff.
 - PR #887: normalized strict TypeScript runtime import specifiers across the report-intelligence/report-execution files and replaced the unsupported Array.prototype.at usage identified by the Vercel diagnostic build.
