@@ -62,14 +62,18 @@ const totalKB = totalBytes / 1024;
 const compressedTextKB = compressedBytes / 1024;
 const largestChunkKB = largestChunk / 1024;
 
+const criticalLimitBytes = MAX_CRITICAL_KB * 1024;
+const compressedTextLimitBytes = MAX_COMPRESSED_TEXT_KB * 1024;
+const largestChunkLimitBytes = MAX_CHUNK_KB * 1024;
+
 const failures = [];
-if (criticalKB > MAX_CRITICAL_KB) {
+if (criticalBytes > criticalLimitBytes) {
   failures.push(`critical assets ${criticalKB.toFixed(1)}KB > ${MAX_CRITICAL_KB}KB`);
 }
-if (compressedTextKB > MAX_COMPRESSED_TEXT_KB) {
+if (compressedBytes > compressedTextLimitBytes) {
   failures.push(`gzip-text delivery ${compressedTextKB.toFixed(1)}KB > ${MAX_COMPRESSED_TEXT_KB}KB`);
 }
-if (largestChunkKB > MAX_CHUNK_KB) {
+if (largestChunk > largestChunkLimitBytes) {
   failures.push(`largest JS chunk ${largestChunkKB.toFixed(1)}KB > ${MAX_CHUNK_KB}KB`);
 }
 
