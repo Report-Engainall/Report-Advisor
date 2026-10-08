@@ -365,4 +365,3 @@ export function PublicSmartReportDemoPage() {
     </div>
   );
 }
-}
