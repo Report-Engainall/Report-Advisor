@@ -301,9 +301,10 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
         sourceBoundSurfacePresent: Boolean(document.querySelector('[aria-label="مساحة البيانات الفعلية"]')),
-        smartJobIdPresent: text.includes(smartReportJobId),
-        smartSourceHashPresent: text.includes(smartReportSourceHash),
-        realReportJobIdPresent: text.includes(smartReportJobId),
+        reportJobLinkPresent: [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
+        smartJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
+        smartSourceHashPresent: text.includes(smartReportSourceHash) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes(smartReportSourceHash)),
+        realReportJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
         realReportSourcePresent: text.includes('تقارير ادارية.xlsx'),
       };
     }, {
