@@ -13,6 +13,7 @@ import { parseNumber } from '@/lib/file-engine/normalizer';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
+import { GenericFileIntelligenceCard } from '@/components/GenericFileIntelligenceCard';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 
 function textValue(value: unknown): string {
@@ -982,6 +983,15 @@ export function SmartReportPage() {
     </section>
 
     {universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
+
+    {!report.specialty && (
+      <section aria-label="ذكاء الملف العام" data-testid="smart-report-generic-intelligence">
+        <GenericFileIntelligenceCard
+          intelligence={report.intelligence}
+          format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
+        />
+      </section>
+    )}
 
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
