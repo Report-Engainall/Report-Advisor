@@ -161,28 +161,29 @@ function DecisionExperienceGeneralPage() {
       }
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
-      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes, sourceProposals] = await Promise.all([
+      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes, sourceProposals, nextSourceReport] = await Promise.all([
         fetchRecommendations(),
         fetchAlerts(),
         fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
-        sourceHashParam && sourceDecisionId && reportJobIdParam ? fetchSourceDecisionProposals(sourceHashParam, reportJobIdParam) : Promise.resolve([]),
+        sourceHashParam && reportJobIdParam ? fetchSourceDecisionProposals(sourceHashParam, reportJobIdParam) : Promise.resolve([]),
+        fetchSmartReport(reportJobIdParam, sourceHashParam, { signal: AbortSignal.timeout(25000) }),
       ]);
       const sourceProposal = sourceDecisionId
         ? sourceProposals.find((proposal) => proposal.id === sourceDecisionId)
         : null;
       const linkedRecommendationId = sourceProposal?.recommendationId ?? null;
+      setSourceReport(nextSourceReport);
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
       setDecisionWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes);
-      setSelectedId((current) => (
-        current && nextRecommendations.some((item) => item.id === current)
-          ? current
-          : linkedRecommendationId && nextRecommendations.some((item) => item.id === linkedRecommendationId)
-            ? linkedRecommendationId
-            : nextRecommendations[0]?.id ?? null
-      ));
+      setSelectedId((current) => {
+        if (current && nextRecommendations.some((item) => item.id === current)) return current;
+        if (linkedRecommendationId && nextRecommendations.some((item) => item.id === linkedRecommendationId)) return linkedRecommendationId;
+        if (!sourceDecisionId && reportJobIdParam && sourceHashParam) return null;
+        return nextRecommendations[0]?.id ?? null;
+      });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
     } finally {
