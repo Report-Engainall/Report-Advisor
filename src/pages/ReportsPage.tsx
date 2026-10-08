@@ -558,15 +558,16 @@ export function PurchasesReportPage(){
   const sourceContext=useOptionalSourceReport();
   const [purchases,setPurchases]=useState<PurchaseInvoice[]>([]);
   const [summary,setSummary]=useState<{total:number|null;count:number;supplier_count:number;average:number|null}>({total:null,count:0,supplier_count:0,average:null});
+  const [snapshot,setSnapshot]=useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>|null>(null);
   const [loading,setLoading]=useState(true); const [error,setError]=useState<string|null>(null);
-  const load=useCallback(async()=>{try{setLoading(true);setError(null);const [rows,agg]=await Promise.all([fetchPurchaseInvoices(0,20),fetchPurchaseSummary()]);setPurchases(rows.data);setSummary(agg);}catch(e){setError(errorMessage(e));}finally{setLoading(false);}},[]);
+  const load=useCallback(async()=>{try{setLoading(true);setError(null);const [rows,agg,snap]=await Promise.all([fetchPurchaseInvoices(0,20),fetchPurchaseSummary(),fetchDashboardSnapshot(6,AbortSignal.timeout(8000))]);setPurchases(rows.data);setSummary(agg);setSnapshot(snap);}catch(e){setError(errorMessage(e));setSnapshot(null);}finally{setLoading(false);}},[]);
   useEffect(()=>{void load();},[load]);
   if(sourceContext.jobId){if(sourceContext.loading)return <LoadingState message="جارٍ تحميل نتيجة التقرير المصدرّي..." />;if(sourceContext.error)return <ErrorState message={sourceContext.error} onRetry={()=>void sourceContext.retry()} />;if(sourceContext.report)return <SourceBoundDomainSurface report={sourceContext.report} expectedSpecialty="purchases" title="المشتريات" />;}
   if(loading)return <LoadingState/>; if(error)return <ErrorState message={error} onRetry={load}/>;
   const exportPurchases=async()=>{const rows=await fetchPurchaseExportRows();downloadReportArtifact('purchase-report','تقرير المشتريات',['رقم الفاتورة','المورد','التاريخ','الإجمالي','المدفوع','الحالة'],rows.map(r=>({'رقم الفاتورة':r.invoice_number,'المورد':r.supplier,'التاريخ':r.invoice_date,'الإجمالي':r.total,'المدفوع':r.paid_amount,'الحالة':r.status})));};
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
     <PageHeader title="تقرير المشتريات" subtitle="سجلات المشتريات والموردين الحالية" actions={<div className="flex items-center gap-2"><button onClick={()=>void exportPurchases()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={()=>window.print()} className="btn-primary print-hide text-xs">طباعة</button></div>}/>
-    <ReportTruthBar status={summary.total==null?'INSUFFICIENT_DATA':'CALCULATED'} period="غير محددة من اللقطة الحالية" note="المشتريات تقرأ مباشرة من سجلات الشراء ولا تعتمد على لقطة Dashboard عامة."/>
+    <ReportTruthBar status={snapshot?.kpis.status ?? (summary.total == null ? 'INSUFFICIENT_DATA' : 'CALCULATED')} period="غير محددة من اللقطة الحالية" note="المشتريات تعرض أرقامها من سجلات الشراء مع لقطة Dashboard canonical للتحقق من سياق الحقيقة."/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي المشتريات</div><div className="text-xl font-bold text-ink-900">{formatCurrency(summary.total)}</div></CardBody></Card>
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">عدد الفواتير</div><div className="text-xl font-bold text-ink-900">{formatNumber(summary.count)}</div></CardBody></Card>
