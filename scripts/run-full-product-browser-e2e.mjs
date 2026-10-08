@@ -300,6 +300,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartAdvisorSurfacePresent: text.includes('المستشار'),
         smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
+        sourceBoundSurfacePresent: Boolean(document.querySelector('[aria-label="مساحة البيانات الفعلية"]')),
         smartJobIdPresent: text.includes(smartReportJobId),
         smartSourceHashPresent: text.includes(smartReportSourceHash),
         realReportJobIdPresent: text.includes(smartReportJobId),
