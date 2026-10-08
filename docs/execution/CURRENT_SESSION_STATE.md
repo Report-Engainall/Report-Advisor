@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 74fc46dd5440bde3f1db392d20363fb51b686a00
+CURRENT_EXACT_HEAD = da132f7ab29fb3f8a0d8ad718d511bea7e2d0a25
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 74fc46dd5440bde3f1db392d20363fb51b686a00
+CURRENT_EXECUTION_HEAD = da132f7ab29fb3f8a0d8ad718d511bea7e2d0a25
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-CURRENT_PR_HEAD = 74fc46dd5440bde3f1db392d20363fb51b686a00
+CURRENT_PR_HEAD = da132f7ab29fb3f8a0d8ad718d511bea7e2d0a25
 
 WHAT_ACTUALLY_HAPPENED
 - Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
@@ -33,7 +33,7 @@ ROOT_CAUSE
 - Generic file intelligence existed on the upload/preview surface but was not automatically carried into the persisted Smart Report when the source had no recognized business specialty.
 - Final certification had a hard-coded 900KB critical budget while the canonical performance contract had already moved to 950KB.
 
-NEXT_EXACT_ACTION = Consume current-head Quality, Product Build, Browser, and Final Certification terminal results; merge PR #906 only on PASS, then prove same-head production.
+NEXT_EXACT_ACTION = Consume exact-head Product Build, Quality, Full Product Browser E2E and Final Certification terminal results for PR #906; merge only on terminal PASS, then prove same-head production.
 - PR #884: Reports Center now renders the existing ReportIntelligencePanel and canonical row-level BusinessDataExplorer directly on the primary report surface.
 - PR #886: authenticated real-business E2E now explicitly certifies the Reports Center itself: current report job/source hash/source path, intelligence panel, recommendation state, row search, row summary, and row-detail handoff.
 - PR #887: normalized strict TypeScript runtime import specifiers across the report-intelligence/report-execution files and replaced the unsupported Array.prototype.at usage identified by the Vercel diagnostic build.
