@@ -928,28 +928,28 @@ export function SmartReportPage() {
           <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">حكم المستشار: ماذا ينبغي أن تعرفه الإدارة الآن؟</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{advisorHeadline}</p>
           <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
               <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><ShieldCheck size={13}/> الثقة المصدرية</div>
               <div className="mt-2 text-sm font-black text-white">{stateLabel(report.sourceTrustState ?? report.trustState)}</div>
               <div className="mt-1 text-[9px] text-slate-400">{report.qualityScore == null ? "جودة غير متاحة" : "جودة المصدر " + report.qualityScore + "%"}</div>
             </div>
-            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
               <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><FileSearch size={13}/> السجلات الموثقة</div>
               <div className="mt-2 text-sm font-black text-white">{reportRowCountLabel(report.rowCount)}</div>
               <div className="mt-1 text-[9px] text-slate-400">{report.authoritativeCurrentRowCount == null ? "العدد المعتمد غير متاح" : "المعتمد " + formatNumber(report.authoritativeCurrentRowCount)}</div>
             </div>
-            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
               <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><CheckCircle2 size={13}/> الدليل</div>
               <div className="mt-2 text-sm font-black text-white">{reportVerificationLabel(report.reportVerificationState)}</div>
               <div className="mt-1 text-[9px] text-slate-400">{report.evidenceStatus ? stateLabel(report.evidenceStatus) : "حالة الدليل غير متاحة"}</div>
             </div>
-            <div className="ag-report-hero-stat rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
               <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><ShieldCheck size={13}/> جاهزية القرار</div>
               <div className="mt-2 text-sm font-black text-white">{stateLabel(String(output.decisionReadiness ?? output.decisionStatus ?? "NOT_READY"))}</div>
               <div className="mt-1 text-[9px] text-slate-400">{report.specialty ? "تحليل متخصص" : "تحليل عام من بنية المصدر"}</div>
             </div>
           </div>
-          <div className="ag-report-tech-meta mt-3 flex flex-wrap gap-x-4 gap-y-1.5 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+          <div className="ag-report-tech-meta mt-3 flex flex-wrap gap-x-4 gap-y-1.5 overflow-hidden rounded-xl border border-white/10 bg-black/20 px-3 py-2">
             <span data-testid="smart-report-source" className="min-w-0 truncate text-[9px] font-bold text-slate-300">المصدر: {report.sourcePath}</span>
             <span data-testid="smart-report-source-hash" className="max-w-full truncate font-mono text-[8px] text-slate-500">SHA: {report.sourceHash}</span>
             <span data-testid="smart-report-job-id" className="max-w-full truncate font-mono text-[8px] text-slate-500">JOB: {report.jobId}</span>
