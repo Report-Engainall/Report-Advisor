@@ -34,6 +34,8 @@ function WorkCenterGeneralPage() {
   const [filter, setFilter] = useState<FilterKey>('all');
   const [decisionWorkFilter, setDecisionWorkFilter] = useState<DecisionWorkFilter>('all');
   const [workParams] = useSearchParams();
+  const reportJobIdParam = workParams.get('reportJobId')?.trim() ?? '';
+  const sourceHashParam = workParams.get('sourceHash')?.trim() ?? '';
   useEffect(() => {
     const requested = workParams.get('decisionWorkFilter');
     if (requested === 'all' || requested === 'open' || requested === 'in_progress' || requested === 'completed' || requested === 'overdue') {
@@ -123,7 +125,13 @@ function WorkCenterGeneralPage() {
     Date.parse(item.dueAt as string) < Date.now() &&
     item.status !== 'COMPLETED';
 
-  const filteredDecisionWork = useMemo(() => decisionWorkItems.filter((item) =>
+  const scopedDecisionWorkItems = useMemo(() => decisionWorkItems.filter((item) => {
+    if (!reportJobIdParam) return true;
+    if (item.sourceReportJobId !== reportJobIdParam) return false;
+    return !sourceHashParam || item.sourceHash === sourceHashParam;
+  }), [decisionWorkItems, reportJobIdParam, sourceHashParam]);
+
+  const filteredDecisionWork = useMemo(() => scopedDecisionWorkItems.filter((item) =>
     decisionWorkFilter === 'all'
       ? true
       : decisionWorkFilter === 'open'
@@ -133,14 +141,14 @@ function WorkCenterGeneralPage() {
           : decisionWorkFilter === 'completed'
             ? item.status === 'COMPLETED'
             : isOverdue(item)
-  ), [decisionWorkItems, decisionWorkFilter]);
+  ), [scopedDecisionWorkItems, decisionWorkFilter]);
 
   const decisionWorkCounts = useMemo(() => ({
-    open: decisionWorkItems.filter(item => item.status === 'OPEN').length,
-    inProgress: decisionWorkItems.filter(item => item.status === 'IN_PROGRESS').length,
-    completed: decisionWorkItems.filter(item => item.status === 'COMPLETED').length,
-    overdue: decisionWorkItems.filter(isOverdue).length,
-  }), [decisionWorkItems]);
+    open: scopedDecisionWorkItems.filter(item => item.status === 'OPEN').length,
+    inProgress: scopedDecisionWorkItems.filter(item => item.status === 'IN_PROGRESS').length,
+    completed: scopedDecisionWorkItems.filter(item => item.status === 'COMPLETED').length,
+    overdue: scopedDecisionWorkItems.filter(isOverdue).length,
+  }), [scopedDecisionWorkItems]);
 
   const sourceContextFromWork = (item: DecisionWorkItemRecord) => {
     const sourceRef = item.evidenceRefs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
@@ -300,6 +308,18 @@ function WorkCenterGeneralPage() {
         </div>
       </div>
 
+      {reportJobIdParam && (
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-3" aria-label="نطاق التقرير الحالي">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-[9px] font-black tracking-[.12em] text-indigo-700">نطاق هذا التقرير</div>
+              <div className="mt-1 text-[11px] font-black text-indigo-950">مركز العمل يعرض الإجراءات المرتبطة بهذا التقرير فقط</div>
+              <div className="mt-1 text-[9px] text-indigo-800">السجل مرتبط بـ reportJobId{sourceHashParam ? ' + sourceHash' : ''}; لا يتم خلطه مع أعمال تقارير أخرى.</div>
+            </div>
+            <Link to={'/reports/smart/' + encodeURIComponent(reportJobIdParam) + (sourceHashParam ? '?sourceHash=' + encodeURIComponent(sourceHashParam) : '')} className="btn-secondary text-[9px]">العودة للتقرير</Link>
+          </div>
+        </div>
+      )}
       <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/50 p-3" aria-label="سياق العمل الحالي">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
