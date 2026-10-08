@@ -1,6 +1,6 @@
 import { CommercialValueChain } from '@/components/CommercialValueChain';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader, userFacingError } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
@@ -993,6 +993,66 @@ export function SmartReportPage() {
             <div className="mt-1 truncate text-[9px] text-slate-400">{metric.detail}</div>
           </div>
         ))}
+      </div>
+    </section>
+
+    <section className="rounded-[22px] border border-indigo-200 bg-white p-5 shadow-card lg:p-6" aria-label="خريطة عقل التقرير" data-testid="smart-report-mind-map">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="section-kicker text-indigo-700">خريطة العقل</div>
+          <h2 className="mt-1 text-xl font-black text-ink-950">كيف تحوّل المصدر إلى هذه النتيجة؟</h2>
+          <p className="mt-1 text-[11px] leading-5 text-ink-500">هذه ليست شاشة تقنية؛ إنها ملخص قابل للمراجعة يوضح ما قرأه النظام، ما حسبه، لماذا اختار الإشارة الأقوى، وما الذي يقترحه بعدها.</p>
+        </div>
+        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-[9px] font-black text-indigo-800"><BrainCircuit size={13}/> العقل مربوط بنفس التقرير</div>
+      </div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-4">
+        {[
+          {
+            n: '01',
+            title: 'قرأ المصدر',
+            body: report.sourcePath + ' · ' + reportRowCountLabel(report.rowCount),
+            meta: report.sourceAnalysis?.columnCount ? report.sourceAnalysis.columnCount + ' حقلًا في لقطة التحليل' : 'بنية الحقول متاحة',
+          },
+          {
+            n: '02',
+            title: 'حوّل البيانات إلى حقائق',
+            body: report.intelligence.guidance.inspect[0] ?? smartAnalysis.metrics[0]?.detail ?? 'لم توجد حقيقة رقمية إضافية قابلة للعرض.',
+            meta: report.intelligence.guidance.inspect.length + ' حقائق/فحوصات معروضة من نفس المصدر',
+          },
+          {
+            n: '03',
+            title: 'اختار الإشارة الأقوى',
+            body: executiveSignal?.title ?? 'لا توجد إشارة تنفيذية مؤهلة حاليًا.',
+            meta: executiveSignal ? (executiveSignal.affectedRows == null ? 'النطاق المتأثر غير مثبت كعدد' : 'النطاق المتأثر: ' + formatNumber(executiveSignal.affectedRows) + ' سجل') : 'لا نختلق إشارة عند غياب الدليل',
+          },
+          {
+            n: '04',
+            title: 'حوّلها إلى تصرف',
+            body: primaryRecommendation?.title ?? 'لا توجد توصية تنفيذية مؤهلة الآن.',
+            meta: primaryRecommendation?.measurement ?? report.intelligence.advisorBrief.measurement ?? 'القياس غير محدد بعد',
+          },
+        ].map((stage) => (
+          <article key={stage.n} className="rounded-2xl border border-ink-200 bg-ink-50/50 p-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="rounded-full bg-indigo-950 px-2 py-1 text-[8px] font-black text-white">{stage.n}</span>
+              <span className="text-[9px] font-black text-indigo-700">{stage.title}</span>
+            </div>
+            <div className="mt-3 text-[11px] font-black leading-5 text-ink-950">{stage.body}</div>
+            <div className="mt-2 text-[9px] leading-5 text-ink-500">{stage.meta}</div>
+          </article>
+        ))}
+      </div>
+      <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_.85fr]">
+        <div className="rounded-2xl border border-primary-100 bg-primary-50/60 p-4">
+          <div className="text-[9px] font-black text-primary-700">لماذا هذه الإشارة؟</div>
+          <div className="mt-1 text-[11px] leading-6 text-primary-950">
+            {executiveSignal?.soWhat ?? report.intelligence.guidance.boundary ?? 'لا توجد قرينة كافية لتبرير أولوية تنفيذية.'}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+          <div className="text-[9px] font-black text-amber-800">ما الذي يمنع الاعتماد؟</div>
+          <div className="mt-1 text-[11px] leading-6 text-amber-950">{advisorBlocker}</div>
+        </div>
       </div>
     </section>
 
