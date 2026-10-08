@@ -1,4 +1,4 @@
-import { parseDate, parseNumber } from '../file-engine/normalizer.js';
+import { parseDate, parseNumber } from '../file-engine/normalizer.ts';
 
 export type ReportSignalSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
@@ -45,6 +45,7 @@ export type ReportRecommendation = {
   risk: string;
   blocker: string;
   limitation: string;
+  deadlineHint?: string;
 };
 
 export type ReportForecast = {
@@ -179,8 +180,10 @@ function isExtractionArtifactHeader(value: unknown): boolean {
   return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key) || /^20\d{2}-?$/.test(key);
 }
 
-function canonicalSourceField(value: unknown): string | null {
+function canonicalSourceField(value: unknown, specialty?: ReportInput['specialty']): string | null {
   const key = normalized(value);
+  const inventoryBalanceKeys = ['\u0627\u0644\u0631\u0635\u064a\u062f','\u0627\u0644\u0631\u0635\u064a\u062f\u0627\u0644\u062d\u0627\u0644\u064a','\u0627\u0644\u0645\u062e\u0632\u0648\u0646\u0627\u0644\u062d\u0627\u0644\u064a','\u0627\u0644\u0643\u0645\u064a\u0629\u0627\u0644\u0645\u062a\u0648\u0641\u0631\u0629','\u0627\u0644\u0643\u0645\u064a\u0629\u0627\u0644\u0645\u062a\u0627\u062d\u0629','currentstock','onhand'];
+  if (specialty === 'inventory' && inventoryBalanceKeys.includes(key)) return 'current_stock';
   const aliases: Array<[string, string[]]> = [
     ['date', ['date','invoice_date','التاريخ','تاريخالفاتورة','التاريخ2026']],
     ['invoice_number', ['invoice_number','invoice number','invoice_no','رقمالفاتورة','رقمالفاتوره']],
@@ -232,9 +235,14 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
         const name = text(column.name ?? column.mappedField);
         if (!name || isExtractionArtifactHeader(name)) return null;
         const declaredMapped = text(column.mappedField);
-        const semanticMapped = canonicalSourceField(name);
-        const mappedField = declaredMapped || semanticMapped;
-        return { ...column, name, mappedField: mappedField || null };
+        const semanticMapped = canonicalSourceField(name, report.specialty);
+        const genericDeclared = /^(unknown|unmapped|غير.?معين|غير.?معرّف|undefined|null)$/i.test(declaredMapped);
+        // The original header is the strongest local semantic evidence. Prefer
+        // it over stale/placeholder persisted mappings so runtime intelligence
+        // and the mapping table cannot disagree about the same source field.
+        const mappedField = semanticMapped ?? (genericDeclared ? '' : declaredMapped);
+        const mappingConfidence = semanticMapped ? Math.max(Number(column.mappingConfidence ?? 0), 96) : Number(column.mappingConfidence ?? 0);
+        return { ...column, name, mappedField: mappedField || null, mappingConfidence };
       }
       const name = text(item);
       if (!name || isExtractionArtifactHeader(name)) return null;
@@ -399,27 +407,42 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       let totalStock = 0;
       let totalDailyRate = 0;
       let dailyRateRows = 0;
-      const lowCoverageRows: Array<{ name: string; stock: number; sales: number; coverage: number }> = [];
+      const lowCoverageRows: Array<{ name: string; stock: number; demand: number; sales: number; coverageDays: number; basis: string }> = [];
       const datedDemandRows: Array<{ date: Date; sales: number }> = [];
       const fastMovingProducts: Array<{ name: string; rate: number }> = [];
       const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
+      const negativeStockSamples: string[] = [];
+      const stockoutSamples: string[] = [];
 
       for (const row of rows) {
         const stock = numeric(rowValue(row.data, stockKey));
         if (stock == null) continue;
         totalStock += stock;
-        if (stock < 0) negativeStockRows += 1;
+        if (stock < 0) {
+          negativeStockRows += 1;
+          if (negativeStockSamples.length < 5) negativeStockSamples.push(rowRef + productName + ' · الرصيد=' + stock);
+        }
         if (stock <= 0) zeroStockRows += 1;
 
         const dailyRate = dailyRateKey ? numeric(rowValue(row.data, dailyRateKey)) : null;
         const netSales = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
+        const sourceStockoutDays = stockoutDaysKey ? numeric(rowValue(row.data, stockoutDaysKey)) : null;
         const salesForCoverage = netSales;
         const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
-        if (salesForCoverage != null && salesForCoverage > 0) {
-          const coverage = stock / salesForCoverage;
-          if (Number.isFinite(coverage) && coverage < 2) {
-            lowCoverageRows.push({ name: productName, stock, sales: salesForCoverage, coverage });
-          }
+        const rowRef = row.row_number == null ? '' : 'الصف=' + row.row_number + ' · ';
+        // Coverage is a time measure. Prefer the source's own stockout period;
+        // otherwise derive days from current stock / daily sales rate.
+        let coverageDays: number | null = null;
+        let coverageBasis = '';
+        if (sourceStockoutDays != null && Number.isFinite(sourceStockoutDays)) {
+          coverageDays = sourceStockoutDays;
+          coverageBasis = 'stockoutDaysField=' + stockoutDaysKey;
+        } else if (dailyRate != null && dailyRate > 0) {
+          coverageDays = stock / dailyRate;
+          coverageBasis = 'stockField=' + stockKey + ' dailySalesField=' + dailyRateKey;
+        }
+        if (coverageDays != null && Number.isFinite(coverageDays) && coverageDays >= 0 && coverageDays <= 30) {
+          lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage ?? 0, sales: salesForCoverage ?? 0, coverageDays, basis: coverageBasis });
         }
         if (dateKey && salesForCoverage != null && salesForCoverage > 0) {
           const date = parseDateValue(rowValue(row.data, dateKey));
@@ -429,9 +452,13 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           totalDailyRate += dailyRate;
           dailyRateRows += 1;
           fastMovingProducts.push({ name: productName, rate: dailyRate });
-          if (stock <= 0) zeroStockWithSalesRows += 1;
+          if (stock <= 0) {
+            zeroStockWithSalesRows += 1;
+            if (stockoutSamples.length < 5) stockoutSamples.push(rowRef + productName + ' · الرصيد=' + stock + ' · معدل البيع اليومي=' + dailyRate);
+          }
         } else if (netSales != null && netSales > 0 && stock <= 0) {
           zeroStockWithSalesRows += 1;
+          if (stockoutSamples.length < 5) stockoutSamples.push(rowRef + productName + ' · الرصيد=' + stock + ' · صافي المبيعات=' + netSales);
         }
 
         const stockoutDays = stockoutDaysKey ? numeric(rowValue(row.data, stockoutDaysKey)) : null;
@@ -474,7 +501,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         negativeStockRows >= Math.max(5, Math.round(rows.length * 0.05)) ? 'critical' : 'high',
         'أرصدة مخزون سالبة',
         'يوجد ' + negativeStockRows + ' سجلًا برصيد سلبي؛ وهذا يمنع الاعتماد على حالة المخزون كما هي دون مطابقة الحركة والمستندات.',
-        ['stockField=' + stockKey, 'negativeRows=' + negativeStockRows, 'sourceRows=' + rows.length],
+        ['stockField=' + stockKey, 'negativeRows=' + negativeStockRows, 'sourceRows=' + rows.length, ...negativeStockSamples.map((sample) => 'sample=' + sample)],
         negativeStockRows,
       );
       if (zeroStockWithSalesRows > 0) addSignal(
@@ -483,17 +510,17 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         zeroStockWithSalesRows >= 5 ? 'critical' : 'high',
         'أصناف بلا رصيد مع وجود حركة بيع',
         'يوجد ' + zeroStockWithSalesRows + ' صنفًا بلا رصيد مع مؤشر بيع/طلب؛ هذه قائمة أولوية لفحص النفاد والتوريد.',
-        ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows],
+        ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows, ...stockoutSamples.map((sample) => 'sample=' + sample)],
         zeroStockWithSalesRows,
       );
       if (lowCoverageRows.length > 0) {
         const coverageSample = lowCoverageRows
           .slice()
-          .sort((a, b) => a.coverage - b.coverage)
+          .sort((a, b) => a.coverageDays - b.coverageDays)
           .slice(0, 5)
-          .map(item => item.name + ':' + item.coverage.toFixed(2))
+          .map(item => item.name + ':' + item.coverageDays.toFixed(1) + ' يوم')
           .join('، ');
-        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + item.sales, 0);
+        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + (Number(item.sales) || 0), 0);
         const allSales = rows.reduce((sum, row) => {
           const value = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
           return sum + (value != null && value > 0 ? value : 0);
@@ -501,8 +528,9 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         const affectedSalesShare = allSales > 0 ? Math.round((lowCoverageSales / allSales) * 100) : null;
         const coverageEvidence = [
           'stockField=' + stockKey,
-          'salesField=' + (netSalesKey || 'missing'),
-          'threshold=2.00 periods',
+          ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : []),
+          ...(stockoutDaysKey ? ['stockoutDaysField=' + stockoutDaysKey] : []),
+          'coverageThresholdDays=30',
           'affectedRows=' + lowCoverageRows.length,
           'sample=' + coverageSample,
           ...(affectedSalesShare == null ? [] : ['affectedSalesShare=' + affectedSalesShare + '%']),
@@ -521,7 +549,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
               'inventory:demand-pressure-low-coverage',
               'high',
               'الطلب يرتفع بينما التغطية قصيرة',
-              'ارتفع متوسط الطلب في الجزء الأحدث من السلسلة بنحو ' + acceleration + '% مقارنة بالبداية، وفي الوقت نفسه يوجد ' + lowCoverageRows.length + ' سجلًا بتغطية أقل من فترتين؛ هذا يجعل مراجعة إعادة الطلب أولوية تشغيلية.',
+              'ارتفع متوسط الطلب في الجزء الأحدث من السلسلة بنحو ' + acceleration + '% مقارنة بالبداية، وفي الوقت نفسه يوجد ' + lowCoverageRows.length + ' سجلًا بتغطية لا تتجاوز 30 يومًا؛ هذا يجعل مراجعة إعادة الطلب أولوية تشغيلية.',
               [...coverageEvidence, 'earlyAverageSales=' + earlyAvg.toFixed(2), 'recentAverageSales=' + recentAvg.toFixed(2), 'demandAcceleration=' + acceleration + '%'],
               lowCoverageRows.length,
             );
@@ -532,8 +560,8 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
             signals,
             'inventory:low-coverage',
             'medium',
-            'أصناف بتغطية أقل من فترتين',
-            'يوجد ' + lowCoverageRows.length + ' سجلًا يملك رصيدًا أقل من ضعفي كمية المبيعات في نفس سجل المصدر؛ مراجعة إعادة الطلب مطلوبة قبل تحويل الإشارة إلى كمية شراء.',
+            'أصناف بتغطية لا تتجاوز 30 يومًا',
+            'يوجد ' + lowCoverageRows.length + ' سجلًا لا تتجاوز تغطيته 30 يومًا وفق فترة النفاد المصدرية أو الرصيد ÷ معدل البيع اليومي؛ مراجعة إعادة الطلب مطلوبة قبل تحويل الإشارة إلى كمية شراء.',
             coverageEvidence,
             lowCoverageRows.length,
           );
@@ -837,6 +865,20 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       limitation: isDemandPressure
         ? 'لا يمكن تحويل الضغط إلى خسارة مالية مستقبلية أو كمية شراء دون بيانات تكلفة/مهلة توريد/نقطة إعادة الطلب.'
         : signal.impact || 'لا يمكن إثبات أثر مالي أو سببي أوسع من المصدر الحالي.',
+      deadlineHint:
+        signal.id === 'inventory:imminent-stockout-7d'
+          ? 'التدخل خلال 7 أيام وفق فترة النفاد المثبتة في المصدر.'
+          : signal.id === 'inventory:stockout'
+            ? 'المراجعة قبل قرار التوريد أو التسوية التالي.'
+            : signal.id === 'inventory:negative-stock'
+              ? 'قبل أي تسوية رصيد أو قرار شراء جديد.'
+              : signal.id === 'inventory:movement-reconciliation'
+                ? 'قبل اعتماد التقرير أو استخدام الرصيد في قرار تنفيذي.'
+                : isDemandPressure
+                  ? 'قبل دورة إعادة الطلب التالية.'
+                  : signal.severity === 'critical' || signal.severity === 'high'
+                    ? 'قبل اعتماد القرار التنفيذي المبني على هذه الإشارة.'
+                    : 'قبل تحويل الإشارة إلى إجراء تنفيذي.',
     };
   });
 }

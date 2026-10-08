@@ -50,11 +50,11 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
         <div className="flex flex-wrap gap-2 text-[10px] font-black">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-ink-50 px-3 py-2 text-ink-700">
             <Fingerprint size={13} />
-            ثقة التحليل {result.confidence}%
+            قوة التحليل المصدرية {result.confidence}%
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-3 py-2 text-primary-900">
             <ShieldCheck size={13} />
-            {archetypeLabel}
+            حالة الفهم: {archetypeLabel}
           </span>
         </div>
       </div>
@@ -149,9 +149,10 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
 
       <details className="rounded-2xl border border-ink-200 bg-ink-50/70 p-4">
         <summary className="cursor-pointer text-xs font-black text-ink-800">أسئلة المستشار التي تم اختبارها</summary>
-        <div className="mt-3 grid gap-2 lg:grid-cols-2">
-          {result.topQuestions.map((question) => (
-            <div key={question.id} className="rounded-xl border border-ink-200 bg-white p-3">
+        {result.topQuestions.length ? (
+          <div className="mt-3 grid gap-2 lg:grid-cols-2">
+            {result.topQuestions.map((question) => (
+              <div key={question.id} className="rounded-xl border border-ink-200 bg-white p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-[10px] font-black text-ink-900">{question.label}</div>
                 <span className="rounded-full bg-ink-50 px-2 py-1 text-[8px] font-black text-ink-500">{question.state}</span>
@@ -163,9 +164,14 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
                   {question.followUp}
                 </div>
               )}
-            </div>
-          ))}
-        </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-3 rounded-xl border border-ink-200 bg-white p-3 text-[10px] leading-5 text-ink-600">
+            لم يتم إنشاء سؤال استشاري إضافي من الدليل الحالي؛ لا نملأ المساحة بأسئلة شكلية.
+          </div>
+        )}
       </details>
     </section>
   );

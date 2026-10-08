@@ -13,6 +13,7 @@ import { parseNumber } from '@/lib/file-engine/normalizer';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
+import { GenericFileIntelligenceCard } from '@/components/GenericFileIntelligenceCard';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 
 function textValue(value: unknown): string {
@@ -874,6 +875,7 @@ export function SmartReportPage() {
   const advisorMeasurement = primaryRecommendation?.measurement
     || report.intelligence.advisorBrief.measurement
     || 'لا توجد آلية قياس مثبتة بعد.';
+  const advisorDeadline = primaryRecommendation?.deadlineHint || 'التوقيت يحدد بعد اعتماد الدليل والمالك.';
   const advisorOwner = primaryRecommendation?.ownerHint
     || report.intelligence.advisorBrief.ownerHint
     || executiveSignal?.ownerHint
@@ -926,19 +928,32 @@ export function SmartReportPage() {
           </div>
           <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">حكم المستشار: ماذا ينبغي أن تعرفه الإدارة الآن؟</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{advisorHeadline}</p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE</div>
-              <div className="mt-1 break-words text-[11px] font-bold text-slate-100">{report.sourcePath}</div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><ShieldCheck size={13}/> الثقة المصدرية</div>
+              <div className="mt-2 text-sm font-black text-white">{stateLabel(report.sourceTrustState ?? report.trustState)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.qualityScore == null ? "جودة غير متاحة" : "جودة المصدر " + report.qualityScore + "%"}</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source-hash">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE HASH</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.sourceHash}</div>
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><FileSearch size={13}/> السجلات الموثقة</div>
+              <div className="mt-2 text-sm font-black text-white">{reportRowCountLabel(report.rowCount)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.authoritativeCurrentRowCount == null ? "العدد المعتمد غير متاح" : "المعتمد " + formatNumber(report.authoritativeCurrentRowCount)}</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-job-id">
-              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">REPORT JOB ID</div>
-              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.jobId}</div>
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><CheckCircle2 size={13}/> الدليل</div>
+              <div className="mt-2 text-sm font-black text-white">{reportVerificationLabel(report.reportVerificationState)}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.evidenceStatus ? stateLabel(report.evidenceStatus) : "حالة الدليل غير متاحة"}</div>
             </div>
+            <div className="ag-report-hero-stat min-h-[108px] rounded-2xl border border-white/10 bg-white/[.045] p-3.5 transition-transform duration-200 hover:-translate-y-0.5 hover:border-indigo-200/25 hover:bg-white/[.065]">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400"><ShieldCheck size={13}/> جاهزية القرار</div>
+              <div className="mt-2 text-sm font-black text-white">{stateLabel(String(output.decisionReadiness ?? output.decisionStatus ?? "NOT_READY"))}</div>
+              <div className="mt-1 text-[9px] text-slate-400">{report.specialty ? "تحليل متخصص" : "تحليل عام من بنية المصدر"}</div>
+            </div>
+          </div>
+          <div className="ag-report-tech-meta mt-3 flex flex-wrap gap-x-4 gap-y-1.5 overflow-hidden rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+            <span data-testid="smart-report-source" className="min-w-0 truncate text-[9px] font-bold text-slate-300">المصدر: {report.sourcePath}</span>
+            <span data-testid="smart-report-source-hash" className="max-w-full truncate font-mono text-[8px] text-slate-500">SHA: {report.sourceHash}</span>
+            <span data-testid="smart-report-job-id" className="max-w-full truncate font-mono text-[8px] text-slate-500">JOB: {report.jobId}</span>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
@@ -981,12 +996,37 @@ export function SmartReportPage() {
       </div>
     </section>
 
-    {universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
+    {universalIntelligence && (
+      <details className="progressive-disclosure rounded-[22px] border border-ink-200 bg-white shadow-card">
+        <summary className="cursor-pointer list-none px-5 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="section-kicker">الإثبات التفصيلي</div>
+              <div className="mt-1 text-base font-black text-ink-950">كيف وصل التقرير إلى الحكم والقرار المقترح؟</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والتعيين والدليل متاح للمراجعة، بينما تبقى شاشة العميل مركزة على النتيجة والتصرف.</div>
+            </div>
+            <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح الإثبات</span>
+          </div>
+        </summary>
+        <div className="border-t border-ink-100 p-3 lg:p-4">
+          <UniversalIntelligenceChain result={universalIntelligence} />
+        </div>
+      </details>
+    )}
+
+    {!report.specialty && (
+      <section aria-label="ذكاء الملف العام" data-testid="smart-report-generic-intelligence">
+        <GenericFileIntelligenceCard
+          intelligence={report.intelligence}
+          format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
+        />
+      </section>
+    )}
 
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="section-kicker text-primary-700">ADVISOR BRIEF · ماذا يفعل المدير بهذه المعلومة؟</div>
+          <div className="section-kicker text-primary-700">ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟</div>
           <h2 className="mt-1 text-2xl font-black tracking-tight text-ink-950">التقرير لا يصف الأرقام؛ يحدد القضية والتصرف التالي</h2>
           <p className="mt-2 max-w-4xl text-xs leading-6 text-ink-600">هذه الطبقة هي نقطة البداية التنفيذية. الأرقام والصفوف التفصيلية أدناه تستخدم لإثبات الحكم، وليست بديلًا عنه.</p>
         </div>
@@ -1006,7 +1046,7 @@ export function SmartReportPage() {
         <article className="rounded-[20px] border border-amber-200 bg-amber-50/70 p-5">
           <div className="text-[9px] font-black tracking-[.14em] text-amber-800">ما الذي ينبغي فعله؟</div>
           <div className="mt-2 text-base font-black leading-7 text-amber-950">{advisorAction}</div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-amber-200 bg-white/70 p-3">
               <div className="text-[9px] font-black text-ink-400">المالك</div>
               <div className="mt-1 text-[10px] font-black text-ink-900">{advisorOwner}</div>
@@ -1015,9 +1055,33 @@ export function SmartReportPage() {
               <div className="text-[9px] font-black text-ink-400">المعيار</div>
               <div className="mt-1 text-[10px] leading-5 text-ink-800">{advisorMeasurement}</div>
             </div>
+            <div className="rounded-xl border border-amber-200 bg-white/70 p-3">
+              <div className="text-[9px] font-black text-ink-400">التوقيت</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-800">{advisorDeadline}</div>
+            </div>
           </div>
         </article>
       </div>
+
+      {advisorEvidence.filter((item) => item.startsWith('sample=')).length > 0 && (
+        <section className="mt-3 rounded-2xl border border-primary-200 bg-white p-4" aria-label="الدليل الحاسم من المصدر">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="section-kicker text-primary-700">الدليل الحاسم</div>
+              <div className="mt-1 text-sm font-black text-ink-950">صفوف فعلية صنعت الإشارة الحالية</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-500">هذه أمثلة مباشرة من المصدر، وليست قيمًا تجريبية أو ملخصات منفصلة.</div>
+            </div>
+            <span className="rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">{advisorEvidence.filter((item) => item.startsWith('sample=')).length} أدلة</span>
+          </div>
+          <div className="mt-3 grid gap-2 lg:grid-cols-2">
+            {advisorEvidence.filter((item) => item.startsWith('sample=')).slice(0, 6).map((item) => (
+              <div key={item} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3 text-[10px] leading-5 text-ink-800">
+                {item.replace(/^sample=/, '')}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="mt-3 grid gap-3 md:grid-cols-3">
         <article className="rounded-2xl border border-ink-200 bg-white p-4">
@@ -1244,11 +1308,11 @@ export function SmartReportPage() {
       <div className="grid gap-3 md:grid-cols-3">
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-slate-400">REPORT JOB ID</div>
-          <div data-testid="smart-report-job-id" className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
+          <div  className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
         </div>
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE HASH</div>
-          <div data-testid="smart-report-source-hash" className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
+          <div  className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
         </div>
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE</div>

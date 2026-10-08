@@ -10,7 +10,9 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
-import { fetchDecisionWorkItems, fetchSourceDecisionProposals, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
+import { createSourceDecisionProposal, fetchDecisionWorkItems, fetchSourceDecisionProposals, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -146,6 +148,9 @@ function DecisionExperienceGeneralPage() {
   const [decisionError, setDecisionError] = useState<string | null>(null);
   const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
   const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
+  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
+  const [sourceProposalBusy, setSourceProposalBusy] = useState(false);
+  const [sourceProposalError, setSourceProposalError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -156,34 +161,35 @@ function DecisionExperienceGeneralPage() {
       }
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
-      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes, sourceProposals] = await Promise.all([
+      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes, sourceProposals, nextSourceReport] = await Promise.all([
         fetchRecommendations(),
         fetchAlerts(),
         fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
-        sourceHashParam && sourceDecisionId && reportJobIdParam ? fetchSourceDecisionProposals(sourceHashParam, reportJobIdParam) : Promise.resolve([]),
+        sourceHashParam && reportJobIdParam ? fetchSourceDecisionProposals(sourceHashParam, reportJobIdParam) : Promise.resolve([]),
+        fetchSmartReport(reportJobIdParam, sourceHashParam, { signal: AbortSignal.timeout(25000) }),
       ]);
       const sourceProposal = sourceDecisionId
         ? sourceProposals.find((proposal) => proposal.id === sourceDecisionId)
         : null;
       const linkedRecommendationId = sourceProposal?.recommendationId ?? null;
+      setSourceReport(nextSourceReport);
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
       setDecisionWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes);
-      setSelectedId((current) => (
-        current && nextRecommendations.some((item) => item.id === current)
-          ? current
-          : linkedRecommendationId && nextRecommendations.some((item) => item.id === linkedRecommendationId)
-            ? linkedRecommendationId
-            : nextRecommendations[0]?.id ?? null
-      ));
+      setSelectedId((current) => {
+        if (current && nextRecommendations.some((item) => item.id === current)) return current;
+        if (linkedRecommendationId && nextRecommendations.some((item) => item.id === linkedRecommendationId)) return linkedRecommendationId;
+        if (!sourceDecisionId && reportJobIdParam && sourceHashParam) return null;
+        return nextRecommendations[0]?.id ?? null;
+      });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [reportJobIdParam, sourceHashParam, sourceDecisionId]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { if (requestedStage && STAGES.some((item) => item.id === requestedStage)) setStage(requestedStage); }, [requestedStage]);
@@ -192,6 +198,11 @@ function DecisionExperienceGeneralPage() {
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read), [alerts]);
   const selectedStatus = selected?.status ?? null;
+  const sourceSignal = useMemo(() => sourceReport ? selectExecutiveSignal(sourceReport.intelligence) : null, [sourceReport]);
+  const sourceRecommendation = useMemo(
+    () => sourceReport && sourceSignal ? selectExecutiveRecommendation(sourceReport.intelligence, sourceSignal) : null,
+    [sourceReport, sourceSignal],
+  );
   useEffect(() => {
     let active = true;
     setDecisionError(null);
@@ -321,6 +332,56 @@ function DecisionExperienceGeneralPage() {
     setSelectedId(id);
     navigateStage(next, id);
   };
+  const createSourceProposal = async () => {
+    if (!sourceReport || !sourceSignal) {
+      setSourceProposalError('لا توجد إشارة مصدرية قابلة للتحويل إلى قرار.');
+      return;
+    }
+    const evidenceSnapshotId = typeof sourceReport.renderedOutput?.evidenceSnapshotId === 'string'
+      ? sourceReport.renderedOutput.evidenceSnapshotId.trim()
+      : '';
+    if (sourceReport.reportVerificationState !== 'VERIFIED' || !evidenceSnapshotId || sourceReport.evidenceStatus === 'PENDING_EVIDENCE') {
+      setSourceProposalError('لا يمكن إنشاء مسودة قرار قبل اكتمال لقطة الدليل وتوثيقها.');
+      return;
+    }
+    setSourceProposalBusy(true);
+    setSourceProposalError(null);
+    try {
+      const proposal = await createSourceDecisionProposal({
+        reportJobId: sourceReport.jobId,
+        sourceHash: sourceReport.sourceHash,
+        signalId: sourceSignal.id,
+        signalTitle: sourceSignal.title,
+        signalMessage: sourceSignal.message,
+        severity: sourceSignal.severity,
+        evidence: sourceSignal.evidence,
+        evidenceSnapshotId,
+        recommendationContext: sourceRecommendation ? {
+          action: sourceRecommendation.action,
+          why: sourceRecommendation.why,
+          whyNow: sourceRecommendation.whyNow,
+          expectedOutcome: sourceRecommendation.expectedOutcome,
+          owner: sourceRecommendation.ownerHint || null,
+          impact: sourceRecommendation.impact,
+          measurement: sourceRecommendation.measurement,
+          risk: sourceRecommendation.risk,
+          blocker: sourceRecommendation.blocker,
+          limitation: sourceRecommendation.limitation,
+        } : null,
+      });
+      if (!proposal.recommendationId) throw new Error('SOURCE_PROPOSAL_RECOMMENDATION_ID_MISSING');
+      const nextParams = new URLSearchParams(params);
+      nextParams.set('stage', 'decision');
+      nextParams.set('sourceDecisionId', proposal.id);
+      nextParams.set('recommendationId', proposal.recommendationId);
+      setParams(nextParams, { replace: true });
+      setSelectedId(proposal.recommendationId);
+    } catch (cause) {
+      setSourceProposalError(cause instanceof Error ? cause.message : 'تعذر إنشاء مسودة القرار المصدرية');
+    } finally {
+      setSourceProposalBusy(false);
+    }
+  };
 
   const relatedWorkItems = useMemo(() => {
     const decisionId = decisionContext.decision?.id;
@@ -421,7 +482,8 @@ function DecisionExperienceGeneralPage() {
             <CardHeader title="مرشحات القرار" subtitle="التوصية هي مرشح، وليست نتيجة تنفيذية محفوظة." />
             <CardBody>
               <div className="space-y-3">
-                {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
+                {!reportJobIdParam && recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
+                {reportJobIdParam && sourceSignal && <div className="rounded-xl border border-primary-200 bg-primary-50/60 p-3 text-[10px] leading-5 text-primary-950">هذه الصفحة مرتبطة بالتقرير الحالي. انتقل إلى <button type="button" onClick={() => navigateStage('evidence')} className="font-black underline">الدليل</button> لإنشاء أو فتح التوصية المصدرية لهذا التقرير.</div>}
                 {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
@@ -436,8 +498,33 @@ function DecisionExperienceGeneralPage() {
             <CardHeader title="اختيار التوصية" subtitle="حدد عنصرًا حقيقيًا من المصدر." />
             <CardBody>
               <div className="space-y-2">
-                {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {reportJobIdParam && sourceSignal && (
+                  <div className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <div className="text-[9px] font-black text-primary-700">إشارة التقرير الحالي</div>
+                        <div className="mt-1 text-sm font-black text-ink-950">{sourceSignal.title}</div>
+                      </div>
+                      <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-primary-800">{sourceSignal.severity}</span>
+                    </div>
+                    <div className="mt-2 text-[10px] leading-5 text-ink-700">{sourceSignal.message}</div>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      <div className="rounded-xl bg-white p-3"><div className="text-[9px] text-ink-400">الدليل</div><div className="mt-1 text-[10px] font-bold text-ink-800">{sourceSignal.evidence.filter((item) => item.startsWith('sample=')).slice(0, 2).map((item) => item.replace(/^sample=/, '')).join(' · ') || 'دليل المصدر محفوظ داخل التقرير.'}</div></div>
+                      <div className="rounded-xl bg-white p-3"><div className="text-[9px] text-ink-400">التوصية</div><div className="mt-1 text-[10px] font-bold text-ink-800">{sourceRecommendation?.title ?? 'لم تُنشأ مسودة قرار بعد'}</div></div>
+                    </div>
+                    {!selected && (
+                      <div className="mt-3">
+                        {sourceProposalError && <div role="alert" className="mb-2 rounded-lg border border-danger-200 bg-danger-50 px-3 py-2 text-[9px] font-bold text-danger-800">{sourceProposalError}</div>}
+                        <button type="button" onClick={() => void createSourceProposal()} disabled={sourceProposalBusy} className="btn-primary w-full justify-center text-[10px] disabled:opacity-50">
+                          {sourceProposalBusy ? 'جارٍ إنشاء مسودة القرار...' : sourceReport?.reportVerificationState === 'VERIFIED' ? 'إنشاء مسودة قرار مرتبطة بهذا التقرير' : 'أكمل توثيق الدليل أولًا'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {(!reportJobIdParam || selected) && recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
+                {!reportJobIdParam && !recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {reportJobIdParam && !sourceSignal && <EmptyState title="لا توجد إشارة مصدرية" message="التقرير الحالي لم ينتج إشارة قابلة للتحويل إلى قرار؛ لا نعرض توصيات من تقارير أخرى." />}
               </div>
             </CardBody>
           </Card>

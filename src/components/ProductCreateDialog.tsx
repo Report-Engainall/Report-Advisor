@@ -4,16 +4,19 @@ import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 
 const PRODUCT_SAVE_TIMEOUT_MS = 25000;
 
-async function runBounded(operation: (signal: AbortSignal) => unknown, timeoutMessage: string): Promise<unknown> {
+async function runBounded<T>(operation: (signal: AbortSignal) => PromiseLike<T> | T, timeoutMessage: string): Promise<T> {
   const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), PRODUCT_SAVE_TIMEOUT_MS);
+  let timeoutId: number | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      controller.abort();
+      reject(new Error(timeoutMessage));
+    }, PRODUCT_SAVE_TIMEOUT_MS);
+  });
   try {
-    return await operation(controller.signal);
-  } catch (cause) {
-    if (controller.signal.aborted) throw new Error(timeoutMessage);
-    throw cause;
+    return await Promise.race([Promise.resolve(operation(controller.signal)), timeoutPromise]);
   } finally {
-    window.clearTimeout(timer);
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
   }
 }
 
@@ -66,11 +69,11 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
     setSuccess(null);
     setError(null);
     try {
-      const companyId = await resolveCurrentCompanyId();
-      if (!companyId) throw new Error('TENANT_REQUIRED');
+      const authoritativeCompanyId = await resolveCurrentCompanyId();
+      if (!authoritativeCompanyId) throw new Error('TENANT_REQUIRED');
       const rpcResult = await runBounded(
         (signal) => supabase.rpc('import_upsert_product', {
-          p_company_id: companyId,
+          p_company_id: authoritativeCompanyId,
           p_sku: normalizedSku,
           p_name: normalizedName,
           p_unit: normalizedUnit,
@@ -89,7 +92,7 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
         (signal) => supabase
           .from('products')
           .select('id,sku,name,company_id')
-          .eq('company_id', companyId)
+          .eq('company_id', authoritativeCompanyId)
           .eq('sku', normalizedSku)
           .abortSignal(signal)
           .maybeSingle(),
@@ -98,7 +101,7 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
       if (readbackResult.error) throw readbackResult.error;
       const readback = readbackResult.data;
       if (!readback?.id) throw new Error('PRODUCT_PERSISTENCE_READBACK_FAILED');
-      if (String(readback.company_id) !== String(companyId)) throw new Error('PRODUCT_TENANT_READBACK_MISMATCH');
+      if (String(readback.company_id) !== String(authoritativeCompanyId)) throw new Error('PRODUCT_TENANT_READBACK_MISMATCH');
 
       setSuccess(`تم حفظ المنتج والتحقق منه: ${String(readback.name ?? normalizedName)} (${String(readback.sku ?? normalizedSku)})`);
       onCreated();

@@ -60,52 +60,67 @@ function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
     return row[column.name] ?? row[column.mappedField ?? ''];
   };
 
-  const stockColumn = findColumn('currentStock', 'current_stock', 'stock', 'الرصيدالحالي', 'المخزونالحالي');
-  const salesColumn = findColumn('salesQty', 'sales_qty', 'sales', 'كميةالمبيعات');
+  const stockColumn = findColumn('currentStock', 'current_stock', 'stock', 'الرصيدالحالي', 'الرصيد', 'المخزونالحالي');
+  const salesColumn = findColumn('salesQty', 'sales_qty', 'sales', 'كميةالمبيعات', 'صافيالمبيعات');
+  const dailyRateColumn = findColumn('dailySalesRate', 'daily_sales_rate', 'معدل البيع اليومي', 'معدل البيع ليومي');
+  const stockoutDaysColumn = findColumn('stockoutDays', 'stockout_days', 'الفترة المتوقعة لنفاد الكمية', 'الفترةالمتوقعةلنفادالكمية', 'أيام النفاد');
   const skuColumn = findColumn('productCode', 'product_code', 'sku', 'رقمالصنف', 'كودالصنف');
   const warehouseColumn = findColumn('warehouse', 'المستودع', 'المخزن');
   const documentColumn = findColumn('documentNo', 'invoice_number', 'document_number', 'رقمالمستند', 'رقمالفاتورة');
 
   if (!stockColumn || !salesColumn) return base;
+  if (!dailyRateColumn && !stockoutDaysColumn) return base;
 
-  const rows = dataset.rows.map((row, index) => ({
-    index,
-    sales: Number(valueOf(row, salesColumn)),
-    stock: Number(valueOf(row, stockColumn)),
-    sku: String(valueOf(row, skuColumn) ?? 'غير محدد'),
-    warehouse: String(valueOf(row, warehouseColumn) ?? 'غير محدد'),
-    document: String(valueOf(row, documentColumn) ?? 'ROW-' + (index + 1)),
-  })).filter((row) => Number.isFinite(row.sales) && Number.isFinite(row.stock) && row.sales > 0);
+  const rows = dataset.rows.map((row, index) => {
+    const stock = Number(valueOf(row, stockColumn));
+    const sales = Number(valueOf(row, salesColumn));
+    const dailyRate = dailyRateColumn ? Number(valueOf(row, dailyRateColumn)) : NaN;
+    const sourceStockoutDays = stockoutDaysColumn ? Number(valueOf(row, stockoutDaysColumn)) : NaN;
+    const coverageDays = Number.isFinite(sourceStockoutDays)
+      ? sourceStockoutDays
+      : Number.isFinite(dailyRate) && dailyRate > 0
+        ? stock / dailyRate
+        : NaN;
+    return {
+      index,
+      sales,
+      stock,
+      dailyRate,
+      coverageDays,
+      sku: String(valueOf(row, skuColumn) ?? 'غير محدد'),
+      warehouse: String(valueOf(row, warehouseColumn) ?? 'غير محدد'),
+      document: String(valueOf(row, documentColumn) ?? 'ROW-' + (index + 1)),
+    };
+  }).filter((row) => Number.isFinite(row.stock) && Number.isFinite(row.sales) && row.sales > 0 && Number.isFinite(row.coverageDays) && row.coverageDays >= 0);
 
-  const lowCoverage = rows.filter((row) => row.stock / row.sales < 2);
+  const lowCoverage = rows.filter((row) => row.coverageDays <= 30).sort((a, b) => a.coverageDays - b.coverageDays);
   if (!lowCoverage.length) return base;
 
-  const latest = lowCoverage[lowCoverage.length - 1];
+  const latest = lowCoverage[0];
   const totalSales = rows.reduce((sum, row) => sum + row.sales, 0);
   const lowSales = lowCoverage.reduce((sum, row) => sum + row.sales, 0);
   const lowStock = lowCoverage.reduce((sum, row) => sum + row.stock, 0);
   const totalStock = rows.reduce((sum, row) => sum + row.stock, 0);
-  const coverage = latest.stock / latest.sales;
 
   const topRisk: BusinessFinding = {
     id: 'preview:inventory:low-coverage',
     kind: 'RISK',
-    priority: 'high',
-    title: 'تغطية مخزون منخفضة',
-    statement: 'آخر صف منخفض التغطية هو ' + latest.sku + ' في ' + latest.warehouse + ' بتغطية ' + coverage.toFixed(2) + '، مع ' + latest.sales + ' مبيعات و' + latest.stock + ' رصيد.',
-    value: coverage,
-    unit: 'x',
+    priority: latest.coverageDays <= 7 ? 'high' : 'medium',
+    title: latest.coverageDays <= 7 ? 'نفاد قريب يحتاج تدخلًا' : 'أصناف ذات تغطية قصيرة',
+    statement: 'الصنف ' + latest.sku + ' في ' + latest.warehouse + ' لديه تغطية مصدرية تبلغ ' + latest.coverageDays.toFixed(1) + ' يومًا، مع ' + latest.sales + ' مبيعات و' + latest.stock + ' رصيد.',
+    value: latest.coverageDays,
+    unit: 'days',
     dimensionLabel: 'الصنف',
     dimensionValue: latest.sku,
-    evidence: lowCoverage.map((row) => row.document + ' · ' + row.sku + ' · تغطية ' + (row.stock / row.sales).toFixed(2) + ' · مبيعات ' + row.sales + ' · رصيد ' + row.stock).slice(-5),
-    limitation: 'المصدر لا يحتوي مهلة توريد أو نقطة إعادة طلب؛ لا يتم اختلاق كمية شراء أو أثر مالي.',
-    action: 'راجع إعادة الطلب للأصناف منخفضة التغطية ثم ثبّت الكمية بعد التحقق من مهلة التوريد ونقطة إعادة الطلب.',
+    evidence: lowCoverage.slice(0, 5).map((row) => row.document + ' · ' + row.sku + ' · تغطية ' + row.coverageDays.toFixed(1) + ' يوم · مبيعات ' + row.sales + ' · رصيد ' + row.stock),
+    limitation: 'المصدر لا يثبت مهلة التوريد أو نقطة إعادة الطلب أو كمية شراء؛ لذلك يحدد التحليل الأولوية ولا يخترع كمية.',
+    action: 'راجع الأصناف ذات التغطية القصيرة، ثبّت المالك والتوقيت، ثم اعتمد التوريد أو التحويل بعد التحقق من مهلة التوريد ونقطة إعادة الطلب.',
   };
 
   return {
     ...base,
-    businessQuestion: 'أين توجد أصناف معرضة لانخفاض التغطية قبل القرار؟',
-    summary: 'تم فحص ' + dataset.rowCount + ' صفًا من المصدر مباشرة، وظهرت ' + lowCoverage.length + ' صفوف تحت حد التغطية 2.00.',
+    businessQuestion: 'أين توجد أصناف معرضة للنفاد خلال 30 يومًا أو أقل؟',
+    summary: 'تم فحص ' + dataset.rowCount + ' صفًا من المصدر مباشرة، وظهرت ' + lowCoverage.length + ' صفوف لا تتجاوز تغطتها 30 يومًا.',
     advisorBrief: {
       health: 'REVIEW_REQUIRED',
       headline: topRisk.statement,
@@ -114,14 +129,14 @@ function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
       topOpportunity: null,
       recommendedAction: topRisk.action,
       ownerHint: 'مدير المخزون / المشتريات',
-      expectedOutcome: 'عودة تغطية الصفوف المتأثرة إلى 2.00 فأعلى مع استمرار مراقبة المبيعات والرصيد.',
-      measurement: 'نجاح المعالجة = عودة التغطية إلى 2.00 فأعلى؛ النطاق المثبت ' + lowCoverage.length + ' صفوف من ' + rows.length + '.',
-      proofRequirement: 'المصدر ' + dataset.name + '، ' + dataset.rowCount + ' صفًا، والتوصية مشتقة من الرصيد ÷ المبيعات في نفس الصفوف.',
+      expectedOutcome: 'خفض عدد الأصناف التي تقع عند 30 يومًا أو أقل بعد المعالجة وإعادة القياس بنفس قاعدة المصدر.',
+      measurement: 'نجاح المعالجة = انخفاض عدد الصفوف ذات التغطية ≤ 30 يومًا؛ النطاق المثبت ' + lowCoverage.length + ' صفوف من ' + rows.length + '.',
+      proofRequirement: 'المصدر ' + dataset.name + '، ' + dataset.rowCount + ' صفًا، والتوصية مشتقة من فترة النفاد المصدرية أو الرصيد ÷ معدل البيع اليومي.',
     },
     guidance: {
       focus: topRisk.title,
       inspect: [
-        lowCoverage.length + ' صفوف تحت 2.00',
+        lowCoverage.length + ' صفوف بتغطية ≤ 30 يومًا',
         (totalSales > 0 ? ((lowSales / totalSales) * 100).toFixed(1) + '%' : 'غير متاح') + ' من وحدات المبيعات داخل الصفوف المتأثرة',
         (totalStock > 0 ? ((lowStock / totalStock) * 100).toFixed(1) + '%' : 'غير متاح') + ' من الرصيد الحالي داخل الصفوف المتأثرة',
       ],
@@ -221,14 +236,15 @@ export function ExternalFileAnalysisPage() {
   const dataset = datasets[active] ?? null;
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
-    specialty: inferSpecialty(dataset) ?? null,
+    specialty: specialty ?? null,
     rowCount: dataset.rowCount,
     sourceAnalysis: { datasets: [dataset] },
     canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
     sourcePath: file?.name ?? dataset.name,
     sourceHash: file?.hash ?? null,
-  }) : null, [dataset, file]);
-  const genericIntelligence = useMemo(() => dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format]);
+  }) : null, [dataset, file, specialty]);
+  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
+  const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
     unmapped: dataset.columns.filter(c => !c.mappedField).length,
@@ -268,8 +284,16 @@ export function ExternalFileAnalysisPage() {
     </CardBody></Card>}
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
     {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} />}
-    {file && universalIntelligence && <UniversalIntelligenceChain result={universalIntelligence} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
+    {file && universalIntelligence && <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+      <summary className="cursor-pointer list-none px-5 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والدليل الفني متاحان للمراجعة دون إغراق النتيجة التنفيذية.</div></div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح التفاصيل</span>
+        </div>
+      </summary>
+      <div className="border-t border-ink-100 p-3 lg:p-4"><UniversalIntelligenceChain result={universalIntelligence}/></div>
+    </details>}
     {datasets.length > 1 && <Card><CardBody><div className="flex gap-2 overflow-x-auto">{datasets.map((d,i)=><button key={`${d.id}-${i}`} type="button" aria-pressed={i===active} onClick={()=>setActive(i)} className={`whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-semibold ${i===active?'border-primary-500 bg-primary-50 text-primary-700':'border-ink-200 bg-white text-ink-600'}`}>ورقة/مجموعة {i+1}: {d.name}</button>)}</div></CardBody></Card>}
     {dataset && <>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">{[['الصفوف',dataset.rowCount],['الأعمدة',dataset.columnCount],['المعيّنة',summary?.mapped??0],['غير المعيّنة',summary?.unmapped??0],['مشاكل الجودة',summary?.issues??0]].map(([label,value])=><Card key={String(label)}><CardBody><div className="text-xs text-ink-400">{label}</div><div className="mt-1 text-xl font-bold">{Number(value).toLocaleString()}</div></CardBody></Card>)}</div>

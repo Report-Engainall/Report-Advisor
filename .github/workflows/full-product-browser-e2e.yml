@@ -19,6 +19,8 @@ on:
       - 'scripts/execution-enforcement-adversarial-governance.test.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/pages/**'
+      - 'src/components/ProductCreateDialog.tsx'
+      - 'src/components/ProductCreateDialog.tsx'
       - 'api/health.mjs'
       - 'api/tenant-canary.mjs'
       - 'api/backup-restore-verify.mjs'

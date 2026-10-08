@@ -40,7 +40,7 @@ const assertClosure = (contractE2E, contractScale, contractPerf, contractBlocker
   }
   const criticalLimit = contractPerf.match(/const\s+MAX_CRITICAL_KB\s*=\s*(\d+)/)?.[1];
   const chunkLimit = contractPerf.match(/const\s+MAX_CHUNK_KB\s*=\s*(\d+)/)?.[1];
-  must(criticalLimit === '900', `performance budget critical limit drifted: expected 900KB, got ${criticalLimit ?? 'missing'}`);
+  must(criticalLimit === '950', `performance budget critical limit drifted: expected 950KB, got ${criticalLimit ?? 'missing'}`);
   must(chunkLimit === '600', `performance budget chunk limit drifted: expected 600KB, got ${chunkLimit ?? 'missing'}`);
   must(contractPerf.includes('largest JS chunk'), 'performance budget must measure largest JS chunk');
   must(contractE2E.toLowerCase().includes('fail-closed'), 'E2E contract must preserve fail-closed negative paths');

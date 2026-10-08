@@ -60,7 +60,8 @@ function canonicalFields(report: SmartReportDetail): CanonicalField[] {
       if (normalized === 'total' || normalized === 'total_amount') fields.add('total');
       if (normalized === 'invoice_number') fields.add('invoice_number');
       if (normalized === 'invoice_type') fields.add('invoice_type');
-      if (normalized === 'balance' || normalized === 'الرصيد') fields.add('balance');
+      if (report.specialty === 'inventory' && ['current_stock','currentstock','\u0627\u0644\u0631\u0635\u064a\u062f','\u0627\u0644\u0631\u0635\u064a\u062f\u0627\u0644\u062d\u0627\u0644\u064a','\u0627\u0644\u0645\u062e\u0632\u0648\u0646\u0627\u0644\u062d\u0627\u0644\u064a'].includes(normalized)) fields.add('currentStock');
+      else if (normalized === 'balance' || normalized === '\u0627\u0644\u0631\u0635\u064a\u062f') fields.add('balance');
       if (normalized === 'credit' || normalized === 'دائن') fields.add('credit');
       if (normalized === 'debit' || normalized === 'مدين') fields.add('debit');
       if (normalized === 'quantity' || normalized === 'qty' || normalized === 'الكمية') fields.add('quantity');

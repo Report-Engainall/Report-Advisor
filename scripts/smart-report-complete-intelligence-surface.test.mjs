@@ -31,6 +31,12 @@ if (recommendationBlock.includes('recommendations.slice(')) throw new Error('Rec
 
 console.log('smart-report-complete-intelligence-surface: PASS');
 
+const smartReportPage = fs.readFileSync(new URL('../src/pages/SmartReportPage.tsx', import.meta.url), 'utf8');
+if (!smartReportPage.includes("GenericFileIntelligenceCard")) throw new Error('Smart Report page must expose source-agnostic intelligence');
+if (!smartReportPage.includes('smart-report-generic-intelligence')) throw new Error('Smart Report generic intelligence test marker missing');
+if (!smartReportPage.includes('!report.specialty')) throw new Error('Generic intelligence must remain available when no business specialty is inferred');
+console.log('smart-report-generic-intelligence-surface: PASS');
+
 const smartReportSource = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
 const fetchStart = smartReportSource.indexOf('export async function fetchSmartReport');
 const fetchBlock = fetchStart >= 0 ? smartReportSource.slice(fetchStart) : '';
@@ -38,3 +44,17 @@ if (!fetchBlock.includes('const resolvedSourceHash')) throw new Error('Smart rep
 if (fetchBlock.includes(".eq('source_hash', sourceHash)")) throw new Error('Smart report contains an unbound sourceHash query reference');
 if (!fetchBlock.includes('if (normalizedSourceHash && resolvedSourceHash !== normalizedSourceHash)')) throw new Error('Explicit source hash mismatch must still be rejected');
 console.log('smart-report-context-lineage: PASS');
+
+for (const marker of [
+  'ag-report-hero-stat',
+  'ag-report-tech-meta',
+  'smart-report-source-hash',
+  'smart-report-job-id',
+  'جاهزية القرار',
+  'الثقة المصدرية',
+  'السجلات الموثقة',
+]) {
+  if (!smartReportPage.includes(marker)) throw new Error('Smart Report executive result surface marker missing: ' + marker);
+}
+console.log('smart-report-executive-result-surface: PASS');
+

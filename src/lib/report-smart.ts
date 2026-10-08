@@ -1,5 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
+import { buildGenericFileIntelligence } from './file-engine/generic-intelligence.ts';
+import type { ColumnProfile, Dataset } from './file-engine/types.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 
@@ -97,8 +99,9 @@ function isExtractionArtifactHeader(value: unknown): boolean {
   return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key) || /^20\d{2}-?$/.test(key);
 }
 
-function normalizeBusinessField(value: unknown): string | null {
+function normalizeBusinessField(value: unknown, specialty?: string | null): string | null {
   const key = String(value ?? '').trim().toLowerCase().normalize('NFKC').replace(/[\s_-]+/g, '');
+  if (specialty === 'inventory' && ['الرصيد','الرصيدالحالي','المخزونالحالي','الكميةالمتوفرة','الكميةالمتاحة','currentstock','onhand'].includes(key)) return 'current_stock';
   const aliases: Array<[string,string[]]> = [
     ['date',['date','التاريخ','تاريخالفاتورة','التاريخ2026']],
     ['invoice_number',['invoice_number','invoice number','رقمالفاتورة','رقمالفاتوره']],
@@ -132,7 +135,7 @@ function normalizeBusinessField(value: unknown): string | null {
   return null;
 }
 
-function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefined, canonicalRows: Array<{data:Record<string,unknown>}> = []) {
+function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefined, canonicalRows: Array<{data:Record<string,unknown>}> = [], specialty?: string | null) {
   const output = new Map<string, Record<string, unknown>>();
   const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
   for (const dataset of datasets) {
@@ -144,7 +147,7 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
         const name = String(item.name ?? item.mappedField ?? '').trim();
         if (!name || isExtractionArtifactHeader(name)) continue;
         const declaredMapped = String(item.mappedField ?? '').trim();
-        const semanticMapped = normalizeBusinessField(name);
+        const semanticMapped = normalizeBusinessField(name, specialty);
         const mapped = String(semanticMapped ?? declaredMapped ?? '').trim();
         const originalQualityIssues = Array.isArray(item.qualityIssues)
           ? item.qualityIssues.map(String)
@@ -177,14 +180,14 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
       } else {
         const name = String(column ?? '').trim();
         if (!name || isExtractionArtifactHeader(name)) continue;
-        const mapped = normalizeBusinessField(name);
+        const mapped = normalizeBusinessField(name, specialty);
         output.set(mapped || name, { name, mappedField: mapped, mappingConfidence: mapped ? 85 : 0 });
       }
     }
   }
   for (const row of canonicalRows.slice(0, 500)) {
     for (const name of Object.keys(row.data ?? {})) {
-      const mapped = normalizeBusinessField(name);
+      const mapped = normalizeBusinessField(name, specialty);
       if (mapped && !output.has(mapped)) output.set(mapped, { name, mappedField: mapped, mappingConfidence: 80 });
     }
   }
@@ -337,6 +340,53 @@ function resolveImportJobId(
   return analysisImportId;
 }
 
+function buildGenericDatasetForReport(input: {
+  sourcePath: string;
+  sourceAnalysis: SmartReportDetail['sourceAnalysis'];
+  canonicalRows: SmartReportDetail['canonicalRows'];
+  qualityScore: number | null;
+}): Dataset | null {
+  const rows = input.canonicalRows
+    .map((row) => row.data)
+    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object'));
+  if (!rows.length) return null;
+
+  const sourceDataset = input.sourceAnalysis?.datasets?.find((dataset) => dataset && typeof dataset === 'object') as Record<string, unknown> | undefined;
+  const sourceColumns = Array.isArray(sourceDataset?.columns) ? sourceDataset.columns : [];
+  const fallbackNames = Object.keys(rows[0] ?? {});
+  const rawColumns = sourceColumns.length ? sourceColumns : fallbackNames.map((name) => ({ name }));
+
+  const columns = rawColumns.map((column) => {
+    const item = column && typeof column === 'object' ? column as Record<string, unknown> : { name: String(column ?? '') };
+    return {
+      name: String(item.name ?? item.mappedField ?? 'حقل المصدر'),
+      mappedField: item.mappedField == null ? null : String(item.mappedField),
+      mappingConfidence: Number.isFinite(Number(item.mappingConfidence)) ? Number(item.mappingConfidence) : 0,
+      requiresReview: item.requiresReview === true,
+      mappingEvidence: item.mappingEvidence && typeof item.mappingEvidence === 'object' ? item.mappingEvidence as ColumnProfile['mappingEvidence'] : undefined,
+      dataType: String(item.dataType ?? 'unknown') as ColumnProfile['dataType'],
+      nullCount: Number.isFinite(Number(item.nullCount)) ? Number(item.nullCount) : 0,
+      uniqueCount: Number.isFinite(Number(item.uniqueCount)) ? Number(item.uniqueCount) : 0,
+      uniqueRatio: Number.isFinite(Number(item.uniqueRatio)) ? Number(item.uniqueRatio) : 0,
+      sampleValues: Array.isArray(item.sampleValues) ? item.sampleValues : [],
+      statistics: item.statistics && typeof item.statistics === 'object' ? item.statistics as ColumnProfile['statistics'] : { count: rows.length },
+      qualityIssues: Array.isArray(item.qualityIssues) ? item.qualityIssues.map(String) : [],
+    } as ColumnProfile;
+  });
+
+  return {
+    id: String(sourceDataset?.id ?? input.sourcePath),
+    name: String(sourceDataset?.name ?? input.sourcePath),
+    source: String(sourceDataset?.source ?? input.sourcePath),
+    sheet: sourceDataset?.sheet == null ? undefined : String(sourceDataset.sheet),
+    rowCount: input.sourceAnalysis?.rowCount == null ? rows.length : Number(input.sourceAnalysis.rowCount),
+    columnCount: input.sourceAnalysis?.columnCount == null ? columns.length : Number(input.sourceAnalysis.columnCount),
+    columns,
+    rows,
+    preview: rows.slice(0, 50),
+    qualityScore: input.qualityScore == null ? 0 : Number(input.qualityScore),
+  };
+}
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
   const rendered = renderedOutputOf(job.evidence) ?? {};
   const path = String(job.source_path ?? '');
@@ -344,7 +394,7 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
 
   const specialty = resolveEffectiveSpecialty(rendered.sourceSpecialty, analysis);
 
-  const availableFields = [...new Set(sourceColumnDescriptors(analysis).flatMap((column) => {
+  const availableFields = [...new Set(sourceColumnDescriptors(analysis, [], specialty).flatMap((column) => {
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
     const name = String(column.name ?? '').trim();
     return [mapped, name].filter(Boolean);
@@ -704,10 +754,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     runtimeWarnings.push('تم ربط التقرير بالاستيراد الكانوني الفعلي من سجل الاعتماد لنفس بصمة المصدر؛ معرف تنفيذ التقرير مختلف عن معرف الاستيراد الكانوني.');
   }
 
-  let canonicalOffset = 0;
+  let canonicalCursorRowNumber = 0;
   let canonicalFetchError = false;
 
-  while (canonicalOffset < canonicalFetchLimit) {
+  while (canonicalRows.length < canonicalFetchLimit) {
     const canonicalSourceQuery = supabase
       .from('canonical_dataset_records')
       .select('row_number,data,import_job_id')
@@ -716,8 +766,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
     const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
     const canonicalPageQuery = canonicalScopedQuery
+      .gt('row_number', canonicalCursorRowNumber)
       .order('row_number', { ascending: true })
-      .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
+      .limit(canonicalFetchPageSize);
     const { data: pageRows, error: pageError } = await maybeAbort(canonicalPageQuery, options.signal);
 
     if (pageError) {
@@ -731,12 +782,20 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .map((row) => ({
         row_number: Number(row.row_number ?? 0),
         data: row.data as Record<string, unknown>,
-      }));
+      }))
+      .filter((row) => Number.isFinite(row.row_number) && row.row_number > canonicalCursorRowNumber);
 
     canonicalRows.push(...normalizedPage);
 
-    if ((pageRows ?? []).length < canonicalFetchPageSize) break;
-    canonicalOffset += canonicalFetchPageSize;
+    if (!normalizedPage.length || (pageRows ?? []).length < canonicalFetchPageSize) break;
+
+    const lastRowNumber = normalizedPage[normalizedPage.length - 1]?.row_number ?? canonicalCursorRowNumber;
+    if (lastRowNumber <= canonicalCursorRowNumber) {
+      canonicalFetchError = true;
+      runtimeWarnings.push('توقفت قراءة الصفوف الكانونية لأن مؤشر الصفحة لم يتقدم؛ تم منع الحلقة غير المنتهية دون اختلاق بيانات.');
+      break;
+    }
+    canonicalCursorRowNumber = lastRowNumber;
   }
 
   const canonicalFetchCeilingReached = canonicalRows.length >= canonicalFetchLimit;
@@ -799,7 +858,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const sourceAnalysisDatasets = Array.isArray(analysis?.datasets)
     ? analysis.datasets.filter((dataset): dataset is Record<string, unknown> => Boolean(dataset) && typeof dataset === 'object')
     : [];
-  const sourceColumns = sourceColumnDescriptors(sourceAnalysis, canonicalRows);
+  const sourceColumns = sourceColumnDescriptors(sourceAnalysis, canonicalRows, specialty);
   const specialtyCoreFields: Record<string, string[]> = {
     payments: ['date', 'balance', 'credit'],
     sales: ['date', 'invoice_number', 'customer_name', 'total'],
@@ -903,6 +962,24 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       canonicalRows,
       persistedIntelligenceCalculations: persistedCalculationRows,
     });
+
+    // Keep source-agnostic intelligence alive after canonical import. Generic
+    // files must not lose their content-derived signals when moving from /try-report
+    // into the persisted Smart Report route.
+    if (!specialty) {
+      const genericDataset = buildGenericDatasetForReport({
+        sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
+        sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
+        canonicalRows,
+        qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+      });
+      if (genericDataset) {
+        baseIntelligence = buildGenericFileIntelligence(
+          genericDataset,
+          String(sourceAnalysis?.sourceFormat ?? 'generic'),
+        );
+      }
+    }
   } catch (error) {
     runtimeWarnings.push('تعذر اشتقاق طبقة الذكاء من هذا المصدر؛ تم إظهار حالة مراجعة بدل تجميد التقرير.');
     console.error('[SmartReport] deriveReportIntelligence failed', error);
@@ -1005,11 +1082,19 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         : archetypeState === 'SUPPORTED' && evidenceStatus === 'VERIFIED'
           ? 'READY'
           : 'REVIEW_REQUIRED';
+  const runtimeTrustState = typeof effectiveRendered.trustState === 'string'
+    ? effectiveRendered.trustState
+    : effectiveRendered.evidenceStatus === 'VERIFIED' || effectiveRendered.evidenceVerificationStatus === 'VERIFIED'
+      ? 'TRUSTED'
+      : null;
+
   const runtimeRendered = {
     ...effectiveRendered,
     // Persisted renderedOutput may carry a stale specialty from the original
     // execution. The runtime source analysis is authoritative for classification.
     sourceSpecialty: specialty ?? effectiveRendered.sourceSpecialty ?? null,
+    trustState: runtimeTrustState,
+    sourceTrustState: runtimeTrustState,
     archetypeId: detectedArchetype.profile?.id ?? null,
     archetypeVersion: detectedArchetype.profile?.version ?? null,
     profileVersion: detectedArchetype.profile?.version ?? null,
@@ -1031,7 +1116,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     entityType: entityTypeFrom(String(job.job_key ?? '')),
     rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
-    trustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    trustState: runtimeTrustState,
     specialty,
     canonicalRows,
     intelligence,
@@ -1046,7 +1131,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalCommitCount,
     canonicalCommitVerified,
     canonicalAnalysisScope,
-    sourceTrustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
+    sourceTrustState: runtimeTrustState,
     reportVerificationState: canonicalCommitQueryFailed || !canonicalRowsComplete || canonicalRowsPartial
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
