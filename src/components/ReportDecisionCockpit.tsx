@@ -57,6 +57,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
     ? '/decision-experience?stage=decision&reportJobId=' + job + '&sourceHash=' + hash
     : '/trust?reportJobId=' + job + '&sourceHash=' + hash;
   const [caseState, setCaseState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [savedProposalId, setSavedProposalId] = useState<string | null>(null);
 
   const saveDecisionCase = async () => {
     if (!topSignal || !evidenceSnapshotId || !evidenceReady) return;
@@ -104,6 +105,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         expectedOutcome: topRecommendation?.expectedOutcome ?? 'نتيجة متوقعة غير متاحة.',
         followed: true,
       });
+      setSavedProposalId(proposal.id);
       setCaseState('saved');
     } catch {
       setCaseState('error');
@@ -228,6 +230,15 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
             >
               {caseState === 'saving' ? 'جارٍ حفظ القضية...' : caseState === 'saved' ? 'القضية محفوظة وتُتابع' : 'حفظ كقضية أعمال'}
             </button>
+            {caseState === 'saved' && savedProposalId && (
+              <Link
+                to={'/decision-experience?stage=decision&sourceDecisionId=' + encodeURIComponent(savedProposalId) + '&reportJobId=' + job + '&sourceHash=' + hash}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-[10px] font-black text-slate-950"
+                data-testid="open-saved-source-decision"
+              >
+                متابعة هذا القرار <ArrowLeft size={13}/>
+              </Link>
+            )}
             {caseState === 'saved' && <Link to="/advisor-cases" className="inline-flex min-h-10 items-center rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[10px] font-bold text-white">فتح القضايا</Link>}
             {caseState === 'error' && <span className="inline-flex min-h-10 items-center rounded-xl border border-red-200/15 bg-red-100/[.06] px-3.5 py-2 text-[10px] font-bold text-red-100">تعذر حفظ القضية — لا تغيير على المصدر</span>}
           </div>
