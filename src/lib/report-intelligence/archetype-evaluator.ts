@@ -659,12 +659,14 @@ export function applyArchetypeRuleSet(
           kind: 'FINDING',
           priority: 'medium',
           title: profile.title + ' — توزيع المواقع',
-          statement: 'يغطي المصدر ' + unique + ' مواقع، وأعلى موقع في القيمة/الكمية المحسوبة هو "' + groups[0] + '".',
-          value: groups[1],
-          unit: 'source value',
+          statement: unique > 0 && groups[0] !== 'غير محدد'
+            ? 'يغطي المصدر ' + unique + ' مواقع مثبتة، وأعلى موقع في القيمة/الكمية المحسوبة هو "' + groups[0] + '".'
+            : 'البعد المكاني غير مثبت في المصدر؛ حقل الموقع موجود لكن القيم الصالحة لا تكفي لاستخراج توزيع مكاني موثوق.',
+          value: unique > 0 && groups[0] !== 'غير محدد' ? groups[1] : null,
+          unit: unique > 0 && groups[0] !== 'غير محدد' ? 'source value' : null,
           dimensionLabel: 'الموقع',
-          dimensionValue: groups[0],
-          evidence: ['locationField=' + locationKey, 'valueField=' + valueKey, 'uniqueLocations=' + unique],
+          dimensionValue: unique > 0 && groups[0] !== 'غير محدد' ? groups[0] : null,
+          evidence: ['locationField=' + locationKey, 'valueField=' + valueKey, 'uniqueLocations=' + unique, 'validLocationValues=' + unique],
           limitation: 'التركيز المكاني لا يثبت كفاءة الموقع أو الحاجة إلى التحويل.',
           action: profile.recommendationFocus[0] || 'قارن المواقع مع الطلب والمخزون/المبيعات قبل الإجراء.',
         };
