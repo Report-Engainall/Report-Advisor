@@ -404,7 +404,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       let totalStock = 0;
       let totalDailyRate = 0;
       let dailyRateRows = 0;
-      const lowCoverageRows: Array<{ name: string; stock: number; sales: number; coverage: number }> = [];
+      const lowCoverageRows: Array<{ name: string; stock: number; demand: number; coverageDays: number; basis: string }> = [];
       const datedDemandRows: Array<{ date: Date; sales: number }> = [];
       const fastMovingProducts: Array<{ name: string; rate: number }> = [];
       const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
@@ -418,13 +418,22 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
 
         const dailyRate = dailyRateKey ? numeric(rowValue(row.data, dailyRateKey)) : null;
         const netSales = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
+        const sourceStockoutDays = stockoutDaysKey ? numeric(rowValue(row.data, stockoutDaysKey)) : null;
         const salesForCoverage = netSales;
         const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
-        if (salesForCoverage != null && salesForCoverage > 0) {
-          const coverage = stock / salesForCoverage;
-          if (Number.isFinite(coverage) && coverage < 2) {
-            lowCoverageRows.push({ name: productName, stock, sales: salesForCoverage, coverage });
-          }
+        // Coverage is a time measure. Prefer the source's own stockout period;
+        // otherwise derive days from current stock / daily sales rate.
+        let coverageDays: number | null = null;
+        let coverageBasis = '';
+        if (sourceStockoutDays != null && Number.isFinite(sourceStockoutDays)) {
+          coverageDays = sourceStockoutDays;
+          coverageBasis = 'stockoutDaysField=' + stockoutDaysKey;
+        } else if (dailyRate != null && dailyRate > 0) {
+          coverageDays = stock / dailyRate;
+          coverageBasis = 'stockField=' + stockKey + ' dailySalesField=' + dailyRateKey;
+        }
+        if (coverageDays != null && Number.isFinite(coverageDays) && coverageDays >= 0 && coverageDays <= 30) {
+          lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage ?? 0, coverageDays, basis: coverageBasis });
         }
         if (dateKey && salesForCoverage != null && salesForCoverage > 0) {
           const date = parseDateValue(rowValue(row.data, dateKey));
@@ -494,11 +503,11 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       if (lowCoverageRows.length > 0) {
         const coverageSample = lowCoverageRows
           .slice()
-          .sort((a, b) => a.coverage - b.coverage)
+          .sort((a, b) => a.coverageDays - b.coverageDays)
           .slice(0, 5)
-          .map(item => item.name + ':' + item.coverage.toFixed(2))
+          .map(item => item.name + ':' + item.coverageDays.toFixed(1) + ' يوم')
           .join('، ');
-        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + item.sales, 0);
+        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + (Number(item.demand) || 0), 0);
         const allSales = rows.reduce((sum, row) => {
           const value = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
           return sum + (value != null && value > 0 ? value : 0);
@@ -506,8 +515,9 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         const affectedSalesShare = allSales > 0 ? Math.round((lowCoverageSales / allSales) * 100) : null;
         const coverageEvidence = [
           'stockField=' + stockKey,
-          'salesField=' + (netSalesKey || 'missing'),
-          'threshold=2.00 periods',
+          ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : []),
+          ...(stockoutDaysKey ? ['stockoutDaysField=' + stockoutDaysKey] : []),
+          'coverageThresholdDays=30',
           'affectedRows=' + lowCoverageRows.length,
           'sample=' + coverageSample,
           ...(affectedSalesShare == null ? [] : ['affectedSalesShare=' + affectedSalesShare + '%']),
@@ -526,7 +536,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
               'inventory:demand-pressure-low-coverage',
               'high',
               'الطلب يرتفع بينما التغطية قصيرة',
-              'ارتفع متوسط الطلب في الجزء الأحدث من السلسلة بنحو ' + acceleration + '% مقارنة بالبداية، وفي الوقت نفسه يوجد ' + lowCoverageRows.length + ' سجلًا بتغطية أقل من فترتين؛ هذا يجعل مراجعة إعادة الطلب أولوية تشغيلية.',
+              'ارتفع متوسط الطلب في الجزء الأحدث من السلسلة بنحو ' + acceleration + '% مقارنة بالبداية، وفي الوقت نفسه يوجد ' + lowCoverageRows.length + ' سجلًا بتغطية لا تتجاوز 30 يومًا؛ هذا يجعل مراجعة إعادة الطلب أولوية تشغيلية.',
               [...coverageEvidence, 'earlyAverageSales=' + earlyAvg.toFixed(2), 'recentAverageSales=' + recentAvg.toFixed(2), 'demandAcceleration=' + acceleration + '%'],
               lowCoverageRows.length,
             );
@@ -537,8 +547,8 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
             signals,
             'inventory:low-coverage',
             'medium',
-            'أصناف بتغطية أقل من فترتين',
-            'يوجد ' + lowCoverageRows.length + ' سجلًا يملك رصيدًا أقل من ضعفي كمية المبيعات في نفس سجل المصدر؛ مراجعة إعادة الطلب مطلوبة قبل تحويل الإشارة إلى كمية شراء.',
+            'أصناف بتغطية لا تتجاوز 30 يومًا',
+            'يوجد ' + lowCoverageRows.length + ' سجلًا لا تتجاوز تغطيته 30 يومًا وفق فترة النفاد المصدرية أو الرصيد ÷ معدل البيع اليومي؛ مراجعة إعادة الطلب مطلوبة قبل تحويل الإشارة إلى كمية شراء.',
             coverageEvidence,
             lowCoverageRows.length,
           );
