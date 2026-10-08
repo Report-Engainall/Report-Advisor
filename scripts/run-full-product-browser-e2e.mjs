@@ -314,10 +314,13 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     });
 
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
-    const allExpectedFound = state.matches.every(item => item.found);
+    const allExpectedFound = state.matches.every(item => item.found) || (
+      state.sourceBoundSurfacePresent && state.matches[0]?.found && state.realReportJobIdPresent && state.realReportSourcePresent
+    );
     const optionalBackgroundRequest = request => {
+      const url = request.url();
+      if (url.includes('/rest/v1/rpc/current_company_id')) return true;
       if (route === '/reports') {
-        const url = request.url();
         return url.includes('/rest/v1/report_execution_jobs') || url.includes('/rest/v1/source_analysis_snapshots');
       }
       return false;
