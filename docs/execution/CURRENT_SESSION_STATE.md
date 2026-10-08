@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = da132f7ab29fb3f8a0d8ad718d511bea7e2d0a25
+CURRENT_EXACT_HEAD = 3b091638e391c16642739864ee11c7e8c43e39b0
 CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = da132f7ab29fb3f8a0d8ad718d511bea7e2d0a25
+CURRENT_EXECUTION_HEAD = 3b091638e391c16642739864ee11c7e8c43e39b0
 BRANCH = fix/generic-smart-report-cross-surface-20261008
 PR = #906
-CURRENT_PR_HEAD = da132f7ab29fb3f8a0d8ad718d511bea7e2d0a25
+CURRENT_PR_HEAD = 3b091638e391c16642739864ee11c7e8c43e39b0
 
 WHAT_ACTUALLY_HAPPENED
 - Added a canonical source-agnostic intelligence bridge inside fetchSmartReport for reports without an inferred business specialty.
@@ -26,7 +26,7 @@ CURRENT_OPEN_GATES
 - Same-head production deployment after certification.
 
 CURRENT_ACTIVE_FAILURE
-- XML repeated-row fallback and Node normalizer runtime issues were found by exact-head Quality/Browser runs and repaired on the current branch. Fresh gates must prove the repaired head.
+- Previous browser proof failed on heavy domain RPCs triggered before source-bound rendering, offset-based canonical reads, a benign current_company_id refresh wait, and an ambiguous Evidence Passport locator. All four causes are repaired on the current branch.
 - No production-current claim is made.
 
 ROOT_CAUSE
