@@ -253,7 +253,7 @@ function BusinessJourneyRail({
           <p className="mt-1 text-[10px] leading-5 text-ink-500">كل حالة هنا قراءة من المصدر والسجل الكانوني؛ لا تُعرض كتوقع أو حقيقة مالية غير مثبتة.</p>
         </div>
         <div className="max-w-xl rounded-xl border border-primary-200 bg-primary-50/60 px-3 py-2.5 text-[9px] font-black text-primary-900">
-          <span className="text-primary-700">NEXT EXACT ACTION</span>
+          <span className="text-primary-700">الخطوة العملية الآن</span>
           <div className="mt-1 leading-5">{nextAction}</div>
         </div>
       </div>
@@ -287,10 +287,10 @@ function BusinessJourneyRail({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[8px] font-black">
-        <span className="rounded-full bg-success-50 px-2.5 py-1 text-success-800">OBSERVED / PROVEN</span>
-        <span className="rounded-full bg-warning-50 px-2.5 py-1 text-warning-900">ATTENTION / ACTION</span>
-        <span className="rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">UNKNOWN / NOT AVAILABLE</span>
-        <span className="mr-auto rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">المصدر محفوظ للتدقيق</span>
+        <span className="rounded-full bg-success-50 px-2.5 py-1 text-success-800">مثبت من المصدر</span>
+        <span className="rounded-full bg-warning-50 px-2.5 py-1 text-warning-900">يحتاج انتباهًا</span>
+        <span className="rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">غير متاح / يحتاج مراجعة</span>
+        <span className="mr-auto rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">المصدر محفوظ للتتبع</span>
       </div>
     </section>
   );
@@ -373,31 +373,31 @@ function SourceIntelligenceRibbon({ report }: { report: SmartReportDetail }) {
 
       <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
         <article className="rounded-xl border border-ink-200 bg-white p-3">
-          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">WHY NOW</div>
+          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">لماذا الآن؟</div>
           <div className="mt-1 text-[10px] font-black leading-5 text-ink-900">
             {recommendation?.whyNow ?? signal?.priorityReason?.[0] ?? 'لا توجد أولوية إضافية مثبتة.'}
           </div>
         </article>
         <article className="rounded-xl border border-ink-200 bg-white p-3">
-          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">SO WHAT</div>
+          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">ماذا يعني ذلك؟</div>
           <div className="mt-1 text-[10px] font-black leading-5 text-ink-900">
             {signal?.soWhat ?? recommendation?.impact ?? 'لا توجد دلالة تنفيذية إضافية مثبتة.'}
           </div>
         </article>
         <article className="rounded-xl border border-primary-200 bg-primary-50/60 p-3">
-          <div className="text-[8px] font-black tracking-[.12em] text-primary-700">WHAT NEXT</div>
+          <div className="text-[8px] font-black tracking-[.12em] text-primary-700">الخطوة التالية</div>
           <div className="mt-1 text-[10px] font-black leading-5 text-primary-950">
             {recommendation?.action ?? brief.recommendedAction ?? 'لا توجد توصية مصدرية كافية للاعتماد الآن.'}
           </div>
         </article>
         <article className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
-          <div className="text-[8px] font-black tracking-[.12em] text-amber-800">MEASURE</div>
+          <div className="text-[8px] font-black tracking-[.12em] text-amber-800">القياس</div>
           <div className="mt-1 text-[10px] font-black leading-5 text-amber-950">
             {recommendation?.measurement ?? brief.measurement ?? 'لا يوجد مقياس نتيجة مثبت بعد.'}
           </div>
         </article>
         <article className="rounded-xl border border-ink-200 bg-white p-3">
-          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">PROOF</div>
+          <div className="text-[8px] font-black tracking-[.12em] text-ink-400">الدليل</div>
           <div className="mt-1 text-[10px] font-black leading-5 text-ink-900">
             {evidenceCount > 0 ? evidenceCount + ' عناصر دليل مرتبطة بالإشارة/التوصية' : 'الدليل التفصيلي غير كافٍ لرفع الحكم.'}
           </div>
