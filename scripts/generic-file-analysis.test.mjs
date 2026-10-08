@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { parseFile } from '../src/lib/file-engine/adapters.ts';
 import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
+import { buildRenderedOutput } from '../src/lib/import/canonical-production-adapter.ts';
 
 function buffer(value) {
   return new TextEncoder().encode(value).buffer;
@@ -59,6 +60,27 @@ async function main() {
     assert.ok(intelligence.summary.length > 20, item.format + ' summary');
     assert.ok(intelligence.guidance.boundary.includes('لا يحوّل'), item.format + ' evidence boundary');
   }
+  const genericCanonicalRows = [
+    { rowNumber: 1, data: { stock: 12, note: 'عام', amount: 100 } },
+    { rowNumber: 2, data: { stock: 8, note: 'عام', amount: 120 } },
+    { rowNumber: 3, data: { stock: 6, note: 'عام', amount: 130 } },
+  ];
+  const genericRendered = buildRenderedOutput({
+    importId: 'generic-regression',
+    fileName: 'report.xlsx',
+    sourceHash: 'sha256:' + '1'.repeat(64),
+    entityType: 'generic:source-data',
+    rows: genericCanonicalRows.map((row) => ({
+      rowNumber: row.rowNumber,
+      data: row.data,
+      provenance: { sourceHash: 'sha256:' + '1'.repeat(64), lineageId: 'line-' + row.rowNumber },
+    })),
+    qualityScore: 90,
+    qualityApproved: true,
+  });
+  assert.equal(genericRendered.sourceSpecialty, null, 'generic canonical imports must not be force-classified from a single stock-like field');
+  assert.equal(genericRendered.sourceBound, true, 'generic canonical output must remain source-bound');
+
   console.log('GENERIC FILE ANALYSIS PASS');
 }
 
