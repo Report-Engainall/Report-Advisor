@@ -24,7 +24,7 @@ export function GenericFileIntelligenceCard({ intelligence, format }: { intellig
       <CardBody>
         <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
           <section className="rounded-2xl border border-ink-200 bg-ink-50/50 p-4">
-            <div className="flex items-center gap-2 text-[10px] font-black tracking-[.08em] text-primary-700"><FileSearch size={14}/> SOURCE-AGNOSTIC READ</div>
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-[.08em] text-primary-700"><FileSearch size={14}/> قراءة محايدة للمصدر</div>
             <h3 className="mt-2 text-base font-black text-ink-950">{brief.headline}</h3>
             <p className="mt-2 text-sm leading-6 text-ink-600">{intelligence.summary}</p>
             {evidence.length ? (
