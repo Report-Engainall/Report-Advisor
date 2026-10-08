@@ -139,7 +139,7 @@ try {
     null,
     { timeout: 15000 },
   );
-  const customerBody = (await page.locator('body').innerText()).replace(/\\s+/g, ' ').trim();
+  const customerBody = (await page.locator('body').innerText()).replace(/\s+/g, ' ').trim();
   const customerRequired = [
     'customer-portfolio.xlsx',
     'عملاء مهمون مصنّفون في المصدر كمنقطعين',
