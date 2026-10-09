@@ -215,10 +215,12 @@ function PublicOrAuthenticatedWorkspace() {
   const authQuery = query.get('auth') === '1';
   const isPublicSmartReportDemo = location.pathname === '/reports/smart/demo' || location.pathname === '/reports/smart/demo/';
 
+  if (location.pathname === '/import/analyze') return <ExternalFileAnalysisPage />;
+  if (location.pathname === '/import') return <AuthGate><AppShell /></AuthGate>;
   if (authQuery) return <AuthGate />;
   if (isPublicSmartReportDemo) return <PublicSmartReportDemoPage />;
   if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview) return <ProposalDemoPage />;
   return <AuthGate><AppShell /></AuthGate>;
 }
 
-export default function App() { return <LanguageProvider><BrowserRouter basename={import.meta.env.BASE_URL}><AppErrorBoundary><Routes><Route path="/proposal-demo" element={<ProposalDemoPage />} /><Route path="/try-report" element={<ExternalFileAnalysisPage />} /><Route path="/import/analyze" element={<ExternalFileAnalysisPage />} /><Route path="/import" element={<AuthGate><AppShell /></AuthGate>} /><Route path="*" element={<PublicOrAuthenticatedWorkspace />} /></Routes></AppErrorBoundary></BrowserRouter></LanguageProvider>; }
+export default function App() { return <LanguageProvider><BrowserRouter basename={import.meta.env.BASE_URL}><AppErrorBoundary><Routes><Route path="/proposal-demo" element={<ProposalDemoPage />} /><Route path="/try-report" element={<ExternalFileAnalysisPage />} /><Route path="*" element={<PublicOrAuthenticatedWorkspace />} /></Routes></AppErrorBoundary></BrowserRouter></LanguageProvider>; }
