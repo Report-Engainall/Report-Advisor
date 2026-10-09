@@ -1,16 +1,50 @@
-SESSION HANDOFF = READY
+SESSION HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
-CURRENT_CODE_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
+CURRENT_EXACT_HEAD = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
+CURRENT_CODE_HEAD = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
+CURRENT_EXECUTION_HEAD = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912
-CURRENT_PR_HEAD_AT_CODE_CHECK = 447d1009caa6279faf5664da932c1f25addb8594
-UPDATED_AT = 2026-10-10T00:42:00+03:00
+CURRENT_PR_HEAD_AT_CODE_CHECK = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
+UPDATED_AT = 2026-10-10T00:44:00+03:00
 PRODUCT_COMPLETE = NO
 
-## LIVE EXECUTION CHECKPOINT — 2026-10-10 — REPORT VISIBILITY REPAIR
+
+
+## LIVE CHECKPOINT — 2026-10-10 00:44 — HEAD RECONCILIATION
+
+- Repository: https://github.com/Report-Engainall/Report-Advisor
+- PR #912 remains OPEN / NOT MERGED: https://github.com/Report-Engainall/Report-Advisor/pull/912
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Current code baseline reviewed and tested by workflow orchestration: `99d1adfb5bc6df409243f47f0ebb8e53b4808262`; parent: `3e46dd17511533bbbab77578b39c403058002020`.
+- Main at last live PR metadata read: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- This commit corrects `scripts/check-session-handoff-contract.mjs`: the changed-path line split was over-escaped. It now splits using the actual newline expression `/\r?\n/`, rather than matching literal backslash sequences.
+- The previous Session Handoff Contract run failed on head `3e46dd17511533bbbab77578b39c403058002020`: run [37994951056](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37994951056). Its log said `SESSION_HANDOFF_CONTRACT_FAIL: stale report`; state/report still pointed to `447d1009caa6279faf5664da932c1f25addb8594`. The failure is recorded as historical; a fresh post-fix PASS is not claimed.
+- A documentation-only commit follows this code baseline so the next contract run can evaluate a report whose `REPORT_FOR_HEAD` is an ancestor of the tested HEAD and whose changed paths are only governance documents.
+- Latest exact-head runs observed on `99d1adfb5bc6df409243f47f0ebb8e53b4808262`: Session Handoff Contract [37995180640](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180640) QUEUED; Full Product Browser E2E [37995180514](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180514) QUEUED; Product Build Gate [37995180426](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180426) QUEUED; Quality [37995180504](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180504) QUEUED; Commercial Product Creation E2E [37995180499](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180499) QUEUED; Device-Independent Browser E2E [37995180266](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180266) QUEUED; Phase-F Live Resilience [37995180352](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180352) PENDING.
+- Netlify and Vercel deployment statuses for this baseline were PENDING at the last read. A success on parent `3e46dd1` is not promoted to the current code baseline.
+- Browser upload→canonical import→persist→catalog→details→refresh/re-login is NOT PROVEN on this code baseline. Older-head persistence IDs and browser attempts remain historical only.
+- A–J universal-file matrix: no full end-to-end matrix pass is claimed. Unknown formats must stay evidence-bounded. No claims about unobserved causal impact, financial benefit, prediction, or benchmark.
+- Security remains fail-closed: no AuthGate/RLS bypass, no default tenant, no fabricated membership, and no cross-source/cross-tenant mixing.
+
+### Gate separation at this checkpoint
+
+| Gate | Current status | Evidence |
+|---|---|---|
+| CONTRACT / CI | PENDING after the handoff regex correction | Fresh current-baseline CI queued; previous handoff failure linked above |
+| BUILD | PENDING | [Product Build Gate](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180426) queued |
+| BROWSER | NOT PROVEN | [Full Product Browser E2E](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995180514) queued |
+| PERSISTENCE + READBACK | PRIOR-HEAD ONLY | Current-head upload and database readback journey not yet demonstrated |
+| RUNTIME / PREVIEW | PENDING for current baseline | Deployment status pending at last read; previous preview status is not current proof |
+| PRODUCTION | NOT PROVEN | Published production SHA remains historical/stale; no matching production smoke evidence |
+| PRODUCT_COMPLETE | NO | Required customer journey and matrix are open |
+
+NEXT_EXACT_ACTION = Read the first terminal result from the exact-head workflow set after the governance-only state sync; on failure, inspect that job's full log and fix only the first proven root cause. Do not re-run queued jobs or promote older-SHA evidence.
+DO_NOT_MERGE = true
+
+
+## HISTORICAL CHECKPOINT — 2026-10-10 00:42 — REPORT VISIBILITY REPAIR (superseded by the HEAD reconciliation above)
 
 ### Exact state
 - Repository: https://github.com/Report-Engainall/Report-Advisor
