@@ -11,6 +11,20 @@ const releaseCertification = read('.github/workflows/release-certification.yml')
 const jkl = read('.github/workflows/j-k-l-runtime-wave.yml');
 const autonomy = read('.github/workflows/autonomy-safety-wave.yml');
 const phaseF = read('.github/workflows/phase-f-live-resilience.yml');
+const browserE2E = read('.github/workflows/full-product-browser-e2e.yml');
+
+if (!browserE2E.includes('group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref }}')) throw new Error('Full product browser E2E must coalesce runs by PR/ref.');
+if (!browserE2E.includes('cancel-in-progress: true')) throw new Error('Full product browser E2E must cancel stale candidate runs.');
+if (!browserE2E.includes('id: provision_actors') || !browserE2E.includes('id: open_real_report')) throw new Error('Browser E2E prerequisites require stable step IDs.');
+if (!browserE2E.includes("steps.provision_actors.outcome == 'success' && steps.open_real_report.outcome == 'success'")) throw new Error('Expensive browser stages must be gated on successful actor provisioning and real-report proof.');
+if (!browserE2E.includes("steps.authenticated_route_proof.outcome == 'success'")) throw new Error('Business journey must not run without authenticated route proof.');
+
+const buildGate = read('.github/workflows/product-build-gate.yml');
+const cleanupContract = read('scripts/cancel-stale-pr-workflow-runs-contract.test.mjs');
+if (!buildGate.includes('group: product-build-gate-${{ github.event.pull_request.number || github.ref }}')) throw new Error('Product build gate must coalesce by PR/ref.');
+if (!buildGate.includes('cancel-in-progress: true')) throw new Error('Product build gate must cancel superseded candidates.');
+if (!buildGate.includes('scripts/cancel-stale-pr-workflow-runs.mjs')) throw new Error('Product build gate must run bounded stale-PR cleanup.');
+if (!cleanupContract.includes('CLEANUP_MUST_BE_SCOPED_TO_THE_CURRENT_PR')) throw new Error('Stale-run cleanup must remain scoped to the current pull request.');
 
 const requiredQualityGates = [
   'test:phase-k-runtime',

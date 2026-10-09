@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/report-value-cohort.mjs'
+      - 'scripts/report-value-cohort-retry-contract.test.mjs'
+      - 'scripts/report-value-cohort-scope-contract.test.mjs'
       - 'scripts/report-evidence-passport-contract.test.mjs'
       - 'src/lib/report-decisions.ts'
       - 'src/lib/decision-automation/vertical-slice-runtime.ts'
@@ -52,7 +54,15 @@ jobs:
       - name: Run passport contract
         run: npm run test:report-evidence-passport-contract
 
+      - name: Validate bounded cohort retry policy
+        run: node scripts/report-value-cohort-retry-contract.test.mjs
+
+      - name: Validate explicit cohort tenant scope
+        run: node scripts/report-value-cohort-scope-contract.test.mjs
+
       - name: Run 40-report business value cohort
+        env:
+          REPORT_ADVISOR_COHORT_COMPANY_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
         shell: bash
         run: |
           set -euo pipefail

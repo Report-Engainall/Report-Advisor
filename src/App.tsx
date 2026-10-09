@@ -7,8 +7,9 @@ import { AuthGate } from '@/components/AuthGate';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ProductJourneyNav } from '@/components/ProductJourneyNav';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
-import { DashboardPage } from '@/pages/DashboardPage';
+
 const ScenarioTruthGuardPage = lazy(() => import('@/pages/ScenarioTruthGuardPage').then(m => ({ default: m.ScenarioTruthGuardPage })));
+const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 import { markAlertRead } from '@/lib/queries';
 import { fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { getAuthenticatedUser } from '@/lib/auth-session';

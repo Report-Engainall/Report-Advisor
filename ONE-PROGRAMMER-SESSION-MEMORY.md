@@ -1,3 +1,18 @@
+# LIVE EXECUTION CHECKPOINT — 2026-10-09 / LIVE OPEN-REPORT ACTOR FIX e9271260
+- CURRENT CODE PARENT → `e9271260ac2b52f623023840fa3aabfaad572669` on `captain/critical-bundle-proof-20261009`; PR #911 OPEN / UNMERGED against main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- APP UI SOURCE → `2c4ef80717a6e7052373e721d2e0586115cc5efd`; no customer-visible UI changes in these proof-path fixes.
+- 8583448 → passport refresh has 25s request timeout, max 3 retries for retryable failures, progress records, logical duplicate suppression; actor audit read errors are explicit.
+- e9271260 → real-open-report proof now uses TEST_USER_C_EMAIL/PASSWORD. The provisioning workflow gives user C default membership in REAL_SMART_REPORT_COMPANY_ID; user A is in RUNTIME-EVIDENCE-A-401117. Prior proof used A for a report belonging to the other tenant, so current-company filtering could hide the real report.
+- CONTRACT → scripts/e2e-actor-provisioning-contract.test.mjs asserts the real-report proof uses C and C is assigned to the target report tenant.
+- BUILD / QUALITY → PASS at ancestor 8583448 (runs 37876282142 and 37876282183); HANDOFF / EXECUTION ENFORCEMENT → PASS at ancestor 419e4e6 (37876658311 and 37876654255). These are historical predecessor results, not exact-e927 proof.
+- LATEST e927 RUNS → Full Product Browser 37876852731 in progress; Product Build 37876857478 queued; Quality 37876857607 queued; Device E2E 37876857500 queued; Session Handoff 37876857440 queued; Final Certification 37876857543 queued; Phase F 37876857595 pending.
+- PREVIOUS Full Browser 37876278794 at 858 failed actor setup and open-report proof; passport refresh and 48/48 steps skipped after the earlier blocking failure. The user-C correction needs a new exact-head browser result.
+- PRODUCT GAPS → authenticated live report, exact jobId/sourceHash continuity, safe XLSX upload, full upload→decision/work/outcome, 48/48 real-source archetype proof, Phase F READY and production proof all NOT PROVEN.
+- PREVIEW → `https://deploy-preview-911--aghbari-report-advisor.netlify.app`; the last proved metadata SHA was 8583448, and e927/current docs successor must be re-read. Preview content is fixture-backed, not live customer data.
+- RESOURCE GUARD → no Remote Desktop; retain the remaining 20% free allowance. No paid agent/build runs; do not weaken auth/RLS or evidence gates.
+- NEXT EXACT ACTION → read back the next docs-only checkpoint, then verify latest-head Session Handoff and Final Certification and inspect Full Product Browser 37876852731, Product Build 37876857478, Quality 37876857607, Device E2E 37876857500 and Phase F 37876857595. Make the next repair only from an explicit terminal error.
+- CHECKPOINT STAMP → 2026-10-09T05:56:00+03:00
+
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / AUTH PROVISIONING ROOT FIX + EXACT-HEAD HANDOFF
 - CURRENT DOCUMENTATION HEAD → 79c2b4798dceea4a37159e94303bafd7d4382393.
 - CURRENT PRODUCT CODE HEAD → f95d5f2ead0a186bf783f20c81d3351988baf292.

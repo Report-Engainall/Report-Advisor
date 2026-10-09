@@ -9,7 +9,12 @@ on:
     branches: [main]
 
 permissions:
+  actions: write
   contents: read
+
+concurrency:
+  group: product-build-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-contracts:
@@ -21,6 +26,18 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Validate bounded stale-run cleanup
+        run: node scripts/cancel-stale-pr-workflow-runs-contract.test.mjs
+      - name: Cancel obsolete runs for this pull request
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_API_URL: ${{ github.api_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_BRANCH: ${{ github.head_ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/cancel-stale-pr-workflow-runs.mjs
       - name: Install dependencies
         run: npm ci
       - name: Typecheck

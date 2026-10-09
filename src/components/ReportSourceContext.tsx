@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, CheckCircle2, CircleAlert, ShieldCheck } from 'lucide-react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchSmartReport, fetchSmartReportCatalog, fetchSmartReportCatalogPage, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useReportContext } from '@/components/ReportContext';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
@@ -86,6 +86,25 @@ export function ReportSourceContext() {
   const [report, setReport] = useState<SmartReportDetail | null>(() => cacheKey ? REPORT_CONTEXT_CACHE.get(cacheKey) ?? null : null);
   const [error, setError] = useState<string | null>(null);
   const [contextResolving, setContextResolving] = useState(false);
+  const [recentReports, setRecentReports] = useState<SmartReportCatalogItem[]>([]);
+  const [recentReportsLoading, setRecentReportsLoading] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === '/reports' || location.pathname.startsWith('/reports/smart/')) {
+      setRecentReports([]);
+      setRecentReportsLoading(false);
+      return;
+    }
+    let active = true;
+    setRecentReportsLoading(true);
+    void fetchSmartReportCatalogPage(6, 0, { signal: AbortSignal.timeout(12000) })
+      .then((page) => { if (active) setRecentReports(page.reports); })
+      .catch((cause) => {
+        if (active) console.warn('[ReportSourceContext] recent smart report navigation unavailable', cause);
+      })
+      .finally(() => { if (active) setRecentReportsLoading(false); });
+    return () => { active = false; };
+  }, [location.pathname]);
 
   // Normalize the browser URL to the active report context. This closes the
   // exact failure mode where a global sidebar/journey link lands on a
@@ -195,6 +214,37 @@ export function ReportSourceContext() {
   const nextLifecycle = lifecycleIndex >= 0 ? lifecycle[lifecycleIndex] : null;
   return (
     <div className="mb-4 space-y-3">
+      {location.pathname !== '/reports' && !location.pathname.startsWith('/reports/smart/') ? (
+        <section dir="rtl" className="rounded-2xl border border-ink-200 bg-white/95 px-4 py-3 shadow-sm" aria-label="التقارير الذكية الأخيرة" data-testid="recent-smart-report-navigation">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-[10px] font-black text-ink-950">التقارير الذكية الأخيرة</div>
+              <p className="mt-0.5 text-[9px] text-ink-500">افتح أي تقرير من مصدره الأصلي؛ تبقى بصمة المصدر ومعرّف المهمة مرتبطين بالتنقل.</p>
+            </div>
+            <Link to="/reports" className="text-[10px] font-black text-primary-700 hover:text-primary-900">عرض كل التقارير ←</Link>
+          </div>
+          {recentReports.length > 0 ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {recentReports.map((item) => (
+                <Link
+                  key={item.jobId + ':' + item.sourceHash}
+                  data-testid="recent-smart-report-link"
+                  to={'/reports/smart/' + encodeURIComponent(item.jobId) + '?sourceHash=' + encodeURIComponent(item.sourceHash)}
+                  className="group flex min-w-0 items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2.5 transition hover:border-primary-300 hover:bg-primary-50/60"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-[10px] font-black text-ink-900" title={item.sourcePath}>{item.sourcePath || 'تقرير أعمال بدون اسم'}</span>
+                    <span className="mt-1 block truncate text-[9px] text-ink-500">{item.specialty ? (DOMAIN_PATHS[item.specialty]?.label ?? 'تحليل أعمال') : 'تحليل أعمال ذكي'} · {item.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(item.rowCount) + ' صف'}</span>
+                  </span>
+                  <span className="shrink-0 text-[9px] font-black text-primary-700 group-hover:translate-x-[-2px]">فتح ←</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-[9px] text-ink-500">{recentReportsLoading ? 'جارٍ تحميل التقارير الأخيرة…' : 'لا توجد تقارير أخيرة متاحة للعرض على هذه الشاشة.'}</p>
+          )}
+        </section>
+      ) : null}
       <section dir="rtl" className="rounded-[20px] border border-ink-200 bg-ink-950 p-3 text-white shadow-sm" aria-label="سلسلة ذكاء التقرير الحالية">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">

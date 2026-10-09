@@ -1,42 +1,60 @@
-SESSION HANDOFF = READY
+SESSION HANDOFF = READY_TO_RESUME
+CURRENT_EXACT_HEAD = 24a5e2434bb3a12ca487b2414909403fbda44c21
+CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
+CONTROL_PLANE_WRITEBACK_BASE = 24a5e2434bb3a12ca487b2414909403fbda44c21
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-BRANCH = ux/smart-report-commercial-20261008
-PR = #908
-CURRENT_PR_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
+BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
+COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
+OPERATING_PROTOCOL = docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md
+SUPERVISION_PROTOCOL = NOT FOUND at Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md on branch and main; use the verified captain/programmer protocol and do not fabricate the missing document.
+CANONICAL_SYSTEM_HEART = docs/SYSTEM_HEART.md (present)
+CANONICAL_EXECUTION_INDEX = docs/MASTER_EXECUTION_INDEX.md (present)
+CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
+BRANCH = captain/critical-bundle-proof-20261009
+PR = #911 OPEN / UNMERGED
+PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 24a5e2434bb3a12ca487b2414909403fbda44c21
+CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+APPLICATION_SOURCE_HEAD = 24a5e2434bb3a12ca487b2414909403fbda44c21
+NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = Last observed preview source SHA 9e8ea948a04d89037bafcfd475bacf56fcb8e10a, before latest report retry/CI changes. The preview is fixture-backed.
+UPDATED_AT = 2026-10-09T07:42:00+03:00
+NEXT_EXACT_ACTION = Poll code-head Build 37885083465, Quality 37885083556, Full Product Browser 37885083432, Handoff 37885083566, Certification 37885083643, Device E2E 37885083640, Report Value Cohort 37885083644, Product Creation 37885083654 and Data Quality Runtime 37885083552. All are queued/pending at last query. Confirm the loading-guard contract runs successfully; do not claim PASS until terminal. Auth 500/504 persists, so the product remains incomplete.
 
-WHAT_ACTUALLY_HAPPENED
-- Smart Report result-first executive surface is implemented: trust, records, evidence, decision readiness, result, risk, opportunity, action, with sourceHash/jobId kept as secondary audit metadata.
-- Removed 902 characters of redundant Smart Report CSS while preserving the strict performance budget. The critical budget was measured at 949.9KB and passed the 950KB ceiling in the preceding application proof.
-- Purchases now reads the canonical dashboard snapshot alongside purchase rows and exposes the shared report-truth state.
-- Product creation now uses bounded save/readback handling and authoritative tenant resolution.
-- Full Product Browser E2E now watches src/components/ProductCreateDialog.tsx so product-creation changes cannot bypass browser proof.
-- Governance state is being synchronized after the handoff guard correctly detected stale execution documents.
+LATEST EXECUTION DELTA — 2026-10-09 / SOURCE IDENTITY, CI RESOURCE GATES, RETRY TEST FIX
+- Exact application code/test head: 24a5e2434bb3a12ca487b2414909403fbda44c21. PR #911 OPEN / UNMERGED; main fa1ab4cbade9b01685507aa966c10f700a03f576. This checkpoint will be docs-only.
+- SmartReportPage and SourceBoundReportSurface bind visible report/error state to jobId + sourceHash, clear stale content, abort old requests and route retries through the same guarded effect.
+- Report Value Cohort requires explicit tenant scope, queries each company separately, de-duplicates source hashes, and does not retry PostgreSQL SQLSTATE 57014 / statement-timeout responses. Its five IDs mirror the established E2E_CORPUS_TENANT_IDS in the Full Product Browser workflow; the scope contract checks that the two lists match.
+- CI resource changes: Full Product Browser now coalesces runs by PR/ref and gates browser installation on successful actor provisioning + real-open-report proof; the business journey requires authenticated route proof. Quality also coalesces by PR/ref and cancels superseded candidates. The quality event-head check verifies the immutable second parent of the merge commit.
+- Latest UI cleanup removed one duplicated loading guard in SmartReportPage. Its first new assertion used a mis-escaped regex and was corrected at 24a5e2434bb3a12ca487b2414909403fbda44c21 to count the exact literal string. This contract has not yet returned a terminal CI result.
+- Static source/config audit on predecessor ac68f9f: 28/28 predicates passed by inspection only. This is not a Node test, build, browser or production PASS.
+- Latest current-head workflow IDs: Build 37885083465 QUEUED; Quality 37885083556 QUEUED; Full Browser 37885083432 PENDING; Handoff 37885083566 PENDING; Certification 37885083643 QUEUED; Device E2E 37885083640 QUEUED; Cohort 37885083644 QUEUED; Product Creation 37885083654 QUEUED; Data Quality Runtime 37885083552 QUEUED.
+- Supabase project dashboard reports ACTIVE_HEALTHY, but Auth /token and /admin/users returned HTTP 500/504 through 04:35 UTC from context timeout/cancellation and transaction startup errors. Direct SQL access timed out earlier.
+- Public preview remains fixture-bound to 28-inventory-stockout-reorder.csv; current code SHA is not verified in Netlify. Authenticated report, passport readback, 48/48 real-source archetypes, recommendation-to-outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
+CURRENT_PRODUCT_GOAL
+- Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.
+- Preserve tenant + report job + source hash lineage across screens.
+- Do not coerce missing numbers to zero or invent evidence, causes, benchmarks or outcomes.
+- Keep code/build, authenticated browser and production proof as separate states.
 
-WHAT_IS_PROVEN
-- Current execution checkout is 257c179eb2b68589eb341007fb51b5f035e6a1b4.
-- Immediate predecessor proof included Product Build PASS, Final Certification PASS, canonical truth PASS, UI route completeness PASS, Cloudflare compatibility PASS, Golden Evidence PASS, OCR PASS, and performance 949.9KB PASS.
-- Vercel previews were built from the same product branch during this wave.
-- Production currentness is NOT claimed.
+CURRENT_CODE_FIXES
+- 8583448ff6cdddabea2d1e83eae630802dd298fd: bounded timeout/retries and progress output in governed passport refresh; duplicate logical-job suppression; explicit audit query error handling.
+- e9271260ac2b52f623023840fa3aabfaad572669: real-open-report proof now uses TEST_USER_C, who is assigned default membership in REAL_SMART_REPORT_COMPANY_ID. Earlier code used user A from a different test tenant. Contract assertions cover the mapping.
+- These are proof-path and test-runner changes, not new customer-visible UI functionality.
 
-CURRENT_OPEN_GATES
-- Full Product Browser E2E.
-- Device-Independent Browser E2E.
-- Storage Tenant Runtime E2E.
-- Commercial Product Creation E2E.
-- Final Certification for any post-certification governance head.
-- Same-head merge to main and production proof.
+PROOF LEDGER
+- Exact code-head proof at 8583448: Product Build Gate 37876282142 PASS; Quality 37876282183 PASS; Execution Enforcement 37876278781 PASS. These are ancestor results, not exact e927 proof.
+- Exact documentation-head proof at 419e4e6: Session Handoff 37876658311 PASS; Execution Enforcement 37876654255 PASS. These are ancestor results.
+- Latest e927 at last check: Full Product Browser E2E 37876852731 IN PROGRESS; Product Build 37876857478 QUEUED; Quality 37876857607 QUEUED; Device E2E 37876857500 QUEUED; Session Handoff 37876857440 QUEUED; Final Certification 37876857543 QUEUED; Phase F 37876857595 PENDING.
+- Full Browser at 858 (37876278794): actor provisioning and real-open-report steps failed, so passport refresh/48-archetype steps were skipped; do not claim E2E PASS.
+- Phase F at 858 was cancelled. Phase F at 89181 previously ended NOT READY with tenant canary PASS, health/rollback STALE_RUNTIME and backup pg_dump ECHECKOUTTIMEOUT. Await current-head run.
+- Authenticated real report, jobId+sourceHash continuity, 48/48 real-source archetypes, full upload-to-decision, and production proof remain NOT PROVEN.
 
-CURRENT_ACTIVE_FAILURE
-- Previous blocker: Session Handoff Contract rejected stale governance coverage after application changes. No application defect is asserted from that governance failure.
-
-ROOT_CAUSE
-- CURRENT_SESSION_STATE.md and PROGRAMMER_CURRENT_REPORT.md still pointed to older execution heads after the Smart Report, purchases, product-save, and browser-trigger changes.
-
-NEXT_EXACT_ACTION = Consume terminal current-head Browser/Device/Storage/Commercial results; fix only the first terminal application failure; then merge PR #908 into #906, merge #906 to main, and prove same-head production.
-
+RESOURCE AND SAFETY
+- Do not use Remote Desktop; preserve the remaining 20% free allowance. No paid Vercel/Netlify agent runs without explicit permission.
+- Do not weaken auth, RLS, tenant isolation, evidence gates or data truth.
+- Public preview remains fixture-backed (28-inventory-stockout-reorder.csv), not live customer data.
+- PR #911 stays unmerged; PRODUCT COMPLETE = NO.
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
 - PR #905 merged successfully: source-agnostic external file analysis.

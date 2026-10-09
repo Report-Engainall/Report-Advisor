@@ -7,7 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState, userFacingE
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchSmartReport, fetchSmartReportCatalogPage, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { CustomerReportSurface } from '@/components/CustomerReportSurface';
@@ -144,6 +144,10 @@ export function ReportsCenterPage() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [smartReports, setSmartReports] = useState<SmartReportCatalogItem[]>([]);
+  const [catalogOffset, setCatalogOffset] = useState(0);
+  const [catalogHasMore, setCatalogHasMore] = useState(false);
+  const [catalogLoadingMore, setCatalogLoadingMore] = useState(false);
+  const [catalogLoadError, setCatalogLoadError] = useState<string | null>(null);
 
   const [primarySmartReport, setPrimarySmartReport] = useState<SmartReportDetail | null>(null);
 
@@ -153,8 +157,9 @@ export function ReportsCenterPage() {
 
     // The catalog is the authority for "latest report". A fixed historical
     // report job must never outrank a newer completed report from the tenant.
-    const catalogPromise = fetchSmartReportCatalog(
+    const catalogPromise = fetchSmartReportCatalogPage(
       60,
+      0,
       { signal: AbortSignal.timeout(12000) },
     );
     const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
@@ -166,8 +171,12 @@ export function ReportsCenterPage() {
     const [catalogRead, dashboardRead] = await Promise.allSettled([catalogPromise, dashboardPromise]);
 
     if (catalogRead.status === 'fulfilled') {
-      catalog = catalogRead.value;
+      const catalogPage = catalogRead.value;
+      catalog = catalogPage.reports;
       setSmartReports(catalog);
+      setCatalogOffset(catalogPage.nextOffset ?? catalogPage.scanned);
+      setCatalogHasMore(catalogPage.nextOffset !== null);
+      setCatalogLoadError(null);
       const selected = catalog[0] ?? null;
       if (selected) {
         window.sessionStorage.setItem('aghbari:last-smart-report-job', selected.jobId);
@@ -177,6 +186,9 @@ export function ReportsCenterPage() {
       firstFailure ??= catalogRead.reason;
       console.warn('[ReportsCenter] smart report catalog readback failed', catalogRead.reason);
       setSmartReports([]);
+      setCatalogOffset(0);
+      setCatalogHasMore(false);
+      setCatalogLoadError(null);
     }
 
     if (dashboardRead.status === 'fulfilled') {
@@ -228,6 +240,36 @@ export function ReportsCenterPage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  const loadMoreCatalog = useCallback(async () => {
+    if (!catalogHasMore || catalogLoadingMore) return;
+    setCatalogLoadingMore(true);
+    setCatalogLoadError(null);
+    try {
+      const page = await fetchSmartReportCatalogPage(
+        60,
+        catalogOffset,
+        { signal: AbortSignal.timeout(12000) },
+      );
+      setSmartReports((current) => {
+        const seen = new Set(current.map((report) => report.jobId + ':' + report.sourceHash));
+        const additions = page.reports.filter((report) => {
+          const key = report.jobId + ':' + report.sourceHash;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        return [...current, ...additions];
+      });
+      setCatalogOffset(page.nextOffset ?? catalogOffset + page.scanned);
+      setCatalogHasMore(page.nextOffset !== null);
+    } catch (cause) {
+      setCatalogLoadError(errorMessage(cause));
+    } finally {
+      setCatalogLoadingMore(false);
+    }
+  }, [catalogHasMore, catalogLoadingMore, catalogOffset]);
+
 
   if (loading) {
     return (
@@ -500,6 +542,29 @@ export function ReportsCenterPage() {
                 </Link>
               );
             })}
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 pt-4" data-testid="smart-report-catalog-pagination">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold text-ink-600">
+                تم تحميل {formatNumber(smartReports.length)} تقريرًا ذكيًا
+                {catalogHasMore ? ' — توجد تقارير أخرى في الصفحات التالية.' : ' — وصلنا إلى نهاية التقارير المتاحة.'}
+              </p>
+              {catalogLoadError ? <p className="mt-1 text-[10px] text-warning-700" role="alert">تعذر تحميل الصفحة التالية: {catalogLoadError}</p> : null}
+            </div>
+            {catalogHasMore ? (
+              <button
+                type="button"
+                data-testid="smart-report-catalog-load-more"
+                onClick={() => void loadMoreCatalog()}
+                disabled={catalogLoadingMore}
+                className="inline-flex items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-900 transition hover:bg-primary-100 disabled:cursor-wait disabled:opacity-60"
+              >
+                {catalogLoadingMore ? 'جارٍ تحميل التقارير…' : catalogLoadError ? 'إعادة المحاولة' : 'تحميل المزيد من التقارير الذكية'}
+              </button>
+            ) : (
+              <span data-testid="smart-report-catalog-end" className="rounded-full bg-ink-50 px-3 py-2 text-[9px] font-bold text-ink-500">تم تحميل كل التقارير المتاحة</span>
+            )}
           </div>
         </>
       )}

@@ -15,6 +15,8 @@ if (missing.length) {
 
 if (!workflow.includes('workflow_dispatch:')) throw new Error('Quality workflow must remain manually dispatchable.');
 if (!workflow.includes('npm ci --no-audit --no-fund')) throw new Error('Quality workflow must use locked, non-auditing dependency installation.');
+if (workflow.includes('git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}"')) throw new Error('Quality diagnostics must not reject an immutable run because the live PR ref advanced.');
+if (!workflow.includes("actual_merge_head=\"$(git show -s --format=%P HEAD | awk '{print $2}')\"")) throw new Error('Quality diagnostics must verify the PR head embedded in the merge commit.');
 if (!workflow.includes('npm run typecheck') || !workflow.includes('npm run lint') || !workflow.includes('npm run build')) throw new Error('Quality workflow must retain typecheck, lint, and build gates.');
 
 const requiredStageGroups = [
@@ -38,8 +40,9 @@ const concurrencyMatch = workflow.match(/concurrency:\s*\r?\n(?:\s*#.*\r?\n)*\s*
 if (!concurrencyMatch) throw new Error('Quality workflow must define an explicit concurrency policy.');
 const concurrencyGroup = concurrencyMatch[1].trim();
 const cancelInProgress = concurrencyMatch[2] === 'true';
-if (!/\$\{\{\s*github\.run_id\s*\}\}/.test(concurrencyGroup)) throw new Error('Quality workflow must define a unique per-run concurrency group.');
-if (cancelInProgress) throw new Error('Quality workflow must not cancel an in-flight verification run.');
+if (!/\$\{\{\s*github\.event\.pull_request\.number\s*\|\|\s*github\.ref_name\s*\}\}/.test(concurrencyGroup)) throw new Error('Quality workflow must group by PR/ref so stale candidates do not pile up.');
+if (!cancelInProgress) throw new Error('Quality workflow must cancel superseded candidates when a newer head arrives.');
+if (/\$\{\{\s*github\.run_id\s*\}\}/.test(concurrencyGroup)) throw new Error('Quality concurrency must not use a unique run ID that prevents stale-run cancellation.');
 if (!/timeout-minutes:\s*40/.test(workflow)) throw new Error('Quality workflow must retain an explicit 40-minute execution timeout.');
 
-console.log(`Quality workflow contract: PASS (${uniqueCommands.length} npm commands, ${requiredStageGroups.length} mandatory stage groups, per-run concurrency)`);
+console.log(`Quality workflow contract: PASS (${uniqueCommands.length} npm commands, ${requiredStageGroups.length} mandatory stage groups, per-PR latest-run concurrency)`);

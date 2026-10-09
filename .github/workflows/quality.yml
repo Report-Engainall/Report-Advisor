@@ -5,10 +5,9 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  # One authoritative quality run per PR/ref. A run_id in the group prevents
-  # cancellation, which lets stale merge-ref diagnostics race the current HEAD.
-  group: quality-${{ github.event.pull_request.number || github.ref_name }}-${{ github.run_id }}
-  cancel-in-progress: false
+  # Keep one latest quality run per PR/ref; superseded candidate runs no longer pile up.
+  group: quality-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-22.04
@@ -31,10 +30,12 @@ jobs:
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
-            actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
-            test -n "$actual_head"
-            test "$actual_head" = "$expected_head"
-            echo "PR_HEAD_SHA=$actual_head"
+            # Verify the immutable PR head embedded in this run's merge commit.
+            # Do not compare against the live branch ref: it can advance while this run is queued.
+            actual_merge_head="$(git show -s --format=%P HEAD | awk '{print $2}')"
+            test -n "$actual_merge_head"
+            test "$actual_merge_head" = "$expected_head"
+            echo "PR_HEAD_SHA=$actual_merge_head"
             echo "MERGE_REF_SHA=$GITHUB_SHA"
           else
             echo "CODE_HEAD_SHA=$(git rev-parse HEAD)"

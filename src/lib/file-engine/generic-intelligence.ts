@@ -70,6 +70,208 @@ function genericRecommendation(evidence: string[], context: string): ReportRecom
     limitation: 'الاستنتاج العام مبني على النص/القيم المتاحة؛ لا توجد دلالة تجارية مفترضة من اسم الملف فقط.',
   };
 }
+type StructuredTableProfile = {
+  summary: string;
+  headline: string;
+  finding: BusinessFinding;
+  signals: ReportSignal[];
+  recommendations: ReportRecommendation[];
+  inspect: string[];
+  statusCount: number;
+};
+
+function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null {
+  if (dataset.rowCount < 2 || dataset.columnCount < 2) return null;
+  const headerKey = (column: Dataset['columns'][number]) => normalize(column.mappedField || column.name).replace(/[()]/g, '');
+  const valueFor = (row: Record<string, unknown>, column: Dataset['columns'][number]) =>
+    row[column.name] ?? row[column.mappedField ?? ''];
+  const numericValue = (value: unknown): number | null => {
+    if (value === null || value === undefined || String(value).trim() === '') return null;
+    const parsed = typeof value === 'number' ? value : Number(String(value).replace(/,/g, '').trim());
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+  const numberLabel = (value: number) => value.toLocaleString('ar-YE', { maximumFractionDigits: 2 });
+  const find = (...aliases: string[]) => dataset.columns.find((column) => {
+    const key = headerKey(column);
+    return aliases.some((alias) => key.includes(normalize(alias).replace(/[()]/g, '')));
+  });
+  const entityColumn = find('customer_name', 'supplier_name', 'product_name', 'اسم العميل', 'اسم المورد', 'اسم المنتج', 'اسم الصنف', 'العميل', 'المورد');
+  const totalColumn = find('total', 'grand total', 'total amount', 'net_amount', 'الإجمالي الكلي', 'اجمالي الفاتورة', 'الإجمالي');
+  const statusColumn = find('customer_status', 'status', 'حالة الزبون', 'حالة العميل', 'الحالة');
+  const monthOrder = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+  const monthColumns = dataset.columns.map((column) => ({ column, key: headerKey(column) }))
+    .filter(({ column, key }) => key.startsWith('monthly_sales_') || /^(يناير|فبراير|مارس|ابريل|أبريل|مايو|يونيو|يوليو|اغسطس|أغسطس|سبتمبر|اكتوبر|أكتوبر|نوفمبر|ديسمبر)$/.test(normalize(column.name)))
+    .sort((a, b) => {
+      const index = (key: string) => monthOrder.findIndex((month) => key.includes(month));
+      return index(a.key) - index(b.key);
+    });
+  const numericColumns = dataset.columns.filter((column) =>
+    ['integer','decimal','currency','percentage'].includes(column.dataType),
+  );
+  const statusCounts = new Map<string, number>();
+  if (statusColumn) {
+    for (const row of dataset.rows) {
+      const value = String(valueFor(row, statusColumn) ?? '').trim();
+      if (value) statusCounts.set(value, (statusCounts.get(value) ?? 0) + 1);
+    }
+  }
+  const stoppedCount = [...statusCounts.entries()].reduce((sum, [label, count]) =>
+    /منقطع|متوقف|inactive|churn|lost/i.test(normalize(label)) ? sum + count : sum, 0);
+  const stoppedSamples = statusColumn && entityColumn
+    ? dataset.rows.filter((row) => /منقطع|متوقف|inactive|churn|lost/i.test(normalize(String(valueFor(row, statusColumn) ?? '')))).slice(0, 5)
+      .map((row) => String(valueFor(row, entityColumn) ?? 'سجل') + ' · ' + String(valueFor(row, statusColumn) ?? ''))
+    : [];
+  const monthStats = monthColumns.map(({ column }) => ({
+    label: column.name,
+    total: dataset.rows.reduce((sum, row) => sum + (numericValue(valueFor(row, column)) ?? 0), 0),
+    active: dataset.rows.filter((row) => (numericValue(valueFor(row, column)) ?? 0) > 0).length,
+  }));
+  const latest = monthStats[monthStats.length - 1];
+  const previous = monthStats.length > 1 ? monthStats[monthStats.length - 2] : undefined;
+  const change = previous && latest && previous.total !== 0 ? ((latest.total - previous.total) / Math.abs(previous.total)) * 100 : null;
+  const topRecords = entityColumn && totalColumn
+    ? [...dataset.rows].map((row) => ({ name: String(valueFor(row, entityColumn) ?? '').trim(), value: numericValue(valueFor(row, totalColumn)) }))
+      .filter((item) => item.name && item.value !== null)
+      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0))
+      .slice(0, 5)
+    : [];
+  const numericSummary = numericColumns.slice(0, 5).map((column) => {
+    const values = dataset.rows.map((row) => numericValue(valueFor(row, column))).filter((value): value is number => value !== null);
+    const sum = values.reduce((total, value) => total + value, 0);
+    const min = values.length ? Math.min(...values) : null;
+    const max = values.length ? Math.max(...values) : null;
+    return column.name + ': مجموع ' + numberLabel(sum) + (min !== null && max !== null ? ' · نطاق ' + numberLabel(min) + '–' + numberLabel(max) : '');
+  });
+  const statusSummary = [...statusCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
+    .map(([label, count]) => label + ': ' + count.toLocaleString('ar-YE'));
+  const portfolioLike = Boolean(entityColumn && statusColumn && (totalColumn || monthColumns.length >= 3));
+  const totalValue = totalColumn
+    ? dataset.rows.reduce((sum, row) => sum + (numericValue(valueFor(row, totalColumn)) ?? 0), 0)
+    : null;
+  const totalMismatchCount = rowsWithMonthlyAndStatedTotalPlaceholder(dataset, totalColumn, monthColumns, valueFor, numericValue);
+  const topEvidence = topRecords.map((item) => item.name + ' · ' + totalColumn?.name + ': ' + numberLabel(item.value ?? 0));
+  const inspect = [
+    'الصفوف ' + dataset.rowCount.toLocaleString('ar-YE') + ' · الأعمدة ' + dataset.columnCount.toLocaleString('ar-YE'),
+    'حقول رقمية/قابلة للقياس: ' + numericColumns.length.toLocaleString('ar-YE'),
+    ...numericSummary,
+    ...(portfolioLike ? ['ملف نشاط العملاء: ربط الحالة والقياسات الشهرية والإجمالي من العناوين المرصودة', 'حالة منقطع في المصدر: ' + stoppedCount.toLocaleString('ar-YE')] : []),
+    ...(statusSummary.length ? ['توزيع ' + statusColumn?.name + ': ' + statusSummary.join(' · ')] : []),
+    ...(totalValue !== null ? ['مجموع ' + totalColumn?.name + ': ' + numberLabel(totalValue) + ' (العملة كما في المصدر/غير مفترضة)'] : []),
+    ...(portfolioLike ? ['فحص الاتساق: ' + totalMismatchCount.toLocaleString('ar-YE') + ' سجلًا يختلف فيه الإجمالي عن مجموع الأشهر بأكثر من 1%'] : []),
+    ...monthStats.map((month) => month.label + ': مجموع ' + numberLabel(month.total) + ' · سجلات بقيمة موجبة ' + month.active.toLocaleString('ar-YE')),
+    ...(topEvidence.length ? ['أعلى السجلات حسب ' + totalColumn?.name + ': ' + topEvidence.join(' · ')] : []),
+    ...(change !== null && latest && previous ? ['التغير من ' + previous.label + ' إلى ' + latest.label + ': ' + (change >= 0 ? '+' : '') + numberLabel(change) + '%'] : []),
+  ];
+  const summary = portfolioLike
+    ? 'تحليل جدولي: ' + dataset.rowCount.toLocaleString('ar-YE') + ' سجلًا، ' + dataset.columnCount + ' عمودًا؛ ' + (statusColumn?.name ?? 'حالة') + ' يحتوي ' + stoppedCount.toLocaleString('ar-YE') + ' سجلًا مصنفًا كمنقطع/متوقف ضمن قيم المصدر. ' + (totalValue !== null ? ' مجموع ' + totalColumn?.name + ' = ' + numberLabel(totalValue) + '.' : '')
+    : 'تحليل جدولي فعلي: ' + dataset.rowCount.toLocaleString('ar-YE') + ' سجلًا و' + dataset.columnCount + ' عمودًا؛ جرى تلخيص ' + numericColumns.length + ' حقلًا رقميًا/قابلًا للقياس وعرض توزيع الحقول التصنيفية المتاحة.';
+  const headline = portfolioLike && stoppedCount
+    ? 'ملف نشاط العملاء: رُصدت ' + stoppedCount.toLocaleString('ar-YE') + ' سجلات تحمل حالة انقطاع/توقف كما وردت في المصدر؛ يلزم التحقق من تعريف الحالة وتاريخ آخر تعامل.'
+    : portfolioLike
+      ? 'تم تحليل ملف نشاط العملاء وربط قيم الإجمالي والتصنيف وحالة العميل والأشهر الموجودة في المصدر.'
+      : 'تم بناء ملخص للجدول من قيمه الفعلية، مع فصل القياسات الرقمية عن التصنيفات النصية.';
+  const finding: BusinessFinding = {
+    id: portfolioLike ? 'generic:table:customer-portfolio' : 'generic:table:profile',
+    kind: portfolioLike && stoppedCount ? 'RISK' : 'FINDING',
+    priority: portfolioLike && stoppedCount ? 'high' : 'medium',
+    title: portfolioLike ? 'ملف نشاط العملاء' : 'ملخص الجدول المستخرج',
+    statement: headline,
+    evidence: [...statusSummary, ...topEvidence, ...monthStats.slice(-2).map((month) => month.label + ': ' + numberLabel(month.total))].slice(0, 8),
+    limitation: 'هذا الوصف مشتق من القيم والعناوين الظاهرة؛ لا يفترض عملة أو سببًا أو أثرًا غير موجود في الملف.',
+    action: portfolioLike && stoppedCount
+      ? 'راجع عينة السجلات المصنفة بالانقطاع وتحقق من آخر تعامل قبل اعتماد قائمة استعادة العملاء.'
+      : 'راجع مجموعات القيم وأعلى/أدنى القياسات وثبّت تعريف الأعمدة قبل اعتماد أي أثر تجاري.',
+  };
+  const signals: ReportSignal[] = [{
+    id: 'generic:table:structure',
+    severity: 'low',
+    title: 'تم تحليل بنية الجدول وقياساته',
+    message: 'تم فحص ' + dataset.rowCount.toLocaleString('ar-YE') + ' صفًا و' + dataset.columnCount + ' عمودًا؛ القياسات المعروضة محسوبة من القيم الموجودة.',
+    evidence: inspect.slice(0, 6),
+    affectedRows: dataset.rowCount,
+    soWhat: 'يوفر هذا ملخصًا يمكن تتبعه إلى الحقول والصفوف الأصلية بدل الاقتصار على اقتباسات من النص.',
+    impact: 'لا يُثبت أثرًا ماليًا أو سببيًا دون سياق عمل موثق.',
+    ownerHint: 'مالك التقرير أو مسؤول البيانات',
+    priority: 'P3',
+    priorityReason: ['rows=' + dataset.rowCount, 'columns=' + dataset.columnCount],
+  }];
+  if (portfolioLike && stoppedCount > 0) signals.push({
+    id: 'generic:table:source-status',
+    severity: stoppedCount / dataset.rowCount >= 0.2 ? 'high' : 'medium',
+    title: 'حالات انقطاع/توقف واردة في المصدر',
+    message: 'رُصدت ' + stoppedCount.toLocaleString('ar-YE') + ' سجلات تحمل تصنيف انقطاع/توقف. هذا تعداد للتصنيف الموجود وليس إثباتًا لسبب الانقطاع.',
+    evidence: [...statusSummary, ...stoppedSamples],
+    affectedRows: stoppedCount,
+    soWhat: 'يمكن توجيه المراجعة إلى هذه السجلات بعد التحقق من تاريخ آخر تعامل وتعريف الحالة.',
+    impact: 'القيمة المفقودة أو المبيعات المستعادة غير مثبتة من هذه الحالة وحدها.',
+    ownerHint: 'المالك الوظيفي لحسابات العملاء',
+    priority: stoppedCount / dataset.rowCount >= 0.2 ? 'P1' : 'P2',
+    priorityReason: ['source_status_count=' + stoppedCount, 'source_rows=' + dataset.rowCount],
+  });
+  const recommendations: ReportRecommendation[] = [{
+    id: portfolioLike ? 'generic:table:review-status' : 'generic:table:validate-profile',
+    status: 'PROPOSED',
+    priority: portfolioLike && stoppedCount ? 'high' : 'medium',
+    title: portfolioLike ? 'تحقق من حالات العملاء قبل الإجراء' : 'اعتماد تعريفات القياس قبل القرار',
+    action: portfolioLike && stoppedCount
+      ? 'تحقق من آخر فاتورة وتاريخ شراء وتعريف «منقطع» لكل سجل، ثم وثّق نتيجة المراجعة قبل بدء إجراء استعادة.'
+      : 'راجع تعريف الحقول الرقمية والتصنيفية، ثم ثبّت المؤشرات ذات الصلة بسؤال العمل قبل تحويلها إلى قرار.',
+    why: headline,
+    evidence: [...statusSummary, ...stoppedSamples, ...topEvidence].slice(0, 8),
+    ownerHint: portfolioLike ? 'مدير المبيعات / مسؤول حسابات العملاء' : 'مالك التقرير أو مسؤول البيانات',
+    impact: 'لا يُدّعى أثر مالي قبل وجود قياس بعد التنفيذ.',
+    expectedOutcome: 'سجلات مصنفة ومراجعة مع قرار قابل للتتبع وقياس قبل/بعد.',
+    whyNow: 'التصنيفات والقيم موجودة أصلًا في المصدر ويمكن التحقق منها دون افتراض سبب.',
+    measurement: 'عدد السجلات التي تمت مراجعتها، والتغييرات المؤكدة في المؤشر المختار بعد التنفيذ.',
+    risk: 'قد يكون التصنيف قديمًا أو معرفًا بطريقة مختلفة داخل الجهة.',
+    blocker: 'تحتاج الحالة إلى تعريف داخلي وتاريخ آخر تعامل لإثبات الانقطاع الفعلي.',
+    limitation: 'النتائج وصفية ومشتقة من القيم المرصودة فقط؛ لا توجد مقارنة خارجية أو عملة مفترضة.',
+  }];
+  if (portfolioLike && totalMismatchCount > 0) {
+    recommendations.push({
+      id: 'generic:table:reconcile-totals', status: 'PROPOSED', priority: 'medium',
+      title: 'طابق الإجمالي مع مجموع الفترات', action: 'أعد حساب مجموع الفترات لكل سجل وقارنه بحقل الإجمالي؛ راجع الفروق المتجاوزة لحد السماح قبل اعتماد أرقام التقرير.',
+      why: 'وجود الإجمالي مع أعمدة شهرية يتيح اختبار اتساق حسابي من نفس المصدر.',
+      evidence: inspect.filter((item) => item.includes('إجمالي') || item.includes('فحص الاتساق')).slice(0, 4),
+      ownerHint: 'المحاسبة / مالك التقرير', impact: 'تصحيح الفروق المثبتة قبل اعتماد المجموع.', expectedOutcome: 'إجمالي يمكن إعادة احتسابه من تفاصيل الفترات.',
+      whyNow: 'المصدر يحتوي الإجمالي والتفاصيل الشهرية معًا.', measurement: 'عدد السجلات التي تجاوز فرقها حد السماح قبل التصحيح وبعده.',
+      risk: 'قد تعتمد بعض التقارير نطاق فترات أو قواعد استثناء مختلفة.', blocker: 'تعريف حدود المجموع والإعفاءات غير مرفق.', limitation: 'الاختبار الحسابي لا يثبت صحة المعاملة الأصلية.',
+    });
+  }
+  if (portfolioLike && change !== null && latest && previous) recommendations.push({
+    id: 'generic:table:review-monthly-change', status: 'PROPOSED',
+    priority: Math.abs(change) >= 20 ? 'high' : 'medium',
+    title: 'راجع تغير آخر فترتين في المصدر',
+    action: 'تحقق من سبب تغير الإجمالي بين ' + previous.label + ' و' + latest.label + ' واربط التفسير بفواتير/تعاملات الفترة قبل اعتماده كاتجاه مستمر.',
+    why: 'تم حساب التغير من إجمالي القيم في عمودي الفترتين الموجودين.',
+    evidence: [previous.label + ': ' + numberLabel(previous.total), latest.label + ': ' + numberLabel(latest.total), 'التغير المحسوب: ' + (change >= 0 ? '+' : '') + numberLabel(change) + '%'],
+    ownerHint: 'مدير المبيعات / المحلل المالي', impact: 'يساعد على توجيه المراجعة ولا يثبت سبب التغير.',
+    expectedOutcome: 'تفسير موثق للفترة وتحديد ما إذا كان التغير يحتاج متابعة.',
+    whyNow: 'آخر فترتين متاحتين تسمحان بقياس تغيير وصفي مباشر.',
+    measurement: 'إعادة حساب التغير على فترات متقابلة ومقارنته بعدد الفواتير/العملاء النشطين.',
+    risk: 'قد تختلف أطوال الفترات أو يتأثر الإجمالي بالموسمية.', blocker: 'لا توجد بيانات تفسيرية للأسباب في الجدول وحده.',
+    limitation: 'اتجاه فترتين ليس تنبؤًا ولا يثبت سببًا.',
+  });
+  return { summary, headline, finding, signals, recommendations, inspect, statusCount: stoppedCount };
+}
+
+function rowsWithMonthlyAndStatedTotalPlaceholder(
+  dataset: Dataset,
+  totalColumn: Dataset['columns'][number] | undefined,
+  monthColumns: Array<{ column: Dataset['columns'][number]; key: string }>,
+  valueFor: (row: Record<string, unknown>, column: Dataset['columns'][number]) => unknown,
+  numericValue: (value: unknown) => number | null,
+): number {
+  if (!totalColumn || !monthColumns.length) return 0;
+  return dataset.rows.filter((row) => {
+    const stated = numericValue(valueFor(row, totalColumn));
+    const monthlyValues = monthColumns.map(({ column }) => numericValue(valueFor(row, column)));
+    if (stated === null || !monthlyValues.some((value) => value !== null)) return false;
+    const monthly = monthlyValues.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+    return Math.abs(stated - monthly) > Math.max(1, Math.abs(stated) * 0.01);
+  }).length;
+}
+
 export function buildGenericFileIntelligence(dataset: Dataset, format: string): ReportIntelligence {
   const lines = datasetText(dataset);
   const allText = lines.join('\n');
@@ -82,8 +284,9 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   const actionCount = countMatches(lines, ACTION_TERMS);
   const dateCount = (allText.match(/\b(?:\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b/g) ?? []).length;
   const base = deriveReportIntelligence({ specialty: null, rowCount: dataset.rowCount, sourceAnalysis: { datasets: [dataset] }, canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })) });
-  const signals: ReportSignal[] = [];
-  if (riskLines.length) {
+  const tableProfile = profileStructuredTable(dataset);
+  const signals: ReportSignal[] = tableProfile ? [...tableProfile.signals] : [];
+  if (!tableProfile && riskLines.length) {
     const severity = riskCount >= 5 ? 'high' : riskCount >= 2 ? 'medium' : 'low';
     signals.push({
       id: 'generic:file:risk-language', severity, title: 'إشارات مخاطر أو استثناءات داخل المحتوى',
@@ -94,7 +297,7 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
       priority: severity === 'high' ? 'P1' : 'P2', priorityReason: ['risk_terms=' + riskCount, 'evidence_lines=' + riskLines.length],
     });
   }
-  if (actionLines.length) {
+  if (!tableProfile && actionLines.length) {
     signals.push({
       id: 'generic:file:action-language', severity: riskLines.length ? 'medium' : 'low', title: 'لغة قرار أو إجراء داخل الملف',
       message: 'رُصدت ' + actionCount + ' إشارات مرتبطة بالإجراء/المراجعة/الاعتماد.',
@@ -117,21 +320,31 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   const keywordEvidence = keywords.map((item) => item.word + ':' + item.count).join(' · ');
   return {
     ...base,
-    businessQuestion: 'ماذا يقول هذا الملف فعليًا، وما الإشارات التي تستحق انتباهًا أو إجراءً؟',
-    summary: 'تم فحص ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى من ' + format + '. التحليل استخرج إشارات المخاطر، لغة الإجراء، التواريخ، والمقاطع الرقمية دون افتراض نموذج أعمال.',
-    signals,
-    recommendations: signals.length ? [recommendation, ...base.recommendations.filter((item) => !item.id.startsWith('generic:file:'))] : [recommendation],
-    findings: [genericFinding, ...base.findings], risks: riskLines.length ? [genericFinding, ...base.risks] : base.risks, opportunities: !riskLines.length && !actionLines.length ? [genericFinding, ...base.opportunities] : base.opportunities,
+    businessQuestion: tableProfile
+      ? 'ما أهم القياسات والفئات في هذا الجدول، وأي استثناءات تستحق المراجعة قبل القرار؟'
+      : 'ماذا يقول هذا الملف فعليًا، وما الإشارات التي تستحق انتباهًا أو إجراءً؟',
+    summary: tableProfile?.summary ?? ('تم فحص ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى من ' + format + '. التحليل استخرج إشارات المخاطر، لغة الإجراء، التواريخ، والمقاطع الرقمية دون افتراض نموذج أعمال.'),
+    signals: tableProfile ? tableProfile.signals : signals,
+    recommendations: tableProfile ? tableProfile.recommendations : (signals.length ? [recommendation] : [recommendation]),
+    findings: [tableProfile?.finding ?? genericFinding, ...base.findings],
+    risks: tableProfile ? (tableProfile.statusCount > 0 ? [tableProfile.finding, ...base.risks] : base.risks) : (riskLines.length ? [genericFinding, ...base.risks] : base.risks),
+    opportunities: tableProfile ? base.opportunities : (!riskLines.length && !actionLines.length ? [genericFinding, ...base.opportunities] : base.opportunities),
     guidance: {
-      ...base.guidance, focus: riskLines[0] ? 'بنود المخاطر/الاستثناءات' : actionLines[0] ? 'بنود الإجراء والاعتماد' : 'فهم محتوى الملف',
-      inspect: [...riskLines.slice(0, 3), ...actionLines.slice(0, 2), ...numbers.slice(0, 2), ...(keywordEvidence ? ['الكلمات البارزة: ' + keywordEvidence] : [])],
+      ...base.guidance,
+      focus: tableProfile?.headline ?? (riskLines[0] ? 'بنود المخاطر/الاستثناءات' : actionLines[0] ? 'بنود الإجراء والاعتماد' : 'فهم محتوى الملف'),
+      inspect: tableProfile?.inspect ?? [...riskLines.slice(0, 3), ...actionLines.slice(0, 2), ...numbers.slice(0, 2), ...(keywordEvidence ? ['الكلمات البارزة: ' + keywordEvidence] : [])],
       boundary: 'التحليل العام يحفظ الدليل كما ورد في الملف. لا يحول النص الوصفي إلى حقيقة تجارية أو أثر مالي دون مصدر إضافي.',
     },
     advisorBrief: {
-      health: riskLines.length ? 'REVIEW_REQUIRED' : actionLines.length ? 'ATTENTION' : 'HEALTHY',
-      headline: riskLines[0] ?? actionLines[0] ?? ('الملف قابل للفحص العام: ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى.'),
-      topFinding: genericFinding, topRisk: riskLines.length ? genericFinding : null, topOpportunity: !riskLines.length && !actionLines.length ? genericFinding : null,
-      recommendedAction: recommendation.action, ownerHint: recommendation.ownerHint, expectedOutcome: recommendation.expectedOutcome, measurement: recommendation.measurement,
+      health: tableProfile ? (tableProfile.statusCount > 0 ? 'REVIEW_REQUIRED' : 'ATTENTION') : (riskLines.length ? 'REVIEW_REQUIRED' : actionLines.length ? 'ATTENTION' : 'HEALTHY'),
+      headline: tableProfile?.headline ?? (riskLines[0] ?? actionLines[0] ?? ('الملف قابل للفحص العام: ' + lines.length.toLocaleString('ar-YE') + ' وحدة محتوى.')),
+      topFinding: tableProfile?.finding ?? genericFinding,
+      topRisk: tableProfile ? (tableProfile.statusCount > 0 ? tableProfile.finding : null) : (riskLines.length ? genericFinding : null),
+      topOpportunity: tableProfile ? null : (!riskLines.length && !actionLines.length ? genericFinding : null),
+      recommendedAction: tableProfile?.recommendations[0]?.action ?? recommendation.action,
+      ownerHint: tableProfile?.recommendations[0]?.ownerHint ?? recommendation.ownerHint,
+      expectedOutcome: tableProfile?.recommendations[0]?.expectedOutcome ?? recommendation.expectedOutcome,
+      measurement: tableProfile?.recommendations[0]?.measurement ?? recommendation.measurement,
       proofRequirement: 'كل ادعاء يجب أن يبقى مرتبطًا بالمصدر والبصمة والدليل المستخرج؛ لا اعتماد تلقائي للنتيجة النهائية.',
     },
   };

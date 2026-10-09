@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
+import * as XLSX from 'xlsx';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
@@ -32,16 +33,25 @@ try {
   if (!ready) throw new Error('TRY_REPORT_SERVER_NOT_READY');
 
   const { chromium } = await import('playwright');
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+      : {}),
+  });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
 
   await page.goto(baseUrl + '/try-report', { waitUntil: 'networkidle' });
   await page.locator('input[type="file"]').setInputFiles(fixture);
-  await page.getByText('تم التعرف على المصدر', { exact: false }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.waitForFunction(
+    () => document.body.innerText.includes('28-inventory-stockout-reorder.csv'),
+    null,
+    { timeout: 15000 },
+  );
 
-  const body = (await page.locator('body').innerText()).replace(/\\s+/g, ' ').trim();
+  const body = (await page.locator('body').innerText()).replace(/\s+/g, ' ').trim();
   if (errors.length) throw new Error('TRY_REPORT_PAGEERROR:' + errors.join(' | '));
   const required = [
     '28-inventory-stockout-reorder.csv',
@@ -49,20 +59,16 @@ try {
     'الصفوف',
     'الأعمدة',
     'التقرير الاستشاري الأولي',
-    'من المصدر إلى قرار قابل للتنفيذ',
+    'من الملف الخام إلى نتيجة قابلة للتنفيذ',
     'المصدر',
     'الاستخراج',
-    'كشف الحقيقة',
+    'الحقيقة',
     'الإشارة',
-    'لماذا',
-    'ماذا يعني',
     'التوصية',
     'القياس',
     'القرار',
-    'العمل',
+    'القرار والعمل',
     'النتيجة',
-    'التعلّم',
-    'المقارنة',
     'ماذا نفعل الآن؟',
     'حد الدليل',
     'تحويل إلى تقرير ذكي'
@@ -75,8 +81,9 @@ try {
   const tableText = await page.locator('table').last().innerText();
   if (!tableText.includes('DOC-28-001') || !tableText.includes('DOC-28-012')) throw new Error('TRY_REPORT_SOURCE_RANGE_MISSING');
   if (!tableText.includes('SKU-1') || !tableText.includes('WH-1') || !tableText.includes('صنف 1')) throw new Error('TRY_REPORT_SOURCE_TEXT_CORRUPTED');
-  if (!body.includes('1.84') && !body.includes('تغطية 1.84')) throw new Error('TRY_REPORT_ADVISOR_COVERAGE_MISSING');
-  if (!body.includes('إعادة الطلب')) throw new Error('TRY_REPORT_ADVISOR_ACTION_MISSING');
+  // This fixture has sales quantities but no daily-sales-rate or stockout-days field.
+  // The preliminary report must not invent a days-of-coverage claim or a reorder quantity.
+  if (body.includes('تغطية 1.84') || body.includes('1.84 يوم')) throw new Error('TRY_REPORT_UNSUPPORTED_COVERAGE_CLAIM');
   if (errors.length) throw new Error('TRY_REPORT_PAGEERROR:' + errors[0]);
   const metrics = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -85,6 +92,81 @@ try {
   if (metrics.scrollWidth > metrics.clientWidth + 2) throw new Error('TRY_REPORT_HORIZONTAL_OVERFLOW');
 
   console.log('TRY_REPORT_UPLOAD_PASS rows=12 columns=11');
+
+  // Browser-level customer Excel matrix regression: the full customer portfolio
+  // path must not collapse to a generic unmapped-field alert.
+  const portfolioRows = [
+    {
+      'اسم العميل': 'عميل مستمر',
+      'يناير': 100, 'فبراير': 120, 'مارس': 110, 'أبريل': 130,
+      'مايو': 140, 'يونيو': 150, 'يوليو': 160, 'أغسطس': 180,
+      'الإجمالي الكلي': 1090, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'منتظم مستمر', 'عدد أشهر التعامل': 8,
+      'متوسط الشهر الفعلي': 136.25, 'الشهر الأعلى شراءً': 'أغسطس',
+      'نسبة النمو (يوليو-أغسطس)': 0.125,
+    },
+    {
+      'اسم العميل': 'عميل منقطع مهم',
+      'يناير': 20, 'فبراير': 0, 'مارس': 0, 'أبريل': 30,
+      'مايو': 0, 'يونيو': 0, 'يوليو': 0, 'أغسطس': 0,
+      'الإجمالي الكلي': 65, 'حالة الزبون': 'منقطع',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'خطر انقطاع (VIP)', 'عدد أشهر التعامل': 2,
+      'متوسط الشهر الفعلي': 25, 'الشهر الأعلى شراءً': 'أبريل',
+      'نسبة النمو (يوليو-أغسطس)': -1,
+    },
+    {
+      'اسم العميل': 'عميل آخر',
+      'يناير': 10, 'فبراير': 20, 'مارس': 30, 'أبريل': 40,
+      'مايو': 50, 'يونيو': 60, 'يوليو': 70, 'أغسطس': 80,
+      'الإجمالي الكلي': 360, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة ب', 'مؤشر المخاطر والفرص': 'نشاط معتاد',
+      'عدد أشهر التعامل': 8, 'متوسط الشهر الفعلي': 45,
+      'الشهر الأعلى شراءً': 'أغسطس', 'نسبة النمو (يوليو-أغسطس)': 0.1429,
+    },
+  ];
+  const customerWorkbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(customerWorkbook, XLSX.utils.json_to_sheet(portfolioRows), 'ملخص العملاء');
+  const customerExcel = XLSX.write(customerWorkbook, { type: 'buffer', bookType: 'xlsx' });
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'customer-portfolio.xlsx',
+    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    buffer: customerExcel,
+  });
+  await page.waitForFunction(
+    () => document.body.innerText.includes('customer-portfolio.xlsx'),
+    null,
+    { timeout: 15000 },
+  );
+  const customerBody = (await page.locator('body').innerText()).replace(/\s+/g, ' ').trim();
+  const customerRequired = [
+    'customer-portfolio.xlsx',
+    'عملاء مهمون مصنّفون في المصدر كمنقطعين',
+    'عميل منقطع مهم',
+    'ملف نشاط العملاء',
+    'فحص الاتساق',
+    'أعلى السجلات حسب',
+    'حالة منقطع في المصدر',
+    'ماذا نفعل الآن؟',
+    'حد الدليل',
+    'حالة الفهم: دليل العملاء/نشاطهم · يحتاج مراجعة',
+  ];
+  for (const item of customerRequired) {
+    if (!customerBody.includes(item)) throw new Error('CUSTOMER_XLSX_MISSING:' + item);
+  }
+  for (const stale of ['لا يوجد حقل تاريخ واضح', 'dateField=missing', 'تفاصيل فواتير المبيعات']) {
+    if (customerBody.includes(stale)) throw new Error('CUSTOMER_XLSX_STALE_INTELLIGENCE:' + stale);
+  }
+  const customerRowCount = await page.locator('table').last().locator('tbody tr').count();
+  if (customerRowCount !== 3) throw new Error('CUSTOMER_XLSX_ROW_COUNT:' + customerRowCount);
+  if (errors.length) throw new Error('CUSTOMER_XLSX_PAGEERROR:' + errors.join(' | '));
+  const customerMetrics = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  if (customerMetrics.scrollWidth > customerMetrics.clientWidth + 2) throw new Error('CUSTOMER_XLSX_HORIZONTAL_OVERFLOW');
+  console.log('STRUCTURED_XLSX_CUSTOMER_PORTFOLIO_PASS rows=3 columns=17 status/trend/reconciliation');
   console.log('public-report-upload-smoke: PASS');
   await browser.close();
 } finally {

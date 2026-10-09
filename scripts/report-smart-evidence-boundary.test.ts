@@ -283,6 +283,41 @@ assert.match(
   /PARTIAL_FETCH_ERROR/,
   'Smart Report must expose a distinct partial-fetch-error scope',
 );
+assert.match(
+  smartReport,
+  /const canonicalFetchLimitMayTruncate =\s*sourceRowCount == null\s*\?\s*canonicalFetchCeilingReached\s*:\s*sourceRowCount > canonicalFetchLimit;/,
+  'Unknown source row count at the fetch ceiling must be treated as potentially truncated',
+);
+assert.match(
+  smartReport,
+  /const canonicalRowsComplete =\s*sourceRowCount == null\s*\?\s*!canonicalFetchError && !canonicalFetchCeilingReached\s*:\s*canonicalRows.length >= sourceRowCount && !canonicalFetchError;/,
+  'A missing source row count must not imply complete canonical coverage at the fetch ceiling',
+);
+assert.match(
+  smartReport,
+  /const canonicalRowsPartial = canonicalFetchError \|\| canonicalFetchLimitMayTruncate \|\| !canonicalRowsComplete;/,
+  'A short canonical read with a known expected row count must be marked partial',
+);
+assert.match(
+  smartReport,
+  /const canonicalAnalysisScope =\s*canonicalFetchError\s*\?\s*'PARTIAL_FETCH_ERROR'\s*:\s*canonicalFetchLimitMayTruncate\s*\?\s*'PARTIAL_FETCH_CEILING'\s*:\s*!canonicalRowsComplete\s*\?\s*'PARTIAL_FETCH_INCOMPLETE'\s*:\s*'FULL_SOURCE';/,
+  'Source scope must distinguish transport errors, the fetch ceiling and incomplete row coverage',
+);
+assert.match(
+  smartReportPage,
+  /PARTIAL_FETCH_INCOMPLETE: 'تحليل جزئي — تغطية الصفوف غير مكتملة'/,
+  'The customer UI must label incomplete canonical row coverage accurately',
+);
+assert.match(
+  smartReportPage,
+  /report\.canonicalAnalysisScope !== 'FULL_SOURCE'/,
+  'The customer UI must display a warning for every non-full source scope',
+);
+assert.match(
+  smartReportPage,
+  /القراءة الكانونية أعادت صفوفًا أقل من العدد المعلن للمصدر/,
+  'The customer warning must explain a known row-count mismatch',
+);
 
 
 assert.match(
