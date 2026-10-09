@@ -1,3 +1,13 @@
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = a55478b0e7ad95f1aa137e57e99f229ec1dd0c30
+UPDATED_AT = 2026-10-09
+WHAT_I_WAS_ASKED_TO_DO = Resume PR #911 from its persisted state, repair only the active advisor certification failure, and restore a verifiable handoff without recreating completed features.
+WHAT_I_ACTUALLY_DID = Updated scripts/check-real-smart-report-advisor.mjs to assert the Arabic advisor kicker displayed in SmartReportPage.tsx; refreshed CURRENT_SESSION_STATE.md with the exact revision and absence of the requested supervision file; documented remaining proof gates.
+WHAT_IS_PROVEN = GitHub branch write succeeded at a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; the page contains the Arabic kicker and all other asserted advisor markers; CI runs for this exact commit were queued or in progress at last read, so no new certification PASS is claimed.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract required CURRENT_EXACT_HEAD plus REPORT_FOR_HEAD and other machine-readable report fields; documentation fix is being persisted and requires its own exact-tip verification.
+ROOT_CAUSE = The advisor contract incorrectly required an English string not rendered by the Arabic-first UI; persisted handoff documents lacked the field schema required by the active contract.
+NEXT_EXACT_ACTION = Persist the handoff fields and archive entry, re-read the final PR tip, then consume exact-tip certification and handoff results before moving to authenticated browser pagination, lineage, XLSX, and full upload-to-decision proof.
+
 ## CURRENT EXECUTION REPORT — 2026-10-09
 
 APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
@@ -31,21 +41,21 @@ ACTIVE FAILURE / NEXT FIX
 - Production/main proof is still open; PR #911 is not merged.
 
 PROOF STATUS
-- IMPLEMENTED = YES; persisted on PR branch
-- TYPECHECK = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- PRODUCTION BUILD = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- SMART REPORT SURFACE CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- EVIDENCE BOUNDARY CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- CUSTOMER-FACING REPORT SURFACE CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- SOURCE UPLOAD UI CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- CATALOG NAVIGATION STATIC CONTRACT = added; recheck its current-head run
-- CERTIFICATION CONTRACTS = FAIL (ADVISOR BRIEF marker)
-- BROWSER PAGINATION/NAVIGATION = NOT PROVEN
-- XLSX BROWSER SMOKE = NOT PROVEN on 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- AUTHENTICATED UPLOAD-TO-DECISION = NOT PROVEN
-- REAL-SOURCE 48/48 ARCHETYPE RUNTIME = NOT PROVEN
-- PRODUCTION PROVEN = NO
-- PRODUCT COMPLETE = NO
+- ADVISOR CONTRACT FIX = PERSISTED at a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; exact-current-head execution is pending.
+- PRIOR TYPECHECK = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd; refresh current-head typecheck/build before treating as fresh proof.
+- PRIOR PRODUCTION BUILD = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd; not proof of current tip.
+- PRIOR SMART REPORT SURFACE CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
+- PRIOR EVIDENCE BOUNDARY CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
+- PRIOR CUSTOMER-FACING REPORT SURFACE CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
+- PRIOR SOURCE UPLOAD UI CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
+- CERTIFICATION CONTRACTS = PENDING on a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; previous failure was the stale English marker assertion.
+- SESSION HANDOFF CONTRACT = PENDING until rerun against the documentation-only tip.
+- BROWSER PAGINATION/NAVIGATION = NOT PROVEN.
+- XLSX BROWSER SMOKE = NOT PROVEN on the current application source revision.
+- AUTHENTICATED UPLOAD-TO-DECISION = NOT PROVEN.
+- REAL-SOURCE 48/48 ARCHETYPE RUNTIME = NOT PROVEN.
+- PRODUCTION PROVEN = NO.
+- PRODUCT COMPLETE = NO.
 
 NEXT ACTIONS
 1. Read the boot file and operating protocol.
