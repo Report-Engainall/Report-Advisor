@@ -67,7 +67,7 @@ async function main() {
   ];
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(portfolioRows), 'ملخص العملاء');
-  const bytes = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+  const bytes = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   const xlsxBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
   const parsedPortfolio = await parseFile(xlsxBuffer, 'customer-portfolio.xlsx', 'xlsx');
   assert.equal(parsedPortfolio.length, 1, 'customer portfolio workbook should parse as one dataset');
