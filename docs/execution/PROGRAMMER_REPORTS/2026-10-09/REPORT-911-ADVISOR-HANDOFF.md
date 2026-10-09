@@ -1,3 +1,33 @@
+# Report-Advisor Execution Archive — 2026-10-09 / POST-FIX CHECKPOINT 8583448
+
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = 8583448ff6cdddabea2d1e83eae630802dd298fd
+UPDATED_AT = 2026-10-09T05:52:00+03:00
+BRANCH = captain/critical-bundle-proof-20261009
+PR = #911 OPEN / UNMERGED
+PR_HEAD_AT_WRITEBACK_PARENT = 8583448ff6cdddabea2d1e83eae630802dd298fd
+APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
+CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+
+## Current changes in the branch
+- 8583448ff6cdddabea2d1e83eae630802dd298fd changes only scripts/provision-e2e-actors.mjs, scripts/refresh-governed-real-corpus-passports.mjs, and scripts/e2e-actor-provisioning-contract.test.mjs.
+- Passport refresh now uses 25s request timeout, bounded three attempts on retryable transport/HTTP errors, progress logs, and duplicate logical-job suppression.
+- Actor provisioning now throws an explicit AUDIT_QUERY_FAILED diagnostic when an audit read errors, instead of treating an errored read as a missing row.
+- Readback confirmed all three changes; preview `aghbari-source-sha` exactly matched 8583448ff6cdddabea2d1e83eae630802dd298fd.
+
+## Exact proof and blockers at checkpoint
+- Product Build Gate 37876282142 PASS; Quality 37876282183 PASS; Execution Enforcement Contract 37876278781 PASS.
+- Handoff 37876282175 and certification 37876278779 failed before this writeback because the session documents were stale relative to code commit 8583448. This commit makes the reports cover the code parent; verify the successor’s check result.
+- Full Product Browser run 37876278794 IN PROGRESS at actor provisioning; Device-Independent E2E run 37876281894 IN PROGRESS at authenticated actor provisioning; Phase F run 37876281803 IN PROGRESS.
+- Historical Phase F run at 89181 ended NOT READY, with health/rollback STALE_RUNTIME and pg_dump ECHECKOUTTIMEOUT. It is not an outcome for the newer 858 run.
+- Live customer report, exact route-to-report jobId/sourceHash, full upload-to-decision, real-source 48/48 and production proof remain NOT PROVEN.
+
+## Next exact action
+Read back the documentation checkpoint commit, inspect current handoff/certification, then consume current Full Product Browser, Device-Independent authenticated E2E, and Phase F results. Use errors from bounded passport refresh to make a narrow correction; do not weaken auth, RLS, numeric truth, source identity or evidence acceptance.
+
+--- PREVIOUS CHECKPOINT ARCHIVE ---
+
 # Report-Advisor Execution Archive — 2026-10-09 / RESUMED PR #911 CHECKPOINT
 
 SESSION HANDOFF = READY

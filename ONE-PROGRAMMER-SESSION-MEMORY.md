@@ -1,18 +1,16 @@
-# LIVE EXECUTION CHECKPOINT — 2026-10-09 / RESUME PR #911 AFTER STALLED SESSION
-- LIVE PR CANDIDATE HEAD → `be6fcc0242db7f4748946d52c56ba1828d6eda74` on `captain/critical-bundle-proof-20261009`; PR #911 OPEN / UNMERGED against main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
-- APPLICATION SOURCE HEAD → `2c4ef80717a6e7052373e721d2e0586115cc5efd`: paginated smart-report catalog, report-context links preserving `jobId + sourceHash`, and unknown-sales integrity.
-- CURRENT TEST-FIX ANCESTOR → `c7828c84d45bfbada5489df4fd00ec362f15bca7`: XLSX test changed to Node Buffer output and exact byte-view handling.
-- EXACT-HEAD BUILD / QUALITY / DATA QUALITY → PASS on `be6fcc0242db7f4748946d52c56ba1828d6eda74`: Product Build Gate run 37870488204; quality run 37870487827; data-quality-runtime run 37870488220.
-- PUBLIC BROWSER SMOKE → PASS for subjob 113627199178. This proves the public route smoke only, not the authenticated business journey.
-- HANDOFF / CERTIFICATION → FAILED at exact PR head because `REPORT_FOR_HEAD` was still c7828c84 and the handoff validator found unreported `.github/workflows/phase-f-live-resilience.yml`. This is the first governance fix to verify after the single checkpoint writeback.
-- AUTHENTICATED E2E → Storage Tenant Runtime run 37870488054, Commercial Product Creation run 37870488230, Device-independent authenticated job 113628214148, and Full Product Browser run 37870488215 all hit Supabase Auth HTTP 504 / request timeouts before meaningful tenant/business assertions. Do not call these application PASS/FAIL conclusions beyond the observed blocked attempts; retry once to test transience.
-- VALUE COHORT → run 37870488147 ended with upstream request timeout; no cohort result is proven. Phase F run 37870488256 is cancelled.
-- GOVERNANCE PATHS → `docs/SYSTEM_HEART.md`, `docs/MASTER_EXECUTION_INDEX.md`, `docs/PROJECT_KNOWLEDGE_MANIFEST.md`, and `docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md` exist. `Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md` returns 404 on both PR branch and main; do not fabricate it.
-- RUNTIME/PREVIEW → Netlify preview status is successful, but preview is not production proof. Vercel and Netlify preview status contexts at the current PR candidate were successful. Avoid paid builds and do not use Remote Desktop; retain the remaining 20% free allowance.
-- PRODUCT GATES STILL OPEN → authenticated Reports Center pagination and exact source lineage; safe XLSX upload; complete upload → persisted report → evidence → recommendation → decision/work/outcome; 48/48 real-source archetype runtime; report value cohort; same-head production.
-- DO NOT REPEAT → no blind reruns; no stale-SHA/browser PASS; no interpreting public smoke as authenticated proof; no weakening RLS/auth, evidence boundaries, or missing-number truth; no merge or PRODUCT_COMPLETE from build-only success.
-- NEXT EXACT ACTION → read back the single documentation-only checkpoint commit; consume its Session Handoff + Final Certification results; then retry auth-dependent gates once to classify the shared 504 as transient/persistent and proceed from the first new terminal result.
-- CHECKPOINT WRITTEN AT → `2026-10-09T05:24:00+03:00`.
+# LIVE EXECUTION CHECKPOINT — 2026-10-09 / POST-FIX RESUME PR #911 AT 8583448
+- CURRENT CODE CHECKPOINT → `8583448ff6cdddabea2d1e83eae630802dd298fd` on `captain/critical-bundle-proof-20261009`; PR #911 OPEN / UNMERGED against main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- APP UI SOURCE → `2c4ef80717a6e7052373e721d2e0586115cc5efd`: paginated report catalog, report navigation preserving jobId + sourceHash, and unknown-sales truth semantics. No UI source changed in 8583448.
+- FIX COMMIT 8583448 → bounded real-corpus passport RPC refresh (25-second per-request timeout, max 3 attempts on retryable errors, progress messages, logical duplicate suppression); explicit Supabase audit query error reporting in E2E actor provisioning; contract coverage updated.
+- BUILD / QUALITY / EXECUTION ENFORCEMENT at code head 8583448 → PASS: Build 37876282142; Quality 37876282183; Execution Enforcement 37876278781.
+- PREVIEW → `https://deploy-preview-911--aghbari-report-advisor.netlify.app`; last public metadata read had `aghbari-source-sha=8583448ff6cdddabea2d1e83eae630802dd298fd`. Rendered report is fixture-backed, not live customer data.
+- HANDOFF / CERTIFICATION at prior document state → Handoff 37876282175 and Certification 37876278779 failed because docs did not cover the three files committed in 8583448. This docs-only successor must be read back, then its handoff/certification runs must be checked.
+- FULL BROWSER 37876278794 → IN PROGRESS at actor provisioning. DEVICE-INDEPENDENT 37876281894 → IN PROGRESS at authenticated actor provisioning; public browser-smoke subjob passed. PHASE F 37876281803 → IN PROGRESS at live probes.
+- OLD PHASE F 37875001590 on 89181 → NOT READY, 1/4 checks passed: tenant canary only; health/rollback STALE_RUNTIME; logical pg_dump failed on Supabase pooler ECHECKOUTTIMEOUT. Do not apply this old result to 858. Await the new run.
+- GAPS STILL OPEN → authenticated real open report; jobId+sourceHash continuity through evidence/recommendation/decision; safe XLSX upload; full upload→decision/work/outcome; 48/48 real-source archetype proof; Phase F READY; production proof.
+- GATES → no weakening auth/RLS/evidence/fail-closed semantics; do not treat the fixture preview as customer proof; do not merge or state PRODUCT COMPLETE without same-head authenticated/product/release evidence.
+- NEXT EXACT ACTION → confirm current branch points at the docs-only checkpoint descending from 8583448ff6cdddabea2d1e83eae630802dd298fd; inspect its Session Handoff and Final Certification result, then poll Full Browser 37876278794, Device-Independent 37876281894 and Phase F 37876281803; fix the first proven blocker only.
+- CHECKPOINT STAMP → 2026-10-09T05:52:00+03:00
 
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / AUTH PROVISIONING ROOT FIX + EXACT-HEAD HANDOFF
 - CURRENT DOCUMENTATION HEAD → 79c2b4798dceea4a37159e94303bafd7d4382393.
