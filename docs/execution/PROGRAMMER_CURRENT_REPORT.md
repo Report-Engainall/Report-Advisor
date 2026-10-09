@@ -1,6 +1,6 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
-UPDATED_AT = 2026-10-09T07:15:00+03:00
+REPORT_FOR_HEAD = b3d90321568e887abb2bd580e5d3989a502fb2fc
+UPDATED_AT = 2026-10-09T07:18:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor PR #911 from canonical boot files, verify real repository state, close concrete defects, and preserve a resumable exact-head handoff.
 
 
@@ -38,11 +38,18 @@ WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor PR #911 from canonical boot files
 - Product completion: NO. Preview remains fixture-backed and real authenticated source-to-outcome proof remains NOT PROVEN.
 
 
-WHAT_I_ACTUALLY_DID = Hardened source-bound report route changes and retry cancellation, then bounded the Report Value Cohort query by explicit tenant scope to avoid unscoped scanning across the staging estate. Added a scope contract and workflow wiring; preserved the 57014 terminal-timeout no-retry contract.
-WHAT_IS_PROVEN = Source inspection of exact code head 478e5e7b11878d606d5fd03c57406765f1e3ca0c passed 14/14 authored invariants for report identity/retry and tenant-scoped cohort implementation. These were not executed Node tests. Current exact-head Build 37882128819, Quality 37882128799, Full Browser 37882128820, Handoff 37882128635, Final Certification 37882128663, Device E2E 37882128844, Cohort 37882128580, Commercial Product Creation 37882128697 and Data Quality Runtime 37882128845 were queued/pending at last read. At predecessor 9799fcc, build/quality/handoff/cert/data-quality passed, but the authenticated browser journey failed and its live report/passport/48-archetype steps remained unproven.
-FIRST_ACTIVE_FAILURE = The current exact-head CI queue has not reached terminal results. Auth /token still recorded HTTP 500/504 with failed local Postgres connections at 04:02 UTC, and the prior Report Value Cohort RPC timed out with SQLSTATE 57014 before it produced candidate-pool output. The cohort script now requires explicit tenant scope and queries each staging corpus tenant sequentially; this is awaiting live CI proof.
-ROOT_CAUSE = Report UI content is now guarded by jobId + sourceHash and the Retry button uses the same cancellable effect. The cohort measurement used an unscoped tenant-null RPC that scanned all eligible reports; this was identified as the first query to time out and is now split across five configured staging tenants with global source-hash de-duplication. Supabase Auth/Postgres connectivity remains an independent live test blocker.
-NEXT_EXACT_ACTION = Wait for exact-head Build 37882128819 and Quality 37882128799 terminal results; fix the first specific contract/build failure. Then require a successful scoped cohort proof with >=40 distinct eligible source hashes and inspect Full Browser 37882128820, Handoff 37882128635, Certification 37882128663 and Device E2E 37882128844. Re-run authenticated report proof only when Auth/Postgres is responsive; keep PR #911 open until real report lineage and outcome chain pass.
+## 2026-10-09 delta — source retry cancellation and per-tenant cohort
+- Code head: b3d90321568e887abb2bd580e5d3989a502fb2fc.
+- SourceBoundReportSurface now requires an AbortSignal and runs retries via the same effect that cancels old requests; SmartReportPage uses the same pattern. The workspace regression contract covers both surfaces.
+- Report Value Cohort requires validated explicit tenant scope, queries each configured staging tenant sequentially and deduplicates source hashes across the combined result. The workflow wires a scope test and the SQLSTATE 57014 no-retry test before live DB work.
+- Static source predicates: 17/17 passed; this is not actual CI execution. All current-head gates were queued/pending at last read.
+- Supabase Auth /token 500/504 persisted through 04:02 UTC; the authenticated customer journey and live cohort are NOT PROVEN. Product completion remains NO.
+
+WHAT_I_ACTUALLY_DID = Extended guarded retry cancellation to SourceBoundReportSurface: every read now requires AbortSignal, both retry buttons rerun the same abortable effect, and the source-report workspace contract asserts this. Added scoped cohort discovery: require a validated explicit staging tenant list, call the candidate RPC per tenant sequentially, deduplicate source hashes globally, and prevent the unscoped query from running. The cohort workflow now runs scope and terminal-timeout contracts before its live call.
+WHAT_IS_PROVEN = Static source inspection at code head b3d90321568e887abb2bd580e5d3989a502fb2fc passed 17/17 authored source predicates for report identity/retry and cohort scope/retry. These were not actual Node test executions. Current exact-head Build 37882281096 and Quality 37882281068 are QUEUED; Full Browser 37882281159 PENDING; Handoff 37882281357 PENDING; Certification 37882281329 QUEUED; Device E2E 37882281026 QUEUED; Cohort 37882281466 QUEUED; Product Creation 37882281236 QUEUED; Data Quality 37882281314 QUEUED. No current-head CI pass is claimed.
+FIRST_ACTIVE_FAILURE = CI remains queued/pending on b3d90321568e887abb2bd580e5d3989a502fb2fc. Staging Supabase Auth /token logged HTTP 500/504 through 04:02 UTC with timeout/context-canceled lookup errors, while management SQL was also timing out. The earlier unscoped cohort RPC ended with SQLSTATE 57014 before candidate-pool output; the code now scopes per tenant and doesn't retry a terminal statement timeout, but the cohort fix awaits a live artifact.
+ROOT_CAUSE = SourceBoundReportSurface retries could issue requests without AbortSignal, so old retries could outlive their route context. It now requires a signal and retries through the abortable effect. The cohort query called get_report_value_cohort_candidates unscoped when no company id was set; the workflow now passes five explicit staging tenants and the script queries them separately. Supabase Auth/Postgres connectivity remains an independent blocker.
+NEXT_EXACT_ACTION = Check exact-head Build 37882281096 and Quality 37882281068 for typecheck and workspace/cohort contract results, then inspect Full Browser 37882281159, Handoff 37882281357, Certification 37882281329, Device E2E 37882281026, Cohort 37882281466 and Product Creation 37882281236 to terminal states. Require a 40-distinct-source cohort artifact and authenticated real-report readback before claiming product complete.
 
 ## Repository state
 - Repository: Report-Engainall/Report-Advisor
