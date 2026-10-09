@@ -19,6 +19,11 @@ const completion = fs.readFileSync('supabase/migrations/20261003141500_auto_refr
 const provenanceRepair = fs.readFileSync('supabase/migrations/20261003140500_reconcile_source_decision_passport_snapshot.sql', 'utf8');
 const intelligencePanel = fs.readFileSync('src/components/ReportIntelligencePanel.tsx', 'utf8');
 const decisionCockpit = fs.readFileSync('src/components/ReportDecisionCockpit.tsx', 'utf8');
+const sourceBoundRepair = fs.readFileSync(
+  'supabase/migrations/20261010090000_harden_legacy_report_evidence_passport_refresh.sql',
+  'utf8',
+);
+const corpusPassportRefresh = fs.readFileSync('scripts/refresh-governed-real-corpus-passports.mjs', 'utf8');
 
 assert.ok(passportSchema.includes('report_evidence_snapshots'));
 assert.ok(passportSchema.includes('report_evidence_passports'));
@@ -50,5 +55,11 @@ assert.ok(intelligencePanel.includes("report.renderedOutput?.evidenceSnapshotId"
 assert.ok(!intelligencePanel.includes("evidenceSnapshotId: report.sourceAnalysis?.id"));
 assert.ok(decisionCockpit.includes("report.renderedOutput?.evidenceSnapshotId"));
 assert.ok(!decisionCockpit.includes("evidenceSnapshotId: report.sourceAnalysis.id"));
+assert.ok(sourceBoundRepair.includes('jsonb_array_elements_text'), 'legacy import ID must be recovered only from the same report job checkpoint');
+assert.ok(sourceBoundRepair.includes('source_fingerprint IS DISTINCT FROM v_job.source_hash'), 'passport refresh must validate import/source fingerprint');
+assert.ok(sourceBoundRepair.includes("'sourceBound'"), 'legacy source-bound provenance must be explicit');
+assert.ok(sourceBoundRepair.includes("'authoritativeCurrentRowCount'"), 'passport refresh must persist source-backed row count');
+assert.ok(corpusPassportRefresh.includes('const jobsByHash = new Map()'), 'corpus job discovery must be batched by source hash');
+assert.ok(corpusPassportRefresh.includes('offset += pageSize'), 'corpus job discovery must use bounded pagination');
 
 console.log('REPORT_EVIDENCE_PASSPORT_CONTRACT_PASS');
