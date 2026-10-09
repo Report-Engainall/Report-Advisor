@@ -1,35 +1,38 @@
 # Report-Advisor Execution Archive
 
 # Report-Advisor Execution Archive — 2026-10-09 current frontier
-- **Application code head:** 71d14ff1b524b05bc08b0c95b9c3d657fd09b428
+- **Application code head:** ac68f9f203769522993b5bbed4e424f34610eda1
 - **PR:** #911 open/unmerged — https://github.com/Report-Engainall/Report-Advisor/pull/911
 - **Branch:** `captain/critical-bundle-proof-20261009`
 - **Preview:** https://deploy-preview-911--aghbari-report-advisor.netlify.app
 - **Main:** `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- **Handoff timestamp:** 2026-10-09T07:35:42+03:00
 
-## Current verified code changes
-- SmartReportPage and SourceBoundReportSurface gate visible report/error state on the expected jobId + sourceHash, clear old report state when context changes, abort stale loads, and route retries through the same guarded effect. Static contract coverage is committed in `scripts/source-report-workspace-contract.test.mjs`.
-- `scripts/report-value-cohort.mjs` requires an explicit valid tenant scope; it calls the cohort RPC per tenant, deduplicates source hashes, and returns SQLSTATE 57014 / statement-timeout errors without retrying the same expensive query.
-- The cohort workflow scopes only to the verified real-report tenant `99e33354-cc45-4317-8eb3-0d486b6c5932`. Other unverified UUIDs were removed. Less than 40 qualifying sources must fail closed, not widen scope.
-- `.github/workflows/quality.yml` now checks the immutable PR head embedded in the current merge commit rather than a moving branch ref. The quality contract tests that behavior.
-- Exact-head static source/config audit: **25/25 checks satisfied**. This is not equivalent to running the contract tests or authenticated browser proof.
+## Current implementation
+- SmartReportPage and SourceBoundReportSurface bind report/error display to current jobId + sourceHash, clear old content, abort stale requests and reuse guarded effects for retries.
+- The Report Value Cohort requires explicit company scope, calls the candidate RPC once per tenant, deduplicates source hashes and does not retry PostgreSQL SQLSTATE 57014. Its five tenant IDs match the established E2E_CORPUS_TENANT_IDS in Full Product Browser E2E; a contract checks the exact match.
+- Quality and Full Product Browser now group concurrency by PR/ref and cancel stale candidate runs. Expensive browser install and the real business journey are gated on successful actor provisioning, real-open-report proof and authenticated route proof. Fail-closed evidence remains mandatory.
+- The quality workflow validates the event's immutable PR-head SHA against the second parent of the merge commit, not a live branch ref that might change while a run waits.
 
-## Exact-code-head CI frontier (last observed)
-- Product Build Gate: **37883970456 QUEUED**
-- Quality: **37883970556 QUEUED**
-- Full Product Browser E2E: **37883970375 QUEUED**
-- Session Handoff Contract: **37883970401 PENDING on predecessor docs**; expect a new run after this writeback
-- Final Certification Gate: **37883970576 QUEUED**
-- Device-Independent Browser E2E: **37883970632 QUEUED**
-- Report Value Cohort: **37883970550 QUEUED**
-- Commercial Product Creation E2E: **37883970515 QUEUED**
-- Data Quality Runtime: **37883970542 QUEUED**
+## Static source/config audit
+- **28/28 predicates PASS** by reading the exact code-head files. This is not an executed Node test, full build, browser E2E or production proof.
 
-## Remaining blocking evidence
-- Supabase Auth logs still show /token and /admin/users HTTP 500/504 with canceled or timed-out user lookups and failed local auth-to-Postgres connection; direct management SQL also timed out.
-- The prior authenticated report/browser run failed actor provisioning and real-open-report proof. Passport and real-source 48-archetype execution were skipped. Cohort's earlier unscoped query timed out with SQLSTATE 57014; the scoped query has not yet proven a 40-source cohort.
-- The public preview renders fixture-bound `28-inventory-stockout-reorder.csv`, not a live authenticated customer report.
-- **PRODUCT COMPLETE = NO.** Do not merge until current-head CI and authenticated source-to-outcome journey are proven.
+## CI at exact code head (last observed)
+- Product Build Gate: **37884568704 QUEUED**
+- Quality: **37884568692 QUEUED**
+- Full Product Browser E2E: **37884568760 PENDING**
+- Session Handoff Contract: **37884568700 PENDING**
+- Final Certification Gate: **37884568286 QUEUED**
+- Device-Independent Browser E2E: **37884568688 QUEUED**
+- Report Value Cohort: **37884568756 QUEUED**
+- Commercial Product Creation E2E: **37884568661 QUEUED**
+- Data Quality Runtime: **37884568736 QUEUED**
+
+## Remaining blockers
+- Supabase Auth /token and /admin/users still logged HTTP 500/504 through 04:33 UTC due to timeout/context-canceled user lookup and transaction startup errors. The project's management API says ACTIVE_HEALTHY, but that does not prove Auth or Postgres queries work.
+- Real authenticated report, evidence passport, 48/48 real-source archetypes and recommendation-to-outcome continuity remain NOT PROVEN.
+- The public preview still renders fixture-bound `28-inventory-stockout-reorder.csv`; the current app SHA has not been verified in Netlify.
+- **PRODUCT COMPLETE = NO. Do not merge until current-head CI and the authenticated source-to-outcome journey pass.**
 
 
  — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
