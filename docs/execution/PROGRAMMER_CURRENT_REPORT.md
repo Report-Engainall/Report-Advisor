@@ -1,12 +1,21 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = e9271260ac2b52f623023840fa3aabfaad572669
-UPDATED_AT = 2026-10-09T05:56:00+03:00
+REPORT_FOR_HEAD = 90c7a9464004b001a53d324fc9836fb5b3cdd655
+UPDATED_AT = 2026-10-09T06:45:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor PR #911 from canonical boot files, verify real repository state, close concrete defects, and preserve a resumable exact-head handoff.
-WHAT_I_ACTUALLY_DID = Reconciled branch, application, main and preview identity; made governed passport refresh bounded and observable; made actor audit read errors explicit; corrected the real-open-report proof to authenticate as TEST_USER_C, who is provisioned into the configured real-report company, and added contract assertions. This report checkpoints e9271260ac2b52f623023840fa3aabfaad572669.
-WHAT_IS_PROVEN = At ancestor 8583448: Product Build Gate 37876282142 PASS, Quality 37876282183 PASS, Execution Enforcement 37876278781 PASS. At docs ancestor 419e4e6: Session Handoff 37876658311 PASS and Execution Enforcement 37876654255 PASS. These are not exact-e927 results. New e927 Full Product Browser run 37876852731 is in progress; build/quality/device/handoff/certification and Phase F are queued or pending as of the latest run listing.
-FIRST_ACTIVE_FAILURE = Full Product Browser at 858 (37876278794) failed actor provisioning and real-open-report proof, causing passport-refresh and 48/48 steps to be skipped. Source configuration demonstrates the open-report verifier used user A while the workflow provisions user C to REAL_SMART_REPORT_COMPANY_ID. Commit e927 changes the verifier to user C. Its browser proof is pending.
-ROOT_CAUSE = The real-open-report verifier authenticated TEST_USER_A and resolved that user's current company before reading a job in the configured live-report tenant. The provisioner deliberately gives user C a default membership on REAL_SMART_REPORT_COMPANY_ID; user A belongs to RUNTIME-EVIDENCE-A-401117. The mismatch could cause OPEN_REPORT_JOB_NOT_FOUND despite an existing report. Separately, a previous actor audit query ignored the Supabase error field, and the passport refresher lacked bounded request timeout/retry and duplicate-job suppression.
-NEXT_EXACT_ACTION = Read back the docs-only checkpoint; verify handoff/certification on its successor; inspect Full Product Browser 37876852731 and latest-head Build 37876857478, Quality 37876857607, Device E2E 37876857500 and Phase F 37876857595. Fix only the first explicit failure from the newest run. Do not merge or state PRODUCT_COMPLETE until real report, exact jobId+sourceHash continuity, 48/48, full upload-to-decision and production proof pass.
+
+
+## 2026-10-09 delta — report identity isolation
+- Code parent: 90c7a9464004b001a53d324fc9836fb5b3cdd655.
+- Exact changed files: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs.
+- The UI now clears prior report state, binds report/error display to current jobId and sourceHash, aborts stale requests, and rejects context mismatches before rendering.
+- f3c73612 exact build failed on TS18047/TS2322; explicit null narrowing was corrected at 90c7a946. Current-head build/browser journey remains pending.
+- Supabase staging Auth logged repeated /token 504/500 with Postgres connection timeout; predecessor report/browser proof failed and the 48-archetype real-source stage was skipped. Product completion remains NO.
+
+WHAT_I_ACTUALLY_DID = Fixed cross-report stale-state exposure in SmartReportPage and SourceBoundReportSurface: clear prior report on context change, bind displayed report/error to jobId + sourceHash, cancel stale surface requests, and add regression assertions in scripts/source-report-workspace-contract.test.mjs. First exact-head build showed TS18047/TS2322 at f3c73612; 90c7a946 adds an explicit null guard. Current-head verification remains pending.
+WHAT_IS_PROVEN = The 90c7a946 Quality workflow passed its listed typecheck and static regression steps through stage 64, with build still running at stage 65 at last read; Product Build 37879969580 remains in progress, Full Product Browser E2E 37879969657 is pending, Session Handoff 37879969624 failed on stale report documentation, Final Certification 37879969438 is running, and Device E2E 37879969303 is running. No authenticated real-report PASS is claimed.
+FIRST_ACTIVE_FAILURE = f3c73612 build 37879870342 failed TypeScript null narrowing at SmartReportPage; 90c7a946 added !report narrowing. Older predecessor browser rerun 37876997910 failed actor provisioning and authenticated browser proof while Supabase Auth returned 504/500 and Postgres queries logged timeout cancellations. Current-head checks are not all terminal.
+ROOT_CAUSE = Report screens retained prior report state on route changes and could render it while the new source request was pending. They now clear state, match report/error rendering to current jobId + sourceHash and abort stale source-surface requests. Separately, staging Supabase Auth failed to reach its own Postgres (504/500 context-deadline errors); UI changes do not resolve that backend blocker.
+NEXT_EXACT_ACTION = Poll exact-90c Product Build 37879969580 and Full Product Browser 37879969657; confirm test:source-report-workspace passes. Then re-run the real report flow after Supabase Auth/database is responsive and prove canonical rows, passport, recommendations, decisions/work and outcomes carry the same tenant + jobId + sourceHash. Keep PR #911 open.
 
 ## Repository state
 - Repository: Report-Engainall/Report-Advisor

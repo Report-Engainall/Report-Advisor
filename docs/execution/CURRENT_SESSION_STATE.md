@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = e9271260ac2b52f623023840fa3aabfaad572669
+CURRENT_EXACT_HEAD = 90c7a9464004b001a53d324fc9836fb5b3cdd655
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = e9271260ac2b52f623023840fa3aabfaad572669
+CONTROL_PLANE_WRITEBACK_BASE = 90c7a9464004b001a53d324fc9836fb5b3cdd655
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -13,13 +13,22 @@ CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = e9271260ac2b52f623023840fa3aabfaad572669
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 90c7a9464004b001a53d324fc9836fb5b3cdd655
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-APPLICATION_SOURCE_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
+APPLICATION_SOURCE_HEAD = 90c7a9464004b001a53d324fc9836fb5b3cdd655
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 8583448ff6cdddabea2d1e83eae630802dd298fd; re-read deployment SHA for e927 and the checkpoint successor.
-UPDATED_AT = 2026-10-09T05:56:00+03:00
-NEXT_EXACT_ACTION = Verify readback of the docs-only checkpoint and its Session Handoff/Final Certification runs; consume Full Product Browser E2E 37876852731 plus current-head build, quality, Device E2E and Phase F. Verify the user-C live-report actor correction through an exact-head browser artifact before calling it proven. Do not merge before real report lineage, 48/48 runtime and release proof close.
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 8583448ff6cdddabea2d1e83eae630802dd298fd; deployment SHA for 90c7a946 is NOT YET VERIFIED. Public preview remains fixture-backed.
+UPDATED_AT = 2026-10-09T06:45:00+03:00
+NEXT_EXACT_ACTION = Poll exact-head Product Build 37879969580, Quality 37879969419, Full Product Browser E2E 37879969657, Session Handoff 37879969624, Final Certification 37879969438 and Device E2E 37879969303. Close the current typecheck/build and contract results first; keep PR #911 open and do not claim real-report product completion until authenticated report readback and 48/48 source proof pass.
+
+CURRENT EXECUTION DELTA — 2026-10-09 / REPORT CONTEXT ISOLATION
+- Exact code head: 90c7a9464004b001a53d324fc9836fb5b3cdd655. PR #911 remains OPEN / UNMERGED.
+- Changed files: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs.
+- Both report surfaces clear prior state, bind rendering and errors to current jobId + sourceHash, and reject mismatched report identity before display. The source-bound surface aborts outdated requests. Regression assertions cover both surfaces.
+- f3c73612 build 37879870342 failed typecheck on TS18047/TS2322 because a boolean guard did not narrow nullable report. 90c7a946 added explicit !report narrowing; exact-head Product Build 37879969580 was still running at last read. Do not mark it PASS before its terminal result.
+- Exact-head Quality 37879969419 was still in progress, Full Product Browser E2E 37879969657 pending, Session Handoff 37879969624 failed because the report was stale before this documentation writeback, Final Certification 37879969438 running, and Device E2E 37879969303 running.
+- Previous browser run 37876997910 on predecessor 3c08d089 failed actor provisioning, real open report, Chromium authenticated flow, business journey and fail-closed evidence. Supabase Auth logs showed repeated /token 504/500 plus Postgres connection deadline errors; SQLSTATE 57014 timeout cancellations were also present. Real-corpus passport and 48-archetype stages were skipped.
+- A passing build or contract is not real-customer proof. The public preview still shows 28-inventory-stockout-reorder.csv fixture data; live report journey, same jobId/hash continuity, passports and outcome evidence remain NOT PROVEN. PRODUCT COMPLETE = NO.
 
 CURRENT_PRODUCT_GOAL
 - Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.

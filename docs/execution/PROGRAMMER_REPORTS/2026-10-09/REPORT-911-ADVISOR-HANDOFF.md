@@ -1,12 +1,20 @@
 # Report-Advisor Execution Archive — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
 
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = e9271260ac2b52f623023840fa3aabfaad572669
-UPDATED_AT = 2026-10-09T05:56:00+03:00
+REPORT_FOR_HEAD = 90c7a9464004b001a53d324fc9836fb5b3cdd655
+UPDATED_AT = 2026-10-09T06:45:00+03:00
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
-PR_HEAD_AT_WRITEBACK_PARENT = e9271260ac2b52f623023840fa3aabfaad572669
+PR_HEAD_AT_WRITEBACK_PARENT = 90c7a9464004b001a53d324fc9836fb5b3cdd655
 PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+
+## Current delta — report identity isolation at 90c7a9464004b001a53d324fc9836fb5b3cdd655
+- Files changed: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs.
+- Both report surfaces now clear stale content during route changes, bind the displayed report and errors to the current jobId + sourceHash, and reject identity mismatches. The source-bound surface cancels stale requests.
+- f3c73612 failed the exact build on TS18047/TS2322; 90c7a946 added explicit null narrowing. The current Product Build run 37879969580 is still running; no PASS was claimed at the time of this checkpoint.
+- At last read: Quality 37879969419 running; Full Product Browser E2E 37879969657 pending; Session Handoff 37879969624 failed due to stale report documentation before this writeback; Final Certification 37879969438 and Device E2E 37879969303 running.
+- The predecessor browser rerun 37876997910 failed provisioning and authenticated report flow. Supabase Auth logs showed /token 504/500 and Postgres connection deadlines; real-source passports and 48 archetype runtime proof were skipped.
+- The preview is fixture-backed, not live customer proof. Product completion remains NO.
 
 ## Live-report actor correction
 - e9271260ac2b52f623023840fa3aabfaad572669 changes scripts/resume-open-report-server-proof.mjs to authenticate TEST_USER_C_EMAIL/PASSWORD.
