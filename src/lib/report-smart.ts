@@ -65,7 +65,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
-  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR';
+  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR' | 'PARTIAL_FETCH_INCOMPLETE';
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
@@ -839,17 +839,19 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     sourceRowCount == null
       ? canonicalFetchCeilingReached
       : sourceRowCount > canonicalFetchLimit;
-  const canonicalRowsPartial = canonicalFetchError || canonicalFetchLimitMayTruncate;
   const canonicalRowsComplete =
     sourceRowCount == null
       ? !canonicalFetchError && !canonicalFetchCeilingReached
       : canonicalRows.length >= sourceRowCount && !canonicalFetchError;
+  const canonicalRowsPartial = canonicalFetchError || canonicalFetchLimitMayTruncate || !canonicalRowsComplete;
   const canonicalAnalysisScope =
     canonicalFetchError
       ? 'PARTIAL_FETCH_ERROR'
       : canonicalFetchLimitMayTruncate
         ? 'PARTIAL_FETCH_CEILING'
-        : 'FULL_SOURCE';
+        : !canonicalRowsComplete
+          ? 'PARTIAL_FETCH_INCOMPLETE'
+          : 'FULL_SOURCE';
 
   // The database read-back is the authoritative truth for canonical coverage.
   // Passport metadata may be stale; it must never upgrade an empty/missing canonical

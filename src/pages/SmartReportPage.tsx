@@ -43,6 +43,7 @@ function stateLabel(value: string | null): string {
     FULL_SOURCE: 'المصدر كامل',
     PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
     PARTIAL_FETCH_ERROR: 'تحليل جزئي — تعذر قراءة جزء من المصدر',
+    PARTIAL_FETCH_INCOMPLETE: 'تحليل جزئي — تغطية الصفوف غير مكتملة',
     AWAITING_EVIDENCE_SNAPSHOT: 'الدليل النهائي غير مثبت',
     AVAILABLE_FROM_CANONICAL_ANALYSIS: 'متاح من التحليل الكانوني',
     NOT_COMMITTED: 'غير معتمد',
@@ -1335,11 +1336,17 @@ export function SmartReportPage() {
       </section>
     ) : null}
 
-    {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? (
-      <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="حد نطاق التحليل">
+    {report.canonicalAnalysisScope !== 'FULL_SOURCE' ? (
+      <section data-testid="smart-report-partial-source-scope" className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="نطاق التحليل الجزئي">
         <div className="text-[9px] font-black tracking-[.12em]">نطاق التحليل</div>
-        <div className="mt-1 text-sm font-black">التحليل هنا جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.</div>
-        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر. يجب الاعتماد على تجميعات خادمية موثقة قبل أي قرار شامل.</div>
+        <div className="mt-1 text-sm font-black">
+          {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING'
+            ? 'التحليل جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.'
+            : report.canonicalAnalysisScope === 'PARTIAL_FETCH_INCOMPLETE'
+              ? 'القراءة الكانونية أعادت صفوفًا أقل من العدد المعلن للمصدر.'
+              : 'تعذر قراءة كل الصفوف الكانونية من المصدر.'}
+        </div>
+        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر، ولا يجوز اعتمادها كتحليل شامل قبل استكمال التغطية.</div>
       </section>
     ) : null}
 
