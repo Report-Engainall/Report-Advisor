@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
+CURRENT_EXACT_HEAD = b3d90321568e887abb2bd580e5d3989a502fb2fc
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
+CONTROL_PLANE_WRITEBACK_BASE = b3d90321568e887abb2bd580e5d3989a502fb2fc
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -13,13 +13,21 @@ CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = b3d90321568e887abb2bd580e5d3989a502fb2fc
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-APPLICATION_SOURCE_HEAD = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
+APPLICATION_SOURCE_HEAD = b3d90321568e887abb2bd580e5d3989a502fb2fc
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 9e8ea948a04d89037bafcfd475bacf56fcb8e10a was last observed in the HTML metadata; this is only preview provenance. The preview renders fixture data, not a real tenant session.
-UPDATED_AT = 2026-10-09T07:15:00+03:00
-NEXT_EXACT_ACTION = Poll exact-head Product Build 37882128819 and Quality 37882128799; confirm both new report identity/retry and cohort-scope contracts pass. Then inspect Full Product Browser 37882128820, Handoff 37882128635, Certification 37882128663, Device E2E 37882128844, Report Value Cohort 37882128580 and Product Creation 37882128697 to terminal states. The scoped cohort workflow must not be marked green until it proves at least 40 eligible source hashes. Authenticated report proof remains blocked until Auth/Postgres is responsive; keep PR #911 open.
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = Last observed SHA 9e8ea948a04d89037bafcfd475bacf56fcb8e10a; this predates the source-bound retry fix. Preview remains fixture-backed and is not real customer proof.
+UPDATED_AT = 2026-10-09T07:18:00+03:00
+NEXT_EXACT_ACTION = Poll exact-head Build 37882281096 and Quality 37882281068; validate source-workspace retry contracts. Then inspect Full Browser 37882281159, Handoff 37882281357, Certification 37882281329, Device E2E 37882281026, Cohort 37882281466 and Product Creation 37882281236. The UI source audit is 17/17 predicates but is not CI. Auth /token 500/504 still blocks live tenant proof.
+
+LATEST EXECUTION DELTA — 2026-10-09 / SOURCE RETRY + COHORT TENANT SCOPE
+- Code head: b3d90321568e887abb2bd580e5d3989a502fb2fc. PR #911 remains OPEN / UNMERGED against main fa1ab4cbade9b01685507aa966c10f700a03f576.
+- SourceBoundReportSurface now requires AbortSignal for each fetch and routes both retry buttons through retryVersion/its abortable effect. SmartReportPage already uses the same guarded retry pattern. The source-report workspace contract now asserts these conditions.
+- Cohort candidate discovery now requires explicit validated tenant IDs, calls the SQL RPC per tenant in series, globally de-duplicates source hashes, and refuses a null-company unscoped scan. The workflow supplies five known staging corpus tenants and runs both scope and 57014 retry contract checks before the live cohort.
+- Static source inspection at this head: 17/17 authored predicates passed. This is NOT an executed Node test or CI pass.
+- Latest exact-head workflow IDs: Build 37882281096 QUEUED; Quality 37882281068 QUEUED; Full Browser 37882281159 PENDING; Handoff 37882281357 PENDING; Certification 37882281329 QUEUED; Device E2E 37882281026 QUEUED; Cohort 37882281466 QUEUED; Product Creation 37882281236 QUEUED; Data Quality 37882281314 QUEUED.
+- Supabase Auth logs showed /token 500/504 through 04:02 UTC from context deadline/canceled lookup errors; direct SQL connector had timed out. Real report, passports, 48/48 archetypes and decision/work/outcome readback are NOT PROVEN. Preview is fixture-bound. PRODUCT COMPLETE = NO.
 
 CURRENT EXECUTION DELTA — 2026-10-09 / SCOPED COHORT + REPORT IDENTITY
 - Exact code head: 478e5e7b11878d606d5fd03c57406765f1e3ca0c. PR #911 remains OPEN / UNMERGED; main = fa1ab4cbade9b01685507aa966c10f700a03f576.
