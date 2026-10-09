@@ -2,6 +2,18 @@ import { normalizeColumnName } from './normalizer.ts';
 import type { SynonymEntry } from './types';
 
 let synonymCache: Map<string, { canonical: string; confidence: number }> | null = null;
+let synonymLoadPromise: Promise<Map<string, { canonical: string; confidence: number }>> | null = null;
+const REMOTE_SYNONYM_LOOKUP_TIMEOUT_MS = 1200;
+
+function withTimeout<T>(value: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('REMOTE_SYNONYM_LOOKUP_TIMEOUT')), timeoutMs);
+    Promise.resolve(value).then(
+      result => { clearTimeout(timer); resolve(result); },
+      error => { clearTimeout(timer); reject(error); },
+    );
+  });
+}
 
 const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['sku', 'sku', 96], ['item code', 'sku', 96], ['product code', 'sku', 96], ['item id', 'sku', 92], ['رقم الصنف', 'sku', 98], ['كود الصنف', 'sku', 98], ['رمز الصنف', 'sku', 96],
@@ -21,12 +33,69 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['customer number', 'code', 98], ['customer code', 'code', 98], ['code', 'code', 98], ['رقم العميل', 'code', 98], ['كود العميل', 'code', 98], ['customer id', 'customer_id', 96], ['customer name', 'customer_name', 98], ['اسم العميل', 'customer_name', 98], ['phone', 'phone', 96], ['mobile', 'phone', 96], ['هاتف', 'phone', 96], ['جوال', 'phone', 96],
   ['email', 'email', 96], ['البريد الإلكتروني', 'email', 98], ['segment', 'segment', 98], ['customer segment', 'segment', 98], ['شريحة العميل', 'segment', 98], ['credit limit', 'credit_limit', 98], ['credit_limit', 'credit_limit', 98], ['حد ائتماني', 'credit_limit', 98], ['payment terms days', 'payment_terms_days', 98], ['payment_terms_days', 'payment_terms_days', 98], ['payment terms', 'payment_terms_days', 90], ['أيام شروط الدفع', 'payment_terms_days', 98],
   ['date', 'date', 94], ['التاريخ', 'date', 96], ['invoice number', 'invoice_number', 98], ['invoice_number', 'invoice_number', 98], ['رقم الفاتوره', 'invoice_number', 99], ['رقم الفاتورة', 'invoice_number', 99], ['invoice date', 'invoice_date', 98], ['invoice_date', 'invoice_date', 98], ['invoice type', 'invoice_type', 98], ['invoice_type', 'invoice_type', 98], ['نوع الفاتوره', 'invoice_type', 99], ['نوع الفاتورة', 'invoice_type', 99], ['subtotal', 'subtotal', 98], ['tax amount', 'tax_amount', 98], ['tax_amount', 'tax_amount', 98], ['paid amount', 'paid_amount', 98], ['paid_amount', 'paid_amount', 98], ['total', 'total', 94], ['الإجمالي', 'total', 96], ['اجمالي الفاتوره', 'total', 99], ['إجمالي الفاتورة', 'total', 99], ['مبلغ الصافي بالمحلي', 'net_amount', 99], ['مبلغ صافي المحلي', 'net_amount', 98], ['الصافي بالمحلي', 'net_amount', 98],
+  // Period columns and client-portfolio fields used in ordinary Excel reports.
+  // These are analytical semantic mappings; no business records are written automatically.
+  ['يناير', 'monthly_sales_jan', 98], ['january', 'monthly_sales_jan', 98], ['jan', 'monthly_sales_jan', 94],
+  ['فبراير', 'monthly_sales_feb', 98], ['february', 'monthly_sales_feb', 98], ['feb', 'monthly_sales_feb', 94],
+  ['مارس', 'monthly_sales_mar', 98], ['march', 'monthly_sales_mar', 98], ['mar', 'monthly_sales_mar', 94],
+  ['أبريل', 'monthly_sales_apr', 98], ['ابريل', 'monthly_sales_apr', 98], ['april', 'monthly_sales_apr', 98], ['apr', 'monthly_sales_apr', 94],
+  ['مايو', 'monthly_sales_may', 98], ['may', 'monthly_sales_may', 96],
+  ['يونيو', 'monthly_sales_jun', 98], ['june', 'monthly_sales_jun', 98], ['jun', 'monthly_sales_jun', 94],
+  ['يوليو', 'monthly_sales_jul', 98], ['july', 'monthly_sales_jul', 98], ['jul', 'monthly_sales_jul', 94],
+  ['أغسطس', 'monthly_sales_aug', 98], ['اغسطس', 'monthly_sales_aug', 98], ['august', 'monthly_sales_aug', 98], ['aug', 'monthly_sales_aug', 94],
+  ['الإجمالي الكلي', 'total', 99], ['اجمالي كلي', 'total', 98], ['grand total', 'total', 98], ['total amount', 'total', 96],
+  ['حالة الزبون', 'customer_status', 99], ['حالة العميل', 'customer_status', 99], ['customer status', 'customer_status', 98], ['customer_status', 'customer_status', 98],
+  ['تصنيف الأهمية (ABC)', 'abc_classification', 99], ['تصنيف الاهمية ABC', 'abc_classification', 99], ['تصنيف الأهمية', 'abc_classification', 96], ['abc class', 'abc_classification', 98], ['abc classification', 'abc_classification', 98],
+  ['مؤشر المخاطر والفرص', 'risk_indicator', 99], ['مؤشر المخاطر', 'risk_indicator', 98], ['risk indicator', 'risk_indicator', 98], ['risk opportunity indicator', 'risk_indicator', 98],
+  ['عدد أشهر التعامل', 'active_months_count', 99], ['عدد اشهر التعامل', 'active_months_count', 99], ['active months', 'active_months_count', 96], ['months transacted', 'active_months_count', 96],
+  ['متوسط الشهر الفعلي', 'average_monthly_value', 99], ['متوسط الشراء الشهري', 'average_monthly_value', 96], ['average monthly value', 'average_monthly_value', 98],
+  ['الشهر الأعلى شراءً', 'peak_purchase_month', 99], ['الشهر الاعلى شراء', 'peak_purchase_month', 99], ['peak purchase month', 'peak_purchase_month', 98],
+  ['نسبة النمو (يوليو-أغسطس)', 'growth_rate', 99], ['نسبة النمو يوليو اغسطس', 'growth_rate', 99], ['growth rate', 'growth_rate', 98], ['monthly growth rate', 'growth_rate', 98],
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
 async function getBrowserSupabase() { if (typeof window === 'undefined') throw new Error('BROWSER_SUPABASE_UNAVAILABLE_IN_SERVER_FILE_ENGINE'); const { supabase } = await import('../supabase'); return supabase; }
 
-export async function loadSynonyms(): Promise<Map<string, { canonical: string; confidence: number }>> { if (synonymCache) return synonymCache; const map = createBuiltinMap(); if (typeof window !== 'undefined') { const { supabase } = await import('../supabase'); const { data, error } = await supabase.from('synonym_dictionary').select('*').eq('is_active', true); if (!error && data) for (const entry of data as SynonymEntry[]) { const key = normalizeColumnName(entry.synonym); const existing = map.get(key); if (!existing || entry.confidence > existing.confidence) map.set(key, { canonical: entry.canonical_field, confidence: entry.confidence }); } } synonymCache = map; return map; }
+export async function loadSynonyms(): Promise<Map<string, { canonical: string; confidence: number }>> {
+  if (synonymCache) return synonymCache;
+  if (synonymLoadPromise) return synonymLoadPromise;
+
+  synonymLoadPromise = (async () => {
+    const map = createBuiltinMap();
+    if (typeof window !== 'undefined') {
+      try {
+        const { data, error } = await withTimeout(
+          (async () => {
+            const { supabase } = await import('../supabase');
+            return supabase.from('synonym_dictionary').select('*').eq('is_active', true);
+          })(),
+          REMOTE_SYNONYM_LOOKUP_TIMEOUT_MS,
+        );
+        if (!error && data) {
+          for (const entry of data as SynonymEntry[]) {
+            const key = normalizeColumnName(entry.synonym);
+            const existing = map.get(key);
+            if (!existing || entry.confidence > existing.confidence) {
+              map.set(key, { canonical: entry.canonical_field, confidence: entry.confidence });
+            }
+          }
+        }
+      } catch {
+        // File analysis must remain usable when the optional remote dictionary is
+        // unavailable. The deterministic built-in Arabic/English map is sufficient
+        // to continue parsing and visibly report the source rather than hang.
+      }
+    }
+    synonymCache = map;
+    return map;
+  })();
+
+  try {
+    return await synonymLoadPromise;
+  } finally {
+    synonymLoadPromise = null;
+  }
+}
 export function clearSynonymCache(): void { synonymCache = null; }
 export interface ColumnMapping { sourceColumn: string; mappedField: string | null; confidence: number; requiresReview: boolean; }
 export async function mapColumns(sourceColumns: string[]): Promise<ColumnMapping[]> { const synonyms = await loadSynonyms(); return sourceColumns.map(col => { const normalized = normalizeColumnName(col); const match = synonyms.get(normalized); if (match) return { sourceColumn: col, mappedField: match.canonical, confidence: match.confidence, requiresReview: match.confidence < 80 }; const partialMatch = findPartialMatch(normalized, synonyms); return partialMatch ? { sourceColumn: col, mappedField: partialMatch.canonical, confidence: partialMatch.confidence, requiresReview: true } : { sourceColumn: col, mappedField: null, confidence: 0, requiresReview: true }; }); }
