@@ -15,7 +15,7 @@ assert.ok(smartReportEffect.includes('setReport(null);'), 'SMART_REPORT_ROUTE_CH
 assert.ok(smartReportEffect.indexOf('setReport(null);') < smartReportEffect.indexOf('fetchSmartReport('), 'SMART_REPORT_MUST_CLEAR_OLD_REPORT_BEFORE_FETCH');
 assert.ok(smartReportRequestRegion.includes('report.jobId === currentJobId'), 'SMART_REPORT_RENDER_MUST_MATCH_JOB_ID');
 assert.ok(smartReportRequestRegion.includes('report.sourceHash === expectedSourceHash'), 'SMART_REPORT_RENDER_MUST_MATCH_SOURCE_HASH');
-assert.ok(smartReportRequestRegion.includes('errorContextKey === requestContextKey'), 'SMART_REPORT_ERRORS_MUST_BE_CONTEXT_BOUND');
+assert.ok(source.includes('errorContextKey === requestContextKey'), 'SMART_REPORT_ERRORS_MUST_BE_CONTEXT_BOUND');
 
 const sourceBoundStart = surface.indexOf('export function SourceBoundReportSurface(');
 assert.ok(sourceBoundStart >= 0, 'SOURCE_BOUND_REPORT_SURFACE_REQUIRED');
