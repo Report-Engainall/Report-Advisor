@@ -150,7 +150,7 @@ try {
     'حالة منقطع في المصدر',
     'ماذا نفعل الآن؟',
     'حد الدليل',
-    'حالة الفهم: دليل العملاء/نشاطهم',
+    'حالة الفهم: دليل العملاء/نشاطهم · يحتاج مراجعة',
   ];
   for (const item of customerRequired) {
     if (!customerBody.includes(item)) throw new Error('CUSTOMER_XLSX_MISSING:' + item);
