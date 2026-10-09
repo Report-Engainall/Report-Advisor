@@ -15,6 +15,8 @@ if (missing.length) {
 
 if (!workflow.includes('workflow_dispatch:')) throw new Error('Quality workflow must remain manually dispatchable.');
 if (!workflow.includes('npm ci --no-audit --no-fund')) throw new Error('Quality workflow must use locked, non-auditing dependency installation.');
+if (workflow.includes('git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}"')) throw new Error('Quality diagnostics must not reject an immutable run because the live PR ref advanced.');
+if (!workflow.includes("actual_merge_head=\"$(git show -s --format=%P HEAD | awk '{print $2}')\"")) throw new Error('Quality diagnostics must verify the PR head embedded in the merge commit.');
 if (!workflow.includes('npm run typecheck') || !workflow.includes('npm run lint') || !workflow.includes('npm run build')) throw new Error('Quality workflow must retain typecheck, lint, and build gates.');
 
 const requiredStageGroups = [
