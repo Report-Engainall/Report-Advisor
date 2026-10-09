@@ -56,6 +56,7 @@ type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
   sourceHash?: string | null;
   reportJobId?: string | null;
   archetypeId?: string | null;
+  archetypeHintId?: string | null;
   tenantId?: string | null;
   evidenceSnapshotId?: string | null;
   evidencePassportId?: string | null;
@@ -140,13 +141,16 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
   const fields = canonicalFields(input);
   const stats = fieldStats(input);
   const exactArchetype = text(input.archetypeId) ? getReportArchetype(text(input.archetypeId)) : null;
+  const hintedArchetype = text(input.archetypeHintId) ? getReportArchetype(text(input.archetypeHintId)) : null;
   const detection = exactArchetype
     ? { profile: exactArchetype, state: 'SUPPORTED', reason: 'EXACT_RUNTIME_ARCHETYPE' }
-    : detectReportArchetype({
-        sourcePath: input.sourcePath ?? null,
-        specialty: input.specialty ?? null,
-        availableFields: fields,
-      });
+    : hintedArchetype
+      ? { profile: hintedArchetype, state: 'REVIEW_REQUIRED', reason: 'SOURCE_SHAPE_HINT_REQUIRES_CANONICAL_VALIDATION' }
+      : detectReportArchetype({
+          sourcePath: input.sourcePath ?? null,
+          specialty: input.specialty ?? null,
+          availableFields: fields,
+        });
   const effectiveSpecialty = input.specialty ?? detection.profile?.adapterSpecialty ?? null;
   const base = deriveReportIntelligence({ ...input, specialty: effectiveSpecialty });
 
