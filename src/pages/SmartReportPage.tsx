@@ -892,7 +892,7 @@ export function SmartReportPage() {
       setErrorContextKey(requestContextKey);
     }).finally(() => setLoading(false));
   }} /></div>;
-  if (!reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={() => {
+  if (!report || !reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={() => {
     setLoading(true); setError(null); setErrorContextKey(null); setReport(null);
     void fetchSmartReport(currentJobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
       if (!next || next.jobId !== currentJobId || (expectedSourceHash && next.sourceHash !== expectedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
