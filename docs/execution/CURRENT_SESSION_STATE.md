@@ -1,106 +1,88 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 2bc08d60183193e53900561fb2b80e4b8702cc82
-CURRENT_CODE_HEAD = 2bc08d60183193e53900561fb2b80e4b8702cc82
+CURRENT_EXACT_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
+CURRENT_CODE_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = 2bc08d60183193e53900561fb2b80e4b8702cc82
+CURRENT_EXECUTION_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912
-CURRENT_PR_HEAD_AT_CODE_CHECK = 2bc08d60183193e53900561fb2b80e4b8702cc82
-UPDATED_AT = 2026-10-10T00:35:00+03:00
+CURRENT_PR_HEAD_AT_CODE_CHECK = 447d1009caa6279faf5664da932c1f25addb8594
+UPDATED_AT = 2026-10-10T00:42:00+03:00
 PRODUCT_COMPLETE = NO
 
-## LIVE EXECUTION CHECKPOINT — 2026-10-10 — PR #912
+## LIVE EXECUTION CHECKPOINT — 2026-10-10 — REPORT VISIBILITY REPAIR
 
-### State
+### Exact state
 - Repository: https://github.com/Report-Engainall/Report-Advisor
 - PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN, NOT MERGED.
-- Code head covered by this checkpoint: `2bc08d60183193e53900561fb2b80e4b8702cc82`.
-- main at latest ref read: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
-- Previous current report stated `0474e1bf6f6e51414f9715154a385411f433f164`; the route correction in `src/App.tsx` is a new code change at `2bc08d60183193e53900561fb2b80e4b8702cc82`.
-- This state preserves the older execution checkpoint archive below verbatim; previous dated report files remain append-only.
+- Code SHA described by this report: 447d1009caa6279faf5664da932c1f25addb8594. Main SHA: fa1ab4cbade9b01685507aa966c10f700a03f576.
+- All historical checkpoint content from the 2026-10-08 source-agnostic checkpoint below is preserved; append-only reports also remain.
+- Intermediate code commit 2bc08d60183193e53900561fb2b80e4b8702cc82 contained a literal escaped newline in a TSX comment and failed TypeScript/build. That defect was corrected on 447d1009caa6279faf5664da932c1f25addb8594; do not use the intermediate commit as validated code.
 
-### Current root cause established with live public route evidence
-- On Netlify preview/public hosts, `PublicOrAuthenticatedWorkspace` was returning `ProposalDemoPage` for every non-special route merely because the hostname was a Netlify preview/primary hostname. This caused `/reports` and `/reports/smart/:jobId` to show the generic fixture demo rather than the tenant-protected Reports Center and saved Smart Report.
-- Live public extraction of `https://deploy-preview-912--aghbari-report-advisor.netlify.app/reports` showed demo inventory source `28-inventory-stockout-reorder.csv` and its explicit fixture disclaimer, not the real tenant catalog. The page metadata identified source SHA `0474e1bf6f6e51414f9715154a385411f433f164`.
-- Fixed in `src/App.tsx` at `2bc08d60183193e53900561fb2b80e4b8702cc82`: proposal demo for host-based public/demo contexts is now landing-path-only, while explicit `?demo=1` and `/reports/smart/demo` remain deliberate demo paths. Other routes pass through `AuthGate<AppShell>`, preserving tenant isolation.
-- Fixed `?auth=1` to render `<AuthGate><AppShell /></AuthGate>`, so a user does not land on an empty screen after login; this does not bypass the gate.
-- Added route assertions to `scripts/customer-facing-report-surface-contract.test.mjs` so the broad preview-to-demo override and empty auth-query route cannot return silently.
-- This is the most material product-facing fix in this session. It is implemented/pushed; new Netlify Preview and CI pass evidence for `2bc08d60183193e53900561fb2b80e4b8702cc82` is still pending.
+### P0 root cause verified with public route evidence
+- On the Netlify public/preview host, PublicOrAuthenticatedWorkspace rendered ProposalDemoPage for every route merely because the hostname was a public Netlify preview/primary hostname.
+- Live extraction of /reports at prior preview SHA 0474e1bf6f6e51414f9715154a385411f433f164 returned fixture inventory source 28-inventory-stockout-reorder.csv, not the tenant-protected Reports Center. This proves the visible route bug that caused demo output to substitute for the saved report experience.
+- On code head 447d1009caa6279faf5664da932c1f25addb8594, host-triggered demo behavior is restricted to the landing route '/'. The protected /reports and /reports/smart/:jobId routes go through AuthGate and AppShell. Explicit ?demo=1 and /reports/smart/demo remain demo routes.
+- The ?auth=1 branch now renders AuthGate with AppShell as its protected child, preventing an empty post-login workspace.
+- scripts/customer-facing-report-surface-contract.test.mjs now asserts the landing-only demo route and the protected auth branch.
+- The fix is pushed. Exact-head CI and the new Netlify preview/browser proof have not yet passed; do not claim completion.
 
-### All changes made in this PR repair
-- `6f67a2ec558c08f4ea6af36c95dac56dadb0a14f`: fixed four real-business E2E checks that selected a hidden duplicate Evidence Passport label; provisioned E2E actors for the actual report-owner tenant and separate corpus tenant. AuthGate/RLS unchanged.
-- `7a91d7c85da137b0ee9d2ca7edd6f47ef8f4e90b`: aligned the static customer-facing surface contract with visible Evidence Passport proof.
-- `0474e1bf6f6e51414f9715154a385411f433f164`: made Phase F PostgreSQL utility image configurable with default `public.ecr.aws/docker/library/postgres:17` after Docker Hub anonymous rate limiting blocked backup/restore. The mirror fix only counts if live backup/restore passes.
-- `2bc08d60183193e53900561fb2b80e4b8702cc82`: restricted host-triggered proposal-demo routing to the landing path and fixed the protected `?auth=1` branch; added regression checks.
+### Other repairs retained
+- 6f67a2ec558c08f4ea6af36c95dac56dadb0a14f: fix four Evidence Passport E2E selectors to use the visible decision chain/details summary; set E2E owner and corpus tenant IDs without weakening authorization.
+- 7a91d7c85da137b0ee9d2ca7edd6f47ef8f4e90b: update stale report-surface contract to match visible evidence proof.
+- 0474e1bf6f6e51414f9715154a385411f433f164: Phase F PostgreSQL client uses configurable RESILIENCE_POSTGRES_CLIENT_IMAGE defaulting to public.ecr.aws/docker/library/postgres:17, after Docker Hub rate limiting blocked the predecessor backup/restore attempt. Fresh backup/restore PASS is pending.
 
-### Persistence and source-lineage proof (prior head only)
-- Authenticated browser E2E at source code head `31cba40866569c6bdb6e53ce970b7b87901d1e5b` created and read back a canonical report from Supabase:
-  - report job: `16709d80-e012-40ef-9c12-6fd8255897f8`
-  - import job: `1e68460b-f181-4f09-a4fe-d6a58be1fb18`
-  - file record: `c2d392e0-9b5c-4781-82b8-758680586524`
-  - company: `99e33354-cc45-4317-8eb3-0d486b6c5932`
-  - source: `تقارير ادارية.xlsx`
-  - `sourceHash=sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313`
-  - 332 canonical/source rows, quality 98, evidence VERIFIED, report execution stages completed.
-- This proves prior-head persistence/readback but not a fixed-head visible report journey. That older run stopped at the duplicate hidden-text locator; current E2E must show a screenshot/assertion after the route fix.
-- Prior tenant E2E correctly rejected a test actor belonging to a synthetic tenant; actor configuration was corrected, not the app authorization.
+### Predecessor-only persistence/readback evidence
+- Source code head: 31cba40866569c6bdb6e53ce970b7b87901d1e5b.
+- reportJobId: 16709d80-e012-40ef-9c12-6fd8255897f8; importJobId: 1e68460b-f181-4f09-a4fe-d6a58be1fb18; file record: c2d392e0-9b5c-4781-82b8-758680586524.
+- Company/tenant: 99e33354-cc45-4317-8eb3-0d486b6c5932; source: تقارير ادارية.xlsx; sourceHash: sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
+- 332 source/canonical rows, quality 98, evidence VERIFIED and execution stages completed. This proves DB readback on a predecessor, not visible report success on the fixed route; the old browser run failed later at the hidden text locator.
 
 ### Unified closure checklist
-
-| Track | Status | Evidence / next proof |
+| Track | Status | Evidence / blocker |
 |---|---|---|
-| Root public/Netlify route selection | IMPLEMENTED at `2bc08d60183193e53900561fb2b80e4b8702cc82`; PASS pending | Live old preview proves prior route bug; fresh preview must prove /reports is AuthGate and authorized saved details surface is real. |
-| Core import/AuthGate/RLS | Prior contracts PASS; current-head rerun pending | Never bypass membership or tenant isolation. |
-| Universal generic intelligence | PARTIAL | Generic unknown-archetype implementation + contract tests exist; A–J real-file browser matrix remains. |
-| Visible RTL smart report | IMPLEMENTED; current browser PASS pending | Executive decision, chain, Evidence Passport, source hash and trust state are in app. |
-| Persistence/readback | PASS on predecessor only | IDs/source lineage above; replay after fixes required. |
-| Catalog→detail→refresh/relogin | NOT PROVEN on current head | Playwright must assert catalog entry, detail state, source hash and same values after reload/re-login. |
-| Authenticated user with membership | PARTIAL | Previous persisted record evidence exists, but fixed route and current head need full journey proof. |
-| User without company membership | FAIL-CLOSED UI present; browser proof pending | Arabic membership/context messages, no default company, no RLS bypass. |
-| Quality/build/contracts on current head | PENDING | Fresh runs linked below; never report queued as PASS. |
-| Full Product Browser E2E | QUEUED on code head; see run links | Captures and DB readback required. |
-| Device-Independent Browser E2E | QUEUED on code head; owner company now explicit | Captures and no-membership scenario required. |
-| Phase F live resilience | PENDING after ECR image change | Do not certify until backup→restore is proven end-to-end. |
-| Netlify Preview | PREVIOUS code preview READY on `0474e1b`; latest `2bc08d60183193e53900561fb2b80e4b8702cc82` pending | Confirm exact `commit_ref` and test `/reports`, `/reports/smart/:jobId` after auth. |
-| Production | NOT PROVEN / STALE | Published Netlify SHA was `858ef8e3e5bc5bf74430555eadfb9e6767be348b`, not current main `fa1ab4cbade9b01685507aa966c10f700a03f576`. |
-| Product complete | NO | Required browser matrix, current-head certification and production deployed-SHA/smoke remain open. |
+| Netlify host route P0 | IMPLEMENTED; exact-head proof pending | Old live preview showed the fixture demo at /reports; new preview must show protected workspace/login and later the authorized catalog. |
+| AuthGate, RLS, tenant/source guards | Prior contracts passed; exact-head rerun pending | No default company, bypass or cross-tenant visibility added. |
+| Universal generic intelligence | PARTIAL | Generic fallback and Arabic XLSX tests exist; A–J file matrix not yet passed end-to-end. |
+| Visible RTL Smart Report | IMPLEMENTED; current browser proof pending | Executive result, decision chain, Evidence Passport, source hash and trust UI exist in code. |
+| Persistence/readback | PASS on predecessor only | Exact record lineage above; replay after route repair required. |
+| Catalog→details→refresh/re-login | NOT PROVEN on current head | Need browser evidence of saved catalog entry, detail values and fingerprint after refresh. |
+| Active membership account | PARTIAL | Predecessor report persisted; fixed route journey pending. |
+| No-membership account | Fail-closed UI exists; browser proof pending | Arabic reason shown; no default company or RLS bypass. |
+| Typecheck/build/quality | QUEUED for current code head | Intermediate 2bc syntax failure corrected on current head; fresh pass is required. |
+| Full Product Browser E2E | QUEUED | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993204984 |
+| Device-Independent Browser E2E | QUEUED | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205140 |
+| Final Certification | QUEUED | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205047 |
+| Product Build Gate | QUEUED | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205233 |
+| Quality | QUEUED | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205223 |
+| File Intelligence Security | PENDING | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205145 |
+| Data Quality Runtime | QUEUED | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205023 |
+| Phase F resilience | PENDING | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205011 |
+| Session Handoff Contract | PENDING | https://github.com/Report-Engainall/Report-Advisor/actions/runs/37993205007 |
+| Netlify Preview | NOT PROVEN for current code head | Prior deploy for 2bc failed because of TSX syntax; require new deployment with source SHA 447d1009caa6279faf5664da932c1f25addb8594. |
+| Production | STALE / NOT PROVEN | Published SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b is older than main fa1ab4cbade9b01685507aa966c10f700a03f576. |
+| Product complete | NO | Current browser matrix, certification and same-head production smoke not proven. |
 
 ### Required matrix A–J
-- A. Arabic customer/monthly purchases with totals: PARTIAL — XLSX semantic regression exists, actual uploaded workbook flow on the fixed current head not proven.
-- B. Different numerical domain: NOT PROVEN on current browser matrix.
-- C. CSV: upload→persist→refresh→catalog not proven on current head.
-- D. PDF/DOCX: PDF structured parser regression passed on predecessor; whole format-to-stored-report journey not proven.
-- E. Empty/corrupt file: live error/no-false-report path not proven.
-- F. Meaningful UNKNOWN archetype: generic fallback is implemented; persisted browser proof not proven.
-- G. Authenticated account without company membership: secure Arabic state exists; live browser proof not proven.
-- H. Repeat source hash and then change source: scoped safeguards exist; full current-head import/readback proof not proven.
-- I. Empty catalog then saved report: tenant catalog exists; live browser proof not proven.
-- J. Stored report after refresh/relogin: DB readback proven on predecessor only; current visible proof pending.
+- A. Arabic monthly customer purchases workbook + totals: PARTIAL; regression fixture exists but actual upload journey is not proven.
+- B. Numeric report in a different domain: NOT PROVEN.
+- C. CSV upload→persist→refresh→catalog: NOT PROVEN.
+- D. PDF/DOCX extraction into saved report: PDF parser regression passed on predecessor; full format-to-report proof is not proven.
+- E. Empty/corrupt file clean rejection with no false report: NOT PROVEN.
+- F. Meaningful UNKNOWN business report: generic fallback exists; persisted/browser proof not proven.
+- G. User without company membership: fail-closed UI exists; live browser proof pending.
+- H. Same source hash then a new hash: scoped safeguards exist; end-to-end readback proof pending.
+- I. Empty catalog then saved report appears: catalog code exists; live proof pending.
+- J. Reopen persisted report after refresh/re-login: prior DB readback PASS; current visual proof pending.
 
-### Exact-head workflow references
-The following new checks were current at the last status read; each must be re-polled for terminal result and exact SHA:
-- Quality: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981427
-- Product Build Gate: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981516
-- Final Certification Gate: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981498
-- File Intelligence Security: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981598
-- Full Product Browser E2E: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981545
-- Device-Independent Browser E2E: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981154
-- Phase F live resilience: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981503
-- Session Handoff Contract: https://github.com/Report-Engainall/Report-Advisor/actions/runs/37992981077
-- Netlify Preview for code head `2bc08d60183193e53900561fb2b80e4b8702cc82`: deployment pending at https://app.netlify.com/projects/aghbari-report-advisor/deploys/6ac95ae5d3655400088afafc
+### Release discipline
+- Local preview is not a persisted record; DB readback is not browser-visible completion.
+- Queued or pending is not PASS; preview is not production.
+- Do not weaken AuthGate, RLS, membership or source lineage.
+- Do not merge or declare COMPLETE while a required gate remains open.
 
-### DO NOT REPEAT
-- Local file preview is not a persisted report.
-- Supabase readback is not visible UI/browser proof.
-- Queued is not PASS; Preview READY is not production.
-- Do not weaken AuthGate, RLS, active membership, or tenant/source lineage.
-- Do not declare support for a file format without actual extraction proof.
-- Do not merge/declare COMPLETE with mandatory gates still open.
-
-NEXT_EXACT_ACTION = Poll current-head workflow runs and Netlify Preview; first re-test public-host /reports route, then run the authenticated upload→persist/readback→catalog→detail→refresh journey and A–J matrix, repair the first terminal failure, and only after all gates pass assess merge and production.
+NEXT_EXACT_ACTION = Consume exact-head workflow and new Netlify preview results; prove /reports routes to AuthGate rather than demo, then prove authenticated upload→persist/readback→catalog→details→refresh/relogin and matrix A–J; repair the first terminal failure before evaluating release.
 DO_NOT_MERGE = true
-
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
 - PR #905 merged successfully: source-agnostic external file analysis.
