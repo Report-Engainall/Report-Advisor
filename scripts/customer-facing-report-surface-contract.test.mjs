@@ -4,6 +4,7 @@ import fs from 'node:fs';
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 const surface = fs.readFileSync('src/components/CustomerReportSurface.tsx', 'utf8');
 const smart = fs.readFileSync('src/pages/SmartReportPage.tsx', 'utf8');
+const app = fs.readFileSync('src/App.tsx', 'utf8');
 
 assert.ok(reports.includes("import { CustomerReportSurface } from '@/components/CustomerReportSurface';"));
 assert.ok(reports.includes('return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;'));
@@ -20,6 +21,10 @@ assert.ok(!surface.includes('sourcePath'));
 assert.ok(smart.includes('displayColumnLabel'));
 assert.ok(smart.includes('التقرير الذكي'));
 assert.ok(smart.includes("report.specialty === 'sales' ? 'المبيعات'"));
+assert.ok(app.includes("if (authQuery) return <AuthGate><AppShell /></AuthGate>;"), 'AUTH_QUERY_MUST_OPEN_THE_PROTECTED_WORKSPACE_AFTER_LOGIN');
+assert.ok(app.includes("const isLandingPath = location.pathname === '/' || location.pathname === '';"), 'PUBLIC_PROPOSAL_DEMO_MUST_BE_LANDING_ONLY');
+assert.ok(app.includes("if (demoQuery || (isLandingPath && (isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview))) return <ProposalDemoPage />;"), 'PUBLIC_PREVIEW_MUST_NOT_REPLACE_REPORTS_OR_SMART_REPORT_ROUTES_WITH_FIXTURE_DEMO');
+assert.ok(!app.includes("if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview) return <ProposalDemoPage />;"), 'BROAD_PUBLIC_PREVIEW_ROUTE_OVERRIDE_FORBIDDEN');
 assert.ok(smart.includes('تصدير XLSX'));
 
 const customerFacingSurfaces = [
