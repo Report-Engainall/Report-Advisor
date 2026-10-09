@@ -1,12 +1,19 @@
 # Report-Advisor Execution Archive — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
 
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 1ca4851607b4d278f7ff9438065603453bc2f762
-UPDATED_AT = 2026-10-09T07:02:00+03:00
+REPORT_FOR_HEAD = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
+UPDATED_AT = 2026-10-09T07:08:00+03:00
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
-PR_HEAD_AT_WRITEBACK_PARENT = 1ca4851607b4d278f7ff9438065603453bc2f762
+PR_HEAD_AT_WRITEBACK_PARENT = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
 PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+
+## Current delta — cohort statement-timeout retry guard at 2d3f2c0760df0e62324e5da92a469c8d345b88c0
+- The retry-cancellation code in SmartReportPage routes retries back through the context-guarded effect. The UI prevents a result from a prior job/hash from replacing the current report.
+- scripts/report-value-cohort.mjs now inspects HTTP 500 response payloads; SQLSTATE 57014 or “statement timeout” returns immediately instead of replaying the same costly cohort RPC up to five times. scripts/report-value-cohort-retry-contract.test.mjs asserts the rule and the cohort workflow runs it before DB execution.
+- This is a prevention of repeated terminal query work, not proof the candidate-selection RPC is fast. The cohort RPC had failed at the candidate-selection stage before emitting a candidate pool.
+- Current exact-head 2d3f2c07 runs were queued/pending at last read: Product Build 37881797840; Quality 37881797964; Full Product Browser E2E 37881797950; Session Handoff 37881797893; Final Certification Gate 37881797775; Device E2E 37881797903; Report Value Cohort 37881797849; Commercial Product Creation E2E 37881797794.
+- Supabase management says ACTIVE_HEALTHY, but Auth logs repeatedly show /token and /admin/users 500/504 due local Postgres connection failures and the SQL connector times out. The prior real-report/browser flow remains failed; no passport/48-archetype PASS or product completion is claimed.
 
 ## Current delta — guarded retry path at 1ca4851607b4d278f7ff9438065603453bc2f762
 - Files changed by the current code wave: src/pages/SmartReportPage.tsx and scripts/source-report-workspace-contract.test.mjs; preceding identity guard also updated src/components/SourceBoundReportSurface.tsx.
