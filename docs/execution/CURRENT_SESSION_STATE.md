@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = ac68f9f203769522993b5bbed4e424f34610eda1
+CURRENT_EXACT_HEAD = 24a5e2434bb3a12ca487b2414909403fbda44c21
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = ac68f9f203769522993b5bbed4e424f34610eda1
+CONTROL_PLANE_WRITEBACK_BASE = 24a5e2434bb3a12ca487b2414909403fbda44c21
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -13,25 +13,24 @@ CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = ac68f9f203769522993b5bbed4e424f34610eda1
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 24a5e2434bb3a12ca487b2414909403fbda44c21
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-APPLICATION_SOURCE_HEAD = ac68f9f203769522993b5bbed4e424f34610eda1
+APPLICATION_SOURCE_HEAD = 24a5e2434bb3a12ca487b2414909403fbda44c21
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-NETLIFY_PREVIEW_METADATA_LAST_PROVEN = Last observed source SHA 9e8ea948a04d89037bafcfd475bacf56fcb8e10a, before the latest report retry/CI changes; current code SHA is not verified in Netlify preview. Preview remains fixture-backed.
-UPDATED_AT = 2026-10-09T07:35:42+03:00
-NEXT_EXACT_ACTION = Product Build 37884568704 is the exact code-head build run. After this docs-only writeback, poll the newest PR-head Quality, Full Product Browser, Handoff, Certification, Device E2E, Cohort, Product Creation and Data Quality runs; per-PR concurrency supersedes stale quality/browser/cohort runs. Verify contracts actually execute and report terminal outcomes. Auth 500/504 persists; do not claim authenticated report proof or product completion.
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = Last observed preview source SHA 9e8ea948a04d89037bafcfd475bacf56fcb8e10a, before latest report retry/CI changes. The preview is fixture-backed.
+UPDATED_AT = 2026-10-09T07:42:00+03:00
+NEXT_EXACT_ACTION = Poll code-head Build 37885083465, Quality 37885083556, Full Product Browser 37885083432, Handoff 37885083566, Certification 37885083643, Device E2E 37885083640, Report Value Cohort 37885083644, Product Creation 37885083654 and Data Quality Runtime 37885083552. All are queued/pending at last query. Confirm the loading-guard contract runs successfully; do not claim PASS until terminal. Auth 500/504 persists, so the product remains incomplete.
 
-LATEST EXECUTION DELTA — 2026-10-09 / SOURCE IDENTITY, CI COALESCING, AND REAL-REPORT BLOCKER
-- Application code head at this writeback parent: ac68f9f203769522993b5bbed4e424f34610eda1. PR #911 is OPEN / UNMERGED against main fa1ab4cbade9b01685507aa966c10f700a03f576. This checkpoint is docs-only; application source remains ac68f9f203769522993b5bbed4e424f34610eda1.
-- SmartReportPage and SourceBoundReportSurface bind visible report/error content to current jobId + sourceHash, clear prior state on context change, abort stale fetches, and route retries through the same guarded effect.
-- Report Value Cohort requires explicit tenant scope, queries each company separately, de-duplicates source hashes, and does not retry PostgreSQL SQLSTATE 57014 / statement-timeout responses. Its five-tenant list mirrors the established E2E_CORPUS_TENANT_IDS already used by the Full Product Browser workflow; the scope contract checks the two workflows stay aligned. If fewer than 40 distinct eligible sources exist, the cohort must fail honestly.
-- CI resource correction: Full Product Browser now coalesces runs by PR/ref and gates deterministic browser installation and authenticated business journey on successful actor provisioning, real-open-report proof and authenticated route proof. It still fails closed when evidence is missing. Quality coalesces by PR/ref and cancels superseded candidates; its contract requires that policy. The mutable live-head comparison was replaced with immutable second-parent provenance in the merge commit.
-- Exact-code-head static source/config inspection: 28/28 checks passed. These are source assertions only—not executed Node contracts, browser E2E, or production proof.
-- At last query for code head ac68f9f203769522993b5bbed4e424f34610eda1: Product Build Gate 37884568704 QUEUED; Quality 37884568692 QUEUED; Full Product Browser E2E 37884568760 PENDING; Handoff 37884568700 PENDING; Final Certification Gate 37884568286 QUEUED; Device E2E 37884568688 QUEUED; Report Value Cohort 37884568756 QUEUED; Commercial Product Creation E2E 37884568661 QUEUED; Data Quality Runtime 37884568736 QUEUED. This docs commit is expected to supersede queued quality/browser/cohort runs under per-PR grouping; use new current-head run IDs for those gates.
-- Historical CI issue: at 478e5e7, Quality failed Diagnostics because a run compared its immutable event head to the live branch after it advanced; npm install was skipped, leading to misleading follow-on eslint/vite-not-found errors. Current quality workflow checks the merge commit's embedded PR head and coalesces stale candidates.
-- Supabase management says ACTIVE_HEALTHY, but Auth logs at 04:33 UTC still show /token and /admin/users HTTP 500/504 from context timeout/cancellation and transaction startup failure. Direct SQL access has timed out. This remains an independent live-runtime blocker.
-- Public preview https://deploy-preview-911--aghbari-report-advisor.netlify.app still renders fixture-bound 28-inventory-stockout-reorder.csv; latest app SHA is not verified in that deployment. Authenticated real report, evidence-passport readback, real-source 48/48 archetypes, recommendation → decision/work → outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
-
+LATEST EXECUTION DELTA — 2026-10-09 / SOURCE IDENTITY, CI RESOURCE GATES, RETRY TEST FIX
+- Exact application code/test head: 24a5e2434bb3a12ca487b2414909403fbda44c21. PR #911 OPEN / UNMERGED; main fa1ab4cbade9b01685507aa966c10f700a03f576. This checkpoint will be docs-only.
+- SmartReportPage and SourceBoundReportSurface bind visible report/error state to jobId + sourceHash, clear stale content, abort old requests and route retries through the same guarded effect.
+- Report Value Cohort requires explicit tenant scope, queries each company separately, de-duplicates source hashes, and does not retry PostgreSQL SQLSTATE 57014 / statement-timeout responses. Its five IDs mirror the established E2E_CORPUS_TENANT_IDS in the Full Product Browser workflow; the scope contract checks that the two lists match.
+- CI resource changes: Full Product Browser now coalesces runs by PR/ref and gates browser installation on successful actor provisioning + real-open-report proof; the business journey requires authenticated route proof. Quality also coalesces by PR/ref and cancels superseded candidates. The quality event-head check verifies the immutable second parent of the merge commit.
+- Latest UI cleanup removed one duplicated loading guard in SmartReportPage. Its first new assertion used a mis-escaped regex and was corrected at 24a5e2434bb3a12ca487b2414909403fbda44c21 to count the exact literal string. This contract has not yet returned a terminal CI result.
+- Static source/config audit on predecessor ac68f9f: 28/28 predicates passed by inspection only. This is not a Node test, build, browser or production PASS.
+- Latest current-head workflow IDs: Build 37885083465 QUEUED; Quality 37885083556 QUEUED; Full Browser 37885083432 PENDING; Handoff 37885083566 PENDING; Certification 37885083643 QUEUED; Device E2E 37885083640 QUEUED; Cohort 37885083644 QUEUED; Product Creation 37885083654 QUEUED; Data Quality Runtime 37885083552 QUEUED.
+- Supabase project dashboard reports ACTIVE_HEALTHY, but Auth /token and /admin/users returned HTTP 500/504 through 04:35 UTC from context timeout/cancellation and transaction startup errors. Direct SQL access timed out earlier.
+- Public preview remains fixture-bound to 28-inventory-stockout-reorder.csv; current code SHA is not verified in Netlify. Authenticated report, passport readback, 48/48 real-source archetypes, recommendation-to-outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
 CURRENT_PRODUCT_GOAL
 - Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.
 - Preserve tenant + report job + source hash lineage across screens.

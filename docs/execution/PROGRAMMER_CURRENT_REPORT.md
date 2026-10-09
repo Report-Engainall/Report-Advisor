@@ -1,24 +1,24 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = ac68f9f203769522993b5bbed4e424f34610eda1
-UPDATED_AT = 2026-10-09T07:35:42+03:00
+REPORT_FOR_HEAD = 24a5e2434bb3a12ca487b2414909403fbda44c21
+UPDATED_AT = 2026-10-09T07:42:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor PR #911 from canonical boot files, verify real repository state, close concrete defects, and preserve a resumable exact-head handoff.
 
 
-## 2026-10-09 exact code head — ac68f9f203769522993b5bbed4e424f34610eda1
-- PR #911 remains open/unmerged; application source candidate is ac68f9f203769522993b5bbed4e424f34610eda1. This checkpoint is docs-only.
-- Report UI integrity: SmartReportPage and SourceBoundReportSurface clear stale context, gate displayed reports/errors on jobId + sourceHash, abort stale reads, and reuse guarded effects for retries.
-- Cohort execution: requires explicit tenant scope; queries each configured tenant separately; deduplicates source hashes; returns SQLSTATE 57014 / statement-timeout responses without retrying the same expensive query. Its five IDs mirror the established E2E_CORPUS_TENANT_IDS in Full Product Browser E2E and the contract checks both configurations match.
-- CI execution integrity: quality and full-browser workflows coalesce by PR/ref and cancel superseded candidates. Full browser install and the authenticated business journey require successful actor provisioning, real-open-report proof and authenticated route proof; final evidence still fails closed if output is missing. Quality diagnostics validate the immutable PR head embedded in the merge commit.
-- Static source/config inspection passed 28/28 predicates. This is not actual Node test, build, browser or production proof.
-- At last query, exact-code-head runs were queued/pending: Product Build 37884568704, Quality 37884568692, Full Browser 37884568760, Handoff 37884568700, Certification 37884568286, Device E2E 37884568688, Cohort 37884568756, Product Creation 37884568661 and Data Quality 37884568736.
-- Supabase Auth logs still show /token and /admin/users 500/504 at 04:33 UTC from context cancellation and transaction-start failures. The current real authenticated report journey remains NOT PROVEN.
-- Product completion: NO.
+## 2026-10-09 exact code head — 24a5e2434bb3a12ca487b2414909403fbda44c21
+- PR #911 remains open/unmerged; main = fa1ab4cbade9b01685507aa966c10f700a03f576.
+- SmartReportPage and SourceBoundReportSurface bind displayed reports/errors to jobId + sourceHash, clear stale context, abort old fetches and retry through guarded effects.
+- Cohort discovery requires explicit company scope, queries each company separately and de-duplicates source hashes; SQLSTATE 57014 / statement-timeout responses are not retried. The configured tenant list matches the existing full-browser E2E corpus.
+- Quality and Full Browser workflows coalesce runs by PR/ref and cancel superseded candidates. Browser installation and business journey require successful prerequisite proof. Quality checks immutable merge-parent provenance.
+- Removed the duplicated SmartReportPage loading guard and corrected the regression assertion to count the exact literal string. Current-head CI hasn't returned a terminal result yet.
+- Static source/config inspection passed 28/28 predicates on predecessor ac68f9f; this is not runtime proof.
+- Current code-head run frontier: Build 37885083465, Quality 37885083556, Full Browser 37885083432, Handoff 37885083566, Certification 37885083643, Device E2E 37885083640, Cohort 37885083644, Product Creation 37885083654, Data Quality 37885083552; all queued/pending at last read.
+- Supabase Auth remains blocked by /token and /admin/users 500/504 as of 04:35 UTC. Public preview remains fixture-backed. PRODUCT COMPLETE = NO.
 
-WHAT_I_ACTUALLY_DID = Hardened source-bound report identity and retry cancellation, restored cohort scope to the existing five-tenant E2E corpus with a cross-workflow contract, fixed terminal SQL timeout retries, changed Quality provenance to use the immutable merge-parent head, and coalesced stale browser/quality runs by PR/ref with explicit prerequisites for expensive browser steps.
-WHAT_IS_PROVEN = Static source/config inspection on code head ac68f9f203769522993b5bbed4e424f34610eda1 passed 28/28 authored assertions. This is not executed CI proof. At last query, Product Build 37884568704, Quality 37884568692, Full Browser 37884568760, Handoff 37884568700, Certification 37884568286, Device E2E 37884568688, Cohort 37884568756, Product Creation 37884568661 and Data Quality Runtime 37884568736 were queued/pending. No current-head product/browser PASS is claimed.
-FIRST_ACTIVE_FAILURE = Current-head jobs remain queued. Previous browser runs repeatedly failed actor provisioning and real-open-report proof, then still executed the real business journey because it was marked always(); this consumed runners without authenticated prerequisites. Latest Supabase logs through 04:33 UTC continue to show /token and /admin/users 500/504.
-ROOT_CAUSE = UI: report content and retry requests could race route changes; now the response context is jobId+sourceHash and old requests are canceled. CI: each SHA had its own concurrency group, producing stale active runs; latest runs now coalesce by PR/ref, and browser stages require successful upstream proofs. Cohort: scoped tenant list is aligned with the existing E2E corpus; 57014 timeouts are terminal, not retried. Supabase Auth/Postgres remains unhealthy.
-NEXT_EXACT_ACTION = Poll code-head Build 37884568704 and the newest PR-head Quality, Full Product Browser, Handoff, Cohort and certification runs after this documentation writeback. Confirm the new quality/topology/scope contracts execute; require a 40-distinct-source artifact and Authenticated E2E proof. If Auth/Postgres remains 500/504, mark the real customer journey BLOCKED/NOT PROVEN and keep PR #911 open.
+WHAT_I_ACTUALLY_DID = Hardened report identity/retry isolation, aligned cohort scope with the established E2E tenant list, stopped retries of terminal SQL timeouts, coalesced quality/browser CI by PR/ref with prerequisite gates, removed a duplicate SmartReportPage loading guard and changed the test assertion to literal substring counting.
+WHAT_IS_PROVEN = Static source/config audit on predecessor ac68f9f passed 28/28 predicates. At current code head 24a5e243, Product Build 37885083465, Quality 37885083556, Full Browser 37885083432, Handoff 37885083566, Certification 37885083643, Device 37885083640, Cohort 37885083644, Product Creation 37885083654 and Data Quality 37885083552 were queued/pending. No current-head test PASS or authenticated report proof is established.
+FIRST_ACTIVE_FAILURE = Current-head jobs remain queued. The new loading-guard test originally used an over-escaped regex and was corrected at 24a5e243; its real CI result is pending. Supabase Auth /token and /admin/users 500/504 continue to block authenticated E2E.
+ROOT_CAUSE = UI report context/retries are now job/hash-bound and abortable. CI coalesces stale runs and gates expensive browser steps. Cohort uses the established E2E tenant scope and avoids terminal SQL timeout retries. One duplicate loading guard was removed and its test simplified. Supabase Auth/Postgres remains the live-product blocker.
+NEXT_EXACT_ACTION = Poll current-head Build 37885083465 and Quality 37885083556. Confirm the literal loading-guard, source-report workspace, cohort scope and retry contracts actually execute; then inspect Full Browser 37885083432, Handoff 37885083566, Certification 37885083643 and Cohort 37885083644. Keep PR #911 open until authenticated report and outcome continuity pass.
 
 ## Repository state
 - Repository: Report-Engainall/Report-Advisor
