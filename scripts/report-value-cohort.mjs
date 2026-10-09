@@ -4,8 +4,22 @@ import { createClient } from '@supabase/supabase-js';
 const url = process.env.REPORT_ADVISOR_SUPABASE_URL || process.env.SUPABASE_URL;
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const explicitCompanyId = process.env.REPORT_ADVISOR_COMPANY_ID?.trim() || '';
+const configuredCompanyIds = (explicitCompanyId
+  ? [explicitCompanyId]
+  : (process.env.REPORT_ADVISOR_COHORT_COMPANY_IDS || '')
+      .split(/[;,\s]+/)
+      .map((value) => value.trim())
+      .filter(Boolean));
+const UUID_PATTERN = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+const cohortCompanyIds = [...new Set(configuredCompanyIds.map((value) => value.toLowerCase()))].sort();
 if (!url || !serviceRole) {
   throw new Error('REPORT_VALUE_COHORT_ENV_REQUIRED');
+}
+if (cohortCompanyIds.length === 0) {
+  throw new Error('REPORT_VALUE_COHORT_COMPANY_SCOPE_REQUIRED');
+}
+if (cohortCompanyIds.some((companyId) => !UUID_PATTERN.test(companyId))) {
+  throw new Error('REPORT_VALUE_COHORT_COMPANY_SCOPE_INVALID');
 }
 
 const RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
@@ -67,21 +81,45 @@ function isRealReportJob(row) {
 }
 
 async function selectCohortCandidates() {
-  const { data, error } = await supabase.rpc('get_report_value_cohort_candidates', {
-    p_limit: 100,
-    p_company_id: explicitCompanyId || null,
+  const scopedCandidates = [];
+  for (const companyId of cohortCompanyIds) {
+    // Query each configured tenant separately; never run the costly eligibility
+    // join unscoped across every tenant in the shared staging database.
+    const { data, error } = await supabase.rpc('get_report_value_cohort_candidates', {
+      p_limit: 100,
+      p_company_id: companyId,
+    });
+    if (error) {
+      const code = String(error.code ?? 'UNKNOWN');
+      const message = String(error.message ?? error).replace(/\s+/g, ' ').slice(0, 180);
+      throw new Error('REPORT_VALUE_COHORT_SCOPED_QUERY_FAILED:' + companyId + ':' + code + ':' + message);
+    }
+    for (const row of data ?? []) {
+      scopedCandidates.push({
+        id: String(row.job_id),
+        company_id: String(row.company_id),
+        source_path: String(row.source_path ?? ''),
+        source_hash: String(row.source_hash ?? ''),
+        job_key: String(row.job_key ?? ''),
+        checkpoint: row.checkpoint ?? {},
+        evidence: row.evidence ?? {},
+        updated_at: row.updated_at ?? null,
+      });
+    }
+  }
+
+  scopedCandidates.sort((a, b) =>
+    a.source_path.toLowerCase().localeCompare(b.source_path.toLowerCase())
+    || a.source_hash.localeCompare(b.source_hash)
+    || a.company_id.localeCompare(b.company_id)
+    || a.id.localeCompare(b.id),
+  );
+  const seenSourceHashes = new Set();
+  return scopedCandidates.filter((job) => {
+    if (!job.source_hash || seenSourceHashes.has(job.source_hash)) return false;
+    seenSourceHashes.add(job.source_hash);
+    return true;
   });
-  if (error) throw error;
-  return (data ?? []).map((row) => ({
-    id: String(row.job_id),
-    company_id: String(row.company_id),
-    source_path: String(row.source_path ?? ''),
-    source_hash: String(row.source_hash ?? ''),
-    job_key: String(row.job_key ?? ''),
-    checkpoint: row.checkpoint ?? {},
-    evidence: row.evidence ?? {},
-    updated_at: row.updated_at ?? null,
-  }));
 }
 
 const candidateJobs = await selectCohortCandidates();
