@@ -52,6 +52,9 @@ jobs:
       - name: Run passport contract
         run: npm run test:report-evidence-passport-contract
 
+      - name: Validate bounded cohort retry policy
+        run: node scripts/report-value-cohort-retry-contract.test.mjs
+
       - name: Run 40-report business value cohort
         shell: bash
         run: |

@@ -10,12 +10,26 @@ if (!url || !serviceRole) {
 
 const RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function isTerminalStatementTimeout(response) {
+  if (response.status !== 500) return false;
+  const payload = await response.clone().json().catch(() => null);
+  return String(payload?.code ?? '') === '57014'
+    || /statement timeout|canceling statement/i.test(String(payload?.message ?? ''));
+}
+
 const resilientFetch = async (input, init = {}) => {
   let last;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
       const response = await fetch(input, init);
-      if (!RETRYABLE_HTTP.has(response.status) || attempt === 5) return response;
+      // A PostgreSQL statement timeout is deterministic for that query. Retrying
+      // it five times only repeats expensive work and amplifies database pressure.
+      if (
+        !RETRYABLE_HTTP.has(response.status)
+        || attempt === 5
+        || await isTerminalStatementTimeout(response)
+      ) return response;
       last = new Error('SUPABASE_RETRYABLE_HTTP_' + response.status);
     } catch (error) {
       last = error;
