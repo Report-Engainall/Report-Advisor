@@ -56,10 +56,13 @@ type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
   sourceHash?: string | null;
   reportJobId?: string | null;
   archetypeId?: string | null;
+  archetypeHintId?: string | null;
   tenantId?: string | null;
   evidenceSnapshotId?: string | null;
   evidencePassportId?: string | null;
   availableFields?: CanonicalField[];
+  // Optional shape-specific analysis computed from the same source rows shown in preview.
+  previewIntelligence?: ReportIntelligence;
 };
 
 function text(value: unknown): string {
@@ -138,13 +141,16 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
   const fields = canonicalFields(input);
   const stats = fieldStats(input);
   const exactArchetype = text(input.archetypeId) ? getReportArchetype(text(input.archetypeId)) : null;
+  const hintedArchetype = text(input.archetypeHintId) ? getReportArchetype(text(input.archetypeHintId)) : null;
   const detection = exactArchetype
     ? { profile: exactArchetype, state: 'SUPPORTED', reason: 'EXACT_RUNTIME_ARCHETYPE' }
-    : detectReportArchetype({
-        sourcePath: input.sourcePath ?? null,
-        specialty: input.specialty ?? null,
-        availableFields: fields,
-      });
+    : hintedArchetype
+      ? { profile: hintedArchetype, state: 'REVIEW_REQUIRED', reason: 'SOURCE_SHAPE_HINT_REQUIRES_CANONICAL_VALIDATION' }
+      : detectReportArchetype({
+          sourcePath: input.sourcePath ?? null,
+          specialty: input.specialty ?? null,
+          availableFields: fields,
+        });
   const effectiveSpecialty = input.specialty ?? detection.profile?.adapterSpecialty ?? null;
   const base = deriveReportIntelligence({ ...input, specialty: effectiveSpecialty });
 
@@ -157,6 +163,9 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
       base,
     );
   }
+  // Keep the executive preview and decision chain on the same report-intelligence object.
+  // This is especially important when the source shape has a specialized, source-bound analysis.
+  if (input.previewIntelligence) intelligence = input.previewIntelligence;
 
   const provenance = {
     tenantId: input.tenantId ?? 'preview',
