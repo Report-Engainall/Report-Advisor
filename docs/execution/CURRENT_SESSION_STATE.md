@@ -1,54 +1,68 @@
-SESSION HANDOFF = READY
+SESSION HANDOFF = READY_TO_RESUME
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
+COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
+OPERATING_PROTOCOL = docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md
+SUPERVISION_PROTOCOL = Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md
+
+CURRENT_APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
 BRANCH = captain/critical-bundle-proof-20261009
-PR = #911
-CURRENT_PR_HEAD = 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b (application and test-contract head; docs-only checkpoint commit follows)
+PR = #911 (OPEN; last read mergeable)
+PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
+NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+APPLICATION_COMMIT_MESSAGE = fix: preserve unknown sales in inventory coverage share
+GOVERNANCE_DOCS_MUST_BE_REFRESHED_AFTER_APP_COMMITS = true
 
-WHAT_ACTUALLY_HAPPENED
-- Continued PR #911 after reviewing the customer-portfolio XLSX output. The visible preview already extracted the Arabic customer schema, but the expanded Universal Business Intelligence chain independently re-derived generic sales intelligence and incorrectly showed a missing-date signal / invoice-detail archetype.
-- Added an explicit source-bound portfolio signal and recommendation covering source-status interruptions, month totals, customer evidence, measurement, ownership, and evidence limitations.
-- The Universal Intelligence chain now reuses the same preview intelligence object for the specialized customer-portfolio shape rather than replacing it with a separately derived generic result.
-- The customer-portfolio shape hints at the existing customer-activity archetype while leaving its state REVIEW_REQUIRED until canonical validation; the UI now makes that uncertainty visible rather than asserting an exact supported archetype.
-- Added a unit contract in scripts/generic-file-analysis.test.mjs and browser-smoke assertions in scripts/public-report-upload-smoke.mjs requiring the customer-activity label and rejecting stale “date missing” / “sales invoice details” output.
-- No Remote Desktop session was used.
-- Added cursor-based paging to the source-bound smart-report catalog, keeping legacy fetchSmartReportCatalog callers compatible.
-- Reports Center now appends more results with de-duplication and visible loading/error/end states instead of stopping after the first 60 raw jobs.
-- Analysis/decision surfaces now expose recent smart reports as links preserving the exact report job ID and source hash.
-- Added a CI-executable source contract for catalog pagination and cross-screen report navigation.
+CURRENT_PRODUCT_GOAL
+- Make all completed smart reports visible in the product UI, not merely present in the database or an isolated report route.
+- Reports Center must paginate through all available report jobs instead of silently stopping at the first 60.
+- Analysis/decision screens must offer source-bound recent-report navigation without losing exact report lineage.
+- Preserve tenant isolation, sourceHash checks, and truthful evidence/decision/action boundaries.
+- Do not create a new app, do not count generic/demo labels as product completion, and do not equate a build pass with complete product proof.
 
-WHAT_IS_PROVEN
-- Application and regression-contract head: 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b; PR #911 branch captain/critical-bundle-proof-20261009.
-- The application changes and deterministic source-contract assertions are committed to PR #911. The source-contract preflight was checked before the branch update.
-- At the last exact-head status read, GitHub Actions had 59 check-runs with some queued/in progress, and the overall commit status was pending; Netlify deploy-preview was still processing. No complete build/test/browser pass is claimed for 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b.
-- The earlier head be8154369561d88b645df199134a8f8a2c643705 had passed its then-current typecheck/build and the 12-row/11-column CSV upload smoke. Those results do NOT prove the new customer-portfolio patch.
-- New unit and XLSX browser regression assertions are committed, but their post-patch execution is not yet proven.
+CHANGES_PERSISTED_ON_PR
+- Added fetchSmartReportCatalogPage(limit, offset) with one-row lookahead, source-job offset paging, and source-hash-safe mapping.
+- Preserved fetchSmartReportCatalog(limit) as a backward-compatible wrapper.
+- Reports Center loads the first 60 and provides “تحميل المزيد من التقارير الذكية”, de-duplicates appended reports, and shows loading/error/end states.
+- ReportSourceContext adds recent smart-report links on analysis/decision pages, carrying the exact jobId and sourceHash.
+- Added assertions for catalog paging and cross-screen report navigation in scripts/smart-report-complete-intelligence-surface.test.mjs.
+- Fixed inventory coverage aggregation so unknown sales remain null; a sales share is shown only when all required inputs are present. Removed silent Number(item.sales) || 0 coercion.
+- No Remote Desktop session was used. Avoid paid Vercel builds and any paid agent run.
 
-- Paged smart-report catalog implementation and cross-screen quick-access navigation are committed at application head 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b.
-- Exact-head GitHub Actions build-and-contracts job 113615612006 completed successfully: Typecheck, production build, Smart report surface contract, Smart report evidence boundary contract, Customer-facing report surface contract, Source upload UI contract, and smart-report-catalog-navigation all PASS.
-- The Netlify deploy-preview status for application head 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b reports success.
-- Browser smoke job 113615611837 had reached Chromium-runner installation at the last check; the actual browser smoke and full authenticated journey are still NOT PROVEN.
-- Two auxiliary jobs on the application-head workflow failed: one explicitly failed the exact-PR-head guard after the PR branch advanced to a docs-only commit; another diagnostics step failed before dependencies were installed, after which lint/build/performance substeps reported missing eslint/vite/dist. These do not override the successful dedicated build-and-contracts run; clean exact-head rerun remains pending.
+PROVEN_AT_APPLICATION_HEAD_2c4ef80717a6e7052373e721d2e0586115cc5efd
+- GitHub write access works; application commit is persisted on PR #911.
+- Dedicated build-and-contracts job for this head passed Typecheck, Production build, Smart report surface contract, Smart report evidence boundary contract, Customer-facing report surface contract, and Source upload UI contract.
+- Netlify deploy-preview status for this application head reports success.
+- These results prove the build and named contracts only; they do not prove the full authenticated product journey.
 
-CURRENT_OPEN_GATES
-- Typecheck, production build, and catalog/smart-report source contracts PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b. Browser smoke / actual report navigation remain in progress or NOT PROVEN, and auxiliary exact-PR-head/diagnostic jobs require a clean rerun on the stable branch tip.
-- The customer workbook pasted in the conversation has not been re-uploaded through an interactive browser session after this patch, so its post-patch visible result remains awaiting browser proof.
-- Full authenticated upload -> persisted report -> evidence -> recommendation -> decision/work/outcome remains NOT PROVEN.
-- Real-source 48/48 archetype proof remains NOT PROVEN.
-- Production release remains NOT PROVEN. Do not mark PRODUCT_COMPLETE or PRODUCTION_PROVEN.
+CURRENT_ACTIVE_BLOCKER
+- Latest certification-contracts job failed in scripts/check-real-smart-report-advisor.mjs:20 with “missing advisor marker: ADVISOR BRIEF”.
+- SmartReportPage.tsx already has section id="advisor-decision-brief", data-testid="smart-report-advisor-brief", and the Arabic kicker “ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟”, but lacks the exact English marker required by the contract.
+- Next: inspect the actual UI/contract intent and make the smallest truthful fix, then rerun certification contracts. Do not weaken unrelated evidence or numeric-truth constraints.
+- Full Product Browser E2E job 113617979908 was still at “Provision rerunnable E2E actors with bounded recovery” when last checked. Refresh its live status before acting; authenticated report/browser proof is not yet established.
+- Earlier browser smoke success on application head 8eda2a11 is historical and does NOT constitute XLSX browser proof on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
+- At the last read, latest checks included a certification-contracts failure and other in-progress jobs. Refresh current check-runs instead of assuming status is unchanged.
 
-CURRENT_ACTIVE_FAILURE
-- The dedicated build-and-contracts run is successful for 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b, and Netlify deploy-preview status for that application commit is success. Browser smoke and full product E2E are still not proven.
-- Avoid paid Vercel usage; a plan/build-capacity limitation must not be mistaken for an application test failure.
-- Current production/main has not been shown to contain this patch.
+OPEN PROOF GATES
+- Certification contracts PASS on the latest exact application head.
+- Browser E2E: authenticated report visibility, pagination and cross-screen navigation.
+- Safe XLSX upload smoke on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
+- 48/48 real-source archetype runtime proof.
+- Full authenticated upload -> persisted report -> evidence -> recommendation -> decision/work/outcome.
+- Production/main proof; main remains fa1ab4cbade9b01685507aa966c10f700a03f576, PR #911 is open and unmerged.
 
-ROOT_CAUSE
-- The file-analysis page ran two separate intelligence paths: buildPreviewIntelligence(dataset) produced the source-specific customer portfolio finding, while buildUniversalReportIntelligence re-derived intelligence from the same raw rows and selected a generic sales/date signal. That made the visible executive report and expanded decision chain contradict one another.
-- The customer-portfolio path now supplies its source-bound intelligence object into the universal chain, produces its own source-backed signal and recommendation, and hints “customer activity” as an archetype requiring canonical review. This is the patch to verify; do not infer verification from code presence.
+NEXT_EXECUTION_ORDER
+1. Read this file, docs/execution/PROGRAMMER_CURRENT_REPORT.md, docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md, and Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md before editing.
+2. Recheck live PR head, application commit, latest check-runs, and browser-e2e job steps; docs-only commits may make the PR head differ from application code head.
+3. Fix the ADVISOR BRIEF contract/UI discrepancy surgically; no broad refactor.
+4. Consume terminal current-head tests and browser proof; pending checks are not passes.
+5. Verify load-more de-duplicates and reaches the end of the catalog; verify every opened report keeps exact jobId + sourceHash.
+6. Refresh governance docs after any application commit, then check same-head proof again.
+7. Do not merge or mark PRODUCT_COMPLETE until browser-visible behavior and remaining blockers are independently resolved.
 
-NEXT_EXACT_ACTION = Consume the terminal Chromium/browser-smoke and full-product browser jobs; rerun the exact-PR-head/diagnostic workflows after the branch is stable; then verify load-more and lineage-preserving cross-screen navigation on the Netlify preview. Keep authenticated persistence, 48-archetype proof, and production proof open until separately demonstrated. Avoid paid Vercel and Remote Desktop.
+STATUS VOCABULARY
+IMPLEMENTED / INTEGRATED / PERSISTED / UI-EXPOSED / READBACK-PROVEN / BROWSER-PROVEN / PRODUCTION-PROVEN / PRODUCT COMPLETE are separate states. Report each honestly.
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
