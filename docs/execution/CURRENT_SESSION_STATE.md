@@ -1,6 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = a55478b0e7ad95f1aa137e57e99f229ec1dd0c30
-CONTROL_PLANE_WRITEBACK_BASE = a55e98bcb97263fcb31c63b40ab300dee5ed5bfd
+CURRENT_EXACT_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
+CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
+CONTROL_PLANE_WRITEBACK_BASE = c7828c84d45bfbada5489df4fd00ec362f15bca7
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -39,14 +40,12 @@ PROVEN_AT_APPLICATION_HEAD_2c4ef80717a6e7052373e721d2e0586115cc5efd
 - These results prove the build and named contracts only; they do not prove the full authenticated product journey.
 
 CURRENT_ACTIVE_BLOCKER
-- The stale English-only advisor marker assertion was repaired in scripts/check-real-smart-report-advisor.mjs at exact commit a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; the contract now requires the actual Arabic visible kicker on SmartReportPage.tsx.
-- New exact-commit CI run is in progress/queued; certification PASS is not yet established on this commit.
-- Session Handoff Contract previously failed because CURRENT_EXACT_HEAD and required report key/value fields were absent; these fields are restored and the current canonical session memory is now being synchronized.
-- The handoff validator allowlist is being updated narrowly to allow only the canonical ONE-PROGRAMMER-SESSION-MEMORY.md and the handoff contract itself, in addition to state/report/archive paths; arbitrary application paths remain disallowed.
-- Exact-tip Session Handoff Contract must be rerun after this control-plane commit; source-level field readback is not CI proof.
-- Full Product Browser E2E and cross-screen pagination/source-lineage navigation remain NOT PROVEN in an authenticated browser.
-- The previously successful typecheck/build on 2c4ef80717a6e7052373e721d2e0586115cc5efd is historical for this new contract commit; consume the new exact-head checks before claiming fresh PASS.
-- Remote Desktop is intentionally not used; GitHub write access and GitHub Actions are available, preserving the remaining 20% Remote Desktop allowance.
+- Advisor certification marker fix persists at a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; Final Certification Gate passed at ancestor tip 199949e499338798f8efb10ed5e9ebc67b929b4a.
+- Current regression fix at c7828c84d45bfbada5489df4fd00ec362f15bca7: scripts/generic-file-analysis.test.mjs now requests a Node Buffer from XLSX.write and slices its exact view range. The previous exact-head quality run failed at line 71 because XLSX.write({ type: 'array' }) returned an ArrayBuffer, so bytes.buffer was undefined. Fresh execution of this fix is pending.
+- Previous browser run failed actor provisioning and open-report resume when Supabase Auth/PostgREST returned HTTP 504 Gateway Timeout. The current exact-head E2E result must be consumed before treating this as persistent.
+- Exact-tip quality, build, handoff, and browser checks were queued/in progress at last refresh. Pending jobs are not PASS.
+- Authenticated report pagination, jobId + sourceHash continuity, safe XLSX upload, 48/48 real-source archetypes, complete upload-to-decision, and same-head production remain NOT PROVEN.
+- Remote Desktop is intentionally not used; preserve the remaining 20% free allowance.
 
 OPEN PROOF GATES
 - Certification contracts PASS on the latest exact application head.
@@ -59,8 +58,8 @@ OPEN PROOF GATES
 NEXT_EXECUTION_ORDER
 1. Re-read the current boot/report/protocol files and canonical ONE-PROGRAMMER-SESSION-MEMORY.md; the requested Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md is absent from both PR branch and main.
 2. Refresh PR head and consume exact-head certification, Session Handoff Contract, build, and browser job states; queued checks are not passes.
-3. Run the updated real-smart-report-advisor contract on the exact branch tip; confirm all visible markers and advisor-before-data ordering.
-4. Confirm the handoff contract accepts only canonical state/report/archive plus the explicit root live-memory and validator paths, while rejecting unreported application paths.
+3. Consume current-head quality and confirm scripts/generic-file-analysis.test.mjs completes after the Node XLSX Buffer fix; repair only the first new terminal regression.
+4. Confirm the handoff contract passes on this documentation-only tip with REPORT_FOR_HEAD at the current test-fix ancestor and only the intended control-plane paths changed.
 5. Verify catalog pagination/de-duplication and jobId + sourceHash retention in authenticated browser E2E; safe XLSX upload and complete upload-to-decision remain separate gates.
 6. Refresh all canonical state files after every application/test change and repeat exact-head checks.
 7. Do not merge or mark PRODUCT_COMPLETE until browser-visible behavior, lineage, and release blockers are independently resolved.

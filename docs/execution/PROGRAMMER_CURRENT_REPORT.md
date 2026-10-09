@@ -1,12 +1,12 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = a55e98bcb97263fcb31c63b40ab300dee5ed5bfd
+REPORT_FOR_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
 UPDATED_AT = 2026-10-09
-WHAT_I_WAS_ASKED_TO_DO = Resume PR #911 from its persisted state, repair only the active advisor certification failure, and restore a verifiable handoff without recreating completed features.
-WHAT_I_ACTUALLY_DID = Updated scripts/check-real-smart-report-advisor.mjs to assert the Arabic advisor kicker displayed in SmartReportPage.tsx; restored exact-head and machine-readable handoff fields; created the 2026-10-09 report archive; synchronized the canonical live session memory; narrowed the handoff contract allowlist to the designated governance files.
-WHAT_IS_PROVEN = GitHub branch writes through a55e98bcb97263fcb31c63b40ab300dee5ed5bfd are persisted; all 12 advisor contract markers are present by readback and advisor section ordering is valid; required handoff fields are present; exact-tip certification and Session Handoff CI remain pending, so no new PASS is claimed.
-FIRST_ACTIVE_FAILURE = Session Handoff Contract result is pending on the previous tip; the canonical live state was also stale, so the validator allowlist and ONE-PROGRAMMER-SESSION-MEMORY.md are being updated before the final exact-tip rerun.
-ROOT_CAUSE = The advisor contract required an English string not rendered by the Arabic-first UI; boot/report omitted fields required by the handoff contract; the canonical live session memory had not yet been synchronized with the current branch.
-NEXT_EXACT_ACTION = Read back the atomic control-plane commit and current PR HEAD; consume exact-tip Session Handoff Contract, certification, build, and browser results; then continue authenticated catalog pagination/source-lineage and upload-to-decision proof.
+WHAT_I_WAS_ASKED_TO_DO = Resume PR #911 from canonical state, repair the stale advisor contract, then fix the first real regression in current-head quality without recreating completed product functionality.
+WHAT_I_ACTUALLY_DID = Corrected the advisor marker contract for the actual Arabic UI; restored session-handoff fields and validator allowlist; synchronized canonical ONE-PROGRAMMER-SESSION-MEMORY.md and archived the checkpoint; fixed scripts/generic-file-analysis.test.mjs to use XLSX Node Buffer output instead of assuming bytes.buffer exists on array output.
+WHAT_IS_PROVEN = Exact-head readback confirms all 12 advisor markers and advisor-first ordering; Final Certification Gate passed on ancestor tip 199949e499338798f8efb10ed5e9ebc67b929b4a; test fix persists at c7828c84d45bfbada5489df4fd00ec362f15bca7. Fresh exact-head quality/build/handoff/browser results are pending or in progress; no PASS is claimed for the test fix yet.
+FIRST_ACTIVE_FAILURE = Prior quality run failed in scripts/generic-file-analysis.test.mjs:71 because XLSX.write({type:'array'}) returned an ArrayBuffer and the test dereferenced bytes.buffer. A previous full browser attempt hit Supabase HTTP 504 during actor provisioning and open-report resume.
+ROOT_CAUSE = The test assumed a Node XLSX array result was a typed view, but it was an ArrayBuffer; the earlier browser attempt was blocked by Supabase gateway timeouts. The earlier certification failure was a stale English-only UI marker.
+NEXT_EXACT_ACTION = Re-read final PR tip and consume current-head quality/build/handoff/browser jobs; fix only the next terminal failure; continue authenticated pagination/source lineage, XLSX upload, 48/48 real-source and upload-to-decision proof.
 
 ## CURRENT EXECUTION REPORT — 2026-10-09
 
