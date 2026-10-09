@@ -19,6 +19,10 @@ const completion = fs.readFileSync('supabase/migrations/20261003141500_auto_refr
 const provenanceRepair = fs.readFileSync('supabase/migrations/20261003140500_reconcile_source_decision_passport_snapshot.sql', 'utf8');
 const intelligencePanel = fs.readFileSync('src/components/ReportIntelligencePanel.tsx', 'utf8');
 const decisionCockpit = fs.readFileSync('src/components/ReportDecisionCockpit.tsx', 'utf8');
+const checkpointOffsetRepair = fs.readFileSync(
+  'supabase/migrations/20261010101000_fix_legacy_checkpoint_import_id_offset.sql',
+  'utf8',
+);
 const sourceBoundRepair = fs.readFileSync(
   'supabase/migrations/20261010090000_harden_legacy_report_evidence_passport_refresh.sql',
   'utf8',
@@ -56,6 +60,8 @@ assert.ok(!intelligencePanel.includes("evidenceSnapshotId: report.sourceAnalysis
 assert.ok(decisionCockpit.includes("report.renderedOutput?.evidenceSnapshotId"));
 assert.ok(!decisionCockpit.includes("evidenceSnapshotId: report.sourceAnalysis.id"));
 assert.ok(sourceBoundRepair.includes('jsonb_array_elements_text'), 'legacy import ID must be recovered only from the same report job checkpoint');
+assert.ok(checkpointOffsetRepair.includes('substring(evidence_key.value from 8)'), 'checkpoint parsing must skip the import: prefix exactly');
+assert.ok(!checkpointOffsetRepair.includes('substring(evidence_key.value from 7)'), 'checkpoint parsing must not include the delimiter in the import UUID');
 assert.ok(sourceBoundRepair.includes('source_fingerprint IS DISTINCT FROM v_job.source_hash'), 'passport refresh must validate import/source fingerprint');
 assert.ok(sourceBoundRepair.includes("'sourceBound'"), 'legacy source-bound provenance must be explicit');
 assert.ok(sourceBoundRepair.includes("'authoritativeCurrentRowCount'"), 'passport refresh must persist source-backed row count');
