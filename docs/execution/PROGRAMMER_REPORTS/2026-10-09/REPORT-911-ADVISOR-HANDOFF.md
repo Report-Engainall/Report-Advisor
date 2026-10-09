@@ -1,11 +1,11 @@
 # Report-Advisor Execution Archive — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
 
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 90c7a9464004b001a53d324fc9836fb5b3cdd655
-UPDATED_AT = 2026-10-09T06:45:00+03:00
+REPORT_FOR_HEAD = 51d10dadc3906780b1e41e66023844e565fc5759
+UPDATED_AT = 2026-10-09T06:52:00+03:00
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
-PR_HEAD_AT_WRITEBACK_PARENT = 90c7a9464004b001a53d324fc9836fb5b3cdd655
+PR_HEAD_AT_WRITEBACK_PARENT = 51d10dadc3906780b1e41e66023844e565fc5759
 PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
 
 ## Current delta — report identity isolation at 90c7a9464004b001a53d324fc9836fb5b3cdd655
@@ -15,6 +15,13 @@ PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
 - At last read: Quality 37879969419 running; Full Product Browser E2E 37879969657 pending; Session Handoff 37879969624 failed due to stale report documentation before this writeback; Final Certification 37879969438 and Device E2E 37879969303 running.
 - The predecessor browser rerun 37876997910 failed provisioning and authenticated report flow. Supabase Auth logs showed /token 504/500 and Postgres connection deadlines; real-source passports and 48 archetype runtime proof were skipped.
 - The preview is fixture-backed, not live customer proof. Product completion remains NO.
+
+## Current delta — report context + test assertion at 51d10dadc3906780b1e41e66023844e565fc5759
+- Changed files: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs.
+- UI fix binds rendered data and errors to current jobId + sourceHash, clears old content at context changes, and aborts stale source-bound requests.
+- Build/typecheck issue at f3c73612 was fixed by explicit !report narrowing at 90c7a946. The 90c build 37879969580 and quality 37879969419 passed, while Full Product Browser 37879969657 revealed one false regression assertion that searched an earlier slice instead of the full page.
+- Commit 51d10dadc3906780b1e41e66023844e565fc5759 corrects the assertion scope. Fresh exact-head checks: Product Build 37880387207 and Quality 37880387136 queued; Full Product Browser 37880386869 pending; Session Handoff 37880387095 pending; Certification 37880387128 pending; Device E2E 37880387114 pending at last read.
+- Real open-report proof also failed; Supabase staging showed Auth /token 504/500 and Postgres connection deadline errors, causing the passports and real-source 48-archetype stage to be skipped. Product complete = NO.
 
 ## Live-report actor correction
 - e9271260ac2b52f623023840fa3aabfaad572669 changes scripts/resume-open-report-server-proof.mjs to authenticate TEST_USER_C_EMAIL/PASSWORD.

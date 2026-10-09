@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = 90c7a9464004b001a53d324fc9836fb5b3cdd655
+CURRENT_EXACT_HEAD = 51d10dadc3906780b1e41e66023844e565fc5759
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = 90c7a9464004b001a53d324fc9836fb5b3cdd655
+CONTROL_PLANE_WRITEBACK_BASE = 51d10dadc3906780b1e41e66023844e565fc5759
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -13,13 +13,13 @@ CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 90c7a9464004b001a53d324fc9836fb5b3cdd655
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 51d10dadc3906780b1e41e66023844e565fc5759
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-APPLICATION_SOURCE_HEAD = 90c7a9464004b001a53d324fc9836fb5b3cdd655
+APPLICATION_SOURCE_HEAD = 51d10dadc3906780b1e41e66023844e565fc5759
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
 NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 8583448ff6cdddabea2d1e83eae630802dd298fd; deployment SHA for 90c7a946 is NOT YET VERIFIED. Public preview remains fixture-backed.
-UPDATED_AT = 2026-10-09T06:45:00+03:00
-NEXT_EXACT_ACTION = Poll exact-head Product Build 37879969580, Quality 37879969419, Full Product Browser E2E 37879969657, Session Handoff 37879969624, Final Certification 37879969438 and Device E2E 37879969303. Close the current typecheck/build and contract results first; keep PR #911 open and do not claim real-report product completion until authenticated report readback and 48/48 source proof pass.
+UPDATED_AT = 2026-10-09T06:52:00+03:00
+NEXT_EXACT_ACTION = Poll exact-head Product Build 37880387207, Quality 37880387136, Full Product Browser E2E 37880386869, Session Handoff 37880387095, Final Certification 37880387128 and Device E2E 37880387114. Confirm the corrected source-report workspace assertion, then trace the next actual report/auth failure. Do not call product complete while authenticated report, evidence and outcome continuity remain unproven.
 
 CURRENT EXECUTION DELTA — 2026-10-09 / REPORT CONTEXT ISOLATION
 - Exact code head: 90c7a9464004b001a53d324fc9836fb5b3cdd655. PR #911 remains OPEN / UNMERGED.
@@ -29,6 +29,15 @@ CURRENT EXECUTION DELTA — 2026-10-09 / REPORT CONTEXT ISOLATION
 - Exact-head Quality 37879969419 was still in progress, Full Product Browser E2E 37879969657 pending, Session Handoff 37879969624 failed because the report was stale before this documentation writeback, Final Certification 37879969438 running, and Device E2E 37879969303 running.
 - Previous browser run 37876997910 on predecessor 3c08d089 failed actor provisioning, real open report, Chromium authenticated flow, business journey and fail-closed evidence. Supabase Auth logs showed repeated /token 504/500 plus Postgres connection deadline errors; SQLSTATE 57014 timeout cancellations were also present. Real-corpus passport and 48-archetype stages were skipped.
 - A passing build or contract is not real-customer proof. The public preview still shows 28-inventory-stockout-reorder.csv fixture data; live report journey, same jobId/hash continuity, passports and outcome evidence remain NOT PROVEN. PRODUCT COMPLETE = NO.
+
+CURRENT EXECUTION DELTA — 2026-10-09 / REPORT CONTEXT AND CONTRACT SCOPE
+- Current code head: 51d10dadc3906780b1e41e66023844e565fc5759. PR #911 remains OPEN / UNMERGED.
+- Source files changed in the UI fix: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx. Regression test: scripts/source-report-workspace-contract.test.mjs.
+- Both surfaces now clear the prior report on route change, bind report/error rendering to the current jobId + sourceHash, reject a mismatch, and cancel stale source-surface requests.
+- f3c73612 initially failed TypeScript nullable narrowing; this was corrected by explicit !report guard at 90c7a946. Build 37879969580 and Quality 37879969419 passed on 90c7a946.
+- The 90c7a946 Full Product Browser run 37879969657 failed its canonical-regression step; inspection found the new test searched for the error guard in a region that ended before render. Commit 51d10dadc3906780b1e41e66023844e565fc5759 corrects that assertion to search the whole page. A fresh Product Build 37880387207, Quality 37880387136 and Full Product Browser 37880386869 are queued/pending at last read.
+- The real open-report proof also failed on predecessor browser runs. Supabase staging Auth logs show repeated /token 504/500 and Postgres connection deadlines, with SQLSTATE 57014 cancellations. The real-corpus passports/48 archetypes were skipped; no authenticated real-report proof exists yet.
+- Public preview is fixture-backed (28-inventory-stockout-reorder.csv), not customer-data proof. PRODUCT COMPLETE = NO.
 
 CURRENT_PRODUCT_GOAL
 - Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.
