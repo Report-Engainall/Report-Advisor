@@ -1,54 +1,50 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = 8583448ff6cdddabea2d1e83eae630802dd298fd
+CURRENT_EXACT_HEAD = e9271260ac2b52f623023840fa3aabfaad572669
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = 8583448ff6cdddabea2d1e83eae630802dd298fd
+CONTROL_PLANE_WRITEBACK_BASE = e9271260ac2b52f623023840fa3aabfaad572669
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
 OPERATING_PROTOCOL = docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md
-SUPERVISION_PROTOCOL = NOT FOUND at Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md on both PR #911 branch and main; keep using the verified captain/programmer protocol. Do not fabricate the missing protocol.
+SUPERVISION_PROTOCOL = NOT FOUND at Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md on branch and main; use the verified captain/programmer protocol and do not fabricate the missing document.
 CANONICAL_SYSTEM_HEART = docs/SYSTEM_HEART.md (present)
 CANONICAL_EXECUTION_INDEX = docs/MASTER_EXECUTION_INDEX.md (present)
 CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 8583448ff6cdddabea2d1e83eae630802dd298fd
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = e9271260ac2b52f623023840fa3aabfaad572669
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
 APPLICATION_SOURCE_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-NETLIFY_PREVIEW_METADATA = aghbari-source-sha exactly matched 8583448ff6cdddabea2d1e83eae630802dd298fd at the last verified read; visible content remains a fixture-based demo.
-UPDATED_AT = 2026-10-09T05:52:00+03:00
-NEXT_EXACT_ACTION = Read back this docs-only checkpoint and confirm the branch head; consume handoff/certification results on its successor; then poll Full Product Browser E2E run 37876278794, Device-Independent E2E run 37876281894, and Phase F run 37876281803. Fix only the first proven remaining blocker. Do not merge until authenticated open-report source lineage, real-source 48/48 and release/production proof are established.
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 8583448ff6cdddabea2d1e83eae630802dd298fd; re-read deployment SHA for e927 and the checkpoint successor.
+UPDATED_AT = 2026-10-09T05:56:00+03:00
+NEXT_EXACT_ACTION = Verify readback of the docs-only checkpoint and its Session Handoff/Final Certification runs; consume Full Product Browser E2E 37876852731 plus current-head build, quality, Device E2E and Phase F. Verify the user-C live-report actor correction through an exact-head browser artifact before calling it proven. Do not merge before real report lineage, 48/48 runtime and release proof close.
 
 CURRENT_PRODUCT_GOAL
-- Make persisted smart reports visible and navigable from Reports Center through evidence, recommendations, decisions and work.
-- Keep tenant + report job + source hash identity intact across each route.
-- Treat unknown numeric values as unknown; no invented zero, cause, impact, benchmark or outcome.
-- Separate code/build success from authenticated browser and production proof.
+- Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.
+- Preserve tenant + report job + source hash lineage across screens.
+- Do not coerce missing numbers to zero or invent evidence, causes, benchmarks or outcomes.
+- Keep code/build, authenticated browser and production proof as separate states.
 
-CURRENT_CODE_CHANGE_AT_8583448
-- scripts/refresh-governed-real-corpus-passports.mjs: 25-second per-request timeout by default, three bounded attempts for retryable HTTP/network failures, explicit retry/progress events, and logical duplicate-job suppression.
-- scripts/provision-e2e-actors.mjs: fail explicitly on audit query errors rather than misreporting them as an absent audit row; audit output now includes actor C.
-- scripts/e2e-actor-provisioning-contract.test.mjs: asserts those diagnostics and bounded refresh requirements.
-- No application UI code changed in 8583448; these are test/proof reliability fixes, not the requested customer-facing product completion.
+CURRENT_CODE_FIXES
+- 8583448ff6cdddabea2d1e83eae630802dd298fd: bounded timeout/retries and progress output in governed passport refresh; duplicate logical-job suppression; explicit audit query error handling.
+- e9271260ac2b52f623023840fa3aabfaad572669: real-open-report proof now uses TEST_USER_C, who is assigned default membership in REAL_SMART_REPORT_COMPANY_ID. Earlier code used user A from a different test tenant. Contract assertions cover the mapping.
+- These are proof-path and test-runner changes, not new customer-visible UI functionality.
 
-EXACT-HEAD PROOF AT 8583448
-- Product Build Gate: PASS, run 37876282142.
-- Quality: PASS, run 37876282183.
-- Execution Enforcement Contract: PASS, run 37876278781.
-- Netlify preview readback: metadata source SHA = 8583448ff6cdddabea2d1e83eae630802dd298fd; this is preview provenance, not production proof.
-- Full Product Browser E2E: IN PROGRESS, push run 37876278794; current step at last read was provisioning rerunnable actors. Earlier head 89181 showed failures in passport refresh and real-open-report steps.
-- Device-Independent Browser E2E: IN PROGRESS, run 37876281894; public browser smoke PASS, authenticated E2E at actor provisioning. No authenticated journey result yet.
-- Phase F Live Resilience: IN PROGRESS, run 37876281803 at live probes. Previous head 89181 ended NOT READY: tenant canary passed, health and rollback were STALE_RUNTIME, backup pg_dump hit Supabase pool checkout timeout. Do not transfer that old result to 858; await current run.
-- Session Handoff Contract and Final Certification before this writeback failed because the current session report had not recorded the three code files in commit 8583448. This docs-only checkpoint sets REPORT_FOR_HEAD to its parent; verify new runs before calling either gate PASS.
-- 48/48 real-source archetype runtime, authenticated real-open-report + jobId/sourceHash continuity, complete upload-to-decision, and production proof: NOT PROVEN.
+PROOF LEDGER
+- Exact code-head proof at 8583448: Product Build Gate 37876282142 PASS; Quality 37876282183 PASS; Execution Enforcement 37876278781 PASS. These are ancestor results, not exact e927 proof.
+- Exact documentation-head proof at 419e4e6: Session Handoff 37876658311 PASS; Execution Enforcement 37876654255 PASS. These are ancestor results.
+- Latest e927 at last check: Full Product Browser E2E 37876852731 IN PROGRESS; Product Build 37876857478 QUEUED; Quality 37876857607 QUEUED; Device E2E 37876857500 QUEUED; Session Handoff 37876857440 QUEUED; Final Certification 37876857543 QUEUED; Phase F 37876857595 PENDING.
+- Full Browser at 858 (37876278794): actor provisioning and real-open-report steps failed, so passport refresh/48-archetype steps were skipped; do not claim E2E PASS.
+- Phase F at 858 was cancelled. Phase F at 89181 previously ended NOT READY with tenant canary PASS, health/rollback STALE_RUNTIME and backup pg_dump ECHECKOUTTIMEOUT. Await current-head run.
+- Authenticated real report, jobId+sourceHash continuity, 48/48 real-source archetypes, full upload-to-decision, and production proof remain NOT PROVEN.
 
-RESOURCE AND SAFETY CONSTRAINTS
-- No Remote Desktop use; preserve the remaining 20% free allowance.
-- No paid Vercel build/agent run. No Netlify Agent Runner without explicit permission.
-- Do not weaken auth, RLS, tenant isolation, evidence gates, or truth semantics to make checks green.
-- PR #911 stays open/unmerged until current-head evidence justifies promotion.
+RESOURCE AND SAFETY
+- Do not use Remote Desktop; preserve the remaining 20% free allowance. No paid Vercel/Netlify agent runs without explicit permission.
+- Do not weaken auth, RLS, tenant isolation, evidence gates or data truth.
+- Public preview remains fixture-backed (28-inventory-stockout-reorder.csv), not live customer data.
+- PR #911 stays unmerged; PRODUCT COMPLETE = NO.
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
 - PR #905 merged successfully: source-agnostic external file analysis.

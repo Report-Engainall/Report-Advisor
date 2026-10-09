@@ -1,3 +1,34 @@
+# Report-Advisor Execution Archive — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
+
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = e9271260ac2b52f623023840fa3aabfaad572669
+UPDATED_AT = 2026-10-09T05:56:00+03:00
+BRANCH = captain/critical-bundle-proof-20261009
+PR = #911 OPEN / UNMERGED
+PR_HEAD_AT_WRITEBACK_PARENT = e9271260ac2b52f623023840fa3aabfaad572669
+PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+
+## Live-report actor correction
+- e9271260ac2b52f623023840fa3aabfaad572669 changes scripts/resume-open-report-server-proof.mjs to authenticate TEST_USER_C_EMAIL/PASSWORD.
+- The actor provisioner grants user C default membership in REAL_SMART_REPORT_COMPANY_ID, while user A belongs to RUNTIME-EVIDENCE-A-401117. The previous open-report proof logged in as A and then queried a job owned by the separately configured live-report company.
+- scripts/e2e-actor-provisioning-contract.test.mjs now asserts that the open-report verifier uses user C and matches the tenant membership setup.
+- This correction is code-reviewed from source relationships but remains NOT BROWSER-PROVEN until latest-head Full Product Browser completes.
+
+## Passport refresh and actor audit reliability
+- 8583448ff6cdddabea2d1e83eae630802dd298fd added bounded 25s request timeout, up to three retries for retryable failures, explicit progress records and logical duplicate-job suppression to governed passport refresh.
+- The same commit made actor audit query failures explicit so a backend error is not mistaken for a missing audit row.
+
+## Latest proof frontier
+- Full Product Browser E2E 37876852731 is IN PROGRESS at e927; Product Build 37876857478, Quality 37876857607, Device E2E 37876857500, Session Handoff 37876857440 and Final Certification 37876857543 were queued at last read; Phase F 37876857595 was pending.
+- At ancestor 858, build 37876282142 and quality 37876282183 passed; at ancestor 419, handoff 37876658311 and execution enforcement 37876654255 passed. These are not final results at e927.
+- Full Browser 37876278794 at 858 failed the actor-provisioning and real-open-report steps, so later passport and 48/48 steps were skipped.
+- Live-report opening with exact source hash, end-to-end row/import/canonical persistence, 48/48 archetypes, authenticated route lineage, Phase F READY and production remain NOT PROVEN.
+
+## Next exact action
+Read back the docs-only checkpoint, verify successor handoff/certification, then inspect Full Product Browser 37876852731 and other exact-head gates. Repair only the first confirmed failure; do not weaken tenant access or evidence constraints.
+
+--- PRIOR ARCHIVE ---
+
 # Report-Advisor Execution Archive — 2026-10-09 / POST-FIX CHECKPOINT 8583448
 
 SESSION HANDOFF = READY

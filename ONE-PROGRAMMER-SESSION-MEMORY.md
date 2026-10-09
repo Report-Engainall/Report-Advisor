@@ -1,16 +1,17 @@
-# LIVE EXECUTION CHECKPOINT — 2026-10-09 / POST-FIX RESUME PR #911 AT 8583448
-- CURRENT CODE CHECKPOINT → `8583448ff6cdddabea2d1e83eae630802dd298fd` on `captain/critical-bundle-proof-20261009`; PR #911 OPEN / UNMERGED against main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
-- APP UI SOURCE → `2c4ef80717a6e7052373e721d2e0586115cc5efd`: paginated report catalog, report navigation preserving jobId + sourceHash, and unknown-sales truth semantics. No UI source changed in 8583448.
-- FIX COMMIT 8583448 → bounded real-corpus passport RPC refresh (25-second per-request timeout, max 3 attempts on retryable errors, progress messages, logical duplicate suppression); explicit Supabase audit query error reporting in E2E actor provisioning; contract coverage updated.
-- BUILD / QUALITY / EXECUTION ENFORCEMENT at code head 8583448 → PASS: Build 37876282142; Quality 37876282183; Execution Enforcement 37876278781.
-- PREVIEW → `https://deploy-preview-911--aghbari-report-advisor.netlify.app`; last public metadata read had `aghbari-source-sha=8583448ff6cdddabea2d1e83eae630802dd298fd`. Rendered report is fixture-backed, not live customer data.
-- HANDOFF / CERTIFICATION at prior document state → Handoff 37876282175 and Certification 37876278779 failed because docs did not cover the three files committed in 8583448. This docs-only successor must be read back, then its handoff/certification runs must be checked.
-- FULL BROWSER 37876278794 → IN PROGRESS at actor provisioning. DEVICE-INDEPENDENT 37876281894 → IN PROGRESS at authenticated actor provisioning; public browser-smoke subjob passed. PHASE F 37876281803 → IN PROGRESS at live probes.
-- OLD PHASE F 37875001590 on 89181 → NOT READY, 1/4 checks passed: tenant canary only; health/rollback STALE_RUNTIME; logical pg_dump failed on Supabase pooler ECHECKOUTTIMEOUT. Do not apply this old result to 858. Await the new run.
-- GAPS STILL OPEN → authenticated real open report; jobId+sourceHash continuity through evidence/recommendation/decision; safe XLSX upload; full upload→decision/work/outcome; 48/48 real-source archetype proof; Phase F READY; production proof.
-- GATES → no weakening auth/RLS/evidence/fail-closed semantics; do not treat the fixture preview as customer proof; do not merge or state PRODUCT COMPLETE without same-head authenticated/product/release evidence.
-- NEXT EXACT ACTION → confirm current branch points at the docs-only checkpoint descending from 8583448ff6cdddabea2d1e83eae630802dd298fd; inspect its Session Handoff and Final Certification result, then poll Full Browser 37876278794, Device-Independent 37876281894 and Phase F 37876281803; fix the first proven blocker only.
-- CHECKPOINT STAMP → 2026-10-09T05:52:00+03:00
+# LIVE EXECUTION CHECKPOINT — 2026-10-09 / LIVE OPEN-REPORT ACTOR FIX e9271260
+- CURRENT CODE PARENT → `e9271260ac2b52f623023840fa3aabfaad572669` on `captain/critical-bundle-proof-20261009`; PR #911 OPEN / UNMERGED against main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- APP UI SOURCE → `2c4ef80717a6e7052373e721d2e0586115cc5efd`; no customer-visible UI changes in these proof-path fixes.
+- 8583448 → passport refresh has 25s request timeout, max 3 retries for retryable failures, progress records, logical duplicate suppression; actor audit read errors are explicit.
+- e9271260 → real-open-report proof now uses TEST_USER_C_EMAIL/PASSWORD. The provisioning workflow gives user C default membership in REAL_SMART_REPORT_COMPANY_ID; user A is in RUNTIME-EVIDENCE-A-401117. Prior proof used A for a report belonging to the other tenant, so current-company filtering could hide the real report.
+- CONTRACT → scripts/e2e-actor-provisioning-contract.test.mjs asserts the real-report proof uses C and C is assigned to the target report tenant.
+- BUILD / QUALITY → PASS at ancestor 8583448 (runs 37876282142 and 37876282183); HANDOFF / EXECUTION ENFORCEMENT → PASS at ancestor 419e4e6 (37876658311 and 37876654255). These are historical predecessor results, not exact-e927 proof.
+- LATEST e927 RUNS → Full Product Browser 37876852731 in progress; Product Build 37876857478 queued; Quality 37876857607 queued; Device E2E 37876857500 queued; Session Handoff 37876857440 queued; Final Certification 37876857543 queued; Phase F 37876857595 pending.
+- PREVIOUS Full Browser 37876278794 at 858 failed actor setup and open-report proof; passport refresh and 48/48 steps skipped after the earlier blocking failure. The user-C correction needs a new exact-head browser result.
+- PRODUCT GAPS → authenticated live report, exact jobId/sourceHash continuity, safe XLSX upload, full upload→decision/work/outcome, 48/48 real-source archetype proof, Phase F READY and production proof all NOT PROVEN.
+- PREVIEW → `https://deploy-preview-911--aghbari-report-advisor.netlify.app`; the last proved metadata SHA was 8583448, and e927/current docs successor must be re-read. Preview content is fixture-backed, not live customer data.
+- RESOURCE GUARD → no Remote Desktop; retain the remaining 20% free allowance. No paid agent/build runs; do not weaken auth/RLS or evidence gates.
+- NEXT EXACT ACTION → read back the next docs-only checkpoint, then verify latest-head Session Handoff and Final Certification and inspect Full Product Browser 37876852731, Product Build 37876857478, Quality 37876857607, Device E2E 37876857500 and Phase F 37876857595. Make the next repair only from an explicit terminal error.
+- CHECKPOINT STAMP → 2026-10-09T05:56:00+03:00
 
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / AUTH PROVISIONING ROOT FIX + EXACT-HEAD HANDOFF
 - CURRENT DOCUMENTATION HEAD → 79c2b4798dceea4a37159e94303bafd7d4382393.
