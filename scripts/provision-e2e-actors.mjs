@@ -550,17 +550,35 @@ for (const tenantId of corpusTenantIds) {
 }
 const transactionFixture = await prepareTransactionalFixture(tenantA.id, userA.id);
 
-const [{ data: auditA }, { data: auditApprover }, { data: auditB }, { data: auditC }] = await Promise.all([
-  supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantA.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipA.id).limit(1),
-  supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantA.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipApprover.id).limit(1),
-  supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantB.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipB.id).limit(1),
-  supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', smartReportTenantId).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipC.id).limit(1),
+async function readMembershipAudit(companyId, membershipId, label) {
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('id,company_id,action,entity_type,entity_id,source')
+    .eq('company_id', companyId)
+    .eq('action', 'e2e_actor_membership_provisioned')
+    .eq('entity_id', membershipId)
+    .limit(1);
+
+  // Preserve the distinction between a missing audit row and a failed read.
+  if (error) {
+    const code = String(error.code ?? error.status ?? 'UNKNOWN');
+    const detail = String(error.message ?? error).replace(/\s+/g, ' ').slice(0, 240);
+    throw new Error('E2E_' + label + '_AUDIT_QUERY_FAILED:' + code + ':' + detail);
+  }
+  return data?.[0] ?? null;
+}
+
+const [auditA, auditApprover, auditB, auditC] = await Promise.all([
+  readMembershipAudit(tenantA.id, membershipA.id, 'ACTOR_A'),
+  readMembershipAudit(tenantA.id, membershipApprover.id, 'APPROVER'),
+  readMembershipAudit(tenantB.id, membershipB.id, 'ACTOR_B'),
+  readMembershipAudit(smartReportTenantId, membershipC.id, 'ACTOR_C'),
 ]);
 
-assert.ok(auditA?.length, 'E2E_ACTOR_A_AUDIT_MISSING');
-assert.ok(auditApprover?.length, 'E2E_APPROVER_AUDIT_MISSING');
-assert.ok(auditB?.length, 'E2E_ACTOR_B_AUDIT_MISSING');
-assert.ok(auditC?.length, 'E2E_ACTOR_C_AUDIT_MISSING');
+assert.ok(auditA, 'E2E_ACTOR_A_AUDIT_MISSING');
+assert.ok(auditApprover, 'E2E_APPROVER_AUDIT_MISSING');
+assert.ok(auditB, 'E2E_ACTOR_B_AUDIT_MISSING');
+assert.ok(auditC, 'E2E_ACTOR_C_AUDIT_MISSING');
 
 const mask = (email) => email.replace(/^(.{2}).*(@.*)$/, '$1***$2');
 console.log(JSON.stringify({
@@ -585,5 +603,5 @@ console.log(JSON.stringify({
       default: membership.is_default,
     })),
   },
-  audit: { A: auditA[0].id, APPROVER: auditApprover[0].id, B: auditB[0].id },
+  audit: { A: auditA.id, APPROVER: auditApprover.id, B: auditB.id, C: auditC.id },
 }, null, 2));
