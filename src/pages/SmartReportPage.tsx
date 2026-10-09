@@ -43,6 +43,7 @@ function stateLabel(value: string | null): string {
     FULL_SOURCE: 'المصدر كامل',
     PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
     PARTIAL_FETCH_ERROR: 'تحليل جزئي — تعذر قراءة جزء من المصدر',
+    PARTIAL_FETCH_INCOMPLETE: 'تحليل جزئي — تغطية الصفوف غير مكتملة',
     AWAITING_EVIDENCE_SNAPSHOT: 'الدليل النهائي غير مثبت',
     AVAILABLE_FROM_CANONICAL_ANALYSIS: 'متاح من التحليل الكانوني',
     NOT_COMMITTED: 'غير معتمد',
@@ -742,31 +743,89 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
 export function SmartReportPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const [searchParams] = useSearchParams();
+  const currentJobId = jobId?.trim() ?? '';
+  const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+  const requestContextKey = JSON.stringify([currentJobId, expectedSourceHash]);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorContextKey, setErrorContextKey] = useState<string | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let active = true;
-    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+    let timedOut = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 25000);
+
+    // Clear the previous report immediately. A new URL is a new report identity.
     setLoading(true);
     setError(null);
-    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
-      setReport(null);
+    setErrorContextKey(null);
+    setReport(null);
+
+    if (!currentJobId || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
       setError(userFacingError('INVALID_REPORT_CONTEXT'));
+      setErrorContextKey(requestContextKey);
       setLoading(false);
-      return () => { active = false; };
+      clearTimeout(timeout);
+      return () => {
+        active = false;
+        clearTimeout(timeout);
+        controller.abort();
+      };
     }
-    void fetchSmartReport(jobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
-      if (active) setReport(next)
-    }).catch((reason) => {
-      if (active) setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, [jobId, searchParams]);
+
+    void fetchSmartReport(currentJobId, expectedSourceHash, { signal: controller.signal })
+      .then((next) => {
+        if (!active) return;
+        if (
+          !next ||
+          next.jobId !== currentJobId ||
+          (expectedSourceHash && next.sourceHash !== expectedSourceHash)
+        ) {
+          throw new Error('INVALID_REPORT_CONTEXT');
+        }
+        setReport(next);
+      })
+      .catch((reason) => {
+        if (!active) return;
+        const message = timedOut
+          ? userFacingError('REPORT_LOAD_TIMEOUT')
+          : userFacingError(reason instanceof Error ? reason.message : String(reason));
+        setError(message);
+        setErrorContextKey(requestContextKey);
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [currentJobId, expectedSourceHash, requestContextKey, retryVersion]);
+
+  const reportContextMatches = Boolean(
+    report &&
+    report.jobId === currentJobId &&
+    (!expectedSourceHash || report.sourceHash === expectedSourceHash)
+  );
+
+  // Reuse the guarded effect for retries, so its AbortController cancels stale requests.
+  const retryReport = () => {
+    setLoading(true);
+    setError(null);
+    setErrorContextKey(null);
+    setReport(null);
+    setRetryVersion((value) => value + 1);
+  };
 
   const dataset = useMemo(() => {
     const first = report?.sourceAnalysis?.datasets?.[0];
@@ -822,21 +881,9 @@ export function SmartReportPage() {
     evidencePassportId: typeof report.renderedOutput.evidencePassportId === 'string' ? report.renderedOutput.evidencePassportId : null,
   }) : null, [report]);
 
-  if (loading) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
-  if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
-    setLoading(true);
-    setError(null);
-    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
-    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
-      setError('INVALID_REPORT_CONTEXT');
-      setLoading(false);
-      return;
-    }
-    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
-      setReport(next);
-    }).catch((reason) => setError(userFacingError(reason instanceof Error ? reason.message : String(reason)))).finally(() => setLoading(false));
-  }} /></div>;
-  if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
+  if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
+  if (error && errorContextKey === requestContextKey) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={retryReport} /></div>;
+  if (!report || !reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={retryReport} /></div>;
 
   const output = report.renderedOutput;
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
@@ -1289,11 +1336,17 @@ export function SmartReportPage() {
       </section>
     ) : null}
 
-    {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? (
-      <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="حد نطاق التحليل">
+    {report.canonicalAnalysisScope !== 'FULL_SOURCE' ? (
+      <section data-testid="smart-report-partial-source-scope" className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="نطاق التحليل الجزئي">
         <div className="text-[9px] font-black tracking-[.12em]">نطاق التحليل</div>
-        <div className="mt-1 text-sm font-black">التحليل هنا جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.</div>
-        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر. يجب الاعتماد على تجميعات خادمية موثقة قبل أي قرار شامل.</div>
+        <div className="mt-1 text-sm font-black">
+          {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING'
+            ? 'التحليل جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.'
+            : report.canonicalAnalysisScope === 'PARTIAL_FETCH_INCOMPLETE'
+              ? 'القراءة الكانونية أعادت صفوفًا أقل من العدد المعلن للمصدر.'
+              : 'تعذر قراءة كل الصفوف الكانونية من المصدر.'}
+        </div>
+        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر، ولا يجوز اعتمادها كتحليل شامل قبل استكمال التغطية.</div>
       </section>
     ) : null}
 
