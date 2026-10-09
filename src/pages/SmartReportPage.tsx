@@ -749,6 +749,7 @@ export function SmartReportPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorContextKey, setErrorContextKey] = useState<string | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -808,13 +809,22 @@ export function SmartReportPage() {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [currentJobId, expectedSourceHash, requestContextKey]);
+  }, [currentJobId, expectedSourceHash, requestContextKey, retryVersion]);
 
   const reportContextMatches = Boolean(
     report &&
     report.jobId === currentJobId &&
     (!expectedSourceHash || report.sourceHash === expectedSourceHash)
   );
+
+  // Reuse the guarded effect for retries, so its AbortController cancels stale requests.
+  const retryReport = () => {
+    setLoading(true);
+    setError(null);
+    setErrorContextKey(null);
+    setReport(null);
+    setRetryVersion((value) => value + 1);
+  };
 
   const dataset = useMemo(() => {
     const first = report?.sourceAnalysis?.datasets?.[0];
@@ -871,34 +881,9 @@ export function SmartReportPage() {
   }) : null, [report]);
 
   if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
-  if (error && errorContextKey === requestContextKey) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
-    setLoading(true);
-    setError(null);
-    setErrorContextKey(null);
-    setReport(null);
-    if (!currentJobId || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
-      setError(userFacingError('INVALID_REPORT_CONTEXT'));
-      setErrorContextKey(requestContextKey);
-      setLoading(false);
-      return;
-    }
-    void fetchSmartReport(currentJobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
-      if (!next || next.jobId !== currentJobId || (expectedSourceHash && next.sourceHash !== expectedSourceHash)) {
-        throw new Error('INVALID_REPORT_CONTEXT');
-      }
-      setReport(next);
-    }).catch((reason) => {
-      setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
-      setErrorContextKey(requestContextKey);
-    }).finally(() => setLoading(false));
-  }} /></div>;
-  if (!report || !reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={() => {
-    setLoading(true); setError(null); setErrorContextKey(null); setReport(null);
-    void fetchSmartReport(currentJobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
-      if (!next || next.jobId !== currentJobId || (expectedSourceHash && next.sourceHash !== expectedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
-      setReport(next);
-    }).catch((reason) => { setError(userFacingError(reason instanceof Error ? reason.message : String(reason))); setErrorContextKey(requestContextKey); }).finally(() => setLoading(false));
-  }} /></div>;
+  if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
+  if (error && errorContextKey === requestContextKey) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={retryReport} /></div>;
+  if (!report || !reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={retryReport} /></div>;
 
   const output = report.renderedOutput;
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
