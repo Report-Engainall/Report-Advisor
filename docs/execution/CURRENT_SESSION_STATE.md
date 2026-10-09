@@ -1,5 +1,6 @@
 SESSION HANDOFF = READY_TO_RESUME
 CURRENT_EXACT_HEAD = a55478b0e7ad95f1aa137e57e99f229ec1dd0c30
+CONTROL_PLANE_WRITEBACK_BASE = a55e98bcb97263fcb31c63b40ab300dee5ed5bfd
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -40,7 +41,9 @@ PROVEN_AT_APPLICATION_HEAD_2c4ef80717a6e7052373e721d2e0586115cc5efd
 CURRENT_ACTIVE_BLOCKER
 - The stale English-only advisor marker assertion was repaired in scripts/check-real-smart-report-advisor.mjs at exact commit a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; the contract now requires the actual Arabic visible kicker on SmartReportPage.tsx.
 - New exact-commit CI run is in progress/queued; certification PASS is not yet established on this commit.
-- Session Handoff Contract previously failed because CURRENT_EXACT_HEAD was absent from the state file and required machine-readable key/value fields were absent from the report. These are being restored below and must be verified after the documentation-only commit.
+- Session Handoff Contract previously failed because CURRENT_EXACT_HEAD and required report key/value fields were absent; these fields are restored and the current canonical session memory is now being synchronized.
+- The handoff validator allowlist is being updated narrowly to allow only the canonical ONE-PROGRAMMER-SESSION-MEMORY.md and the handoff contract itself, in addition to state/report/archive paths; arbitrary application paths remain disallowed.
+- Exact-tip Session Handoff Contract must be rerun after this control-plane commit; source-level field readback is not CI proof.
 - Full Product Browser E2E and cross-screen pagination/source-lineage navigation remain NOT PROVEN in an authenticated browser.
 - The previously successful typecheck/build on 2c4ef80717a6e7052373e721d2e0586115cc5efd is historical for this new contract commit; consume the new exact-head checks before claiming fresh PASS.
 - Remote Desktop is intentionally not used; GitHub write access and GitHub Actions are available, preserving the remaining 20% Remote Desktop allowance.
@@ -54,12 +57,12 @@ OPEN PROOF GATES
 - Production/main proof; main remains fa1ab4cbade9b01685507aa966c10f700a03f576, PR #911 is open and unmerged.
 
 NEXT_EXECUTION_ORDER
-1. Re-read the current boot/report/protocol files; note that Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md is absent from the current branch tree rather than reconstructing it from memory.
-2. Refresh the PR head and consume current-head certification, Session Handoff Contract, build, and browser job states; queued checks are not passes.
-3. Run the updated real-smart-report-advisor contract on the exact branch tip and confirm all visible advisor markers plus advisor-before-data ordering.
-4. Verify the handoff-contract fix against the final documentation-only tip and confirm REPORT_FOR_HEAD is its ancestor.
+1. Re-read the current boot/report/protocol files and canonical ONE-PROGRAMMER-SESSION-MEMORY.md; the requested Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md is absent from both PR branch and main.
+2. Refresh PR head and consume exact-head certification, Session Handoff Contract, build, and browser job states; queued checks are not passes.
+3. Run the updated real-smart-report-advisor contract on the exact branch tip; confirm all visible markers and advisor-before-data ordering.
+4. Confirm the handoff contract accepts only canonical state/report/archive plus the explicit root live-memory and validator paths, while rejecting unreported application paths.
 5. Verify catalog pagination/de-duplication and jobId + sourceHash retention in authenticated browser E2E; safe XLSX upload and complete upload-to-decision remain separate gates.
-6. Refresh governance docs after any application/test commit and repeat exact-head checks.
+6. Refresh all canonical state files after every application/test change and repeat exact-head checks.
 7. Do not merge or mark PRODUCT_COMPLETE until browser-visible behavior, lineage, and release blockers are independently resolved.
 
 STATUS VOCABULARY

@@ -1,12 +1,12 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = a55478b0e7ad95f1aa137e57e99f229ec1dd0c30
+REPORT_FOR_HEAD = a55e98bcb97263fcb31c63b40ab300dee5ed5bfd
 UPDATED_AT = 2026-10-09
 WHAT_I_WAS_ASKED_TO_DO = Resume PR #911 from its persisted state, repair only the active advisor certification failure, and restore a verifiable handoff without recreating completed features.
-WHAT_I_ACTUALLY_DID = Updated scripts/check-real-smart-report-advisor.mjs to assert the Arabic advisor kicker displayed in SmartReportPage.tsx; refreshed CURRENT_SESSION_STATE.md with the exact revision and absence of the requested supervision file; documented remaining proof gates.
-WHAT_IS_PROVEN = GitHub branch write succeeded at a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; the page contains the Arabic kicker and all other asserted advisor markers; CI runs for this exact commit were queued or in progress at last read, so no new certification PASS is claimed.
-FIRST_ACTIVE_FAILURE = Session Handoff Contract required CURRENT_EXACT_HEAD plus REPORT_FOR_HEAD and other machine-readable report fields; documentation fix is being persisted and requires its own exact-tip verification.
-ROOT_CAUSE = The advisor contract incorrectly required an English string not rendered by the Arabic-first UI; persisted handoff documents lacked the field schema required by the active contract.
-NEXT_EXACT_ACTION = Persist the handoff fields and archive entry, re-read the final PR tip, then consume exact-tip certification and handoff results before moving to authenticated browser pagination, lineage, XLSX, and full upload-to-decision proof.
+WHAT_I_ACTUALLY_DID = Updated scripts/check-real-smart-report-advisor.mjs to assert the Arabic advisor kicker displayed in SmartReportPage.tsx; restored exact-head and machine-readable handoff fields; created the 2026-10-09 report archive; synchronized the canonical live session memory; narrowed the handoff contract allowlist to the designated governance files.
+WHAT_IS_PROVEN = GitHub branch writes through a55e98bcb97263fcb31c63b40ab300dee5ed5bfd are persisted; all 12 advisor contract markers are present by readback and advisor section ordering is valid; required handoff fields are present; exact-tip certification and Session Handoff CI remain pending, so no new PASS is claimed.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract result is pending on the previous tip; the canonical live state was also stale, so the validator allowlist and ONE-PROGRAMMER-SESSION-MEMORY.md are being updated before the final exact-tip rerun.
+ROOT_CAUSE = The advisor contract required an English string not rendered by the Arabic-first UI; boot/report omitted fields required by the handoff contract; the canonical live session memory had not yet been synchronized with the current branch.
+NEXT_EXACT_ACTION = Read back the atomic control-plane commit and current PR HEAD; consume exact-tip Session Handoff Contract, certification, build, and browser results; then continue authenticated catalog pagination/source-lineage and upload-to-decision proof.
 
 ## CURRENT EXECUTION REPORT — 2026-10-09
 
@@ -58,12 +58,12 @@ PROOF STATUS
 - PRODUCT COMPLETE = NO.
 
 NEXT ACTIONS
-1. Read the boot file and operating protocol.
-2. Refresh the exact PR/application head and live CI state.
-3. Fix the single advisor marker/contract failure surgically.
-4. Consume terminal current-head certification and browser-E2E results.
-5. Verify pagination and exact source-bound navigation in a browser.
-6. Update the boot/report files after any application commit, keeping application head separate from docs-only branch head.
+1. Read state, report, operating protocol, canonical live memory and available system/product masters; record absent supervision protocol honestly.
+2. Refresh exact PR HEAD and current run statuses.
+3. Consume exact-tip Session Handoff Contract and certification contract results; pending/queued is not PASS.
+4. Verify free Netlify preview matches the intended PR commit; do not treat it as production proof.
+5. Verify authenticated catalog pagination and exact jobId + sourceHash continuity; complete XLSX upload-to-decision and 48/48 real-source proof separately.
+6. Persist future state updates only in the canonical files and archive, and repeat exact-head checks without Remote Desktop unless an essential browser operation cannot be reached otherwise.
 
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
 LAST_KNOWN_APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd

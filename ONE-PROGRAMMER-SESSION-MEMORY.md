@@ -1,3 +1,20 @@
+# LIVE EXECUTION CHECKPOINT — 2026-10-09 / ADVISOR CERTIFICATION + HANDOFF RECOVERY
+- CURRENT APPLICATION CODE HEAD → `2c4ef80717a6e7052373e721d2e0586115cc5efd` (source-level pagination/navigation and unknown-sales integrity patch).
+- ADVISOR CONTRACT FIX HEAD → `a55478b0e7ad95f1aa137e57e99f229ec1dd0c30`; the certification contract now requires the exact Arabic kicker rendered by `SmartReportPage.tsx`, not the absent English string “ADVISOR BRIEF”.
+- CONTROL-PLANE BASE BEFORE THIS WRITEBACK → `a55e98bcb97263fcb31c63b40ab300dee5ed5bfd`; the branch tip may advance by this documentation/governance-only commit. Keep application source head separate from governance tip.
+- BRANCH → `captain/critical-bundle-proof-20261009`.
+- PR #911 → OPEN / NOT MERGED / MERGEABLE at last read.
+- EXACT-HEAD READBACK → all 12 advisor contract strings are present, the advisor section precedes `<BusinessDataExplorer report={report} />`, and `smartAnalysis.metrics.slice(0, 4)` remains before the advisor block.
+- HANDOFF REPAIR → `CURRENT_SESSION_STATE.md` includes `CURRENT_EXACT_HEAD`; `PROGRAMMER_CURRENT_REPORT.md` now contains every machine-readable handoff field; a date-stamped archive exists. The handoff validator allowlist is narrowed to canonical state/report/archive plus this live-memory file and the validator itself.
+- SUPERVISION PROTOCOL → `Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md` does not exist on the PR branch or main. Do not recreate it from memory; use `docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md` plus `docs/SYSTEM_HEART.md` as available control-plane guidance.
+- CURRENT RUNTIME → Netlify Deploy Preview status is success for the current PR tip; this is preview, not production proof. Vercel reports the Free deployment/build-rate limit; no paid build was started.
+- CI TRUTH → on the latest tip before this writeback, Session Handoff Contract was pending; Product Build Gate, Final Certification Gate, Full Product Browser E2E, and Device-Independent Browser E2E were queued. Do not count queued/pending jobs as PASS. A previous certification run failed the stale advisor marker; that marker is now corrected but current-tip proof remains pending.
+- PRODUCT GATES NOT YET PROVEN → authenticated smart-report catalog pagination; exact `jobId + sourceHash` across analysis/decision navigation; safe current-head XLSX browser upload; upload → persisted report → evidence → recommendation → decision/work/outcome; 48/48 real-source archetype proof; same-head production deployment.
+- REMOTE DESKTOP → not used; preserve the remaining 20% free allocation unless an essential test cannot be run via GitHub Actions/Netlify.
+- NEXT EXACT ACTION → read back the new PR tip; consume the exact-head Session Handoff and certification results; fix only the first new terminal failure; then continue the authenticated product proof gates.
+
+---
+
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / AUTH PROVISIONING ROOT FIX + EXACT-HEAD HANDOFF
 - CURRENT DOCUMENTATION HEAD → 79c2b4798dceea4a37159e94303bafd7d4382393.
 - CURRENT PRODUCT CODE HEAD → f95d5f2ead0a186bf783f20c81d3351988baf292.

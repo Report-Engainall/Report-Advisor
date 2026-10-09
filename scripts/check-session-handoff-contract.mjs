@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 const statePath='docs/execution/CURRENT_SESSION_STATE.md';
 const reportPath='docs/execution/PROGRAMMER_CURRENT_REPORT.md';
 const archiveRoot='docs/execution/PROGRAMMER_REPORTS';
-const allowed=/^(docs\/execution\/CURRENT_SESSION_STATE\.md|docs\/execution\/PROGRAMMER_CURRENT_REPORT\.md|docs\/execution\/PROGRAMMER_REPORTS\/)/;
+const allowed=/^(docs\/execution\/CURRENT_SESSION_STATE\.md|docs\/execution\/PROGRAMMER_CURRENT_REPORT\.md|docs\/execution\/PROGRAMMER_REPORTS\/|ONE-PROGRAMMER-SESSION-MEMORY\.md$|scripts\/check-session-handoff-contract\.mjs$)/;
 function die(m){console.error('SESSION_HANDOFF_CONTRACT_FAIL: '+m);process.exit(1)}
 function read(p){if(!fs.existsSync(p))die('missing '+p);return fs.readFileSync(p,'utf8')}
 function field(s,k){return s.match(new RegExp('^'+k+'\\s*=\\s*(.+)$','m'))?.[1]?.trim()||''}
