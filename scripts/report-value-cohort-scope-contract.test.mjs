@@ -11,5 +11,8 @@ assert.ok(source.includes("p_company_id: companyId"), 'COHORT_RPC_CALLS_MUST_BE_
 assert.ok(source.includes('for (const companyId of cohortCompanyIds)'), 'COHORT_RPC_MUST_RUN_SEPARATELY_PER_TENANT');
 assert.ok(source.includes('const seenSourceHashes = new Set();'), 'COHORT_MUST_DEDUPLICATE_IDENTICAL_SOURCE_HASHES_ACROSS_TENANTS');
 assert.ok(workflow.includes('REPORT_ADVISOR_COHORT_COMPANY_IDS:'), 'COHORT_WORKFLOW_MUST_DECLARE_EXPLICIT_SCOPE');
+const configuredScope = workflow.match(/REPORT_ADVISOR_COHORT_COMPANY_IDS:\\s*'([^']+)'/)?.[1] ?? '';
+assert.equal(configuredScope, '99e33354-cc45-4317-8eb3-0d486b6c5932', 'COHORT_WORKFLOW_MUST_USE_VERIFIED_REAL_REPORT_TENANT_ONLY');
+assert.ok(!configuredScope.includes(','), 'COHORT_WORKFLOW_MUST_NOT_QUERY_UNVERIFIED_TENANTS');
 assert.ok(workflow.includes('node scripts/report-value-cohort-scope-contract.test.mjs'), 'COHORT_SCOPE_CONTRACT_MUST_RUN_BEFORE_LIVE_COHORT');
 console.log('REPORT_VALUE_COHORT_SCOPE_CONTRACT_PASS');
