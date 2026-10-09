@@ -742,31 +742,79 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
 export function SmartReportPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const [searchParams] = useSearchParams();
+  const currentJobId = jobId?.trim() ?? '';
+  const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+  const requestContextKey = JSON.stringify([currentJobId, expectedSourceHash]);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorContextKey, setErrorContextKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let active = true;
-    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+    let timedOut = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 25000);
+
+    // Clear the previous report immediately. A new URL is a new report identity.
     setLoading(true);
     setError(null);
-    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
-      setReport(null);
+    setErrorContextKey(null);
+    setReport(null);
+
+    if (!currentJobId || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
       setError(userFacingError('INVALID_REPORT_CONTEXT'));
+      setErrorContextKey(requestContextKey);
       setLoading(false);
-      return () => { active = false; };
+      clearTimeout(timeout);
+      return () => {
+        active = false;
+        clearTimeout(timeout);
+        controller.abort();
+      };
     }
-    void fetchSmartReport(jobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
-      if (active) setReport(next)
-    }).catch((reason) => {
-      if (active) setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, [jobId, searchParams]);
+
+    void fetchSmartReport(currentJobId, expectedSourceHash, { signal: controller.signal })
+      .then((next) => {
+        if (!active) return;
+        if (
+          !next ||
+          next.jobId !== currentJobId ||
+          (expectedSourceHash && next.sourceHash !== expectedSourceHash)
+        ) {
+          throw new Error('INVALID_REPORT_CONTEXT');
+        }
+        setReport(next);
+      })
+      .catch((reason) => {
+        if (!active) return;
+        const message = timedOut
+          ? userFacingError('REPORT_LOAD_TIMEOUT')
+          : userFacingError(reason instanceof Error ? reason.message : String(reason));
+        setError(message);
+        setErrorContextKey(requestContextKey);
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [currentJobId, expectedSourceHash, requestContextKey]);
+
+  const reportContextMatches = Boolean(
+    report &&
+    report.jobId === currentJobId &&
+    (!expectedSourceHash || report.sourceHash === expectedSourceHash)
+  );
 
   const dataset = useMemo(() => {
     const first = report?.sourceAnalysis?.datasets?.[0];
@@ -822,21 +870,35 @@ export function SmartReportPage() {
     evidencePassportId: typeof report.renderedOutput.evidencePassportId === 'string' ? report.renderedOutput.evidencePassportId : null,
   }) : null, [report]);
 
-  if (loading) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
-  if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
+  if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
+  if (error && errorContextKey === requestContextKey) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
     setLoading(true);
     setError(null);
-    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
-    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
-      setError('INVALID_REPORT_CONTEXT');
+    setErrorContextKey(null);
+    setReport(null);
+    if (!currentJobId || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
+      setError(userFacingError('INVALID_REPORT_CONTEXT'));
+      setErrorContextKey(requestContextKey);
       setLoading(false);
       return;
     }
-    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
+    void fetchSmartReport(currentJobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
+      if (!next || next.jobId !== currentJobId || (expectedSourceHash && next.sourceHash !== expectedSourceHash)) {
+        throw new Error('INVALID_REPORT_CONTEXT');
+      }
       setReport(next);
-    }).catch((reason) => setError(userFacingError(reason instanceof Error ? reason.message : String(reason)))).finally(() => setLoading(false));
+    }).catch((reason) => {
+      setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
+      setErrorContextKey(requestContextKey);
+    }).finally(() => setLoading(false));
   }} /></div>;
-  if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
+  if (!reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={() => {
+    setLoading(true); setError(null); setErrorContextKey(null); setReport(null);
+    void fetchSmartReport(currentJobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
+      if (!next || next.jobId !== currentJobId || (expectedSourceHash && next.sourceHash !== expectedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
+      setReport(next);
+    }).catch((reason) => { setError(userFacingError(reason instanceof Error ? reason.message : String(reason))); setErrorContextKey(requestContextKey); }).finally(() => setLoading(false));
+  }} /></div>;
 
   const output = report.renderedOutput;
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];

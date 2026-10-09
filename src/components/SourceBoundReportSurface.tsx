@@ -1174,53 +1174,68 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
 }
 
 export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { mode: SourceBoundReportMode; jobId: string; expectedSourceHash?: string | null }) {
+  const normalizedJobId = jobId.trim();
+  const normalizedSourceHash = expectedSourceHash?.trim() ?? '';
+  const requestContextKey = JSON.stringify([normalizedJobId, normalizedSourceHash]);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorContextKey, setErrorContextKey] = useState<string | null>(null);
 
-  const loadReport = useCallback(async () => {
+  const loadReport = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
+    setErrorContextKey(null);
+    setReport(null);
     try {
-      const hash = expectedSourceHash?.trim() ?? '';
-      const next = await fetchSmartReport(jobId, hash);
-      if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
-      if (expectedSourceHash && next.sourceHash !== expectedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+      const next = await fetchSmartReport(
+        normalizedJobId,
+        normalizedSourceHash,
+        signal ? { signal } : {},
+      );
+      if (signal?.aborted) return;
+      if (!next || next.jobId !== normalizedJobId) throw new Error('REPORT_SOURCE_NOT_FOUND');
+      if (normalizedSourceHash && next.sourceHash !== normalizedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
       setReport(next);
     } catch (cause) {
+      if (signal?.aborted) return;
       setError(cause instanceof Error ? cause.message : String(cause));
+      setErrorContextKey(requestContextKey);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  }, [jobId, expectedSourceHash]);
+  }, [normalizedJobId, normalizedSourceHash, requestContextKey]);
 
   useEffect(() => {
-    let active = true;
-    const hash = expectedSourceHash?.trim() ?? '';
-    void fetchSmartReport(jobId, hash).then((next) => {
-      if (!active) return;
-      if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
-      if (hash && next.sourceHash !== hash) throw new Error('INVALID_REPORT_CONTEXT');
-      setReport(next);
-    }).catch((cause) => {
-      if (active) setError(cause instanceof Error ? cause.message : String(cause));
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, [jobId, expectedSourceHash]);
+    const controller = new AbortController();
+    // A changed job/hash invalidates both the old content and any prior error.
+    void loadReport(controller.signal);
+    return () => controller.abort();
+  }, [loadReport]);
+
+  const reportContextMatches = Boolean(
+    report &&
+    report.jobId === normalizedJobId &&
+    (!normalizedSourceHash || report.sourceHash === normalizedSourceHash)
+  );
 
   const body = useMemo(() => {
-    if (!report) return null;
+    if (!reportContextMatches || !report) return null;
     if (mode === 'executive') return <ExecutiveMode report={report}/>;
     if (mode === 'trust') return <TrustMode report={report}/>;
     if (mode === 'decision') return <DecisionMode report={report}/>;
     return <WorkMode report={report}/>;
-  }, [mode, report]);
+  }, [mode, report, reportContextMatches]);
 
-  if (loading) return <div dir="rtl"><LoadingState message="جارٍ تحميل النتيجة المصدرية..." /></div>;
-  if (error) return <div dir="rtl"><ErrorState message={error} onRetry={() => void loadReport()} /></div>;
-  if (!report) return null;
+  if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) {
+    return <div dir="rtl"><LoadingState message="جارٍ تحميل النتيجة المصدرية..." /></div>;
+  }
+  if (error && errorContextKey === requestContextKey) {
+    return <div dir="rtl"><ErrorState message={error} onRetry={() => void loadReport()} /></div>;
+  }
+  if (!reportContextMatches || !report) {
+    return <div dir="rtl"><ErrorState message="INVALID_REPORT_CONTEXT" onRetry={() => void loadReport()} /></div>;
+  }
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
