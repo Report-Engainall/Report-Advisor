@@ -220,7 +220,9 @@ function PublicOrAuthenticatedWorkspace() {
   if (authQuery) return <AuthGate><AppShell /></AuthGate>;
   if (isPublicSmartReportDemo) return <PublicSmartReportDemoPage />;
   const isLandingPath = location.pathname === '/' || location.pathname === '';
-  // Public/demo hosts use the proposal screen only for the landing path. Workspace routes\n  // must still pass through AuthGate so saved reports remain accessible to their tenant.\n  if (demoQuery || (isLandingPath && (isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview))) return <ProposalDemoPage />;
+  // Public/demo hosts use the proposal screen only for the landing path. Workspace routes
+  // must still pass through AuthGate so saved reports remain accessible to their tenant.
+  if (demoQuery || (isLandingPath && (isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview))) return <ProposalDemoPage />;
   return <AuthGate><AppShell /></AuthGate>;
 }
 
