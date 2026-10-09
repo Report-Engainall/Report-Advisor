@@ -881,7 +881,6 @@ export function SmartReportPage() {
   }) : null, [report]);
 
   if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
-  if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
   if (error && errorContextKey === requestContextKey) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={retryReport} /></div>;
   if (!report || !reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={retryReport} /></div>;
 
