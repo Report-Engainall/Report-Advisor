@@ -9,7 +9,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence } from '@/lib/report-intelligence/report-smart-insights';
+import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence, type ReportRecommendation, type ReportSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 import { buildGenericFileIntelligence } from '@/lib/file-engine/generic-intelligence';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
@@ -179,10 +179,58 @@ function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
         ? 'راجع سجلات العملاء المصنفة «منقطع» وتحقق من آخر تعامل وتاريخ الانقطاع قبل اعتماد أي إجراء.'
         : 'راجع اتجاه الشراء الشهري وقائمة أعلى العملاء قيمة، وثبّت خط أساس قبل اعتماد إجراء.';
     const proofRequirement = 'كل الأعداد والقيم مشتقة من ' + dataset.name + ' (' + dataset.rowCount.toLocaleString('ar-YE') + ' صفًا). الحالة والفئة تؤخذان من المصدر؛ لا تُفترض العملة أو أسباب الانقطاع أو نتيجة الاستعادة.';
+    const portfolioEvidence = [
+      'customerRows=' + customers.length,
+      'stoppedCustomers=' + stopped.length,
+      'stoppedVip=' + stoppedVip.length,
+      'sourceFlaggedTotal=' + numberLabel(stoppedValue) + ' (currency unspecified)',
+      ...monthEvidence.slice(-2),
+      ...portfolioFinding.evidence.slice(0, 3),
+    ];
+    const portfolioSignal: ReportSignal = {
+      id: 'preview:customer-portfolio:interruption',
+      severity: stoppedVip.length ? 'high' : stopped.length ? 'medium' : latestChange !== null && latestChange < -20 ? 'medium' : 'info',
+      title: stoppedVip.length ? 'عملاء مهمون مصنّفون في المصدر كمنقطعين' : stopped.length ? 'عملاء بحالة انقطاع واردة في المصدر' : latestChange !== null ? 'تغير مشتريات العملاء عبر الأشهر' : 'ملخص محفظة العملاء من المصدر',
+      message: stopped.length ? portfolioFinding.statement : latestChange !== null && previousMonth && latestMonth
+        ? 'تغير إجمالي الشراء من ' + previousMonth.label + ' إلى ' + latestMonth.label + ' بنسبة ' + (latestChange >= 0 ? '+' : '') + numberLabel(latestChange) + '% وفق أعمدة المصدر.'
+        : portfolioFinding.statement,
+      evidence: portfolioEvidence,
+      affectedRows: stoppedVip.length || stopped.length || customers.length,
+      soWhat: recommendedAction,
+      impact: 'القيم وصف للمصدر وليست إثباتًا لخسارة مالية أو قيمة قابلة للاستعادة؛ الأثر الفعلي يتطلب قياسًا بعد الإجراء.',
+      ownerHint: 'مدير المبيعات / مسؤول حسابات العملاء',
+      priority: stoppedVip.length ? 'P1' : stopped.length ? 'P2' : latestChange !== null && latestChange < -20 ? 'P2' : 'P3',
+      priorityReason: stoppedVip.length
+        ? ['المصدر يصنف عملاء مهمين بحالة منقطع', 'يلزم التحقق من آخر شراء وسبب الحالة قبل الاعتماد']
+        : stopped.length
+          ? ['المصدر يتضمن حالات منقطع', 'يلزم مراجعة الحالة مع دليل التعامل الأخير']
+          : ['الإشارة مشتقة من قيم الأشهر كما وردت في المصدر'],
+    };
+    const portfolioRecommendation: ReportRecommendation = {
+      id: 'rec:' + portfolioSignal.id,
+      status: 'PROPOSED',
+      priority: stoppedVip.length ? 'high' : stopped.length ? 'medium' : 'low',
+      title: stoppedVip.length ? 'مراجعة العملاء المهمين المصنفين كمنقطعين' : stopped.length ? 'التحقق من حالات انقطاع العملاء' : 'مراجعة تغير مشتريات العملاء',
+      action: recommendedAction,
+      why: portfolioSignal.message,
+      evidence: portfolioEvidence,
+      ownerHint: 'مدير المبيعات / مسؤول حسابات العملاء',
+      impact: portfolioSignal.impact,
+      expectedOutcome: 'توثيق حالة كل عميل تمت مراجعته وقياس قيمة الشراء المستعادة فعليًا؛ لا يُعد التواصل وحده نتيجة محققة.',
+      whyNow: stoppedVip.length ? 'لأن المصدر يضع عملاء من الفئة المهمة ضمن حالة الانقطاع، ويستحق ذلك تحققًا مباشرًا.' : 'لتثبيت خط أساس موثق قبل اعتماد أي تغيير.',
+      measurement: 'عدد العملاء المنقطعين الذين تمت مراجعتهم، وعدد من عادوا للشراء، وقيمة مشترياتهم الجديدة مقارنة بخط الأساس.',
+      risk: 'قد لا تعكس الحالة آخر تعامل؛ لا يُثبت المصدر سبب الانقطاع أو الاستعادة الفعلية.',
+      blocker: 'تحقق من آخر تاريخ شراء وسبب الحالة قبل اعتماد قرار استعادة أو أثر مالي.',
+      limitation: 'الأشهر أعمدة فترية وليست سجل فواتير مؤرخًا؛ لا تُفترض العملة أو السببية أو نتيجة الاستعادة.',
+    };
     return {
       ...base,
-      businessQuestion: 'من العملاء الأعلى قيمةً والمصنّفون في المصدر كمنقطعين، وكيف تغير إجمالي الشراء عبر الأشهر؟',
+      businessQuestion: stopped.length
+        ? 'من العملاء الأعلى قيمةً والمصنّفون في المصدر كمنقطعين، وكيف تغير إجمالي الشراء عبر الأشهر؟'
+        : 'كيف تغير إجمالي الشراء عبر الأشهر، ومن أعلى العملاء قيمةً وفق المصدر؟',
       summary: 'تم تحليل ' + customers.length.toLocaleString('ar-YE') + ' سجل عميل و' + monthColumns.length + ' أعمدة شهرية. رُصد ' + stopped.length.toLocaleString('ar-YE') + ' سجلًا بحالة «منقطع»، منها ' + stoppedVip.length.toLocaleString('ar-YE') + ' مصنّفًا ضمن فئة مهمة/VIP. قيمة الإجمالي حسب عمود المصدر: ' + numberLabel(totalPortfolioValue) + '.',
+      signals: [portfolioSignal],
+      recommendations: [portfolioRecommendation],
       findings: [portfolioFinding, ...base.findings.filter((finding) => finding.id !== portfolioFinding.id)],
       risks: stopped.length ? [portfolioFinding, ...base.risks.filter((finding) => finding.id !== portfolioFinding.id)] : base.risks,
       advisorBrief: {
@@ -385,14 +433,17 @@ export function ExternalFileAnalysisPage() {
   const dataset = datasets[active] ?? null;
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
   const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
+  const customerPortfolio = Boolean(intelligence?.findings.some((finding) => finding.id === 'preview:customer-portfolio:interruption'));
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
     specialty: specialty ?? null,
+    archetypeId: customerPortfolio ? 'customers.activity' : undefined,
+    previewIntelligence: customerPortfolio ? intelligence ?? undefined : undefined,
     rowCount: dataset.rowCount,
     sourceAnalysis: { datasets: [dataset] },
     canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
     sourcePath: file?.name ?? dataset.name,
     sourceHash: file?.hash ?? null,
-  }) : null, [dataset, file, specialty]);
+  }) : null, [dataset, file, specialty, customerPortfolio, intelligence]);
   const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
