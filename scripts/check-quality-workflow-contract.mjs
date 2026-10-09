@@ -40,8 +40,9 @@ const concurrencyMatch = workflow.match(/concurrency:\s*\r?\n(?:\s*#.*\r?\n)*\s*
 if (!concurrencyMatch) throw new Error('Quality workflow must define an explicit concurrency policy.');
 const concurrencyGroup = concurrencyMatch[1].trim();
 const cancelInProgress = concurrencyMatch[2] === 'true';
-if (!/\$\{\{\s*github\.run_id\s*\}\}/.test(concurrencyGroup)) throw new Error('Quality workflow must define a unique per-run concurrency group.');
-if (cancelInProgress) throw new Error('Quality workflow must not cancel an in-flight verification run.');
+if (!/\$\{\{\s*github\.event\.pull_request\.number\s*\|\|\s*github\.ref_name\s*\}\}/.test(concurrencyGroup)) throw new Error('Quality workflow must group by PR/ref so stale candidates do not pile up.');
+if (!cancelInProgress) throw new Error('Quality workflow must cancel superseded candidates when a newer head arrives.');
+if (/\$\{\{\s*github\.run_id\s*\}\}/.test(concurrencyGroup)) throw new Error('Quality concurrency must not use a unique run ID that prevents stale-run cancellation.');
 if (!/timeout-minutes:\s*40/.test(workflow)) throw new Error('Quality workflow must retain an explicit 40-minute execution timeout.');
 
-console.log(`Quality workflow contract: PASS (${uniqueCommands.length} npm commands, ${requiredStageGroups.length} mandatory stage groups, per-run concurrency)`);
+console.log(`Quality workflow contract: PASS (${uniqueCommands.length} npm commands, ${requiredStageGroups.length} mandatory stage groups, per-PR latest-run concurrency)`);
