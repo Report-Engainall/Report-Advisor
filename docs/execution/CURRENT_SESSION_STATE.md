@@ -1,43 +1,35 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = bfbc0405309b29dcb6b41a84453ec80281000383
+CURRENT_EXACT_HEAD = b40e6a1462ca8b660c8f4e07461132b0da7bccbb
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = bfbc0405309b29dcb6b41a84453ec80281000383
+CURRENT_EXECUTION_HEAD = b40e6a1462ca8b660c8f4e07461132b0da7bccbb
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912
-CURRENT_PR_HEAD = bfbc0405309b29dcb6b41a84453ec80281000383
+CURRENT_PR_HEAD = b40e6a1462ca8b660c8f4e07461132b0da7bccbb
 
-WHAT_ACTUALLY_HAPPENED
-- Ported source-bound Arabic XLSX semantic mapping and general tabular customer intelligence into PR #912; the structured regression includes 17 source columns, monthly comparisons, customer-status evidence, and stated-total reconciliation.
-- Added report-context/intelligence surface integrations and fixed duplicate preview routing without bypassing AuthGate for canonical import.
-- Netlify preview for parent 897196406285e03002d47c1a7019fde59f56ead6 is READY and visibly renders the upload workspace at /try-report and /import/analyze.
-- Exact-head CI found a duplicate-route contract failure on 897196406285e03002d47c1a7019fde59f56ead6; fixed in bfbc0405309b29dcb6b41a84453ec80281000383. Current-head rerun is pending.
-- Exact-head Session Handoff Contract found stale persisted governance fields; this block and PROGRAMMER_CURRENT_REPORT.md are being synchronized in this governance-only writeback.
+CURRENT PRODUCT CHECKPOINT — 2026-10-09
+- PR #912 ports source-bound general spreadsheet intelligence into current main, rather than restarting the project or disabling security checks.
+- Arabic customer workbook semantics cover month names, customer status, ABC importance, total-vs-monthly reconciliation, customer interruption signals, and evidence-backed recommendations.
+- The regression test reports STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation on code head bfbc0405309b29dcb6b41a84453ec80281000383.
+- The public file analysis routes /try-report and /import/analyze display the upload workspace in Netlify preview. Canonical /import remains behind AuthGate and company context.
+- Smart Report advisor section now explicitly renders ADVISOR BRIEF to satisfy the exact marker contract. Code commit for this last fix: b40e6a1462ca8b660c8f4e07461132b0da7bccbb.
 
-WHAT_IS_PROVEN
-- PR #912 is open, mergeable, and not merged.
-- Typecheck, production build, and perf budget passed on parent 897196406285e03002d47c1a7019fde59f56ead6; critical assets 933.9KB (limit 950KB), largest JS 487.8KB (limit 600KB).
-- Data-quality runtime passed on the prior route-failure revision.
-- Preview upload routes were checked against the deployment source SHA. No end-to-end actual XLSX upload-to-canonical-report run has been proven yet.
-- Production deployment remains stale on fa1ab4cbade9b01685507aa966c10f700a03f576; do not claim production completion.
+CURRENT PROOF STATE
+- Quality, Typecheck, Build, Performance budget, data-quality-runtime, and UI route contract had passed on the prior route-fixed code head bfbc0405309b29dcb6b41a84453ec80281000383. Those are predecessor proofs, not yet a claim that every current-head gate has passed.
+- Netlify preview status on b40e6a1462ca8b660c8f4e07461132b0da7bccbb: SUCCESS; Vercel status: SUCCESS. Exact preview source content should be re-read after this checkpoint.
+- Session Handoff Contract on b40e6a1462ca8b660c8f4e07461132b0da7bccbb: PASS.
+- Latest current-head quality / Product Build Gate / File Engine Header / Final Certification / full browser checks remain queued or pending until terminal evidence is read.
+- Production deploy still points at 858ef8e3e5bc5bf74430555eadfb9e6767be348b; production is NOT proven current and PRODUCT_COMPLETE = NO.
+- No authenticated customer-file upload → canonical report → decision → work → outcome browser path has been proven in this checkpoint.
 
-CURRENT_OPEN_GATES
-- Current-head quality and navigation/route contract.
-- Session Handoff Contract after report writeback.
-- Product Build Gate.
-- Device-Independent Browser E2E and Full Product Browser E2E.
-- Final certification and same-head production deployment/provenance.
+NEXT_EXACT_ACTION = Consume current-head quality and certification gates following the ADVISOR BRIEF marker fix; fix the first specific failing contract without loosening checks. Then consume Full Product Browser E2E and Device-Independent Browser E2E. Do not merge or label production ready until required gates pass and the production deployment SHA matches the final merged main.
 
-CURRENT_ACTIVE_FAILURE
-- Previous revision 897196406285e03002d47c1a7019fde59f56ead6: routing/security contract failed with duplicate declared paths /import/analyze and /import.
-- Previous revision session handoff failed because REPORT_FOR_HEAD was not an ancestor of HEAD.
-
-ROOT_CAUSE
-- New preview routes were declared both in outer routes and inner AppShell routes. The fix removes duplicated route declarations and handles the preview-specific paths before the generic preview-demo fallback.
-- Persisted state/report still referred to a branch head unrelated to the current main lineage. This governance writeback pins REPORT_FOR_HEAD to bfbc0405309b29dcb6b41a84453ec80281000383 so the diff after that anchor is documentation-only.
-
-NEXT_EXACT_ACTION = Consume exact-head checks for bfbc0405309b29dcb6b41a84453ec80281000383; address the first failure only; do not merge until mandatory product/security/browser gates are terminal green. Merge PR #912 only after required gates pass, then prove production SHA equality.
-
+DO_NOT_REPEAT
+- Do not treat a queued check as PASS.
+- Do not treat fixture content as customer data.
+- Do not treat extracted rows as proof of an implemented decision/action/outcome.
+- Do not weaken AuthGate, RLS, or tenant isolation to make a preview appear populated.
+- Do not claim production-current before checking deployment source SHA.
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
