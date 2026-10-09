@@ -58,3 +58,29 @@ for (const marker of [
 }
 console.log('smart-report-executive-result-surface: PASS');
 
+const reportsPage = fs.readFileSync(new URL('../src/pages/ReportsPage.tsx', import.meta.url), 'utf8');
+for (const marker of [
+  'fetchSmartReportCatalogPage',
+  'catalogHasMore',
+  'loadMoreCatalog',
+  'data-testid="smart-report-catalog-load-more"',
+  "report.jobId + ':' + report.sourceHash",
+]) {
+  if (!reportsPage.includes(marker)) throw new Error('Missing smart report catalog pagination marker: ' + marker);
+}
+
+const reportCatalog = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
+if (!reportCatalog.includes('export async function fetchSmartReportCatalogPage')) throw new Error('Paged smart report catalog API missing');
+if (!reportCatalog.includes('.range(offset, offset + limit)')) throw new Error('Paged smart report catalog must advance via source-job offsets');
+
+const reportContext = fs.readFileSync(new URL('../src/components/ReportSourceContext.tsx', import.meta.url), 'utf8');
+for (const marker of [
+  'fetchSmartReportCatalogPage(6, 0',
+  'aria-label="التقارير الذكية الأخيرة"',
+  'data-testid="recent-smart-report-navigation"',
+  "encodeURIComponent(item.jobId) + '?sourceHash=' + encodeURIComponent(item.sourceHash)",
+  'to="/reports"',
+]) {
+  if (!reportContext.includes(marker)) throw new Error('Missing cross-screen smart report navigation marker: ' + marker);
+}
+console.log('smart-report-catalog-navigation: PASS');
