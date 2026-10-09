@@ -20,7 +20,7 @@ const provenanceRepair = fs.readFileSync('supabase/migrations/20261003140500_rec
 const intelligencePanel = fs.readFileSync('src/components/ReportIntelligencePanel.tsx', 'utf8');
 const decisionCockpit = fs.readFileSync('src/components/ReportDecisionCockpit.tsx', 'utf8');
 const legacyRowCountRepair = fs.readFileSync(
-  'supabase/migrations/20261009224000_reconcile_legacy_generic_import_rowcount_proof.sql',
+  'supabase/migrations/20261009223526_reconcile_legacy_generic_import_rowcount_proof.sql',
   'utf8',
 );
 const checkpointOffsetRepair = fs.readFileSync(
