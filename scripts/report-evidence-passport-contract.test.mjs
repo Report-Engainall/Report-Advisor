@@ -20,11 +20,11 @@ const provenanceRepair = fs.readFileSync('supabase/migrations/20261003140500_rec
 const intelligencePanel = fs.readFileSync('src/components/ReportIntelligencePanel.tsx', 'utf8');
 const decisionCockpit = fs.readFileSync('src/components/ReportDecisionCockpit.tsx', 'utf8');
 const checkpointOffsetRepair = fs.readFileSync(
-  'supabase/migrations/20261010101000_fix_legacy_checkpoint_import_id_offset.sql',
+  'supabase/migrations/20261009222216_fix_legacy_checkpoint_import_id_offset.sql',
   'utf8',
 );
 const sourceBoundRepair = fs.readFileSync(
-  'supabase/migrations/20261010090000_harden_legacy_report_evidence_passport_refresh.sql',
+  'supabase/migrations/20261009222131_harden_legacy_report_evidence_passport_refresh.sql',
   'utf8',
 );
 const corpusPassportRefresh = fs.readFileSync('scripts/refresh-governed-real-corpus-passports.mjs', 'utf8');
