@@ -60,18 +60,38 @@ for (const tenantId of targetTenantIds) {
     '&order=created_at.asc&limit=500'
   );
   const governedFiles = (files || []).filter(file => isGovernedReal(file.metadata));
+  const governedHashes = new Set(governedFiles.map(file => String(file.file_hash || '').trim()).filter(Boolean));
+  const jobsByHash = new Map();
+
+  // Batch tenant-scoped job discovery; the former per-file query caused repeated scans and statement timeouts.
+  if (governedHashes.size > 0) {
+    const pageSize = 200;
+    let offset = 0;
+    while (true) {
+      const page = await rest(
+        '/rest/v1/report_execution_jobs?company_id=eq.' + encodeURIComponent(company.id) +
+        '&status=eq.completed' +
+        '&checkpoint-%3E%3Estage=eq.rendered' +
+        '&select=id,company_id,source_path,source_hash,status,checkpoint' +
+        '&order=created_at.desc,id.asc&limit=' + pageSize + '&offset=' + offset
+      );
+      const jobs = Array.isArray(page) ? page : [];
+      for (const job of jobs) {
+        const sourceHash = String(job.source_hash || '').trim();
+        if (!governedHashes.has(sourceHash)) continue;
+        const matching = jobsByHash.get(sourceHash) ?? [];
+        matching.push(job);
+        jobsByHash.set(sourceHash, matching);
+      }
+      if (jobs.length < pageSize) break;
+      offset += pageSize;
+      if (offset > 10000) throw new Error('REAL_CORPUS_RENDERED_JOB_SCAN_BOUND_EXCEEDED:' + company.id);
+    }
+  }
 
   for (const file of governedFiles) {
-    const jobs = await rest(
-      '/rest/v1/report_execution_jobs?company_id=eq.' + encodeURIComponent(company.id) +
-      '&source_hash=eq.' + encodeURIComponent(String(file.file_hash || '')) +
-      '&status=eq.completed' +
-      '&checkpoint-%3E%3Estage=eq.rendered' +
-      '&select=id,company_id,source_path,source_hash,status,checkpoint,evidence' +
-      '&order=updated_at.desc&limit=50'
-    );
-
-    for (const job of jobs || []) {
+    const jobs = jobsByHash.get(String(file.file_hash || '').trim()) ?? [];
+    for (const job of jobs) {
       try {
         const refreshed = await rest('/rest/v1/rpc/refresh_report_evidence_passport', {
           method: 'POST',
