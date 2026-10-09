@@ -1,41 +1,43 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-CURRENT_MAIN_HEAD = 21586845371893a381e93721a0fc1de6de20eee7
-CURRENT_EXECUTION_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
-BRANCH = ux/smart-report-commercial-20261008
-PR = #908
-CURRENT_PR_HEAD = 257c179eb2b68589eb341007fb51b5f035e6a1b4
+CURRENT_EXACT_HEAD = bfbc0405309b29dcb6b41a84453ec80281000383
+CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+CURRENT_EXECUTION_HEAD = bfbc0405309b29dcb6b41a84453ec80281000383
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912
+CURRENT_PR_HEAD = bfbc0405309b29dcb6b41a84453ec80281000383
 
 WHAT_ACTUALLY_HAPPENED
-- Smart Report result-first executive surface is implemented: trust, records, evidence, decision readiness, result, risk, opportunity, action, with sourceHash/jobId kept as secondary audit metadata.
-- Removed 902 characters of redundant Smart Report CSS while preserving the strict performance budget. The critical budget was measured at 949.9KB and passed the 950KB ceiling in the preceding application proof.
-- Purchases now reads the canonical dashboard snapshot alongside purchase rows and exposes the shared report-truth state.
-- Product creation now uses bounded save/readback handling and authoritative tenant resolution.
-- Full Product Browser E2E now watches src/components/ProductCreateDialog.tsx so product-creation changes cannot bypass browser proof.
-- Governance state is being synchronized after the handoff guard correctly detected stale execution documents.
+- Ported source-bound Arabic XLSX semantic mapping and general tabular customer intelligence into PR #912; the structured regression includes 17 source columns, monthly comparisons, customer-status evidence, and stated-total reconciliation.
+- Added report-context/intelligence surface integrations and fixed duplicate preview routing without bypassing AuthGate for canonical import.
+- Netlify preview for parent 897196406285e03002d47c1a7019fde59f56ead6 is READY and visibly renders the upload workspace at /try-report and /import/analyze.
+- Exact-head CI found a duplicate-route contract failure on 897196406285e03002d47c1a7019fde59f56ead6; fixed in bfbc0405309b29dcb6b41a84453ec80281000383. Current-head rerun is pending.
+- Exact-head Session Handoff Contract found stale persisted governance fields; this block and PROGRAMMER_CURRENT_REPORT.md are being synchronized in this governance-only writeback.
 
 WHAT_IS_PROVEN
-- Current execution checkout is 257c179eb2b68589eb341007fb51b5f035e6a1b4.
-- Immediate predecessor proof included Product Build PASS, Final Certification PASS, canonical truth PASS, UI route completeness PASS, Cloudflare compatibility PASS, Golden Evidence PASS, OCR PASS, and performance 949.9KB PASS.
-- Vercel previews were built from the same product branch during this wave.
-- Production currentness is NOT claimed.
+- PR #912 is open, mergeable, and not merged.
+- Typecheck, production build, and perf budget passed on parent 897196406285e03002d47c1a7019fde59f56ead6; critical assets 933.9KB (limit 950KB), largest JS 487.8KB (limit 600KB).
+- Data-quality runtime passed on the prior route-failure revision.
+- Preview upload routes were checked against the deployment source SHA. No end-to-end actual XLSX upload-to-canonical-report run has been proven yet.
+- Production deployment remains stale on fa1ab4cbade9b01685507aa966c10f700a03f576; do not claim production completion.
 
 CURRENT_OPEN_GATES
-- Full Product Browser E2E.
-- Device-Independent Browser E2E.
-- Storage Tenant Runtime E2E.
-- Commercial Product Creation E2E.
-- Final Certification for any post-certification governance head.
-- Same-head merge to main and production proof.
+- Current-head quality and navigation/route contract.
+- Session Handoff Contract after report writeback.
+- Product Build Gate.
+- Device-Independent Browser E2E and Full Product Browser E2E.
+- Final certification and same-head production deployment/provenance.
 
 CURRENT_ACTIVE_FAILURE
-- Previous blocker: Session Handoff Contract rejected stale governance coverage after application changes. No application defect is asserted from that governance failure.
+- Previous revision 897196406285e03002d47c1a7019fde59f56ead6: routing/security contract failed with duplicate declared paths /import/analyze and /import.
+- Previous revision session handoff failed because REPORT_FOR_HEAD was not an ancestor of HEAD.
 
 ROOT_CAUSE
-- CURRENT_SESSION_STATE.md and PROGRAMMER_CURRENT_REPORT.md still pointed to older execution heads after the Smart Report, purchases, product-save, and browser-trigger changes.
+- New preview routes were declared both in outer routes and inner AppShell routes. The fix removes duplicated route declarations and handles the preview-specific paths before the generic preview-demo fallback.
+- Persisted state/report still referred to a branch head unrelated to the current main lineage. This governance writeback pins REPORT_FOR_HEAD to bfbc0405309b29dcb6b41a84453ec80281000383 so the diff after that anchor is documentation-only.
 
-NEXT_EXACT_ACTION = Consume terminal current-head Browser/Device/Storage/Commercial results; fix only the first terminal application failure; then merge PR #908 into #906, merge #906 to main, and prove same-head production.
+NEXT_EXACT_ACTION = Consume exact-head checks for bfbc0405309b29dcb6b41a84453ec80281000383; address the first failure only; do not merge until mandatory product/security/browser gates are terminal green. Merge PR #912 only after required gates pass, then prove production SHA equality.
+
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.
