@@ -1,33 +1,41 @@
-# Report-Advisor Execution Archive — 2026-10-09
+# Report-Advisor Execution Archive — 2026-10-09 / RESUMED PR #911 CHECKPOINT
 
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-UPDATED_AT = 2026-10-09
+REPORT_FOR_HEAD = be6fcc0242db7f4748946d52c56ba1828d6eda74
+UPDATED_AT = 2026-10-09T05:24:00+03:00
 BRANCH = captain/critical-bundle-proof-20261009
-PR = #911
+PR = #911 OPEN / UNMERGED
+PR_HEAD_AT_READ = be6fcc0242db7f4748946d52c56ba1828d6eda74
 APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
-ADVISOR_CONTRACT_FIX_HEAD = a55478b0e7ad95f1aa137e57e99f229ec1dd0c30
-CONTROL_PLANE_WRITEBACK_BASE = c7828c84d45bfbada5489df4fd00ec362f15bca7
+CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+CONTROL_PLANE_WRITEBACK_BASE = be6fcc0242db7f4748946d52c56ba1828d6eda74
+PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
 
-## Work persisted
-- Fixed Node XLSX test byte handling in `scripts/generic-file-analysis.test.mjs`: use XLSX.write with `type: 'buffer'`, then convert only the exact Buffer byte view to ArrayBuffer. Fresh CI confirmation is pending.
-- Corrected `scripts/check-real-smart-report-advisor.mjs`: the visible Arabic kicker `ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟` is now the required marker instead of an English string absent from the UI.
-- Synchronized the canonical `ONE-PROGRAMMER-SESSION-MEMORY.md` checkpoint with this execution and updated `scripts/check-session-handoff-contract.mjs` to allow only that canonical state file and the validator itself, in addition to its existing state/report/archive paths.
-- Added `CURRENT_EXACT_HEAD` and machine-readable session-report fields so the handoff contract can validate the persisted session.
-- Confirmed `Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md` is absent from the current branch tree; did not invent or replace its contents. The captain/programmer operating protocol was read and used as the available governance fallback.
-- Remote Desktop was not used.
+## Exact resume audit
+- Re-read the canonical boot state, current programmer report, captain/programmer operating protocol, SYSTEM_HEART, execution index, knowledge manifest, canonical programmer memory and archive.
+- Confirmed PR #911 head is be6fcc0242db7f4748946d52c56ba1828d6eda74; application source head remains 2c4ef80717a6e7052373e721d2e0586115cc5efd; main is fa1ab4cbade9b01685507aa966c10f700a03f576.
+- Confirmed the requested Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md is missing on both PR branch and main. Used docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md as the verified fallback; did not fabricate missing policy text.
+- Single checkpoint update is restricted to the four canonical session files. No application or runtime code is changed by this writeback.
 
-## Additional repository governance findings
-- `docs/SYSTEM_HEART.md` names `ONE-PROGRAMMER-SESSION-MEMORY.md` as the only mutable live session state and requires updates to both execution lanes.
-- `Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md` is absent on both the PR branch and main, including the alternate `docs/Project-Governance/` location. It was not fabricated.
+## Exact-head proof at be6fcc0242db7f4748946d52c56ba1828d6eda74
+- Product Build Gate run 37870488204: PASS.
+- Quality run 37870487827: PASS, including the repaired Node XLSX test byte handling.
+- Data Quality Runtime run 37870488220: PASS.
+- Device-independent public browser-smoke subjob 113627199178: PASS.
+- PR preview status contexts are successful; this is preview evidence, not production proof.
+- Session Handoff Contract run 37870487766/job 113627197501: FAIL because report coverage still pointed at c7828c84... and omitted .github/workflows/phase-f-live-resilience.yml.
+- Final Certification Gate run 37870487791/job 113627197862: FAIL at the same final handoff validation.
+- Storage Tenant Runtime E2E run 37870488054/job 113627198132: FAIL with AUTH_TOKEN_HTTP_504; no tenant checks started.
+- Commercial Product Creation E2E run 37870488230/job 113627198803: FAIL on Supabase Auth HTTP 504 before business assertions.
+- Device-independent authenticated job 113628214148: FAIL during ephemeral actor provisioning with E2E_ACTOR_REQUEST_TIMEOUT.
+- Full Product Browser E2E run 37870488215/job 113627199618: FAIL during auth provisioning; downstream authenticated route/report and 48-archetype proof did not complete.
+- Report Value Cohort run 37870488147/job 113627268405: FAIL with upstream request timeout; no valid cohort proof produced.
+- Phase F live resilience run 37870488256: CANCELLED.
 
-## Proof status
-- GitHub test fix persisted at c7828c84d45bfbada5489df4fd00ec362f15bca7.
-- Exact-head readback: advisor markers and ordering remain valid.
-- Final Certification Gate passed on ancestor tip 199949e499338798f8efb10ed5e9ebc67b929b4a.
-- Current exact-head quality/build/handoff/browser results remain pending/in progress at last read; no fresh test PASS is claimed.
-- Previous browser attempt failed actor provisioning and open-report resume on Supabase HTTP 504.
-- Session Handoff, authenticated catalog pagination/navigation, XLSX upload, 48/48 real-source runtime, full upload-to-decision, and production/main remain NOT PROVEN.
+## Root-cause separation
+1. Governance defect: REPORT_FOR_HEAD was stale at c7828c84d45bfbada5489df4fd00ec362f15bca7 while the PR advanced to be6fcc0242db7f4748946d52c56ba1828d6eda74; the handoff validator correctly surfaced the unreported workflow file. Pointing coverage at the current candidate base makes the new checkpoint describe only allowed documentation updates.
+2. Runtime blocker: independent auth-dependent jobs all observed Supabase HTTP 504/request timeouts. This demonstrates a shared live dependency failure during this attempt; it does not yet prove whether the service fault is transient or persistent and is not evidence of an application authentication defect by itself.
+3. Product evidence still open: no authenticated pagination/source lineage proof, safe XLSX upload, full upload-to-decision, real-source 48/48, or production proof.
 
-## Root cause and next exact action
-The advisor certification asserted an English UI marker not present in the Arabic-first visible component. Separately, the persistent report omitted mandatory machine-readable handoff fields. Re-read the final PR HEAD and consume exact-head certification plus Session Handoff Contract results; then prove browser pagination and sourceHash/jobId lineage on the preview. Do not merge based solely on build status.
+## Next exact action
+Read back the new checkpoint commit, then consume Session Handoff + Final Certification runs on the resulting current head. If the governance gates pass, retry the auth-dependent E2E gates once; if the 504 repeats, preserve the explicit external blocker and continue with safe independent product contracts without weakening auth, RLS, evidence integrity, or numeric truth.

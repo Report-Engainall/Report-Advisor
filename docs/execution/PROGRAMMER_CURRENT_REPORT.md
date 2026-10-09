@@ -1,85 +1,44 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-UPDATED_AT = 2026-10-09
-WHAT_I_WAS_ASKED_TO_DO = Resume PR #911 from canonical state, repair the stale advisor contract, then fix the first real regression in current-head quality without recreating completed product functionality.
-WHAT_I_ACTUALLY_DID = Corrected the advisor marker contract for the actual Arabic UI; restored session-handoff fields and validator allowlist; synchronized canonical ONE-PROGRAMMER-SESSION-MEMORY.md and archived the checkpoint; fixed scripts/generic-file-analysis.test.mjs to use XLSX Node Buffer output instead of assuming bytes.buffer exists on array output.
-WHAT_IS_PROVEN = Exact-head readback confirms all 12 advisor markers and advisor-first ordering; Final Certification Gate passed on ancestor tip 199949e499338798f8efb10ed5e9ebc67b929b4a; test fix persists at c7828c84d45bfbada5489df4fd00ec362f15bca7. Fresh exact-head quality/build/handoff/browser results are pending or in progress; no PASS is claimed for the test fix yet.
-FIRST_ACTIVE_FAILURE = Prior quality run failed in scripts/generic-file-analysis.test.mjs:71 because XLSX.write({type:'array'}) returned an ArrayBuffer and the test dereferenced bytes.buffer. A previous full browser attempt hit Supabase HTTP 504 during actor provisioning and open-report resume.
-ROOT_CAUSE = The test assumed a Node XLSX array result was a typed view, but it was an ArrayBuffer; the earlier browser attempt was blocked by Supabase gateway timeouts. The earlier certification failure was a stale English-only UI marker.
-NEXT_EXACT_ACTION = Re-read final PR tip and consume current-head quality/build/handoff/browser jobs; fix only the next terminal failure; continue authenticated pagination/source lineage, XLSX upload, 48/48 real-source and upload-to-decision proof.
+REPORT_FOR_HEAD = be6fcc0242db7f4748946d52c56ba1828d6eda74
+UPDATED_AT = 2026-10-09T05:24:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Resume PR #911 from the canonical boot state; reconcile the live branch/application/main heads; consume exact-head checks; repair only the current proven release blockers without recreating completed functionality.
+WHAT_I_ACTUALLY_DID = Read CURRENT_SESSION_STATE, PROGRAMMER_CURRENT_REPORT, the captain/programmer protocol, SYSTEM_HEART, MASTER_EXECUTION_INDEX, PROJECT_KNOWLEDGE_MANIFEST, canonical live memory and the dated archive; refreshed live PR metadata and exact-head workflow/job logs; identified the stale report-coverage root cause and the separate Supabase Auth timeout blocker; prepared a single documentation-only checkpoint.
+WHAT_IS_PROVEN = At exact PR head be6fcc0242db7f4748946d52c56ba1828d6eda74: Product Build Gate run 37870488204 PASS; quality run 37870487827 PASS, including XLSX test byte fix; data-quality-runtime run 37870488220 PASS; public browser-smoke subjob 113627199178 PASS; current PR deploy-preview status contexts succeed. Catalog paging and jobId + sourceHash links are persisted in the application source commit 2c4ef80717a6e7052373e721d2e0586115cc5efd. These facts do not prove the authenticated journey or production.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 37870487766/job 113627197501 and Final Certification Gate run 37870487791/job 113627197862 fail because REPORT_FOR_HEAD points to c7828c84..., leaving .github/workflows/phase-f-live-resilience.yml unreported. Authenticated E2E, tenant storage and commercial creation also fail at Supabase Auth HTTP 504 / E2E_ACTOR_REQUEST_TIMEOUT; Report Value Cohort ends with upstream request timeout.
+ROOT_CAUSE = The current PR branch advanced to be6fcc0242db7f4748946d52c56ba1828d6eda74 after the persisted report checkpoint at c7828c84d45bfbada5489df4fd00ec362f15bca7. The handoff diff scanner then correctly rejected the unreported workflow change. Separately, multiple independent runtime jobs reached the Supabase Auth endpoint and received HTTP 504; no tenant-isolation/business assertion PASS can be inferred because actor provisioning did not complete.
+NEXT_EXACT_ACTION = Read back the single checkpoint commit and consume exact-head Session Handoff + Final Certification results; then retry the auth-dependent gates once to distinguish transient Supabase 504 from a persistent external blocker, without weakening auth/RLS/evidence boundaries.
 
-## CURRENT EXECUTION REPORT — 2026-10-09
+## Exact branch and release state
+- Repository: Report-Engainall/Report-Advisor
+- Branch: captain/critical-bundle-proof-20261009
+- PR: #911 OPEN / UNMERGED; base main = fa1ab4cbade9b01685507aa966c10f700a03f576
+- PR candidate head at read: be6fcc0242db7f4748946d52c56ba1828d6eda74
+- Application source head: 2c4ef80717a6e7052373e721d2e0586115cc5efd
+- Free preview: https://deploy-preview-911--aghbari-report-advisor.netlify.app
+- Supervision protocol path Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md returns 404 on both branch and main. Verified canonical paths exist as docs/SYSTEM_HEART.md, docs/MASTER_EXECUTION_INDEX.md and docs/PROJECT_KNOWLEDGE_MANIFEST.md; no root-level duplicates were found in the expected paths.
 
-APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
-BRANCH = captain/critical-bundle-proof-20261009
-PR = #911 (OPEN; last read mergeable)
-PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
+## Proof ledger
+| Gate | Exact evidence | Result |
+|---|---|---|
+| Product Build Gate | run 37870488204 | PASS |
+| Quality (typecheck, lint/build and XLSX test repair) | run 37870487827 | PASS |
+| Data Quality Runtime | run 37870488220 | PASS |
+| Public browser smoke | job 113627199178 | PASS |
+| Session Handoff Contract | run 37870487766 / job 113627197501 | FAIL — stale report coverage |
+| Final Certification Gate | run 37870487791 / job 113627197862 | FAIL — same handoff error at the terminal boundary |
+| Storage Tenant Runtime E2E | run 37870488054 / job 113627198132 | FAIL — AUTH_TOKEN_HTTP_504, no tenant checks began |
+| Commercial Product Creation E2E | run 37870488230 / job 113627198803 | FAIL — Supabase Auth HTTP 504 before assertions |
+| Authenticated browser E2E | job 113628214148 | FAIL — actor provisioning request timeout |
+| Full Product Browser E2E | run 37870488215 / job 113627199618 | FAIL — auth provisioning and downstream proof blocked |
+| Report Value Cohort | run 37870488147 / job 113627268405 | FAIL — upstream request timeout |
+| Phase F live resilience | run 37870488256 | CANCELLED |
 
-REQUEST
-Make all completed smart reports visible and navigable throughout Reports Center and analysis/decision surfaces, retaining exact report lineage.
-
-CHANGES IN APPLICATION COMMIT 2c4ef80717a6e7052373e721d2e0586115cc5efd
-- Added paged smart-report catalog API with legacy-compatible wrapper.
-- Reports Center can append reports beyond the initial 60, with duplicate filtering, loading/error states and catalog-end state.
-- ReportSourceContext exposes recent report navigation on analysis/decision pages. Each link carries the exact jobId and sourceHash.
-- Added contract assertions for paging, load-more UI and cross-screen links.
-- Fixed inventory coverage aggregation to keep missing sales as null and withhold the related percentage when sales inputs are incomplete.
-
-PROOF
-- GitHub write succeeded; application commit 2c4ef80717a6e7052373e721d2e0586115cc5efd is persisted on PR #911.
-- Dedicated build-and-contracts run on this head passed Typecheck, Production build, Smart report surface contract, Smart report evidence boundary contract, Customer-facing report surface contract and Source upload UI contract.
-- Netlify deploy-preview status for this application head reports success.
-- Build/contract proof is not the same as a complete authenticated UI journey.
-
-ACTIVE FAILURE / NEXT FIX
-- Certification contract job failed in scripts/check-real-smart-report-advisor.mjs:20 because src/pages/SmartReportPage.tsx is missing literal “ADVISOR BRIEF”.
-- The page has the actual advisor section, data-testid “smart-report-advisor-brief”, and Arabic title “ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟”. Inspect whether to add a small bilingual UI kicker “ADVISOR BRIEF” or update a stale assertion if the English label is not a real product requirement. Do not weaken evidence/truth constraints.
-- Full Product Browser E2E job 113617979908 was at actor provisioning at the last read; refresh status and use its terminal result.
-- Do not claim XLSX browser smoke on 2c4ef80717a6e7052373e721d2e0586115cc5efd; the known browser smoke pass was on prior application head 8eda2a11.
-- Production/main proof is still open; PR #911 is not merged.
-
-PROOF STATUS
-- ADVISOR CONTRACT FIX = PERSISTED at a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; exact-current-head execution is pending.
-- PRIOR TYPECHECK = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd; refresh current-head typecheck/build before treating as fresh proof.
-- PRIOR PRODUCTION BUILD = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd; not proof of current tip.
-- PRIOR SMART REPORT SURFACE CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
-- PRIOR EVIDENCE BOUNDARY CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
-- PRIOR CUSTOMER-FACING REPORT SURFACE CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
-- PRIOR SOURCE UPLOAD UI CONTRACT = PASS on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
-- CERTIFICATION CONTRACTS = PENDING on a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; previous failure was the stale English marker assertion.
-- SESSION HANDOFF CONTRACT = PENDING until rerun against the documentation-only tip.
-- BROWSER PAGINATION/NAVIGATION = NOT PROVEN.
-- XLSX BROWSER SMOKE = NOT PROVEN on the current application source revision.
-- AUTHENTICATED UPLOAD-TO-DECISION = NOT PROVEN.
-- REAL-SOURCE 48/48 ARCHETYPE RUNTIME = NOT PROVEN.
-- PRODUCTION PROVEN = NO.
+## Product delta and constraints
+- Reports Center has a paginated catalog beyond the initial 60 reports, with de-duplication and load/error/end UI states.
+- Analysis/decision report links retain exact jobId + sourceHash.
+- Inventory affected-sales share remains unknown when required sales data is missing; it is not silently represented as zero.
+- The advisor-first contract recognizes the actual visible Arabic kicker and validates that the judgment precedes the data explorer.
+- The XLSX test now uses the Node Buffer output and preserves the exact byte view; exact-head quality passes.
+- No Remote Desktop used; retain the remaining 20% free allowance. Do not buy Vercel capacity or weaken authentication/data boundaries to manufacture green checks.
+- Authenticated UI pagination/lineage, safe XLSX upload browser proof, full upload → report → evidence → recommendation → decision/work/outcome, real-source 48/48, and production remain NOT PROVEN.
 - PRODUCT COMPLETE = NO.
-
-NEXT ACTIONS
-1. Read state, report, operating protocol, canonical live memory and available system/product masters; record absent supervision protocol honestly.
-2. Refresh exact PR HEAD and current run statuses.
-3. Consume exact-tip Session Handoff Contract and certification contract results; pending/queued is not PASS.
-4. Verify free Netlify preview matches the intended PR commit; do not treat it as production proof.
-5. Verify authenticated catalog pagination and exact jobId + sourceHash continuity; complete XLSX upload-to-decision and 48/48 real-source proof separately.
-6. Persist future state updates only in the canonical files and archive, and repeat exact-head checks without Remote Desktop unless an essential browser operation cannot be reached otherwise.
-
-CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-LAST_KNOWN_APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
-UPDATED_AT = 2026-10-09
-
-## 2026-10-08 checkpoint — PR #905 source-agnostic file intelligence
-### Application result
-The external file analysis path now accepts common text/structured formats without forcing a predefined business specialty. It preserves raw line evidence for unstructured content and derives generic intelligence from observed evidence.
-
-### Evidence
-- Main application HEAD: 555b8b1865978ca7054537c7f23e579671c2e465.
-- PR #905: merged.
-- Final Execution Batch: 30/30 deterministic gates PASS on the application HEAD before this governance-only checkpoint.
-- UI route completeness: PASS.
-- Storage tenant isolation: PASS.
-- PDF structured parser regression: PASS.
-- Netlify Deploy Preview for #905: READY / public.
-### Remaining proof
-Quality/typecheck/build, full browser E2E, Final Certification, and same-head production are still open. No production PASS is claimed.
