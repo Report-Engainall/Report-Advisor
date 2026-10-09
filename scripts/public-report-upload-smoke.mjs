@@ -150,9 +150,13 @@ try {
     'حالة منقطع في المصدر',
     'ماذا نفعل الآن؟',
     'حد الدليل',
+    'حالة الفهم: دليل العملاء/نشاطهم',
   ];
   for (const item of customerRequired) {
     if (!customerBody.includes(item)) throw new Error('CUSTOMER_XLSX_MISSING:' + item);
+  }
+  for (const stale of ['لا يوجد حقل تاريخ واضح', 'dateField=missing', 'تفاصيل فواتير المبيعات']) {
+    if (customerBody.includes(stale)) throw new Error('CUSTOMER_XLSX_STALE_INTELLIGENCE:' + stale);
   }
   const customerRowCount = await page.locator('table').last().locator('tbody tr').count();
   if (customerRowCount !== 3) throw new Error('CUSTOMER_XLSX_ROW_COUNT:' + customerRowCount);
