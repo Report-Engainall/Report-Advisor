@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = 51d10dadc3906780b1e41e66023844e565fc5759
+CURRENT_EXACT_HEAD = 1ca4851607b4d278f7ff9438065603453bc2f762
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = 51d10dadc3906780b1e41e66023844e565fc5759
+CONTROL_PLANE_WRITEBACK_BASE = 1ca4851607b4d278f7ff9438065603453bc2f762
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -13,31 +13,22 @@ CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 51d10dadc3906780b1e41e66023844e565fc5759
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 1ca4851607b4d278f7ff9438065603453bc2f762
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-APPLICATION_SOURCE_HEAD = 51d10dadc3906780b1e41e66023844e565fc5759
+APPLICATION_SOURCE_HEAD = 1ca4851607b4d278f7ff9438065603453bc2f762
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 8583448ff6cdddabea2d1e83eae630802dd298fd; deployment SHA for 90c7a946 is NOT YET VERIFIED. Public preview remains fixture-backed.
-UPDATED_AT = 2026-10-09T06:52:00+03:00
-NEXT_EXACT_ACTION = Poll exact-head Product Build 37880387207, Quality 37880387136, Full Product Browser E2E 37880386869, Session Handoff 37880387095, Final Certification 37880387128 and Device E2E 37880387114. Confirm the corrected source-report workspace assertion, then trace the next actual report/auth failure. Do not call product complete while authenticated report, evidence and outcome continuity remain unproven.
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 8583448ff6cdddabea2d1e83eae630802dd298fd; current candidate 1ca48516 preview SHA is NOT YET VERIFIED. Public preview remains fixture-backed, not live customer data.
+UPDATED_AT = 2026-10-09T07:02:00+03:00
+NEXT_EXACT_ACTION = Read current-head Product Build 37881395239, Quality 37881395097, Full Product Browser 37881395041, Session Handoff 37881395247, Final Certification 37881395152, Device E2E 37881395160, Cohort 37881395184 and Product Creation E2E 37881395207. Data Quality Runtime 37881395186 is PASS. Verify report-retry assertions and exact-head build before treating the UI patch as proven; resolve staging Supabase Auth/Postgres 500/504 before expecting authenticated report proof. Keep PR #911 open.
 
-CURRENT EXECUTION DELTA — 2026-10-09 / REPORT CONTEXT ISOLATION
-- Exact code head: 90c7a9464004b001a53d324fc9836fb5b3cdd655. PR #911 remains OPEN / UNMERGED.
+CURRENT EXECUTION DELTA — 2026-10-09 / REPORT IDENTITY + RETRY ISOLATION
+- Current code/test head: 1ca4851607b4d278f7ff9438065603453bc2f762. PR #911 is OPEN / UNMERGED against main fa1ab4cbade9b01685507aa966c10f700a03f576.
 - Changed files: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs.
-- Both report surfaces clear prior state, bind rendering and errors to current jobId + sourceHash, and reject mismatched report identity before display. The source-bound surface aborts outdated requests. Regression assertions cover both surfaces.
-- f3c73612 build 37879870342 failed typecheck on TS18047/TS2322 because a boolean guard did not narrow nullable report. 90c7a946 added explicit !report narrowing; exact-head Product Build 37879969580 was still running at last read. Do not mark it PASS before its terminal result.
-- Exact-head Quality 37879969419 was still in progress, Full Product Browser E2E 37879969657 pending, Session Handoff 37879969624 failed because the report was stale before this documentation writeback, Final Certification 37879969438 running, and Device E2E 37879969303 running.
-- Previous browser run 37876997910 on predecessor 3c08d089 failed actor provisioning, real open report, Chromium authenticated flow, business journey and fail-closed evidence. Supabase Auth logs showed repeated /token 504/500 plus Postgres connection deadline errors; SQLSTATE 57014 timeout cancellations were also present. Real-corpus passport and 48-archetype stages were skipped.
-- A passing build or contract is not real-customer proof. The public preview still shows 28-inventory-stockout-reorder.csv fixture data; live report journey, same jobId/hash continuity, passports and outcome evidence remain NOT PROVEN. PRODUCT COMPLETE = NO.
-
-CURRENT EXECUTION DELTA — 2026-10-09 / REPORT CONTEXT AND CONTRACT SCOPE
-- Current code head: 51d10dadc3906780b1e41e66023844e565fc5759. PR #911 remains OPEN / UNMERGED.
-- Source files changed in the UI fix: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx. Regression test: scripts/source-report-workspace-contract.test.mjs.
-- Both surfaces now clear the prior report on route change, bind report/error rendering to the current jobId + sourceHash, reject a mismatch, and cancel stale source-surface requests.
-- f3c73612 initially failed TypeScript nullable narrowing; this was corrected by explicit !report guard at 90c7a946. Build 37879969580 and Quality 37879969419 passed on 90c7a946.
-- The 90c7a946 Full Product Browser run 37879969657 failed its canonical-regression step; inspection found the new test searched for the error guard in a region that ended before render. Commit 51d10dadc3906780b1e41e66023844e565fc5759 corrects that assertion to search the whole page. A fresh Product Build 37880387207, Quality 37880387136 and Full Product Browser 37880386869 are queued/pending at last read.
-- The real open-report proof also failed on predecessor browser runs. Supabase staging Auth logs show repeated /token 504/500 and Postgres connection deadlines, with SQLSTATE 57014 cancellations. The real-corpus passports/48 archetypes were skipped; no authenticated real-report proof exists yet.
-- Public preview is fixture-backed (28-inventory-stockout-reorder.csv), not customer-data proof. PRODUCT COMPLETE = NO.
+- f3c73612 introduced report identity guards. 90c7a946 fixed TypeScript nullable-report narrowing. 51d10dad fixed the test assertion scope. 9d474679 changes the retry handler to reuse the guarded load effect via retryVersion, which cancels a stale request before starting a new one. 1ca48516 adds regression assertions for this retry behavior.
+- Proven predecessor at 9799fcc: Product Build Gate 37880471759 PASS; Quality 37880471940 PASS; Session Handoff 37880471902 PASS; Final Certification Gate 37880471818 PASS; Data Quality Runtime 37880471915 PASS. The Full Product Browser 37880471914 did NOT pass: actor provisioning and real-open-report proof failed; later passport/48-archetype proof was skipped.
+- Current exact-head checks for 1ca48516 at last read: Build 37881395239 QUEUED; Quality 37881395097 QUEUED; Full Product Browser 37881395041 PENDING; Session Handoff 37881395247 PENDING; Final Certification 37881395152 QUEUED; Device E2E 37881395160 IN_PROGRESS; Cohort 37881395184 IN_PROGRESS; Commercial Product Creation E2E 37881395207 IN_PROGRESS; Data Quality Runtime 37881395186 PASS. Do not infer outcomes for nonterminal checks.
+- Supabase Auth logs from 2026-10-09 03:50–03:51 UTC show repeated /auth/v1/admin/users and /auth/v1/token HTTP 504/500 due failed connection to local supabase_auth_admin Postgres; project SQL queries also hit connection timeout. Cohort run failed SQLSTATE 57014 before logging its candidate pool; its first query is the unscoped get_report_value_cohort_candidates RPC when REPORT_ADVISOR_COMPANY_ID is unset. This query needs scoped/performance follow-up after DB connectivity is restored.
+- Public preview remains fixture-bound to 28-inventory-stockout-reorder.csv. Live customer report, real-source 48/48 archetypes, evidence passports, recommendation/decision/work/outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
 
 CURRENT_PRODUCT_GOAL
 - Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.
