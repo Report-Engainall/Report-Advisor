@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
+CURRENT_EXACT_HEAD = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
+CONTROL_PLANE_WRITEBACK_BASE = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -13,22 +13,23 @@ CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-APPLICATION_SOURCE_HEAD = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
+APPLICATION_SOURCE_HEAD = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 8583448ff6cdddabea2d1e83eae630802dd298fd; exact candidate 2d3f2c07 preview SHA is not verified. Public preview is fixture-backed.
-UPDATED_AT = 2026-10-09T07:08:00+03:00
-NEXT_EXACT_ACTION = Poll Product Build 37881797840, Quality 37881797964, Full Product Browser 37881797950, Session Handoff 37881797893, Final Certification 37881797775, Device E2E 37881797903, Report Value Cohort 37881797849 and Commercial Product Creation 37881797794. Verify the 57014 no-retry contract passes before waiting on a bounded cohort rerun. Authentication still fails at the Supabase Auth/Postgres boundary; do not claim real report/48-archetype/product completion while that remains unproven.
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = 9e8ea948a04d89037bafcfd475bacf56fcb8e10a was last observed in the HTML metadata; this is only preview provenance. The preview renders fixture data, not a real tenant session.
+UPDATED_AT = 2026-10-09T07:15:00+03:00
+NEXT_EXACT_ACTION = Poll exact-head Product Build 37882128819 and Quality 37882128799; confirm both new report identity/retry and cohort-scope contracts pass. Then inspect Full Product Browser 37882128820, Handoff 37882128635, Certification 37882128663, Device E2E 37882128844, Report Value Cohort 37882128580 and Product Creation 37882128697 to terminal states. The scoped cohort workflow must not be marked green until it proves at least 40 eligible source hashes. Authenticated report proof remains blocked until Auth/Postgres is responsive; keep PR #911 open.
 
-CURRENT EXECUTION DELTA — 2026-10-09 / REPORT IDENTITY + BOUNDED COHORT FAILURE
-- Exact code/test head: 2d3f2c0760df0e62324e5da92a469c8d345b88c0. PR #911 remains OPEN / UNMERGED; main remains fa1ab4cbade9b01685507aa966c10f700a03f576.
-- Changed UI/test files in this wave: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs. Smart report display is bound to current jobId + sourceHash; route changes clear old state, source-bound loads abort stale requests, and SmartReportPage retries reuse the guarded effect via retryVersion.
-- Cohort test changes at 2d3f2c0760df0e62324e5da92a469c8d345b88c0: scripts/report-value-cohort.mjs now detects PostgreSQL SQLSTATE 57014 / statement-timeout responses and returns them without retrying the same expensive query; scripts/report-value-cohort-retry-contract.test.mjs verifies this; .github/workflows/report-value-cohort.yml runs the contract before DB execution.
-- Proven predecessor at 9799fcc: Product Build Gate 37880471759 PASS; Quality 37880471940 PASS; Session Handoff 37880471902 PASS; Final Certification 37880471818 PASS; Data Quality Runtime 37880471915 PASS. Its Full Product Browser journey did NOT pass: actor provisioning and real-open-report proof failed, so passports and 48-archetype proof were skipped.
-- Current exact-head checks for 2d3f2c07 were queued/pending at last read: Product Build 37881797840; Quality 37881797964; Full Product Browser 37881797950; Session Handoff 37881797893; Final Certification 37881797775; Device E2E 37881797903; Report Value Cohort 37881797849; Commercial Product Creation E2E 37881797794. A terminal result is required before any PASS claim.
-- Supabase management API reports project status ACTIVE_HEALTHY, but Auth logs at 03:50–03:57 UTC still show /token and /admin/users 500/504 caused by failed localhost supabase_auth_admin Postgres connections; direct management SQL also times out. Report Value Cohort previously failed SQLSTATE 57014 before candidate pool output. The code now avoids retrying a terminal statement timeout but does not prove the DB or query itself is healthy.
-- The public preview remains fixture-backed to 28-inventory-stockout-reorder.csv. Live customer report, 48/48 real-source archetypes, evidence passport, recommendation/decision/work/outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
+CURRENT EXECUTION DELTA — 2026-10-09 / SCOPED COHORT + REPORT IDENTITY
+- Exact code head: 478e5e7b11878d606d5fd03c57406765f1e3ca0c. PR #911 remains OPEN / UNMERGED; main = fa1ab4cbade9b01685507aa966c10f700a03f576.
+- Report UI code: SmartReportPage clears prior report state on job/hash changes, verifies current jobId + sourceHash, uses retryVersion so retry re-enters the guarded effect, and rejects mismatched context. SourceBoundReportSurface clears and verifies report identity and aborts stale requests. Regression contract updated at scripts/source-report-workspace-contract.test.mjs.
+- Cohort guard: scripts/report-value-cohort.mjs now refuses an empty or malformed tenant scope, queries get_report_value_cohort_candidates separately per configured staging company, combines results deterministically and de-duplicates identical source hashes. The workflow supplies five known staging corpus tenants and runs scripts/report-value-cohort-scope-contract.test.mjs before its live call.
+- Retry guard: HTTP 500 SQLSTATE 57014 / statement-timeout responses are returned immediately rather than repeating the same expensive cohort query five times. The retry contract is wired into the workflow.
+- Static source audit at exact code head: 14/14 cross-report/cohort implementation invariants passed in source inspection. This is NOT the CI test result; current-head gates have not reached terminal states.
+- Current exact-head frontier at last read: Product Build Gate 37882128819 = QUEUED; Quality 37882128799 = QUEUED; Full Product Browser E2E 37882128820 = QUEUED; Session Handoff Contract 37882128635 = PENDING; Final Certification Gate 37882128663 = QUEUED; Device-Independent Browser E2E 37882128844 = QUEUED; Report Value Cohort 37882128580 = QUEUED; Commercial Product Creation E2E 37882128697 = QUEUED; Data Quality Runtime 37882128845 = QUEUED. All but none have passed yet; statuses are queued/pending. Do not infer PASS from queued jobs.
+- Staging Supabase management status says ACTIVE_HEALTHY, but Auth /token still logs HTTP 500/504 and failed connections to local supabase_auth_admin Postgres at 04:02 UTC; management SQL also hit connection timeout. The older cohort query timed out with SQLSTATE 57014 before candidate pool output. Scoped calls should reduce unbounded work, but this is not proven until the cohort run finishes.
+- Public preview remains fixture-backed to 28-inventory-stockout-reorder.csv. Authenticated real report, passport readback, real-source 48/48 archetypes, recommendation → decision/work → outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
 
 CURRENT_PRODUCT_GOAL
 - Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.

@@ -1,12 +1,19 @@
 # Report-Advisor Execution Archive — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
 
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
-UPDATED_AT = 2026-10-09T07:08:00+03:00
+REPORT_FOR_HEAD = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
+UPDATED_AT = 2026-10-09T07:15:00+03:00
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
-PR_HEAD_AT_WRITEBACK_PARENT = 2d3f2c0760df0e62324e5da92a469c8d345b88c0
+PR_HEAD_AT_WRITEBACK_PARENT = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
 PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+
+## Current delta — scoped value cohort at 478e5e7b11878d606d5fd03c57406765f1e3ca0c
+- The Report Value Cohort now fails closed if no explicit tenant list is provided; workflow supplies five staging corpus tenant IDs.
+- Candidate selection calls get_report_value_cohort_candidates per tenant (not with p_company_id null), combines results in deterministic order and removes duplicate source hashes across tenants. Scope and retry contracts run before the live cohort.
+- The retry handler returns HTTP 500 SQLSTATE 57014 / statement timeout without replaying the same expensive query.
+- Static source inspection passed 14/14 authored predicates for UI identity/retry and cohort scoping, but the actual CI jobs were queued/pending at last read: Build 37882128819, Quality 37882128799, Full Browser 37882128820, Handoff 37882128635, Certification 37882128663, Device E2E 37882128844, Cohort 37882128580, Product Creation 37882128697 and Data Quality 37882128845.
+- Auth logs still show /token 500/504 caused by local Supabase Auth Postgres connection failure at 04:02 UTC; authenticated report and product completion remain NOT PROVEN.
 
 ## Current delta — cohort statement-timeout retry guard at 2d3f2c0760df0e62324e5da92a469c8d345b88c0
 - The retry-cancellation code in SmartReportPage routes retries back through the context-guarded effect. The UI prevents a result from a prior job/hash from replacing the current report.
