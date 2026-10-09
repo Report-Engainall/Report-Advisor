@@ -1,12 +1,19 @@
 # Report-Advisor Execution Archive — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
 
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 51d10dadc3906780b1e41e66023844e565fc5759
-UPDATED_AT = 2026-10-09T06:52:00+03:00
+REPORT_FOR_HEAD = 1ca4851607b4d278f7ff9438065603453bc2f762
+UPDATED_AT = 2026-10-09T07:02:00+03:00
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
-PR_HEAD_AT_WRITEBACK_PARENT = 51d10dadc3906780b1e41e66023844e565fc5759
+PR_HEAD_AT_WRITEBACK_PARENT = 1ca4851607b4d278f7ff9438065603453bc2f762
 PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
+
+## Current delta — guarded retry path at 1ca4851607b4d278f7ff9438065603453bc2f762
+- Files changed by the current code wave: src/pages/SmartReportPage.tsx and scripts/source-report-workspace-contract.test.mjs; preceding identity guard also updated src/components/SourceBoundReportSurface.tsx.
+- SmartReportPage retry now increments retryVersion and reruns the guarded effect; it no longer starts a standalone retry fetch outside effect cancellation. Route changes keep the jobId + sourceHash context gate.
+- 1ca48516 added regression assertions for the retryVersion dependency and shared retry handler. Exact-head Product Build 37881395239 and Quality 37881395097 were QUEUED at last query; Full Product Browser 37881395041 pending; Session Handoff 37881395247 pending; Final Certification 37881395152 queued; Device E2E 37881395160, Report Value Cohort 37881395184, and Commercial Product Creation E2E 37881395207 in progress; Data Quality Runtime 37881395186 PASS.
+- Predecessor 9799fcc build/quality/handoff/certification gates passed, but Full Product Browser still failed actor provisioning and real-open-report proof. Supabase Auth logs showed 500/504 at /admin/users and /token caused by local Postgres connection failure. Cohort job failed SQLSTATE 57014 before candidate pool output; the first candidate query is unscoped when REPORT_ADVISOR_COMPANY_ID is unset.
+- Do not claim authenticated report, 48/48 real-source intelligence, or product completion until the real-source evidence chain passes. The preview remains fixture-backed.
 
 ## Current delta — report identity isolation at 90c7a9464004b001a53d324fc9836fb5b3cdd655
 - Files changed: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs.
