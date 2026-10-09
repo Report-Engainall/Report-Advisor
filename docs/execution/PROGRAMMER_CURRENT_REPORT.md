@@ -1,6 +1,6 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 51d10dadc3906780b1e41e66023844e565fc5759
-UPDATED_AT = 2026-10-09T06:52:00+03:00
+REPORT_FOR_HEAD = 1ca4851607b4d278f7ff9438065603453bc2f762
+UPDATED_AT = 2026-10-09T07:02:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor PR #911 from canonical boot files, verify real repository state, close concrete defects, and preserve a resumable exact-head handoff.
 
 
@@ -11,11 +11,20 @@ WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor PR #911 from canonical boot files
 - f3c73612 exact build failed on TS18047/TS2322; explicit null narrowing was corrected at 90c7a946. Current-head build/browser journey remains pending.
 - Supabase staging Auth logged repeated /token 504/500 with Postgres connection timeout; predecessor report/browser proof failed and the 48-archetype real-source stage was skipped. Product completion remains NO.
 
-WHAT_I_ACTUALLY_DID = Added jobId + sourceHash identity protection in SmartReportPage and SourceBoundReportSurface: clear stale report state, bind displayed report and errors to the URL context, abort stale source-surface requests, and add source-report workspace regression assertions. A build-discovered nullable report narrowing issue was corrected; then the assertion was fixed after its region excluded the render block. Exact-head checks are restarted.
-WHAT_IS_PROVEN = On ancestor 90c7a946, Product Build 37879969580 and Quality 37879969419 passed; Full Product Browser 37879969657 failed canonical heart regressions because the added test asserted a render guard inside an earlier request-only text slice, and real-open-report proof also failed. Commit 51d10dad corrected the test to search the full page. Current exact-head Product Build 37880387207 and Quality 37880387136 are queued, Full Product Browser 37880386869 is pending, Handoff 37880387095 queued, Certification 37880387128 queued, and Device E2E 37880387114 queued. Do not infer a current-head pass.
-FIRST_ACTIVE_FAILURE = The 90c7a946 Full Product Browser canonical-regression command failed; direct evaluation of the same source assertions found one false check because errorContextKey render logic was outside smartReportRequestRegion. Commit 51d10dad changes that check to source.includes(...) and a source-based replay of ten identity invariants returned zero failed conditions. Current-head CI results are pending.
-ROOT_CAUSE = Report surfaces previously retained a prior job/hash report while a changed route was fetching. Fix f3c73612 clears state and verifies the report identity; 90c7a946 fixes nullable report narrowing; 51d10dad corrects the regression assertion scope. Separately, staging Supabase Auth had /token 504/500 failures and Postgres connection deadlines, so authenticated real-report proof remains blocked independently.
-NEXT_EXACT_ACTION = Verify the fresh Product Build 37880387207 and Quality 37880387136; then inspect Full Product Browser 37880386869 to ensure canonical heart regressions pass and identify the exact Auth/real-report error. Continue only after Supabase Auth/database responds, then prove source hash, canonical rows, passports, recommendations, decisions/work and outcomes on the same report.
+
+
+## 2026-10-09 delta — retry cancellation and identity binding
+- Code/test head: 1ca4851607b4d278f7ff9438065603453bc2f762.
+- The prior context fix clears report state when the job/hash changes, checks both identity fields before render, and cancels obsolete SourceBoundReportSurface requests.
+- 9d474679 moved SmartReportPage retry handling back through the same guarded effect using retryVersion; this avoids a separate untracked retry request racing a later route. 1ca48516 added static contract assertions for the guarded retry path.
+- Exact-head runs are pending/in progress as listed above. The predecessor build/quality/handoff/cert gates passed at 9799fcc, but its authenticated browser journey did not.
+- Staging Supabase Auth/Postgres remains blocked with 500/504 connection failures; report-value cohort timed out (SQLSTATE 57014) before candidate-pool output. Customer proof and product completion remain NOT PROVEN.
+
+WHAT_I_ACTUALLY_DID = Preserved the current report-context fix and added a guarded retry mechanism to SmartReportPage: retries now increment retryVersion to rerun the same effect, which clears old state and aborts the prior request. Added contract assertions ensuring retry does not bypass route/hash cancellation. Updated the boot state with exact current code head and proof frontier.
+WHAT_IS_PROVEN = At predecessor 9799fcc, Product Build Gate 37880471759 PASS, Quality 37880471940 PASS, Session Handoff 37880471902 PASS, Final Certification Gate 37880471818 PASS, Data Quality Runtime 37880471915 PASS. The predecessor Full Product Browser 37880471914 failed actor provisioning and real-open-report proof; passports/48-archetype proof were skipped. At current code/test head 1ca48516, Product Build 37881395239 and Quality 37881395097 are queued; Full Product Browser 37881395041 pending; Session Handoff 37881395247 pending; Final Certification 37881395152 queued; Device E2E 37881395160, Cohort 37881395184 and Commercial Product Creation 37881395207 in progress; Data Quality Runtime 37881395186 PASS. No nonterminal run is counted as PASS.
+FIRST_ACTIVE_FAILURE = Authenticated report proof remains blocked by staging Supabase Auth/Postgres errors. Supabase Auth logged /admin/users and /token HTTP 504/500 with failed localhost Postgres connections at 03:50–03:51 UTC, and management SQL queries also hit connection timeout. Report Value Cohort 37880471959 ended with SQLSTATE 57014 before logging its candidate pool; the first script query is the unscoped get_report_value_cohort_candidates RPC when REPORT_ADVISOR_COMPANY_ID is unset. Current 1ca48516 report retry guard awaits exact-head CI proof.
+ROOT_CAUSE = UI: report context is now source-bound, and the latest retry change removes a parallel unguarded retry path that could race route navigation. Infrastructure: the staging Supabase Auth service could not connect to its Postgres database, causing actor provisioning and browser proof to fail; this is not fixed by UI changes. Cohort: the unscoped candidate RPC is the likely first query to time out, but this has not been isolated with an EXPLAIN due database connection timeouts.
+NEXT_EXACT_ACTION = Check exact-head build 37881395239 and quality 37881395097 for the new retry assertions; then inspect Full Product Browser 37881395041, Device E2E 37881395160, Cohort 37881395184, Product Creation 37881395207, Handoff 37881395247 and Certification 37881395152 to terminal states. Re-run authenticated report proof only when Auth/Postgres is responsive; capture same-tenant jobId+sourceHash, canonical rows, passport, recommendations, decisions/work and outcome. Keep PR #911 open.
 
 ## Repository state
 - Repository: Report-Engainall/Report-Advisor
