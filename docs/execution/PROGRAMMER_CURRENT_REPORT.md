@@ -1,55 +1,24 @@
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = b3d90321568e887abb2bd580e5d3989a502fb2fc
-UPDATED_AT = 2026-10-09T07:18:00+03:00
+REPORT_FOR_HEAD = 71d14ff1b524b05bc08b0c95b9c3d657fd09b428
+UPDATED_AT = 2026-10-09T07:28:54+03:00
 WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor PR #911 from canonical boot files, verify real repository state, close concrete defects, and preserve a resumable exact-head handoff.
 
 
-## 2026-10-09 delta — report identity isolation
-- Code parent: 90c7a9464004b001a53d324fc9836fb5b3cdd655.
-- Exact changed files: src/pages/SmartReportPage.tsx; src/components/SourceBoundReportSurface.tsx; scripts/source-report-workspace-contract.test.mjs.
-- The UI now clears prior report state, binds report/error display to current jobId and sourceHash, aborts stale requests, and rejects context mismatches before rendering.
-- f3c73612 exact build failed on TS18047/TS2322; explicit null narrowing was corrected at 90c7a946. Current-head build/browser journey remains pending.
-- Supabase staging Auth logged repeated /token 504/500 with Postgres connection timeout; predecessor report/browser proof failed and the 48-archetype real-source stage was skipped. Product completion remains NO.
+## 2026-10-09 delta — exact code head 71d14ff1b524b05bc08b0c95b9c3d657fd09b428
+- PR #911 remains open/unmerged. The application source candidate is 71d14ff1b524b05bc08b0c95b9c3d657fd09b428; the documentation commit that follows does not modify application code.
+- Both SmartReportPage and SourceBoundReportSurface now bind report/error rendering to current jobId + sourceHash, clear old context, and cancel stale fetches. Retries are driven through the same guarded effect, not a free-floating fetch.
+- The report-value cohort now rejects missing/malformed tenant scope, queries each tenant separately, deduplicates source hashes and avoids retrying terminal SQLSTATE 57014 statement timeouts. Workflow scope uses only known real-report tenant 99e33354-cc45-4317-8eb3-0d486b6c5932; it may not silently expand to other tenants if there are fewer than 40 records.
+- The quality workflow now validates the event's immutable PR-head SHA against the second parent of the merge commit rather than querying the moving branch reference. This addresses the observed Diagnostics failure that caused install/lint/build follow-on failures.
+- Exact-head static source/config audit: 25/25 predicates passed. This is not runtime test proof.
+- At last query, exact-code-head runs were queued: Product Build 37883970456, Quality 37883970556, Full Browser 37883970375, Certification 37883970576, Device E2E 37883970632, Report Value Cohort 37883970550, Product Creation 37883970515 and Data Quality 37883970542. Handoff 37883970401 uses predecessor docs and will be superseded by a new run after this handoff writeback.
+- Staging Auth still returns 500/504 and reports Postgres connection failures; direct SQL via management connector timed out. Prior real-open-report/browser proof failed and passport/48 archetype proof was skipped. Real customer journey remains NOT PROVEN.
+- Product completion: NO.
 
-
-
-## 2026-10-09 delta — retry cancellation and identity binding
-- Code/test head: 1ca4851607b4d278f7ff9438065603453bc2f762.
-- The prior context fix clears report state when the job/hash changes, checks both identity fields before render, and cancels obsolete SourceBoundReportSurface requests.
-- 9d474679 moved SmartReportPage retry handling back through the same guarded effect using retryVersion; this avoids a separate untracked retry request racing a later route. 1ca48516 added static contract assertions for the guarded retry path.
-- Exact-head runs are pending/in progress as listed above. The predecessor build/quality/handoff/cert gates passed at 9799fcc, but its authenticated browser journey did not.
-- Staging Supabase Auth/Postgres remains blocked with 500/504 connection failures; report-value cohort timed out (SQLSTATE 57014) before candidate-pool output. Customer proof and product completion remain NOT PROVEN.
-
-
-
-## 2026-10-09 delta — bounded cohort timeout handling
-- Code head: 2d3f2c0760df0e62324e5da92a469c8d345b88c0.
-- scripts/report-value-cohort.mjs no longer retries HTTP 500 responses whose PostgreSQL payload is SQLSTATE 57014 or states “statement timeout”. A contract test at scripts/report-value-cohort-retry-contract.test.mjs is wired into .github/workflows/report-value-cohort.yml before the live cohort call.
-- This prevents five repeated expensive statement-timeout attempts. It does not prove that get_report_value_cohort_candidates completes within the database timeout; live DB proof remains blocked.
-- Current exact-head build/quality/full-browser/handoff/certification/device/cohort runs are pending or queued; do not use prior-head PASS as current-head PASS.
-- Supabase management status says ACTIVE_HEALTHY, but Auth/Postgres logs show repeated 500/504 and the SQL connector itself times out. The public preview remains fixture-backed; PRODUCT COMPLETE = NO.
-
-## 2026-10-09 delta — per-tenant value cohort candidate scan
-- Code head: 478e5e7b11878d606d5fd03c57406765f1e3ca0c.
-- scripts/report-value-cohort.mjs requires an explicit, validated company scope. The cohort workflow passes the five configured staging corpus tenant IDs; the script calls the candidate RPC per tenant, sorts deterministically and deduplicates identical source hashes globally.
-- scripts/report-value-cohort-scope-contract.test.mjs checks scope-required behavior, UUID validation, tenant-scoped calls, de-duplication and workflow wiring. scripts/report-value-cohort-retry-contract.test.mjs checks that PostgreSQL SQLSTATE 57014 / statement timeout is not retried.
-- Static inspection of the exact code head satisfied 14/14 report identity/cohort assertions, but this is not a substitute for running the Node contract tests. Current exact-head Build 37882128819 and Quality 37882128799 are queued. Full Browser 37882128820 queued, Handoff 37882128635 pending, Certification 37882128663 queued, Device E2E 37882128844 queued, Cohort 37882128580 queued, Product Creation 37882128697 queued, Data Quality 37882128845 queued.
-- Supabase Auth /token continued to log 500/504 at 04:02 UTC due failed localhost supabase_auth_admin Postgres connections; direct SQL calls also timed out. Prior unscoped value cohort ended on SQLSTATE 57014. The scoped query is not yet live-proven.
-- Product completion: NO. Preview remains fixture-backed and real authenticated source-to-outcome proof remains NOT PROVEN.
-
-
-## 2026-10-09 delta — source retry cancellation and per-tenant cohort
-- Code head: b3d90321568e887abb2bd580e5d3989a502fb2fc.
-- SourceBoundReportSurface now requires an AbortSignal and runs retries via the same effect that cancels old requests; SmartReportPage uses the same pattern. The workspace regression contract covers both surfaces.
-- Report Value Cohort requires validated explicit tenant scope, queries each configured staging tenant sequentially and deduplicates source hashes across the combined result. The workflow wires a scope test and the SQLSTATE 57014 no-retry test before live DB work.
-- Static source predicates: 17/17 passed; this is not actual CI execution. All current-head gates were queued/pending at last read.
-- Supabase Auth /token 500/504 persisted through 04:02 UTC; the authenticated customer journey and live cohort are NOT PROVEN. Product completion remains NO.
-
-WHAT_I_ACTUALLY_DID = Extended guarded retry cancellation to SourceBoundReportSurface: every read now requires AbortSignal, both retry buttons rerun the same abortable effect, and the source-report workspace contract asserts this. Added scoped cohort discovery: require a validated explicit staging tenant list, call the candidate RPC per tenant sequentially, deduplicate source hashes globally, and prevent the unscoped query from running. The cohort workflow now runs scope and terminal-timeout contracts before its live call.
-WHAT_IS_PROVEN = Static source inspection at code head b3d90321568e887abb2bd580e5d3989a502fb2fc passed 17/17 authored source predicates for report identity/retry and cohort scope/retry. These were not actual Node test executions. Current exact-head Build 37882281096 and Quality 37882281068 are QUEUED; Full Browser 37882281159 PENDING; Handoff 37882281357 PENDING; Certification 37882281329 QUEUED; Device E2E 37882281026 QUEUED; Cohort 37882281466 QUEUED; Product Creation 37882281236 QUEUED; Data Quality 37882281314 QUEUED. No current-head CI pass is claimed.
-FIRST_ACTIVE_FAILURE = CI remains queued/pending on b3d90321568e887abb2bd580e5d3989a502fb2fc. Staging Supabase Auth /token logged HTTP 500/504 through 04:02 UTC with timeout/context-canceled lookup errors, while management SQL was also timing out. The earlier unscoped cohort RPC ended with SQLSTATE 57014 before candidate-pool output; the code now scopes per tenant and doesn't retry a terminal statement timeout, but the cohort fix awaits a live artifact.
-ROOT_CAUSE = SourceBoundReportSurface retries could issue requests without AbortSignal, so old retries could outlive their route context. It now requires a signal and retries through the abortable effect. The cohort query called get_report_value_cohort_candidates unscoped when no company id was set; the workflow now passes five explicit staging tenants and the script queries them separately. Supabase Auth/Postgres connectivity remains an independent blocker.
-NEXT_EXACT_ACTION = Check exact-head Build 37882281096 and Quality 37882281068 for typecheck and workspace/cohort contract results, then inspect Full Browser 37882281159, Handoff 37882281357, Certification 37882281329, Device E2E 37882281026, Cohort 37882281466 and Product Creation 37882281236 to terminal states. Require a 40-distinct-source cohort artifact and authenticated real-report readback before claiming product complete.
+WHAT_I_ACTUALLY_DID = Fixed report identity and retry isolation across SmartReportPage and SourceBoundReportSurface, added regression assertions, fixed the quality workflow's immutable PR-head provenance check, and scoped the report-value cohort to one verified staging report tenant with a contract against unscoped/unknown-company queries and terminal statement-timeout retries.
+WHAT_IS_PROVEN = Exact-code-head static source/config inspection passed 25/25 authored predicates. This is not executed Node/CI proof. At last query, Product Build 37883970456, Quality 37883970556, Full Browser 37883970375, Final Certification 37883970576, Device E2E 37883970632, Cohort 37883970550, Product Creation E2E 37883970515 and Data Quality Runtime 37883970542 were QUEUED. Handoff 37883970401 was pending on predecessor docs. At predecessor 9799fcc, build/quality/handoff/cert/data-quality passed but authenticated browser proof failed; current product completion is not proven.
+FIRST_ACTIVE_FAILURE = The quality job at 478e5e7 failed Diagnostics because it compared a queued run's immutable PR event head to the later moving branch tip; npm ci was skipped and produced downstream eslint/vite-not-found messages. The current workflow checks the merge commit's embedded PR-head parent and includes a regression check. Separately, authenticated real report proof is blocked by Supabase Auth/Postgres /token 500/504/timeouts; cohort's prior unscoped query hit SQLSTATE 57014.
+ROOT_CAUSE = UI: old route requests/retries could outlive a job/hash change; both report views now share an abortable, context-guarded retry path. CI: quality workflow rejected valid queued runs when the branch advanced; it now checks the immutable merge commit metadata. Cohort: unscoped scanning was too expensive and the earlier company list included unverified UUIDs; it now requires explicit scope and uses only the documented real-report tenant. Auth/Postgres runtime remains independently unhealthy.
+NEXT_EXACT_ACTION = Poll Product Build 37883970456 and Quality 37883970556 to terminal result; confirm report retry, scoped cohort, and new immutable-head contract tests actually run. Then inspect Full Browser 37883970375, Final Certification 37883970576, Device E2E 37883970632, Cohort 37883970550, Product Creation E2E 37883970515 and Data Quality Runtime 37883970542. Use the newly-triggered Handoff run from this docs writeback. Keep PR #911 open until authenticated report lineage and outcome proof passes.
 
 ## Repository state
 - Repository: Report-Engainall/Report-Advisor

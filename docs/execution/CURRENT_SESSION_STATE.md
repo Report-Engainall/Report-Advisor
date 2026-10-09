@@ -1,7 +1,7 @@
 SESSION HANDOFF = READY_TO_RESUME
-CURRENT_EXACT_HEAD = b3d90321568e887abb2bd580e5d3989a502fb2fc
+CURRENT_EXACT_HEAD = 71d14ff1b524b05bc08b0c95b9c3d657fd09b428
 CURRENT_TEST_FIX_HEAD = c7828c84d45bfbada5489df4fd00ec362f15bca7
-CONTROL_PLANE_WRITEBACK_BASE = b3d90321568e887abb2bd580e5d3989a502fb2fc
+CONTROL_PLANE_WRITEBACK_BASE = 71d14ff1b524b05bc08b0c95b9c3d657fd09b428
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
@@ -13,31 +13,24 @@ CANONICAL_KNOWLEDGE_MANIFEST = docs/PROJECT_KNOWLEDGE_MANIFEST.md (present)
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
 PR_URL = https://github.com/Report-Engainall/Report-Advisor/pull/911
-CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = b3d90321568e887abb2bd580e5d3989a502fb2fc
+CURRENT_PR_HEAD_AT_WRITEBACK_PARENT = 71d14ff1b524b05bc08b0c95b9c3d657fd09b428
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-APPLICATION_SOURCE_HEAD = b3d90321568e887abb2bd580e5d3989a502fb2fc
+APPLICATION_SOURCE_HEAD = 71d14ff1b524b05bc08b0c95b9c3d657fd09b428
 NETLIFY_PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
-NETLIFY_PREVIEW_METADATA_LAST_PROVEN = Last observed SHA 9e8ea948a04d89037bafcfd475bacf56fcb8e10a; this predates the source-bound retry fix. Preview remains fixture-backed and is not real customer proof.
-UPDATED_AT = 2026-10-09T07:18:00+03:00
-NEXT_EXACT_ACTION = Poll exact-head Build 37882281096 and Quality 37882281068; validate source-workspace retry contracts. Then inspect Full Browser 37882281159, Handoff 37882281357, Certification 37882281329, Device E2E 37882281026, Cohort 37882281466 and Product Creation 37882281236. The UI source audit is 17/17 predicates but is not CI. Auth /token 500/504 still blocks live tenant proof.
+NETLIFY_PREVIEW_METADATA_LAST_PROVEN = Last observed source SHA 9e8ea948a04d89037bafcfd475bacf56fcb8e10a, before the latest source-bound retry and CI fixes. Preview still renders fixture data, not a live customer tenant.
+UPDATED_AT = 2026-10-09T07:28:54+03:00
+NEXT_EXACT_ACTION = Poll exact-code-head Product Build 37883970456, Quality 37883970556, Full Product Browser 37883970375, Final Certification 37883970576, Device E2E 37883970632, Report Value Cohort 37883970550, Product Creation E2E 37883970515 and Data Quality Runtime 37883970542. The Handoff run at 37883970401 predates this writeback and is expected to be superseded by the new handoff run triggered by this documentation commit. Do not merge or claim product completion until terminal CI results and authenticated real-report proof are available.
 
-LATEST EXECUTION DELTA — 2026-10-09 / SOURCE RETRY + COHORT TENANT SCOPE
-- Code head: b3d90321568e887abb2bd580e5d3989a502fb2fc. PR #911 remains OPEN / UNMERGED against main fa1ab4cbade9b01685507aa966c10f700a03f576.
-- SourceBoundReportSurface now requires AbortSignal for each fetch and routes both retry buttons through retryVersion/its abortable effect. SmartReportPage already uses the same guarded retry pattern. The source-report workspace contract now asserts these conditions.
-- Cohort candidate discovery now requires explicit validated tenant IDs, calls the SQL RPC per tenant in series, globally de-duplicates source hashes, and refuses a null-company unscoped scan. The workflow supplies five known staging corpus tenants and runs both scope and 57014 retry contract checks before the live cohort.
-- Static source inspection at this head: 17/17 authored predicates passed. This is NOT an executed Node test or CI pass.
-- Latest exact-head workflow IDs: Build 37882281096 QUEUED; Quality 37882281068 QUEUED; Full Browser 37882281159 PENDING; Handoff 37882281357 PENDING; Certification 37882281329 QUEUED; Device E2E 37882281026 QUEUED; Cohort 37882281466 QUEUED; Product Creation 37882281236 QUEUED; Data Quality 37882281314 QUEUED.
-- Supabase Auth logs showed /token 500/504 through 04:02 UTC from context deadline/canceled lookup errors; direct SQL connector had timed out. Real report, passports, 48/48 archetypes and decision/work/outcome readback are NOT PROVEN. Preview is fixture-bound. PRODUCT COMPLETE = NO.
-
-CURRENT EXECUTION DELTA — 2026-10-09 / SCOPED COHORT + REPORT IDENTITY
-- Exact code head: 478e5e7b11878d606d5fd03c57406765f1e3ca0c. PR #911 remains OPEN / UNMERGED; main = fa1ab4cbade9b01685507aa966c10f700a03f576.
-- Report UI code: SmartReportPage clears prior report state on job/hash changes, verifies current jobId + sourceHash, uses retryVersion so retry re-enters the guarded effect, and rejects mismatched context. SourceBoundReportSurface clears and verifies report identity and aborts stale requests. Regression contract updated at scripts/source-report-workspace-contract.test.mjs.
-- Cohort guard: scripts/report-value-cohort.mjs now refuses an empty or malformed tenant scope, queries get_report_value_cohort_candidates separately per configured staging company, combines results deterministically and de-duplicates identical source hashes. The workflow supplies five known staging corpus tenants and runs scripts/report-value-cohort-scope-contract.test.mjs before its live call.
-- Retry guard: HTTP 500 SQLSTATE 57014 / statement-timeout responses are returned immediately rather than repeating the same expensive cohort query five times. The retry contract is wired into the workflow.
-- Static source audit at exact code head: 14/14 cross-report/cohort implementation invariants passed in source inspection. This is NOT the CI test result; current-head gates have not reached terminal states.
-- Current exact-head frontier at last read: Product Build Gate 37882128819 = QUEUED; Quality 37882128799 = QUEUED; Full Product Browser E2E 37882128820 = QUEUED; Session Handoff Contract 37882128635 = PENDING; Final Certification Gate 37882128663 = QUEUED; Device-Independent Browser E2E 37882128844 = QUEUED; Report Value Cohort 37882128580 = QUEUED; Commercial Product Creation E2E 37882128697 = QUEUED; Data Quality Runtime 37882128845 = QUEUED. All but none have passed yet; statuses are queued/pending. Do not infer PASS from queued jobs.
-- Staging Supabase management status says ACTIVE_HEALTHY, but Auth /token still logs HTTP 500/504 and failed connections to local supabase_auth_admin Postgres at 04:02 UTC; management SQL also hit connection timeout. The older cohort query timed out with SQLSTATE 57014 before candidate pool output. Scoped calls should reduce unbounded work, but this is not proven until the cohort run finishes.
-- Public preview remains fixture-backed to 28-inventory-stockout-reorder.csv. Authenticated real report, passport readback, real-source 48/48 archetypes, recommendation → decision/work → outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
+LATEST EXECUTION DELTA — 2026-10-09 / REPORT IDENTITY, AUTHENTICATED RETRY, SCOPED COHORT, CI PROVENANCE
+- Code head at this writeback parent: 71d14ff1b524b05bc08b0c95b9c3d657fd09b428. PR #911 is OPEN / UNMERGED against main fa1ab4cbade9b01685507aa966c10f700a03f576. This documentation writeback is a docs-only child; application source remains 71d14ff1b524b05bc08b0c95b9c3d657fd09b428.
+- Report UI: SmartReportPage and SourceBoundReportSurface bind visible content/errors to current jobId + sourceHash, clear stale report state on route/source changes, and cancel old requests. Both retry handlers now reuse the same guarded, abortable effect via retryVersion. Contract assertions cover these behaviors.
+- Cohort probe: scripts/report-value-cohort.mjs fails closed when company scope is absent/invalid, calls get_report_value_cohort_candidates once per explicitly configured tenant, sorts/deduplicates by source hash, and does not retry PostgreSQL SQLSTATE 57014 / statement-timeout errors. The workflow now scopes only to the verified real-report tenant 99e33354-cc45-4317-8eb3-0d486b6c5932; the other previously listed UUIDs were unverified and have been removed. If this tenant lacks 40 distinct qualifying reports, the cohort must fail honestly rather than broaden to unknown tenants.
+- CI provenance correction: .github/workflows/quality.yml no longer compares the event's fixed PR head to the live moving branch. It verifies the PR head embedded as the second parent of that run's merge commit. The companion quality contract asserts this and forbids the stale live-ref comparison. This addresses the observed Diagnostics failure that skipped dependency installation, producing misleading follow-on “eslint/vite missing” failures.
+- Static source audit at exact code head 71d14ff1b524b05bc08b0c95b9c3d657fd09b428: 25/25 authored source/config predicates passed. These checks inspect the GitHub file contents; they are NOT executed Node tests and NOT browser proof.
+- Exact-code-head CI frontier at last query: Product Build Gate 37883970456 QUEUED; Quality 37883970556 QUEUED; Full Product Browser E2E 37883970375 QUEUED; Session Handoff 37883970401 PENDING on the predecessor document state; Final Certification Gate 37883970576 QUEUED; Device E2E 37883970632 QUEUED; Report Value Cohort 37883970550 QUEUED; Commercial Product Creation E2E 37883970515 QUEUED; Data Quality Runtime 37883970542 QUEUED. No current-head CI gate is marked PASS. New documentation on this commit will trigger a new Session Handoff Contract run.
+- Earlier reliable statuses: at predecessor 9799fcc, Product Build, Quality, Session Handoff, Final Certification and Data Quality Runtime passed, but Full Product Browser failed actor provisioning and real-open-report proof. The cohort at 9799fcc timed out with SQLSTATE 57014. At 478e5e7, Product Build and Data Quality passed, while Quality Diagnostics failed because it compared the queued run's event SHA with the live PR branch after later commits had advanced it.
+- Supabase management reports ACTIVE_HEALTHY, but Auth /token and /admin/users logs showed HTTP 500/504 through 04:02 UTC from canceled/timed-out user lookups and failed local supabase_auth_admin Postgres connections. Management SQL also timed out. This external blocker is not fixed by the code patch.
+- Public preview https://deploy-preview-911--aghbari-report-advisor.netlify.app remains fixture-bound to 28-inventory-stockout-reorder.csv. Live authenticated customer report, evidence-passport readback, 48/48 real-source archetypes, recommendation → decision/work → outcome continuity and production proof remain NOT PROVEN. PRODUCT COMPLETE = NO.
 
 CURRENT_PRODUCT_GOAL
 - Make saved smart reports visible across Reports Center, evidence, recommendations, decisions, work, outcomes and learning.
