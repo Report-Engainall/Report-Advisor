@@ -60,6 +60,8 @@ type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
   evidenceSnapshotId?: string | null;
   evidencePassportId?: string | null;
   availableFields?: CanonicalField[];
+  // Optional shape-specific analysis computed from the same source rows shown in preview.
+  previewIntelligence?: ReportIntelligence;
 };
 
 function text(value: unknown): string {
@@ -157,6 +159,9 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
       base,
     );
   }
+  // Keep the executive preview and decision chain on the same report-intelligence object.
+  // This is especially important when the source shape has a specialized, source-bound analysis.
+  if (input.previewIntelligence) intelligence = input.previewIntelligence;
 
   const provenance = {
     tenantId: input.tenantId ?? 'preview',
