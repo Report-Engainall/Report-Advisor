@@ -52,7 +52,10 @@ for (const { path: surfacePath, content } of customerFacingSurfaces) {
 
 assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(Decision ROI|Business Replay|Money Recovery|Outcome follow-up)\b/.test(content)));
 const realBusinessE2E = fs.readFileSync('scripts/real-business-e2e.mjs', 'utf8');
-assert.ok(realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor"), 'Real business E2E must use a deterministic Evidence Passport locator');
+assert.ok(realBusinessE2E.includes('async function waitForSmartReportEvidenceSurface(page)'), 'Real business E2E must use a dedicated visible Evidence Passport proof');
+assert.ok(realBusinessE2E.includes("locator('[data-testid=\"smart-report-decision-chain\"]')"), 'Real business E2E must assert the visible source-bound decision chain');
+assert.ok(realBusinessE2E.includes(".filter({ hasText: 'التفاصيل الكاملة للتقرير' })"), 'Real business E2E must scope Evidence Passport to the visible details summary');
+assert.ok(!realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor"), 'Real business E2E must not select a hidden duplicate Evidence Passport label');
 assert.ok(!realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).waitFor"), 'Real business E2E must not retain a non-unique Evidence Passport locator');
 assert.ok(reports.includes('export function SalesReportPage'), 'Sales report surface must remain present');
 assert.ok(reports.includes('export function PurchasesReportPage'), 'Purchases report surface must remain present');
