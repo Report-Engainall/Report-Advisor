@@ -1,14 +1,54 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
-CURRENT_CODE_HEAD = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
+CURRENT_EXACT_HEAD = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
+CURRENT_CODE_HEAD = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
+CURRENT_EXECUTION_HEAD = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912
-CURRENT_PR_HEAD_AT_CODE_CHECK = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
-UPDATED_AT = 2026-10-10T00:50:00+03:00
+CURRENT_PR_HEAD_AT_CODE_CHECK = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
+UPDATED_AT = 2026-10-10T01:23:00+03:00
 PRODUCT_COMPLETE = NO
+
+
+## LIVE CHECKPOINT — 2026-10-10 01:23 — LEGACY REPORT EVIDENCE REPAIR
+
+- Repository: https://github.com/Report-Engainall/Report-Advisor
+- PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Code HEAD: `a50159eca39fb3bea2c28a3d5399cdf0e21ce728`; main HEAD: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Batched corpus passport discovery was committed at ancestor `32df42e9b2d5039725746e62531a5a2b01d98aeb`: query completed/rendered report jobs by tenant in bounded pages, then matches hashes in memory instead of making one database query per governed file.
+- Passport migration source was added at ancestor `38a1a06543a0f0669708f3dcf451b97653fb3881`. Initial direct test revealed that substring offset used 7 and left the colon in the checkpoint import ID; corrected in the subsequent migration. The final staging SQL definition was read back with `correct_offset > 0` and `wrong_offset = 0`.
+- Staging migration versions returned by Supabase are `20261009222131/harden_legacy_report_evidence_passport_refresh` and `20261009222216/fix_legacy_checkpoint_import_id_offset`; repo filenames were reconciled to those exact versions to avoid creating duplicate pending migrations.
+- Current database record for report job `16709d80-e012-40ef-9c12-6fd8255897f8` remains a completed rendered XLSX job with matching import fingerprint, 332 canonical rows, analysis snapshot row count 332, 18 columns, and quality 98. Prior persisted rows are real staging data, not synthetic fixture data.
+- Direct privileged invocation of the passport refresh RPC through the SQL tool was blocked by tool safety and therefore did not prove a write/readback. The authorized Full Product Browser E2E invokes the same RPC using its service-role secret; use that run to establish the real outcome and never print credentials.
+- The predecessor Full Product Browser E2E failed on `ee9540dd...` for two distinct product-path causes: per-file passport query timeouts and the existing legacy report not having `sourceHash/sourceBound/rowCount/qualityScore/importId` in renderedOutput. Both have code changes on this HEAD. New exact-head run is pending.
+- Older Phase-F Live Resilience failed backup/restore because restore SQL referenced missing relation `public.intelligence_causal_hypotheses`. This remains a separate unresolved release blocker; do not suppress or exclude that table without proving the schema/backup contract.
+
+### Current exact-head workflows (last observed before this governance commit)
+- Session Handoff Contract: [37998946321](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37998946321) QUEUED.
+- Full Product Browser E2E: [37998946502](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37998946502) PENDING.
+- Product Build Gate: [37998946584](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37998946584) QUEUED.
+- Quality: [37998946700](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37998946700) QUEUED.
+- Device-Independent Browser E2E: [37998946694](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37998946694) QUEUED.
+- Final Certification Gate: [37998946783](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37998946783) QUEUED.
+- Phase-F Live Resilience: [37998946612](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37998946612) QUEUED.
+- Netlify and Vercel deployment statuses were PENDING for the code HEAD at the last status read. Runtime current-head proof is therefore pending.
+
+### Release gate separation
+
+| Gate | Status | Evidence |
+|---|---|---|
+| CONTRACT/CI | PENDING after new code commit | Latest runs queued; earlier predecessor handoff passed, but current-head rerun required |
+| BUILD | PENDING on `a50159eca39fb3bea2c28a3d5399cdf0e21ce728` | Product Build Gate queued |
+| BROWSER | NOT PROVEN on `a50159eca39fb3bea2c28a3d5399cdf0e21ce728` | Full E2E is pending; its predecessor failure is documented |
+| PERSISTENCE + READBACK | PARTIAL, predecessor data exists | Current-head authenticated RPC refresh and smart-report rendered-output readback must pass in E2E |
+| RUNTIME / PREVIEW | PENDING on `a50159eca39fb3bea2c28a3d5399cdf0e21ce728` | Deployment status pending |
+| PRODUCTION | NOT PROVEN | No production-current SHA and browser smoke proof |
+| PRODUCT_COMPLETE | NO | Real customer journey and Phase-F blocker remain open |
+
+NEXT_EXACT_ACTION = Consume the new exact-head Full Product Browser E2E result. On a passport or browser failure, inspect its terminal job log and the actual report row first; separately resolve Phase-F restore-schema mismatch. Do not merge or mark product complete.
+DO_NOT_MERGE = true
 
 
 
@@ -155,7 +195,7 @@ NO_LOGIC_CHANGE = true
 NEXT_EXACT_ACTION = consume fresh exact-head visual/build/browser gates for d347f6a1683f808723388d26019497f6b78c539f4; do not certify production from deployment READY alone.
 
 
-## LIVE CHECKPOINT — 2026-10-10 00:50 — SOURCE-BOUND REPORT E2E
+## HISTORICAL CHECKPOINT — 2026-10-10 00:50 — SOURCE-BOUND REPORT E2E (superseded)
 
 - Repository: https://github.com/Report-Engainall/Report-Advisor
 - PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
