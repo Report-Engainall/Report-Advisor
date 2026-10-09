@@ -26,15 +26,21 @@ WHAT_IS_PROVEN
 - The earlier head be8154369561d88b645df199134a8f8a2c643705 had passed its then-current typecheck/build and the 12-row/11-column CSV upload smoke. Those results do NOT prove the new customer-portfolio patch.
 - New unit and XLSX browser regression assertions are committed, but their post-patch execution is not yet proven.
 
+- Paged smart-report catalog implementation and cross-screen quick-access navigation are committed at application head 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b.
+- Exact-head GitHub Actions build-and-contracts job 113615612006 completed successfully: Typecheck, production build, Smart report surface contract, Smart report evidence boundary contract, Customer-facing report surface contract, Source upload UI contract, and smart-report-catalog-navigation all PASS.
+- The Netlify deploy-preview status for application head 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b reports success.
+- Browser smoke job 113615611837 had reached Chromium-runner installation at the last check; the actual browser smoke and full authenticated journey are still NOT PROVEN.
+- Two auxiliary jobs on the application-head workflow failed: one explicitly failed the exact-PR-head guard after the PR branch advanced to a docs-only commit; another diagnostics step failed before dependencies were installed, after which lint/build/performance substeps reported missing eslint/vite/dist. These do not override the successful dedicated build-and-contracts run; clean exact-head rerun remains pending.
+
 CURRENT_OPEN_GATES
-- Exact-head typecheck, build, unit/source-contract tests, and XLSX Playwright smoke are NOT PROVEN after 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b; the checks were still queued/in progress at the last read.
+- Typecheck, production build, and catalog/smart-report source contracts PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b. Browser smoke / actual report navigation remain in progress or NOT PROVEN, and auxiliary exact-PR-head/diagnostic jobs require a clean rerun on the stable branch tip.
 - The customer workbook pasted in the conversation has not been re-uploaded through an interactive browser session after this patch, so its post-patch visible result remains awaiting browser proof.
 - Full authenticated upload -> persisted report -> evidence -> recommendation -> decision/work/outcome remains NOT PROVEN.
 - Real-source 48/48 archetype proof remains NOT PROVEN.
 - Production release remains NOT PROVEN. Do not mark PRODUCT_COMPLETE or PRODUCTION_PROVEN.
 
 CURRENT_ACTIVE_FAILURE
-- Current exact-head commit checks are pending, and the Netlify deploy-preview status was still processing at the last status read. Preview status alone would not prove end-to-end browser behavior.
+- The dedicated build-and-contracts run is successful for 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b, and Netlify deploy-preview status for that application commit is success. Browser smoke and full product E2E are still not proven.
 - Avoid paid Vercel usage; a plan/build-capacity limitation must not be mistaken for an application test failure.
 - Current production/main has not been shown to contain this patch.
 
@@ -42,7 +48,7 @@ ROOT_CAUSE
 - The file-analysis page ran two separate intelligence paths: buildPreviewIntelligence(dataset) produced the source-specific customer portfolio finding, while buildUniversalReportIntelligence re-derived intelligence from the same raw rows and selected a generic sales/date signal. That made the visible executive report and expanded decision chain contradict one another.
 - The customer-portfolio path now supplies its source-bound intelligence object into the universal chain, produces its own source-backed signal and recommendation, and hints “customer activity” as an archetype requiring canonical review. This is the patch to verify; do not infer verification from code presence.
 
-NEXT_EXACT_ACTION = Consume terminal checks for 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b; fix the first real failing gate; verify the new Netlify preview with a safe synthetic XLSX upload and cross-screen report navigation; update this state with exact results. Keep authenticated persistence, 48-archetype proof, and production proof open until separately demonstrated. Do not use paid Vercel or Remote Desktop unless every free verification path is blocked.
+NEXT_EXACT_ACTION = Consume the terminal Chromium/browser-smoke and full-product browser jobs; rerun the exact-PR-head/diagnostic workflows after the branch is stable; then verify load-more and lineage-preserving cross-screen navigation on the Netlify preview. Keep authenticated persistence, 48-archetype proof, and production proof open until separately demonstrated. Avoid paid Vercel and Remote Desktop.
 
 ## 2026-10-08 checkpoint — source-agnostic file analysis closure
 - APPLICATION HEAD BEFORE GOVERNANCE CHECKPOINT: 555b8b1865978ca7054537c7f23e579671c2e465.

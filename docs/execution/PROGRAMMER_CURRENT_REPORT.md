@@ -3,41 +3,47 @@
 APPLICATION_HEAD = 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911
+GOVERNANCE_PARENT_HEAD = 148065422ea23dd5a86a11bf7440eebf0b0237dd (documentation-only checkpoint parent; current application proof target remains 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b)
 
 WHAT_I_WAS_ASKED_TO_DO = Make completed smart reports visible and navigable across the product screens, with the same report source lineage preserved throughout analysis and decision work.
 
 WHAT_I_ACTUALLY_DID =
-- Continued the existing PR #911 application work without creating a new project or using Remote Desktop.
-- Added fetchSmartReportCatalogPage(limit, offset) with one-row lookahead and an offset based on raw report jobs scanned; invalid/unlinked rows therefore do not shift the cursor by the filtered result count.
-- Preserved fetchSmartReportCatalog(limit) as a backward-compatible wrapper over the paged API.
-- Replaced Reports Center's one-shot first-60 query with an initial page plus a “تحميل المزيد من التقارير الذكية” control, de-duplicated append, loading and error feedback, and an explicit end state.
-- Added a compact “التقارير الذكية الأخيرة” strip on source-context analysis/decision surfaces. Each report link carries its exact jobId and sourceHash, and the strip links to the complete Reports Center.
-- Added deterministic contract assertions for catalog paging, load-more UI, and lineage-preserving quick links.
+- Added fetchSmartReportCatalogPage(limit, offset), with one-row lookahead and cursor movement based on raw completed report jobs scanned, preserving valid pagination even when rows are filtered for missing lineage.
+- Preserved fetchSmartReportCatalog(limit) as a backward-compatible wrapper.
+- Updated Reports Center to load the first page of 60 and append subsequent pages through “تحميل المزيد من التقارير الذكية”, with duplicate filtering, loading/error states, and an explicit end state.
+- Added “التقارير الذكية الأخيرة” quick access to report-context analysis/decision surfaces. Every report link preserves jobId and sourceHash, and the strip links to the full Reports Center.
+- Added deterministic assertions for catalog pagination, load-more controls, and cross-screen source-lineage navigation.
+- No Remote Desktop session or paid Vercel build was used.
 
 WHAT_IS_PROVEN =
-- GitHub branch update succeeded and PR #911 now points to application/test-contract commit 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b.
-- Static patch preflight markers were present before commit creation.
-- On the last exact-head status read, the overall commit status remained pending; Netlify deploy-preview was processing and GitHub Actions had 59 checks, including queued/in-progress jobs.
-- No exact-head build, unit-test, XLSX-upload browser, full authenticated journey, production, or 48/48 archetype proof is claimed yet.
+- GitHub write access succeeded; application changes are persisted on PR #911 at 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b.
+- GitHub Actions dedicated build-and-contracts job completed successfully on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b: Typecheck PASS; Production build PASS; Smart report surface contract PASS; Smart report evidence boundary contract PASS; Customer-facing report surface contract PASS; Source upload UI contract PASS; smart-report-catalog-navigation PASS.
+- Netlify deploy-preview status for the application commit 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b is success.
+- Browser smoke job 113615611837 was still installing its Chromium runner at the last read. Actual browser smoke, complete authenticated journey, and production currentness remain unproven.
+- One auxiliary “Verify exact PR head” job failed because the branch head advanced to a docs-only commit while it was running. Another diagnostics job failed before dependency installation; later substeps then reported missing eslint/vite/dist. Treat those results as invalid/incomplete verification plumbing, not a passing build; clean exact-head rerun remains open.
 
 PROOF_STATUS
-- IMPLEMENTED = YES in the PR branch
-- INTEGRATED = Source API, Reports Center, and ReportSourceContext are wired together in code
-- PERSISTED = YES on PR #911 at 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
-- UI_EXPOSED = Code committed; live preview rendering is awaiting deploy/browser verification
-- TYPECHECK_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
-- BUILD_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
-- CATALOG_CONTRACT_TEST_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b; assertions committed and awaiting execution
-- XLSX_BROWSER_SMOKE_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- IMPLEMENTED = YES on PR #911
+- PERSISTED = YES at application head 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- TYPECHECK_PROVEN = PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- BUILD_PROVEN = PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- SMART_REPORT_SURFACE_CONTRACT = PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- EVIDENCE_BOUNDARY_CONTRACT = PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- CUSTOMER_FACING_REPORT_SURFACE_CONTRACT = PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- SOURCE_UPLOAD_UI_CONTRACT = PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- CATALOG_NAVIGATION_CONTRACT = PASS on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- UI_EXPOSED = Code committed; Netlify deploy preview is ready for this application head
+- XLSX_BROWSER_SMOKE_PROVEN = NOT PROVEN
 - CROSS_SCREEN_BROWSER_NAVIGATION_PROVEN = NOT PROVEN
+- FULL_PRODUCT_BROWSER_E2E = NOT PROVEN
 - AUTHENTICATED_UPLOAD_TO_DECISION_PROVEN = NO
 - PRODUCTION_PROVEN = NO
 - REAL_SOURCE_48_ARCHETYPE_PROVEN = NO
 - PRODUCT_COMPLETE = NO
 
-FIRST_ACTIVE_FAILURE = No exact-head application failure is confirmed from the available result yet; the active blocker is that the exact-head checks and preview are not terminal/proven. Do not infer PASS from code presence or a queued check.
-ROOT_CAUSE = Reports Center requested only the first 60 completed jobs without a continuation control; analysis and decision screens displayed the active context but lacked convenient access to other completed smart reports. This change adds paging and context-bound entry points, while preserving the existing tenant and source-hash filters.
-NEXT_EXACT_ACTION = Read the terminal current-head typecheck/build/test and browser results for 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b; fix any first failure; verify that load-more appends without duplicates and recent-report links open the exact jobId + sourceHash report. Keep full authenticated persistence, 48-archetype real-source proof, and production proof open until independently verified.
+FIRST_ACTIVE_FAILURE = Browser smoke and full product browser E2E are not terminal/proven. Auxiliary exact-head/diagnostics checks need a clean rerun because the branch advanced during execution and one diagnostics workflow skipped dependency installation.
+ROOT_CAUSE = The previous reports center queried only the first 60 completed jobs without pagination, and other source-context screens showed the active report but not easy entry points to other completed reports. The new catalog API and UI provide pagination and links that retain the report's source identity; runtime/browser verification is the remaining gate.
+NEXT_EXACT_ACTION = Consume terminal current-head browser-smoke and full-product E2E results; rerun head-guard/diagnostic workflows against a stable branch tip; inspect the Netlify preview for load-more de-duplication and exact jobId + sourceHash navigation. Keep authenticated persistence, 48-archetype real-source proof, and production proof open until independently verified.
 
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
