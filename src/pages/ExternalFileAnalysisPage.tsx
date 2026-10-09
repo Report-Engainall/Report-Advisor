@@ -436,7 +436,7 @@ export function ExternalFileAnalysisPage() {
   const customerPortfolio = Boolean(intelligence?.findings.some((finding) => finding.id === 'preview:customer-portfolio:interruption'));
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
     specialty: specialty ?? null,
-    archetypeId: customerPortfolio ? 'customers.activity' : undefined,
+    archetypeHintId: customerPortfolio ? 'customers.activity' : undefined,
     previewIntelligence: customerPortfolio ? intelligence ?? undefined : undefined,
     rowCount: dataset.rowCount,
     sourceAnalysis: { datasets: [dataset] },
