@@ -352,13 +352,16 @@ jobs:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          # This PDF belongs to an E2E corpus tenant where user B has a scoped active membership.
-          OPEN_REPORT_TEST_USER_EMAIL: ${{ env.TEST_USER_B_EMAIL }}
-          OPEN_REPORT_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
-          OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
-          OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
-          OPEN_REPORT_EXPECTED_ROWS: '0'
-          OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
+          # Resume the real XLSX report in the same company that User C owns by default.
+          # Separate PDF extraction is covered by the parser regression gate; the legacy PDF job
+          # inspected during repair has completed import metadata (0 rows) that correctly fails
+          # IMPORT_JOB_COMPLETED_ROW_MISMATCH instead of being treated as a valid recovery.
+          OPEN_REPORT_TEST_USER_EMAIL: ${{ env.TEST_USER_C_EMAIL }}
+          OPEN_REPORT_TEST_USER_PASSWORD: ${{ env.TEST_USER_C_PASSWORD }}
+          OPEN_REPORT_EXECUTION_JOB_ID: '16709d80-e012-40ef-9c12-6fd8255897f8'
+          OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313'
+          OPEN_REPORT_EXPECTED_ROWS: '332'
+          OPEN_REPORT_FILE_NAME: 'تقارير ادارية.xlsx'
         run: node scripts/resume-open-report-server-proof.mjs
       - name: Install deterministic browser tooling
         if: ${{ always() }}
