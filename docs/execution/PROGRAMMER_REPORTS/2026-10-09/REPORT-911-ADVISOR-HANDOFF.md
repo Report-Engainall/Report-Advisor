@@ -1,11 +1,20 @@
-# Report-Advisor Execution Archive — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
+# Report-Advisor Execution Archive
+
+## 2026-10-09 continuation — current code frontier
+- Current code head: b3d90321568e887abb2bd580e5d3989a502fb2fc; PR #911 stays open and unmerged.
+- SmartReportPage and SourceBoundReportSurface both use job/hash-bound result state and retries through a cancellable effect.
+- The value-cohort script requires a defined staging tenant scope, queries each company separately and removes repeated source hashes.
+- Current-head checks are still queued or pending: Build 37882281096; Quality 37882281068; Full Browser 37882281159; Handoff 37882281357; Certification 37882281329; Device E2E 37882281026; Cohort 37882281466; Product Creation 37882281236.
+- The public report remains fixture-backed. No real authenticated report or end-to-end decision/outcome chain is proven.
+
+ — 2026-10-09 / REAL-REPORT ACTOR ALIGNMENT
 
 SESSION HANDOFF = READY
-REPORT_FOR_HEAD = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
-UPDATED_AT = 2026-10-09T07:15:00+03:00
+REPORT_FOR_HEAD = b3d90321568e887abb2bd580e5d3989a502fb2fc
+UPDATED_AT = 2026-10-09T07:18:00+03:00
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911 OPEN / UNMERGED
-PR_HEAD_AT_WRITEBACK_PARENT = 478e5e7b11878d606d5fd03c57406765f1e3ca0c
+PR_HEAD_AT_WRITEBACK_PARENT = b3d90321568e887abb2bd580e5d3989a502fb2fc
 PREVIEW = https://deploy-preview-911--aghbari-report-advisor.netlify.app
 
 ## Current delta — scoped value cohort at 478e5e7b11878d606d5fd03c57406765f1e3ca0c
