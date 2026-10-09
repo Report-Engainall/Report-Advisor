@@ -1,9 +1,10 @@
 SESSION HANDOFF = READY_TO_RESUME
+CURRENT_EXACT_HEAD = a55478b0e7ad95f1aa137e57e99f229ec1dd0c30
 ACTION_STATUS = ACTIVE_EXECUTION
 BOOT_FILE = docs/execution/CURRENT_SESSION_STATE.md
 COMPANION_REPORT = docs/execution/PROGRAMMER_CURRENT_REPORT.md
 OPERATING_PROTOCOL = docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md
-SUPERVISION_PROTOCOL = Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md
+SUPERVISION_PROTOCOL = NOT FOUND on PR #911 branch tree; required path Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md (fallback protocol read: docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md)
 
 CURRENT_APPLICATION_HEAD = 2c4ef80717a6e7052373e721d2e0586115cc5efd
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
@@ -37,12 +38,12 @@ PROVEN_AT_APPLICATION_HEAD_2c4ef80717a6e7052373e721d2e0586115cc5efd
 - These results prove the build and named contracts only; they do not prove the full authenticated product journey.
 
 CURRENT_ACTIVE_BLOCKER
-- Latest certification-contracts job failed in scripts/check-real-smart-report-advisor.mjs:20 with “missing advisor marker: ADVISOR BRIEF”.
-- SmartReportPage.tsx already has section id="advisor-decision-brief", data-testid="smart-report-advisor-brief", and the Arabic kicker “ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟”, but lacks the exact English marker required by the contract.
-- Next: inspect the actual UI/contract intent and make the smallest truthful fix, then rerun certification contracts. Do not weaken unrelated evidence or numeric-truth constraints.
-- Full Product Browser E2E job 113617979908 was still at “Provision rerunnable E2E actors with bounded recovery” when last checked. Refresh its live status before acting; authenticated report/browser proof is not yet established.
-- Earlier browser smoke success on application head 8eda2a11 is historical and does NOT constitute XLSX browser proof on 2c4ef80717a6e7052373e721d2e0586115cc5efd.
-- At the last read, latest checks included a certification-contracts failure and other in-progress jobs. Refresh current check-runs instead of assuming status is unchanged.
+- The stale English-only advisor marker assertion was repaired in scripts/check-real-smart-report-advisor.mjs at exact commit a55478b0e7ad95f1aa137e57e99f229ec1dd0c30; the contract now requires the actual Arabic visible kicker on SmartReportPage.tsx.
+- New exact-commit CI run is in progress/queued; certification PASS is not yet established on this commit.
+- Session Handoff Contract previously failed because CURRENT_EXACT_HEAD was absent from the state file and required machine-readable key/value fields were absent from the report. These are being restored below and must be verified after the documentation-only commit.
+- Full Product Browser E2E and cross-screen pagination/source-lineage navigation remain NOT PROVEN in an authenticated browser.
+- The previously successful typecheck/build on 2c4ef80717a6e7052373e721d2e0586115cc5efd is historical for this new contract commit; consume the new exact-head checks before claiming fresh PASS.
+- Remote Desktop is intentionally not used; GitHub write access and GitHub Actions are available, preserving the remaining 20% Remote Desktop allowance.
 
 OPEN PROOF GATES
 - Certification contracts PASS on the latest exact application head.
@@ -53,13 +54,13 @@ OPEN PROOF GATES
 - Production/main proof; main remains fa1ab4cbade9b01685507aa966c10f700a03f576, PR #911 is open and unmerged.
 
 NEXT_EXECUTION_ORDER
-1. Read this file, docs/execution/PROGRAMMER_CURRENT_REPORT.md, docs/execution/CAPTAIN_PROGRAMMER_OPERATING_PROTOCOL.md, and Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md before editing.
-2. Recheck live PR head, application commit, latest check-runs, and browser-e2e job steps; docs-only commits may make the PR head differ from application code head.
-3. Fix the ADVISOR BRIEF contract/UI discrepancy surgically; no broad refactor.
-4. Consume terminal current-head tests and browser proof; pending checks are not passes.
-5. Verify load-more de-duplicates and reaches the end of the catalog; verify every opened report keeps exact jobId + sourceHash.
-6. Refresh governance docs after any application commit, then check same-head proof again.
-7. Do not merge or mark PRODUCT_COMPLETE until browser-visible behavior and remaining blockers are independently resolved.
+1. Re-read the current boot/report/protocol files; note that Project-Governance/NASR_PROJECT_SUPERVISION_PROTOCOL.md is absent from the current branch tree rather than reconstructing it from memory.
+2. Refresh the PR head and consume current-head certification, Session Handoff Contract, build, and browser job states; queued checks are not passes.
+3. Run the updated real-smart-report-advisor contract on the exact branch tip and confirm all visible advisor markers plus advisor-before-data ordering.
+4. Verify the handoff-contract fix against the final documentation-only tip and confirm REPORT_FOR_HEAD is its ancestor.
+5. Verify catalog pagination/de-duplication and jobId + sourceHash retention in authenticated browser E2E; safe XLSX upload and complete upload-to-decision remain separate gates.
+6. Refresh governance docs after any application/test commit and repeat exact-head checks.
+7. Do not merge or mark PRODUCT_COMPLETE until browser-visible behavior, lineage, and release blockers are independently resolved.
 
 STATUS VOCABULARY
 IMPLEMENTED / INTEGRATED / PERSISTED / UI-EXPOSED / READBACK-PROVEN / BROWSER-PROVEN / PRODUCTION-PROVEN / PRODUCT COMPLETE are separate states. Report each honestly.
