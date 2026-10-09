@@ -16,6 +16,10 @@ assert.ok(smartReportEffect.indexOf('setReport(null);') < smartReportEffect.inde
 assert.ok(smartReportRequestRegion.includes('report.jobId === currentJobId'), 'SMART_REPORT_RENDER_MUST_MATCH_JOB_ID');
 assert.ok(smartReportRequestRegion.includes('report.sourceHash === expectedSourceHash'), 'SMART_REPORT_RENDER_MUST_MATCH_SOURCE_HASH');
 assert.ok(source.includes('errorContextKey === requestContextKey'), 'SMART_REPORT_ERRORS_MUST_BE_CONTEXT_BOUND');
+assert.ok(source.includes('const [retryVersion, setRetryVersion] = useState(0);'), 'SMART_REPORT_RETRY_MUST_USE_GUARDED_EFFECT');
+assert.ok(source.includes('[currentJobId, expectedSourceHash, requestContextKey, retryVersion]'), 'SMART_REPORT_RETRY_MUST_REUSE_CONTEXT_GUARDS');
+assert.ok(source.includes('const retryReport = () => {'), 'SMART_REPORT_RETRY_HANDLER_REQUIRED');
+assert.ok(source.includes('onRetry={retryReport}'), 'SMART_REPORT_RETRY_MUST_NOT_BYPASS_CANCELLATION');
 
 const sourceBoundStart = surface.indexOf('export function SourceBoundReportSurface(');
 assert.ok(sourceBoundStart >= 0, 'SOURCE_BOUND_REPORT_SURFACE_REQUIRED');
