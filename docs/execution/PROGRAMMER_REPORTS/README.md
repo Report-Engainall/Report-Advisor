@@ -8,3 +8,4 @@ Archive:
 - docs/execution/PROGRAMMER_REPORTS/YYYY-MM-DD/REPORT-YYYYMMDD-HHMMSS-<HEAD-SHORT>.md
 
 Archive is append-only. Never overwrite a historical report. The latest live report must identify the exact code state it covers, the proof, the first active failure, and one next exact action.
+- docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-002000-7a91d7c.md
