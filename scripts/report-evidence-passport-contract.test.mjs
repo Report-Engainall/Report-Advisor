@@ -19,6 +19,10 @@ const completion = fs.readFileSync('supabase/migrations/20261003141500_auto_refr
 const provenanceRepair = fs.readFileSync('supabase/migrations/20261003140500_reconcile_source_decision_passport_snapshot.sql', 'utf8');
 const intelligencePanel = fs.readFileSync('src/components/ReportIntelligencePanel.tsx', 'utf8');
 const decisionCockpit = fs.readFileSync('src/components/ReportDecisionCockpit.tsx', 'utf8');
+const legacyRowCountRepair = fs.readFileSync(
+  'supabase/migrations/20261009224000_reconcile_legacy_generic_import_rowcount_proof.sql',
+  'utf8',
+);
 const checkpointOffsetRepair = fs.readFileSync(
   'supabase/migrations/20261009222216_fix_legacy_checkpoint_import_id_offset.sql',
   'utf8',
@@ -62,6 +66,11 @@ assert.ok(!decisionCockpit.includes("evidenceSnapshotId: report.sourceAnalysis.i
 assert.ok(sourceBoundRepair.includes('jsonb_array_elements_text'), 'legacy import ID must be recovered only from the same report job checkpoint');
 assert.ok(checkpointOffsetRepair.includes('substring(evidence_key.value from 8)'), 'checkpoint parsing must skip the import: prefix exactly');
 assert.ok(!checkpointOffsetRepair.includes('substring(evidence_key.value from 7)'), 'checkpoint parsing must not include the delimiter in the import UUID');
+assert.ok(legacyRowCountRepair.includes('coalesce(v_import.valid_rows,0) = 0'), 'legacy zero valid_rows is handled only as a missing aggregate, not as zero source rows');
+assert.ok(legacyRowCountRepair.includes('v_commit_count = v_import.total_rows'), 'legacy zero valid_rows requires matching canonical commit row count');
+assert.ok(legacyRowCountRepair.includes('v_canonical_count = v_import.total_rows'), 'legacy zero valid_rows requires matching canonical dataset row count');
+assert.ok(legacyRowCountRepair.includes('v_analysis.row_count = v_import.total_rows'), 'legacy zero valid_rows requires matching analyzed row count');
+assert.ok(legacyRowCountRepair.includes('v_import.total_rows = v_authoritative_count'), 'authoritative output must agree with the completed import count');
 assert.ok(sourceBoundRepair.includes('source_fingerprint IS DISTINCT FROM v_job.source_hash'), 'passport refresh must validate import/source fingerprint');
 assert.ok(sourceBoundRepair.includes("'sourceBound'"), 'legacy source-bound provenance must be explicit');
 assert.ok(sourceBoundRepair.includes("'authoritativeCurrentRowCount'"), 'passport refresh must persist source-backed row count');
