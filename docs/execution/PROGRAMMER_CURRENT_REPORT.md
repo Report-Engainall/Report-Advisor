@@ -1,43 +1,44 @@
 ## CURRENT EXECUTION REPORT — 2026-10-09
 
-APPLICATION_HEAD = be8154369561d88b645df199134a8f8a2c643705
+APPLICATION_HEAD = 4cd830d7ca867e1e336f935c819b06632ef54c98
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911
 
-WHAT_I_WAS_ASKED_TO_DO = Continue closing the Report-Advisor customer journey, expose source-bound analysis, remove the first release blockers, preserve strict evidence boundaries, and keep code/tests/governance tied to exact revisions.
+WHAT_I_WAS_ASKED_TO_DO = Fix the product contradiction in the uploaded customer-portfolio report so the executive finding, evidence, recommendation, and universal decision chain all describe the same source-bound analysis.
 
 WHAT_I_ACTUALLY_DID =
-- PR #910 merged to main: repaired initialization errors in file intelligence and added the visible source-to-decision chain plus route into the existing import workflow.
-- PR #911 changed DashboardPage to React.lazy using the existing Suspense boundary. The page and URL remain available; the initial entry no longer eagerly includes that dashboard module.
-- Fixed scripts/check-performance-budget.mjs so text assets are found by file extension; gzip-text now measures 1071.1KB rather than the invalid 0.0KB.
-- Fixed scripts/check-session-handoff-contract.mjs so changed Git paths are split on actual newlines and checked individually; stale execution docs cannot hide an unreported source file.
-- Built exact commit be8154369561d88b645df199134a8f8a2c643705 with matching BUILD_SOURCE_SHA. Typecheck, critical-byte/gzip/largest-JS budgets, generic file analysis, file-engine contract and Playwright upload smoke all passed. The public Netlify PR #911 preview parsed the real fixture (12 rows, 11 columns), showed the executive report and six-stage source-to-decision chain, and had no page errors or horizontal overflow.
+- Reviewed the displayed report: the specialized preview identified customer interruption / VIPs and monthly columns, while the expanded universal chain incorrectly fell back to “no clear date field” and “sales invoice details.”
+- Added a source-derived portfolio signal and matching recommendation using customer statuses, VIP/ABC classifications, monthly sums, evidence rows, the change between observed month columns, and explicit proof boundaries.
+- Passed the specialized portfolio intelligence object into buildUniversalReportIntelligence so the expanded chain uses the same headline, signal, “why,” recommendation, measurement, and evidence rather than re-deriving the generic sales finding.
+- Added a customer-activity shape hint with REVIEW_REQUIRED state; it does not pretend that a shape hint is canonical archetype proof. Displayed the review qualifier in the badge.
+- Extended unit and public Playwright upload smoke contracts to reject the stale missing-date / invoice-detail assertions and verify the customer-activity label.
+- Kept changes on PR #911 without using Remote Desktop or triggering paid Vercel usage.
 
-WHAT_IS_PROVEN = Exact code head be8154369561d88b645df199134a8f8a2c643705: TypeScript typecheck PASS; production build PASS with matching provenance; critical assets 917.6KB / 950KB PASS; gzip-text 1071.1KB / 2000KB PASS; largest JS 488.9KB / 600KB PASS; UI route completeness PASS (47 routes); sidebar parity PASS (43 canonical navigation links); file-engine architecture PASS; 21 declared formats explicitly dispatched; generic file analysis PASS; report advisor intelligence/recommendations PASS; source-report workspace PASS; intelligence product contract PASS; smart-report context-lineage/executive-result contracts PASS; Phase 11 E2E/performance-closure contract PASS; Netlify PR #911 browser upload PASS (12 source rows/11 columns, no JS errors/overflow).
+WHAT_IS_PROVEN = Code and regression assertions are committed through 4cd830d7ca867e1e336f935c819b06632ef54c98. GitHub's Netlify deploy-preview status for this exact commit is success; the public preview route is reachable. The existing earlier-head build and CSV smoke results remain historical evidence only. The newly added unit/XLSX browser assertions have not yet been proven to pass on this exact head.
 
 PROOF_STATUS
 - IMPLEMENTED = YES
-- INTEGRATED = YES
-- UI_EXPOSED = YES on Netlify PR #911 preview at be8154369561d88b645df199134a8f8a2c643705; the 12-row upload journey is browser-proven on preview, production route awaits deployment
-- TYPECHECK_PROVEN = YES
-- BUILD_PROVEN = YES
-- PERFORMANCE_BUDGET_PROVEN = YES on code head be8154369561d88b645df199134a8f8a2c643705
-- SESSION_HANDOFF_GUARD_FIXED = YES; final handoff contract run is recorded after the current docs-only checkpoint is committed
-- BROWSER_PROVEN = PENDING for authenticated upload-to-decision
-- REAL_TENANT_READBACK_PROVEN = NOT PROVEN for the full journey
+- INTEGRATED = YES in the file-analysis preview path on the PR branch
+- UI_EXPOSED = Netlify PR #911 preview status success; exact post-patch workbook rendering has not been independently browser-proven
+- TYPECHECK_PROVEN = NOT PROVEN on 4cd830d7ca867e1e336f935c819b06632ef54c98
+- BUILD_PROVEN = Netlify deploy-preview status success; separate exact-head GitHub build-gate result NOT PROVEN
+- UNIT_TEST_PROVEN = NOT PROVEN on 4cd830d7ca867e1e336f935c819b06632ef54c98
+- XLSX_BROWSER_SMOKE_PROVEN = NOT PROVEN on 4cd830d7ca867e1e336f935c819b06632ef54c98; regression assertions added
+- AUTHENTICATED_UPLOAD_TO_DECISION_PROVEN = NO
+- REAL_TENANT_READBACK_PROVEN = NO for the full journey
 - PRODUCTION_PROVEN = NO
 - REAL_SOURCE_48_ARCHETYPE_PROVEN = NO
 - PRODUCT_COMPLETE = NO
 
-FIRST_ACTIVE_FAILURE = Netlify Production still cannot publish because NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repository Actions secrets are absent/empty. Separately, the public preview upload spinner was reproduced and fixed in be815436: the optional remote synonym lookup no longer blocks source parsing indefinitely. Full authenticated journey E2E is still pending.
-ROOT_CAUSE = Production publishing lacks repository Netlify secrets. The public file-analysis hang came from an unbounded optional Supabase synonym_dictionary query before dataset construction; be815436 adds a 1.2-second cap and built-in Arabic/English fallback. The latest route split keeps critical assets within budget; the performance and handoff verification regex defects are corrected.
-NEXT_EXACT_ACTION = Consume terminal exact-head CI for PR #911 at be8154369561d88b645df199134a8f8a2c643705; merge only when relevant gates pass; privately configure NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID in GitHub Actions settings; rerun production deployment; then prove authenticated real-file upload through persisted report, evidence, recommendation, decision/work and outcome before marking production or product complete.
+FIRST_ACTIVE_FAILURE = The exact-head automated test results are still not verifiably complete; the Vercel check reports build-rate-limit / upgradeToPro, which is a Vercel capacity/plan blocker, not evidence that the application code failed. The customer portfolio browser regression remains unverified after this patch.
+ROOT_CAUSE = Preview and universal chain used different intelligence objects. The preview's customer portfolio analysis was correct for the observed source shape, but the expanded chain independently derived generic sales intelligence and surfaced a stale missing-date signal. The patch unifies those paths for this specialized shape and preserves REVIEW_REQUIRED for archetype certification.
+NEXT_EXACT_ACTION = Obtain typecheck/build/unit/XLSX-browser proof at 4cd830d7ca867e1e336f935c819b06632ef54c98; resolve any failed assertion; re-upload a safe test workbook to the latest Netlify PR #911 preview and verify the entire visible chain; keep authenticated persistence, real-source 48/48, and same-head production proof open until independently evidenced.
 
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT EXECUTION HEAD = be8154369561d88b645df199134a8f8a2c643705
-REPORT_FOR_HEAD = be8154369561d88b645df199134a8f8a2c643705
+CURRENT EXECUTION HEAD = 4cd830d7ca867e1e336f935c819b06632ef54c98
+REPORT_FOR_HEAD = 4cd830d7ca867e1e336f935c819b06632ef54c98
 UPDATED_AT = 2026-10-09
 
 ## 2026-10-08 checkpoint — PR #905 source-agnostic file intelligence
