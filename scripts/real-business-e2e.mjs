@@ -325,6 +325,20 @@ async function waitForRenderedSmartReport(page, companyId, sourceHash) {
   );
 }
 
+async function waitForSmartReportEvidenceSurface(page) {
+  // Avoid getByText(...).first(): the page also contains a hidden explanatory duplicate.
+  const decisionChain = page.locator('[data-testid="smart-report-decision-chain"]');
+  await decisionChain.waitFor({ state: 'visible', timeout: 30000 });
+
+  const passportSummary = page
+    .locator('details > summary')
+    .filter({ hasText: 'التفاصيل الكاملة للتقرير' })
+    .first();
+  await passportSummary.waitFor({ state: 'visible', timeout: 30000 });
+  const summaryText = (await passportSummary.innerText()).toUpperCase();
+  assert.ok(summaryText.includes('EVIDENCE PASSPORT'), 'SMART_REPORT_VISIBLE_EVIDENCE_PASSPORT_MISSING');
+}
+
 async function proveSmartReportAndEvidence(page, companyId, importResult, label) {
   const sourceHash = String(importResult.canonical?.source_hash ?? '');
   if (!sourceHash) {
@@ -366,10 +380,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     /\/reports\/smart\/[^/]+/.test(page.url()),
     'SMART_REPORT_BROWSER_ROUTE_MUST_REMAIN_SOURCE_BOUND'
   );
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({
-    state: 'visible',
-    timeout: 30000,
-  });
+  await waitForSmartReportEvidenceSurface(page);
 
   const beforeRefreshText = (await page.locator('body').innerText()).trim();
   assert.ok(
@@ -404,10 +415,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     /\/reports\/smart\/[^/]+/.test(page.url()),
     'SMART_REPORT_REFRESH_ROUTE_MUST_REMAIN_SOURCE_BOUND'
   );
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({
-    state: 'visible',
-    timeout: 30000,
-  });
+  await waitForSmartReportEvidenceSurface(page);
 
   const afterRefreshText = (await page.locator('body').innerText()).trim();
   assert.ok(
@@ -533,7 +541,7 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(response, 'CURRENT_REPORT_SMART_BROWSER_JOB_READBACK_MISSING');
   const jobRows = await response.json();
   assert.equal(jobRows.length, 1); assert.equal(jobRows[0].id, report.reportJobId); assert.equal(jobRows[0].source_hash, CURRENT_REPORT_SOURCE_HASH); assert.equal(jobRows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(page);
   const before = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(before, 'current smart report');
   assert.ok(before.includes('EVIDENCE PASSPORT'));
@@ -552,7 +560,7 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes('القرار'), 'Smart Report decision state missing');
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(page);
   const after = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(after, 'current smart report refresh');
   assert.ok(after.includes('EVIDENCE PASSPORT'));

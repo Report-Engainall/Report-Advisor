@@ -146,6 +146,9 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_ACTOR_MODE: ephemeral-run-scoped
+          # Route the dedicated actor to the report's real owner; keep RLS/tenant checks intact.
+          REAL_SMART_REPORT_COMPANY_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
+          E2E_CORPUS_TENANT_ID: '6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b'
           E2E_ACTOR_PROVISION_DEADLINE_MS: '360000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '15000'
           REPORT_ADVISOR_E2E_DEBUG: '1'
