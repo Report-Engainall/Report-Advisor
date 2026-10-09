@@ -1,13 +1,13 @@
-SESSION HANDOFF = NOT READY
+SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
-CURRENT_CODE_HEAD = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
+CURRENT_EXACT_HEAD = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
+CURRENT_CODE_HEAD = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
+CURRENT_EXECUTION_HEAD = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912
-CURRENT_PR_HEAD_AT_CODE_CHECK = 99d1adfb5bc6df409243f47f0ebb8e53b4808262
-UPDATED_AT = 2026-10-10T00:44:00+03:00
+CURRENT_PR_HEAD_AT_CODE_CHECK = 692e0d6ed5c299dfc1a3bda23dfea16ed24a374f
+UPDATED_AT = 2026-10-10T00:50:00+03:00
 PRODUCT_COMPLETE = NO
 
 
@@ -153,3 +153,56 @@ STATUS = IMPLEMENTED + INTEGRATED; terminal build/browser proof pending
 DESIGN_DIRECTION = dark ink shell + indigo intelligence + restrained brass accent; remove legacy green/teal wash and reduce admin-CRUD visual density
 NO_LOGIC_CHANGE = true
 NEXT_EXACT_ACTION = consume fresh exact-head visual/build/browser gates for d347f6a1683f808723388d26019497f6b78c539f4; do not certify production from deployment READY alone.
+
+
+## LIVE CHECKPOINT — 2026-10-10 00:50 — SOURCE-BOUND REPORT E2E
+
+- Repository: https://github.com/Report-Engainall/Report-Advisor
+- PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Application code HEAD reviewed: `692e0d6ed5c299dfc1a3bda23dfea16ed24a374f`; parent: `54f4c6941304a0641c32e86d5fd8f095d5e42a31`.
+- Main: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Change on application HEAD `692e0d6ed5c299dfc1a3bda23dfea16ed24a374f`: Full Product Browser E2E now resumes the actual XLSX report job owned by test user C/company rather than an old PDF execution whose import metadata carries zero valid rows. It keeps source hash, company authorization and row-count checks; PDF extraction remains covered separately by parser regression.
+- Netlify runtime endpoint read live on this code HEAD: `status=healthy`; `source_sha=build_sha=deployment_sha=692e0d6ed5c299dfc1a3bda23dfea16ed24a374f`; target environment `preview`; deployment `6ac9613bfb4f2400086a0786`. This is current preview runtime proof, not production proof.
+- Public route fetch for unauthenticated `/reports` and `/reports/smart/:jobId` no longer returned the fixture inventory demo; it returned the general landing/auth surface. This proves only the demo override is gone; authenticated report catalog/details still require browser proof.
+
+### Previous-run failure diagnosis
+- Session Handoff Contract run `37994951056` on `3e46dd17511533bbbab77578b39c403058002020` failed because the docs pointed to older `447d100...` and `scripts/check-session-handoff-contract.mjs` used an over-escaped newline split. The checker was corrected on ancestor `99d1adfb5bc6df409243f47f0ebb8e53b4808262`.
+- The subsequent Session Handoff Contract on `54f4c6941304a0641c32e86d5fd8f095d5e42a31` passed: [run 37995313007](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995313007).
+- Quality run `37995312955` on `54f4c694...` failed its early branch exact-head diagnostic while the PR advanced to a later commit. Its log then showed `eslint: not found`, `vite/bin/vite.js` missing, and absent `dist/index.html` because the workflow's `Install` and preceding phases were skipped after the diagnostic failure. Treat those downstream messages as cascading failures for that stale run, not as valid evidence of a current-head build defect. Fresh Quality run for `692e0d6ed5c299dfc1a3bda23dfea16ed24a374f` is queued.
+- Phase 9 Windows contract run `37995313052` similarly failed `Verify exact PR head` on a stale run; do not promote it to an application failure on `692e0d6ed5c299dfc1a3bda23dfea16ed24a374f`.
+
+### Exact-head workflow state observed
+- Full Product Browser E2E: [37995669275](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995669275) was pending at the last read for `692e0d6ed5c299dfc1a3bda23dfea16ed24a374f`; a newer exact-head run may be created by governance sync.
+- Product Build Gate: [37995669087](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995669087) queued at last read.
+- Quality: [37995669171](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995669171) queued at last read.
+- Session Handoff Contract: [37995669026](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995669026) queued at last read.
+- Device-Independent Browser E2E: [37995668973](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995668973) queued at last read.
+- Final Certification Gate: [37995669096](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37995669096) in progress at last read.
+- This report does not claim a terminal PASS for any still-queued/in-progress exact-head gate.
+
+### Release gates
+| Gate | Status | Note |
+|---|---|---|
+| CONTRACT/CI | PARTIAL | Several security, UI route, import truth, certification and file-engine contracts passed on `692e0d6ed5c299dfc1a3bda23dfea16ed24a374f`; exact-head Quality and Session Handoff fresh result still pending |
+| BUILD | PENDING | Product Build Gate queued |
+| BROWSER | NOT PROVEN | Real Chromium authenticated journey has not finished |
+| PERSISTENCE + READBACK | PRIOR HEAD ONLY | Current-head upload/recovery → catalog → details → refresh/re-login remains unproven |
+| RUNTIME | PASS on preview | Healthy health endpoint and exact SHA match proven |
+| PRODUCTION | NOT PROVEN | No production SHA/currentness/smoke pass established |
+| PRODUCT_COMPLETE | NO | Do not merge or claim completed until required customer journey passes |
+
+### Matrix A–J
+A Arabic purchases XLSX: regression fixture exists; real upload path pending.
+B different numeric domain: end-to-end not proven.
+C CSV upload/persistence/catalog: not proven.
+D PDF/DOCX full report journey: parser regressions are separate; full PDF/DOCX-to-persisted-report proof not proven.
+E empty/corrupt file rejection: full journey not proven.
+F unknown report type: generic intelligence exists; source-bound saved-report proof not proven.
+G user without company membership: fail-closed contracts exist; live browser proof pending.
+H same hash and new hash: end-to-end lineage/readback proof pending.
+I empty catalog then saved report visible: not proven.
+J reopen after refresh/re-login: not proven on current head.
+
+NEXT_EXACT_ACTION = Consume the first terminal exact-head result after this documentation sync; diagnose the first failing step from its job log, then complete the authenticated XLSX report resume and Chromium journey through persisted catalog/detail/refresh proof. Do not re-run queued jobs blindly or promote stale-head evidence.
+DO_NOT_MERGE = true
