@@ -8,6 +8,10 @@ import { execFileSync } from 'node:child_process';
 import dns from 'node:dns/promises';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
+// Use the Docker Official Images mirror in Amazon ECR Public to avoid Docker Hub's
+// anonymous pull-rate limit in the fail-closed backup/restore certification probe.
+const postgresClientImage = (process.env.RESILIENCE_POSTGRES_CLIENT_IMAGE || 'public.ecr.aws/docker/library/postgres:17').trim();
+if (!postgresClientImage) throw new Error('RESILIENCE_POSTGRES_CLIENT_IMAGE_EMPTY');
 if (!['managed', 'logical'].includes(backupMode)) throw new Error(`invalid_resilience_backup_mode:${backupMode}`);
 
 const baseRequired = [
@@ -150,7 +154,7 @@ function runDockerPsql(databaseUrl, sql) {
     'run', '--rm', '--network', 'host',
     '-e', `PGURI=${databaseUrl}`,
     '-e', `QUERY=${sql}`,
-    'postgres:17',
+    postgresClientImage,
     'sh', '-lc',
     'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "SET statement_timeout = 0" -c "$QUERY"',
   ]);
@@ -161,7 +165,7 @@ function runDockerPsqlFile(databaseUrl, filePath) {
     'run', '--rm', '--network', 'host',
     '-v', `${path.resolve(filePath)}:/tmp/phase-f-backup.sql:ro`,
     '-e', `PGURI=${databaseUrl}`,
-    'postgres:17',
+    postgresClientImage,
     'sh', '-lc',
     'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -c "ALTER TABLE public.recommendations DISABLE TRIGGER trg_source_recommendation_evidence" -f /tmp/phase-f-backup.sql -c "ALTER TABLE public.recommendations ENABLE TRIGGER trg_source_recommendation_evidence"',
   ]);
@@ -201,7 +205,7 @@ function runDockerPgDump(databaseUrl, outputPath) {
     'run', '--rm', '--network', 'host',
     '-v', `${outputDir}:${containerDir}`,
     '-e', `PGURI=${databaseUrl}`,
-    'postgres:17',
+    postgresClientImage,
     'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
   ]);
 }
