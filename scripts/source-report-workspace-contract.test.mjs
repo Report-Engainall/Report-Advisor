@@ -28,6 +28,12 @@ assert.ok(sourceBound.includes('setReport(null);'), 'SOURCE_BOUND_ROUTE_CHANGE_M
 assert.ok(sourceBound.includes('report.jobId === normalizedJobId'), 'SOURCE_BOUND_REPORT_MUST_MATCH_JOB_ID');
 assert.ok(sourceBound.includes('report.sourceHash === normalizedSourceHash'), 'SOURCE_BOUND_REPORT_MUST_MATCH_SOURCE_HASH');
 assert.ok(sourceBound.includes('errorContextKey === requestContextKey'), 'SOURCE_BOUND_ERRORS_MUST_BE_CONTEXT_BOUND');
+assert.ok(surface.includes('const [retryVersion, setRetryVersion] = useState(0);'), 'SOURCE_BOUND_RETRY_MUST_USE_GUARDED_EFFECT');
+assert.ok(surface.includes('async (signal: AbortSignal) => {'), 'SOURCE_BOUND_FETCH_MUST_REQUIRE_ABORT_SIGNAL');
+assert.ok(surface.includes('}, [loadReport, retryVersion]);'), 'SOURCE_BOUND_RETRY_MUST_REUSE_ABORTABLE_EFFECT');
+assert.ok(surface.includes('const retryReport = () => {'), 'SOURCE_BOUND_RETRY_HANDLER_REQUIRED');
+assert.ok(surface.includes('onRetry={retryReport}'), 'SOURCE_BOUND_RETRY_MUST_NOT_BYPASS_CANCELLATION');
+assert.ok(!surface.includes('onRetry={() => void loadReport()}'), 'SOURCE_BOUND_UNTRACKED_RETRY_FORBIDDEN');
 
 assert.ok(source.includes('function SourceDataWorkspace'));
 assert.ok(source.includes("report.sourceHash"));

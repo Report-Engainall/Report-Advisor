@@ -1181,8 +1181,9 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorContextKey, setErrorContextKey] = useState<string | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
 
-  const loadReport = useCallback(async (signal?: AbortSignal) => {
+  const loadReport = useCallback(async (signal: AbortSignal) => {
     setLoading(true);
     setError(null);
     setErrorContextKey(null);
@@ -1191,27 +1192,35 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
       const next = await fetchSmartReport(
         normalizedJobId,
         normalizedSourceHash,
-        signal ? { signal } : {},
+        { signal },
       );
-      if (signal?.aborted) return;
+      if (signal.aborted) return;
       if (!next || next.jobId !== normalizedJobId) throw new Error('REPORT_SOURCE_NOT_FOUND');
       if (normalizedSourceHash && next.sourceHash !== normalizedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
       setReport(next);
     } catch (cause) {
-      if (signal?.aborted) return;
+      if (signal.aborted) return;
       setError(cause instanceof Error ? cause.message : String(cause));
       setErrorContextKey(requestContextKey);
     } finally {
-      if (!signal?.aborted) setLoading(false);
+      if (!signal.aborted) setLoading(false);
     }
   }, [normalizedJobId, normalizedSourceHash, requestContextKey]);
 
   useEffect(() => {
     const controller = new AbortController();
-    // A changed job/hash invalidates both the old content and any prior error.
+    // A changed job/hash or explicit retry invalidates the previous request.
     void loadReport(controller.signal);
     return () => controller.abort();
-  }, [loadReport]);
+  }, [loadReport, retryVersion]);
+
+  const retryReport = () => {
+    setLoading(true);
+    setError(null);
+    setErrorContextKey(null);
+    setReport(null);
+    setRetryVersion((value) => value + 1);
+  };
 
   const reportContextMatches = Boolean(
     report &&
@@ -1231,10 +1240,10 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
     return <div dir="rtl"><LoadingState message="جارٍ تحميل النتيجة المصدرية..." /></div>;
   }
   if (error && errorContextKey === requestContextKey) {
-    return <div dir="rtl"><ErrorState message={error} onRetry={() => void loadReport()} /></div>;
+    return <div dir="rtl"><ErrorState message={error} onRetry={retryReport} /></div>;
   }
   if (!reportContextMatches || !report) {
-    return <div dir="rtl"><ErrorState message="INVALID_REPORT_CONTEXT" onRetry={() => void loadReport()} /></div>;
+    return <div dir="rtl"><ErrorState message="INVALID_REPORT_CONTEXT" onRetry={retryReport} /></div>;
   }
 
   return (
