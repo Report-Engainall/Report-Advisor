@@ -835,14 +835,19 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   }
 
   const canonicalFetchCeilingReached = canonicalRows.length >= canonicalFetchLimit;
-  const canonicalRowsPartial = canonicalFetchError || canonicalFetchCeilingReached;
+  const canonicalFetchLimitMayTruncate =
+    sourceRowCount == null
+      ? canonicalFetchCeilingReached
+      : sourceRowCount > canonicalFetchLimit;
+  const canonicalRowsPartial = canonicalFetchError || canonicalFetchLimitMayTruncate;
   const canonicalRowsComplete =
-    sourceRowCount == null ||
-    canonicalRows.length >= sourceRowCount;
+    sourceRowCount == null
+      ? !canonicalFetchError && !canonicalFetchCeilingReached
+      : canonicalRows.length >= sourceRowCount && !canonicalFetchError;
   const canonicalAnalysisScope =
     canonicalFetchError
       ? 'PARTIAL_FETCH_ERROR'
-      : sourceRowCount != null && sourceRowCount > canonicalFetchLimit
+      : canonicalFetchLimitMayTruncate
         ? 'PARTIAL_FETCH_CEILING'
         : 'FULL_SOURCE';
 

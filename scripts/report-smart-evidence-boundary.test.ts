@@ -283,6 +283,21 @@ assert.match(
   /PARTIAL_FETCH_ERROR/,
   'Smart Report must expose a distinct partial-fetch-error scope',
 );
+assert.match(
+  smartReport,
+  /const canonicalFetchLimitMayTruncate =\s*sourceRowCount == null\s*\?\s*canonicalFetchCeilingReached\s*:\s*sourceRowCount > canonicalFetchLimit;/,
+  'Unknown source row count at the fetch ceiling must be treated as potentially truncated',
+);
+assert.match(
+  smartReport,
+  /const canonicalRowsComplete =\s*sourceRowCount == null\s*\?\s*!canonicalFetchError && !canonicalFetchCeilingReached\s*:\s*canonicalRows.length >= sourceRowCount && !canonicalFetchError;/,
+  'A missing source row count must not imply complete canonical coverage at the fetch ceiling',
+);
+assert.match(
+  smartReport,
+  /const canonicalAnalysisScope =\s*canonicalFetchError\s*\?\s*'PARTIAL_FETCH_ERROR'\s*:\s*canonicalFetchLimitMayTruncate\s*\?\s*'PARTIAL_FETCH_CEILING'\s*:\s*'FULL_SOURCE';/,
+  'Source scope must be PARTIAL_FETCH_CEILING when the row cap may truncate an unknown-size source',
+);
 
 
 assert.match(
