@@ -1,44 +1,49 @@
 ## CURRENT EXECUTION REPORT — 2026-10-09
 
-APPLICATION_HEAD = 4cd830d7ca867e1e336f935c819b06632ef54c98
+APPLICATION_HEAD = 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
 BRANCH = captain/critical-bundle-proof-20261009
 PR = #911
 
-WHAT_I_WAS_ASKED_TO_DO = Fix the product contradiction in the uploaded customer-portfolio report so the executive finding, evidence, recommendation, and universal decision chain all describe the same source-bound analysis.
+WHAT_I_WAS_ASKED_TO_DO = Make completed smart reports visible and navigable across the product screens, with the same report source lineage preserved throughout analysis and decision work.
 
 WHAT_I_ACTUALLY_DID =
-- Reviewed the displayed report: the specialized preview identified customer interruption / VIPs and monthly columns, while the expanded universal chain incorrectly fell back to “no clear date field” and “sales invoice details.”
-- Added a source-derived portfolio signal and matching recommendation using customer statuses, VIP/ABC classifications, monthly sums, evidence rows, the change between observed month columns, and explicit proof boundaries.
-- Passed the specialized portfolio intelligence object into buildUniversalReportIntelligence so the expanded chain uses the same headline, signal, “why,” recommendation, measurement, and evidence rather than re-deriving the generic sales finding.
-- Added a customer-activity shape hint with REVIEW_REQUIRED state; it does not pretend that a shape hint is canonical archetype proof. Displayed the review qualifier in the badge.
-- Extended unit and public Playwright upload smoke contracts to reject the stale missing-date / invoice-detail assertions and verify the customer-activity label.
-- Kept changes on PR #911 without using Remote Desktop or triggering paid Vercel usage.
+- Continued the existing PR #911 application work without creating a new project or using Remote Desktop.
+- Added fetchSmartReportCatalogPage(limit, offset) with one-row lookahead and an offset based on raw report jobs scanned; invalid/unlinked rows therefore do not shift the cursor by the filtered result count.
+- Preserved fetchSmartReportCatalog(limit) as a backward-compatible wrapper over the paged API.
+- Replaced Reports Center's one-shot first-60 query with an initial page plus a “تحميل المزيد من التقارير الذكية” control, de-duplicated append, loading and error feedback, and an explicit end state.
+- Added a compact “التقارير الذكية الأخيرة” strip on source-context analysis/decision surfaces. Each report link carries its exact jobId and sourceHash, and the strip links to the complete Reports Center.
+- Added deterministic contract assertions for catalog paging, load-more UI, and lineage-preserving quick links.
 
-WHAT_IS_PROVEN = Code and regression assertions are committed through 4cd830d7ca867e1e336f935c819b06632ef54c98. GitHub's Netlify deploy-preview status for this exact commit is success; the public preview route is reachable. The existing earlier-head build and CSV smoke results remain historical evidence only. The newly added unit/XLSX browser assertions have not yet been proven to pass on this exact head.
+WHAT_IS_PROVEN =
+- GitHub branch update succeeded and PR #911 now points to application/test-contract commit 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b.
+- Static patch preflight markers were present before commit creation.
+- On the last exact-head status read, the overall commit status remained pending; Netlify deploy-preview was processing and GitHub Actions had 59 checks, including queued/in-progress jobs.
+- No exact-head build, unit-test, XLSX-upload browser, full authenticated journey, production, or 48/48 archetype proof is claimed yet.
 
 PROOF_STATUS
-- IMPLEMENTED = YES
-- INTEGRATED = YES in the file-analysis preview path on the PR branch
-- UI_EXPOSED = Netlify PR #911 preview status success; exact post-patch workbook rendering has not been independently browser-proven
-- TYPECHECK_PROVEN = NOT PROVEN on 4cd830d7ca867e1e336f935c819b06632ef54c98
-- BUILD_PROVEN = Netlify deploy-preview status success; separate exact-head GitHub build-gate result NOT PROVEN
-- UNIT_TEST_PROVEN = NOT PROVEN on 4cd830d7ca867e1e336f935c819b06632ef54c98
-- XLSX_BROWSER_SMOKE_PROVEN = NOT PROVEN on 4cd830d7ca867e1e336f935c819b06632ef54c98; regression assertions added
+- IMPLEMENTED = YES in the PR branch
+- INTEGRATED = Source API, Reports Center, and ReportSourceContext are wired together in code
+- PERSISTED = YES on PR #911 at 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- UI_EXPOSED = Code committed; live preview rendering is awaiting deploy/browser verification
+- TYPECHECK_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- BUILD_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- CATALOG_CONTRACT_TEST_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b; assertions committed and awaiting execution
+- XLSX_BROWSER_SMOKE_PROVEN = NOT PROVEN on 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+- CROSS_SCREEN_BROWSER_NAVIGATION_PROVEN = NOT PROVEN
 - AUTHENTICATED_UPLOAD_TO_DECISION_PROVEN = NO
-- REAL_TENANT_READBACK_PROVEN = NO for the full journey
 - PRODUCTION_PROVEN = NO
 - REAL_SOURCE_48_ARCHETYPE_PROVEN = NO
 - PRODUCT_COMPLETE = NO
 
-FIRST_ACTIVE_FAILURE = The exact-head automated test results are still not verifiably complete; the Vercel check reports build-rate-limit / upgradeToPro, which is a Vercel capacity/plan blocker, not evidence that the application code failed. The customer portfolio browser regression remains unverified after this patch.
-ROOT_CAUSE = Preview and universal chain used different intelligence objects. The preview's customer portfolio analysis was correct for the observed source shape, but the expanded chain independently derived generic sales intelligence and surfaced a stale missing-date signal. The patch unifies those paths for this specialized shape and preserves REVIEW_REQUIRED for archetype certification.
-NEXT_EXACT_ACTION = Obtain typecheck/build/unit/XLSX-browser proof at 4cd830d7ca867e1e336f935c819b06632ef54c98; resolve any failed assertion; re-upload a safe test workbook to the latest Netlify PR #911 preview and verify the entire visible chain; keep authenticated persistence, real-source 48/48, and same-head production proof open until independently evidenced.
+FIRST_ACTIVE_FAILURE = No exact-head application failure is confirmed from the available result yet; the active blocker is that the exact-head checks and preview are not terminal/proven. Do not infer PASS from code presence or a queued check.
+ROOT_CAUSE = Reports Center requested only the first 60 completed jobs without a continuation control; analysis and decision screens displayed the active context but lacked convenient access to other completed smart reports. This change adds paging and context-bound entry points, while preserving the existing tenant and source-hash filters.
+NEXT_EXACT_ACTION = Read the terminal current-head typecheck/build/test and browser results for 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b; fix any first failure; verify that load-more appends without duplicates and recent-report links open the exact jobId + sourceHash report. Keep full authenticated persistence, 48-archetype real-source proof, and production proof open until independently verified.
 
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT EXECUTION HEAD = 4cd830d7ca867e1e336f935c819b06632ef54c98
-REPORT_FOR_HEAD = 4cd830d7ca867e1e336f935c819b06632ef54c98
+CURRENT EXECUTION HEAD = 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
+REPORT_FOR_HEAD = 8eda2a11fb16e80e4c66bf3f6c6104151ebc360b
 UPDATED_AT = 2026-10-09
 
 ## 2026-10-08 checkpoint — PR #905 source-agnostic file intelligence
