@@ -1,17 +1,17 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
-CURRENT_CODE_HEAD = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
+CURRENT_EXACT_HEAD = 102959e897b5cc12c5e2d392831e07d6eaed2c0b
+CURRENT_CODE_HEAD = 102959e897b5cc12c5e2d392831e07d6eaed2c0b
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT_EXECUTION_HEAD = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
+CURRENT_EXECUTION_HEAD = 102959e897b5cc12c5e2d392831e07d6eaed2c0b
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912
-CURRENT_PR_HEAD_AT_CODE_CHECK = a50159eca39fb3bea2c28a3d5399cdf0e21ce728
-UPDATED_AT = 2026-10-10T01:23:00+03:00
+CURRENT_PR_HEAD_AT_CODE_CHECK = 102959e897b5cc12c5e2d392831e07d6eaed2c0b
+UPDATED_AT = 2026-10-10T01:27:00+03:00
 PRODUCT_COMPLETE = NO
 
 
-## LIVE CHECKPOINT — 2026-10-10 01:23 — LEGACY REPORT EVIDENCE REPAIR
+## HISTORICAL CHECKPOINT — 2026-10-10 01:23 — LEGACY REPORT EVIDENCE REPAIR (superseded)
 
 - Repository: https://github.com/Report-Engainall/Report-Advisor
 - PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
@@ -194,6 +194,43 @@ DESIGN_DIRECTION = dark ink shell + indigo intelligence + restrained brass accen
 NO_LOGIC_CHANGE = true
 NEXT_EXACT_ACTION = consume fresh exact-head visual/build/browser gates for d347f6a1683f808723388d26019497f6b78c539f4; do not certify production from deployment READY alone.
 
+
+## LIVE CHECKPOINT — 2026-10-10 01:27 — EVIDENCE PASSPORT + RESTORE SCHEMA
+
+- Repository: https://github.com/Report-Engainall/Report-Advisor
+- PR #912 remains OPEN / NOT MERGED: https://github.com/Report-Engainall/Report-Advisor/pull/912
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Code HEAD: `102959e897b5cc12c5e2d392831e07d6eaed2c0b`; main HEAD: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Legacy source-bound report refresh is split across commits `32df42e` (batch hash lookup), `38a1a06` (checkpoint import fallback and render normalization), `e6e1961` (correct substring offset), and `a50159e` (migration filename reconciliation).
+- Staging migrations applied and aligned to repository: `20261009222131_harden_legacy_report_evidence_passport_refresh.sql`, `20261009222216_fix_legacy_checkpoint_import_id_offset.sql`, and `20261009222627_restore_intelligence_causal_hypotheses_schema_parity.sql`.
+- Read-only staging checks: the passport function has corrected `substring(... from 8)` and no `from 7`; `intelligence_causal_hypotheses` exists with RLS enabled, one tenant policy, `anon` SELECT denied, and authenticated/service-role access consistent with the deployed schema.
+- Root cause in Phase-F backup/restore was source/target schema drift: the data-only dump contains `public.intelligence_causal_hypotheses`, while a clean DB created from repository migrations lacked the table. Added the schema with constraints and tenant RLS, plus an explicit local-schema preflight before restore.
+- A direct call to mutate/refresh the legacy report through the SQL tool was blocked by the tool safety layer, so that single call is NOT proof. The current Full Product Browser E2E's service-role refresh/readback path must provide the write proof.
+- Existing report lineage remains verified from staging reads: report job `16709d80-e012-40ef-9c12-6fd8255897f8`, import `1e68460b-f181-4f09-a4fe-d6a58be1fb18`, source `تقارير ادارية.xlsx`, hash `sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313`, import rows `332/332`, canonical rows `332`, analysis snapshot `79141488-104b-46f2-8a4c-66d63441ba0a`, quality `98`.
+
+### Current exact-head gates (last read before this doc sync)
+
+- Session Handoff Contract: [37999289364](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37999289364) PENDING.
+- Full Product Browser E2E: [37999289311](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37999289311) PENDING.
+- Product Build Gate: [37999289581](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37999289581) QUEUED.
+- Quality: [37999289529](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37999289529) QUEUED.
+- Device-Independent Browser E2E: [37999289647](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37999289647) QUEUED.
+- Final Certification Gate: [37999289349](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37999289349) QUEUED.
+- Phase-F Live Resilience: [37999289513](https://github.com/Report-Engainall/Report-Advisor/actions/runs/37999289513) QUEUED.
+- Deployment statuses for this code HEAD were still pending at the last read; production remains NOT PROVEN.
+
+| Gate | Status | Required proof |
+|---|---|---|
+| CONTRACT/CI | PENDING current code HEAD | Session handoff and all exact-head contracts must reach terminal PASS |
+| BUILD | PENDING | Product Build Gate on this exact HEAD |
+| BROWSER | NOT PROVEN | Current authenticated upload/refresh/catalog/detail/refresh journey not complete |
+| PERSISTENCE + READBACK | PARTIAL | Durable report/import/canonical/analysis read has passed on existing data; passport mutation and renderedOutput readback still need current-run proof |
+| RUNTIME / PREVIEW | PENDING exact HEAD | Deployment SHA/runtime health must equal final application commit |
+| PRODUCTION | NOT PROVEN | No production-current SHA and authenticated smoke proof |
+| PRODUCT_COMPLETE | NO | Customer journey and release gates remain open |
+
+NEXT_EXACT_ACTION = Inspect the first terminal result from the exact-head Full Product Browser E2E and Phase-F runs. Confirm passport refresh produces sourceHash/sourceBound/rowCount/qualityScore/importId and current smart-report content; confirm the local restore preflight and full logical restore pass. Fix the first terminal failure without suppressing evidence or weakening RLS.
+DO_NOT_MERGE = true
 
 ## HISTORICAL CHECKPOINT — 2026-10-10 00:50 — SOURCE-BOUND REPORT E2E (superseded)
 
