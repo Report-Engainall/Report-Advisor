@@ -1,7 +1,7 @@
 const SUPABASE_URL = process.env.REPORT_ADVISOR_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY;
-const EMAIL = process.env.TEST_USER_A_EMAIL;
-const PASSWORD = process.env.TEST_USER_A_PASSWORD;
+const EMAIL = process.env.OPEN_REPORT_TEST_USER_EMAIL || process.env.TEST_USER_A_EMAIL;
+const PASSWORD = process.env.OPEN_REPORT_TEST_USER_PASSWORD || process.env.TEST_USER_A_PASSWORD;
 const BASE_URL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4173';
 const JOB_ID = process.env.OPEN_REPORT_EXECUTION_JOB_ID;
 const EXPECTED_HASH = process.env.OPEN_REPORT_EXPECTED_SOURCE_HASH;
