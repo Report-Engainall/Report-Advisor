@@ -6,7 +6,7 @@ const page = readFileSync(resolve(process.cwd(), 'src/pages/SmartReportPage.tsx'
 
 for (const marker of [
   'smart-report-advisor-brief',
-  'ADVISOR BRIEF',
+  'ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟',
   'حكم المستشار',
   'لماذا الآن؟',
   'ما الذي ينبغي فعله؟',
