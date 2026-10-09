@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { parseFile } from '../src/lib/file-engine/adapters.ts';
 import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
+import { buildUniversalReportIntelligence } from '../src/lib/universal-report-intelligence.ts';
 import * as XLSX from 'xlsx';
 
 function buffer(value) {
@@ -82,6 +83,27 @@ async function main() {
   assert.ok(portfolioIntelligence.recommendations.some(item => item.id === 'generic:table:reconcile-totals'), 'monthly-to-total mismatch must produce a reconciliation recommendation');
   assert.ok(portfolioIntelligence.recommendations.some(item => item.id === 'generic:table:review-monthly-change'), 'monthly source values must be compared across periods');
   assert.ok(portfolioIntelligence.guidance.inspect.some(item => item.includes('عميل مستمر') || item.includes('عميل منقطع مهم')), 'top customer rows should appear as evidence');
+
+  const sourceBoundPreview = {
+    ...portfolioIntelligence,
+    businessQuestion: 'سؤال محفظة العملاء من نفس الصفوف المصدرية',
+    summary: 'تحليل محفظة العملاء مع دليل الحالات الشهرية',
+  };
+  const universalPortfolio = buildUniversalReportIntelligence({
+    specialty: 'sales',
+    archetypeHintId: 'customers.activity',
+    previewIntelligence: sourceBoundPreview,
+    rowCount: parsedPortfolio[0].rowCount,
+    sourceAnalysis: { datasets: [parsedPortfolio[0]] },
+    canonicalRows: parsedPortfolio[0].rows.map((data, index) => ({ row_number: index + 1, data })),
+    sourcePath: 'customer-portfolio.xlsx',
+    sourceHash: 'test-source-hash',
+  });
+  assert.strictEqual(universalPortfolio.intelligence, sourceBoundPreview, 'decision chain must reuse the source-bound portfolio analysis object');
+  assert.equal(universalPortfolio.intelligence.businessQuestion, 'سؤال محفظة العملاء من نفس الصفوف المصدرية');
+  assert.equal(universalPortfolio.archetype?.id, 'customers.activity', 'customer portfolio shape must not be labeled as invoice detail');
+  assert.equal(universalPortfolio.archetypeState, 'REVIEW_REQUIRED', 'shape hints must not be presented as canonical archetype proof');
+  assert.ok(!universalPortfolio.stages.some(stage => stage.evidence.some(item => item.includes('dateField=missing'))), 'stale generic date-missing evidence must not override the source-bound analysis');
 
   console.log('GENERIC FILE ANALYSIS PASS');
   console.log('STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation');
