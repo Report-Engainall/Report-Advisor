@@ -6,7 +6,9 @@ const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
 const preview = readFileSync(resolve(process.cwd(), 'src/pages/ProposalDemoPage.tsx'), 'utf8');
 
 assert.match(app, /const isNetlifyPreview = host\.endsWith\('--aghbari-report-advisor\.netlify\.app'\)/);
-assert.match(app, /if \(demoQuery \|\| isNetlifyPreview \|\| isPrimaryPublicPreview \|\| isGitHubPagesPublicPreview\) return <ProposalDemoPage \/>;/);
+assert.match(app, /const isLandingPath = location\\.pathname === '\\/' \\|\\| location\\.pathname === '';/);
+assert.match(app, /if \\(demoQuery \\|\\| \\(isLandingPath && \\(isNetlifyPreview \\|\\| isPrimaryPublicPreview \\|\\| isGitHubPagesPublicPreview\\)\\)\\) return <ProposalDemoPage \\/>;/);
+assert.doesNotMatch(app, /if \\(demoQuery \\|\\| isNetlifyPreview \\|\\| isPrimaryPublicPreview \\|\\| isGitHubPagesPublicPreview\\) return <ProposalDemoPage \\/>/, 'PUBLIC_HOST_MUST_NOT_OVERRIDE_PROTECTED_REPORT_ROUTES');
 assert.doesNotMatch(app, /return \(isNetlifyPreview \|\| demoQuery\)\s*\n\s*\? <ProposalDemoPage \/>/);
 
 for (const required of [
