@@ -19,6 +19,13 @@ if (!browserE2E.includes('id: provision_actors') || !browserE2E.includes('id: op
 if (!browserE2E.includes("steps.provision_actors.outcome == 'success' && steps.open_real_report.outcome == 'success'")) throw new Error('Expensive browser stages must be gated on successful actor provisioning and real-report proof.');
 if (!browserE2E.includes("steps.authenticated_route_proof.outcome == 'success'")) throw new Error('Business journey must not run without authenticated route proof.');
 
+const buildGate = read('.github/workflows/product-build-gate.yml');
+const cleanupContract = read('scripts/cancel-stale-pr-workflow-runs-contract.test.mjs');
+if (!buildGate.includes('group: product-build-gate-${{ github.event.pull_request.number || github.ref }}')) throw new Error('Product build gate must coalesce by PR/ref.');
+if (!buildGate.includes('cancel-in-progress: true')) throw new Error('Product build gate must cancel superseded candidates.');
+if (!buildGate.includes('scripts/cancel-stale-pr-workflow-runs.mjs')) throw new Error('Product build gate must run bounded stale-PR cleanup.');
+if (!cleanupContract.includes('CLEANUP_MUST_BE_SCOPED_TO_THE_CURRENT_PR')) throw new Error('Stale-run cleanup must remain scoped to the current pull request.');
+
 const requiredQualityGates = [
   'test:phase-k-runtime',
   'test:phase-l-runtime',
