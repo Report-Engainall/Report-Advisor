@@ -1073,7 +1073,7 @@ export function SmartReportPage() {
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="section-kicker text-primary-700">ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟</div>
+          <div className="section-kicker text-primary-700"><span className="tracking-[.14em]">ADVISOR BRIEF</span> · ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟</div>
           <h2 className="mt-1 text-2xl font-black tracking-tight text-ink-950">التقرير لا يصف الأرقام؛ يحدد القضية والتصرف التالي</h2>
           <p className="mt-2 max-w-4xl text-xs leading-6 text-ink-600">هذه الطبقة هي نقطة البداية التنفيذية. الأرقام والصفوف التفصيلية أدناه تستخدم لإثبات الحكم، وليست بديلًا عنه.</p>
         </div>
