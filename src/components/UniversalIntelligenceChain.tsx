@@ -32,7 +32,7 @@ function stageConnector(status: UniversalIntelligenceStageStatus) {
 export function UniversalIntelligenceChain({ result }: { result: UniversalIntelligenceResult }) {
   const strongest = result.intelligence.advisorBrief.headline || result.intelligence.summary;
   const archetypeLabel = result.archetype?.title
-    ? result.archetype.title
+    ? result.archetype.title + (result.archetypeState === 'REVIEW_REQUIRED' ? ' · يحتاج مراجعة' : '')
     : result.archetypeState === 'REVIEW_REQUIRED'
       ? 'النمط يحتاج مراجعة'
       : 'نمط عام / غير محدد';
