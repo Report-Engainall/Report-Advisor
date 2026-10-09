@@ -362,6 +362,11 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
 
     runCommand('supabase', ['db', 'reset', '--debug', '--no-seed'], { cwd: workDir });
 
+    const causalSchema = runDockerPsql(localDbUrl, "select coalesce(to_regclass('public.intelligence_causal_hypotheses')::text, '')");
+    if (!causalSchema.includes('intelligence_causal_hypotheses')) {
+      throw new Error('local_restore_schema_missing_intelligence_causal_hypotheses');
+    }
+
     let snapshotText;
     try {
       snapshotText = runDockerPsql(querySource, exactSnapshotSql);
