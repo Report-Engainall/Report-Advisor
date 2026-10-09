@@ -102,7 +102,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: full-product-browser-e2e-${{ github.event.pull_request.head.sha || github.sha }}
+  group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -309,6 +309,7 @@ jobs:
           exit 1
 
       - name: Provision rerunnable E2E actors with bounded recovery
+        id: provision_actors
         env:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
@@ -347,6 +348,7 @@ jobs:
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-48-archetype-runtime-contract.mjs
 
       - name: Resume and prove the real open report
+        id: open_real_report
         if: ${{ always() }}
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
@@ -358,7 +360,7 @@ jobs:
           OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
         run: node scripts/resume-open-report-server-proof.mjs
       - name: Install deterministic browser tooling
-        if: ${{ always() }}
+        if: ${{ steps.provision_actors.outcome == 'success' && steps.open_real_report.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -369,7 +371,8 @@ jobs:
           npx playwright --version
 
       - name: Real Chromium route and authenticated browser proof
-        if: ${{ always() }}
+        id: authenticated_route_proof
+        if: ${{ steps.provision_actors.outcome == 'success' && steps.open_real_report.outcome == 'success' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
@@ -383,7 +386,7 @@ jobs:
         run: node scripts/run-full-product-browser-e2e.mjs
 
       - name: Real Chromium business journey and smart report proof
-        if: ${{ always() }}
+        if: ${{ steps.authenticated_route_proof.outcome == 'success' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
