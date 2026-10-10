@@ -17,9 +17,9 @@ on:
 permissions:
   contents: read
 
-# Share a lane with Phase-F restore so candidate RPCs do not compete with logical backup.
+# Serialize cohort reruns while allowing the separate Phase-F gate to execute too.
 concurrency:
-  group: supabase-staging-heavy-${{ github.event.pull_request.number || github.ref_name }}
+  group: report-value-cohort-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: false
 
 jobs:

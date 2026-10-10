@@ -105,8 +105,9 @@ on:
 
 # Both browser workflows authenticate against the same staging project.
 # Serialize them by PR/ref so they do not overload Supabase Auth concurrently.
+# Only serialize duplicate runs of this workflow; do not evict another proof workflow.
 concurrency:
-  group: supabase-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
+  group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: false
 
 permissions:

@@ -20,9 +20,9 @@ on:
 permissions:
   contents: read
 
-# Share a lane with Full Product Browser E2E: both provision/sign in staging actors.
+# Keep retries of this workflow serialized without canceling another gate's pending run.
 concurrency:
-  group: supabase-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
+  group: device-independent-browser-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: false
 
 env:
