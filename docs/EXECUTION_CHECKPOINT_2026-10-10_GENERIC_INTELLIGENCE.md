@@ -161,3 +161,14 @@ Next: consume exact-head build and runtime test results for the new fix SHA. Do 
 - Product Build Gate #994 `38056756845` PASS; header contract #8634 `38056756912` PASS. Quality is NOT PASS. Full Product Browser E2E #9600 pending and #9599 running; Device-Independent Browser E2E #5114 running. Browser/persistence proof remains absent.
 - Documentation follow-up is required because Session Handoff Contract #2323 failed on stale report coverage. Correctly located state/report files are `docs/execution/CURRENT_SESSION_STATE.md` and `docs/execution/PROGRAMMER_CURRENT_REPORT.md`.
 - NEXT: fix the legitimate Arabic composite-label header case with a regression in `scripts/check-header-detection.mjs`, re-run the exact-head generic matrix, then checkpoint the new hash before the report-only handoff commit. Product complete remains NO.
+
+
+## Arabic CSV header false-positive correction — 2026-10-10
+
+- Exact code SHA `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489`; PR #912 open/not merged; main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Added safe compound-header exclusions in `src/lib/file-engine/header-detection.ts` for ordinary one-field labels (including Arabic `اسم الصنف`) while leaving unrelated merged PDF headings structurally suspicious.
+- Added a regression to `scripts/check-header-detection.mjs` that the legitimate Arabic CSV heading remains the first header row and is not classified as composite.
+- Why: Quality #11939 on parent `3d6d04f...` proved the earlier TXT evidence regression progressed, but failed CSV row count (expected 2 rows, got 1) because the parser selected `صنف متأخر` rather than the actual header `اسم الصنف`.
+- Earlier code/build state: Product Build Gate #994 passed and header contract #8634 passed on `3d6d04f...`; Quality failed at the CSV row-count test. For new SHA `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489`, Product Build / Quality results are not yet terminal; Full Product Browser E2E #9601 and Session Handoff #2324 were queued; deploy checks pending.
+- A previous Session Handoff failure #2323 correctly exposed stale report coverage; the next report must be anchored at the checkpoint commit after this code SHA and all application changes to be excluded from the report-only diff.
+- NEXT: inspect exact-head Quality/Product Build logs for `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489`, repair the first confirmed failure, then update current execution state/report/archive and validate handoff. Upload-to-persisted-readback/browser proof remains open; product complete = NO.
