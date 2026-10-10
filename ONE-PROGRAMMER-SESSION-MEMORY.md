@@ -1,3 +1,40 @@
+# LIVE RESUME — 2026-10-10T20:00:00+03:00 / EXACT-HEAD GATES CONSUMED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED
+- Live app code candidate read from GitHub: `d974d765cb0ac6d00bb65230df40a854e0919af3`
+- Main base from PR metadata: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Historical supplied SHA `ab292d6cfd9ca948b362c0a975cc38cb489ada24` is stale.
+
+## Exact-head gate evidence consumed
+
+- Quality: PASS — [run 38065584285](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584285)
+- Product Build Gate: PASS — [run 38065584294](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584294)
+- Final Certification Gate: PASS — [run 38065584259](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584259)
+- Report Value Cohort: PASS — [run 38065584089](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584089)
+- Session Handoff Contract: PASS — [run 38065584323](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584323)
+- Commercial Product Creation E2E: PASS — [run 38065584205](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584205)
+- Full Product Browser E2E: FAIL — [run 38065584337](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584337); source-bound Smart Report durable proof and refresh readback passed for report job `16709d80-e012-40ef-9c12-6fd8255897f8`, hash `sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313`, source `تقارير ادارية.xlsx`, 332 source rows/canonical rows, trust TRUSTED, quality 98. It then failed at `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING` while opening `/reports`. Inspect `waitForCurrentJobResponse` and Reports catalog route; do not weaken source lineage assertions.
+- Device-Independent Browser E2E: FAIL — [run 38065584293](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584293); 32/32 routes scanned, 40 checks passed, 2 failures on `/reports/sales` due PostgREST/Postgres `57014 canceling statement due to statement timeout` on a 500-row `sales_invoices` query. Diagnose the real query/index/timeout pressure; don't classify this as generic-intelligence pass.
+- Phase-F Live Resilience: FAIL — [run 38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312); 3/4 probes passed. Clean logical restore failed at SQL line 289076 because `public.saved_views` is absent from the restore schema. Inspect staging schema and tracked migration history, then reconstruct exact RLS/tenant access from observed schema before adding a parity migration. Do not invent columns/policies or modify production schema.
+- Netlify deploy preview, Vercel, CodeRabbit statuses on d974 were success; these are not authenticated product journey proof.
+
+## Generic intelligence implementation already present — do not rebuild
+
+- General layer composed with applicable specialist layer in `src/lib/report-intelligence/compose-intelligence-layers.ts`.
+- Smart Report renders `GenericFileIntelligenceCard` even with specialty; card uses source path + source hash + report job identity and renders signals/recommendations/findings/evidence without former UI truncation.
+- File Lab composes the general layer into Universal Intelligence for recognized datasets.
+- `scripts/generic-file-analysis.test.mjs` covers TXT, CSV, JSON, JSONL, XML, YAML, Markdown, RTF and XLSX/domain neutrality; source-level surface contract checks all lists and source lineage. Build/quality passed on d974; don't call user journey complete until exact-head browser and restore gates pass.
+- Live production Netlify alias `https://aghbari-report-advisor.netlify.app/` is READY but currently serves old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b` (Oct 5); use PR preview `https://deploy-preview-912--aghbari-report-advisor.netlify.app/` for the current branch only after verifying preview commit.
+
+## Next exact action
+
+Inspect and repair the first source-bound browser failure `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING` by reading `waitForCurrentJobResponse`, its URL/filters, and the actual Reports catalog network contract. Commit the minimum compatible fix plus a focused regression; then consume new exact-head runs. Afterward diagnose the actual current Phase-F schema gap `saved_views` against the dedicated staging project `fnqbvfuwbdpwvhcgzksl` (never assume production schema or permissions). Keep PR open and preserve all evidence gates.
+
+---
+
 # LIVE RESUME — 2026-10-10T19:10:00+03:00 / 49 PASSPORTS CLOSED; METRIC TABLE RESTORE + VISIBLE SUMMARY FIX
 
 - Repository: `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
