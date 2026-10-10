@@ -23,7 +23,7 @@ permissions:
 # Keep retries of this workflow serialized without canceling another gate's pending run.
 concurrency:
   group: device-independent-smoke-${{ github.event.pull_request.number || github.ref_name }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}

@@ -20,7 +20,7 @@ permissions:
 # Serialize cohort reruns while allowing the separate Phase-F gate to execute too.
 concurrency:
   group: report-value-cohort-${{ github.event.pull_request.number || github.ref_name }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   exact-head-value-cohort:
