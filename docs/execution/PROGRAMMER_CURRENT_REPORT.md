@@ -1,3 +1,15 @@
+## CURRENT EXECUTION REPORT — 2026-10-10 — session handoff contract alignment
+
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = c10429178ba4f414b27c254b1675b8daf0f6ddc1
+UPDATED_AT = 2026-10-10
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing Report-Advisor PR without rebuilding the engine; make the universal intelligence visible across report routes, retain exact source identity, prove varied-file journeys, and persist every checkpoint.
+WHAT_I_ACTUALLY_DID = Fixed Reports Center source-context selection, updated browser E2E to pass and assert report ID/hash, added visible generic-card source/signal/recommendation assertions, added and applied saved_views restore schema parity only to staging, and archived the exact status.
+WHAT_IS_PROVEN = GitHub readback confirms code/test commits and archive/state/current-report files; staging saved_views readback confirms schema/RLS/policy/grants; Netlify preview at code head ae756 is READY and Vercel preview at ae756 is READY.
+FIRST_ACTIVE_FAILURE = Current-head browser and clean-restore proofs remain pending; the prior session-handoff run failed because the report checkpoint did not cover the changed file list, now corrected by pinning REPORT_FOR_HEAD to c104 (the code checkpoint before documentation-only changes).
+ROOT_CAUSE = The session handoff contract computes git diff REPORT_FOR_HEAD..HEAD and rejects changed files not represented by allowed documentation paths; the report was still referencing an older code report head.
+NEXT_EXACT_ACTION = Consume the latest-head quality/build/full-browser/device-independent-browser/Phase-F runs; read the first completed failure's logs, repair the verified cause, then persist exact outcomes. Do not merge or claim product complete while user journey gates remain open.
+
 ## CURRENT EXECUTION REPORT — 2026-10-10 — source-bound report context, visible generic intelligence, saved_views restore parity
 
 SESSION HANDOFF = READY
