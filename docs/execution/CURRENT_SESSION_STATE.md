@@ -1,16 +1,27 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
+CURRENT_EXACT_HEAD = eb95f709a8ebead63e556380e18394c02c17726
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912 OPEN / NOT MERGED
 ACTION_STATUS = ACTIVE_EXECUTION
-APPLICATION_CODE_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
-REPORT_BASE_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
+APPLICATION_CODE_HEAD = eb95f709a8ebead63e556380e18394c02c17726
+REPORT_BASE_HEAD = eb95f709a8ebead63e556380e18394c02c17726
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-UPDATED_AT = 2026-10-10
+UPDATED_AT = 2026-10-10T17:30:00+03:00
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Extract and test a shared specialty-header normalizer, replace the defective File Lab normalization, then consume exact-head Quality and browser results before the source-bound readback proof.
+NEXT_EXACT_ACTION = Consume terminal exact-head Quality/Product Build Gate/Full Product Browser E2E results for eb95f709a8ebead63e556380e18394c02c17726; fix the first verified product failure without promoting a pending evidence snapshot to verified; then work the passport-closure cohort and restore-schema defect.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10T17:30:00+03:00 — current candidate and distinct trust/evidence states
+
+- Current application/test candidate: `eb95f709a8ebead63e556380e18394c02c17726`, branch `fix/source-bound-generic-intelligence-20261009`, PR #912 open, main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Proven predecessor code `8f064944...`: quality and Product Build Gate pass; Device-Independent Browser E2E pass. Generic format matrix in the quality log passes, including TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF and XLSX portfolio rows=3, columns=17.
+- Full browser E2E on predecessor failed at a wording mismatch: UI displays source trust `موثوق`, while the assertion expected a different Arabic form. Stored report lineage itself matched source hash/path and all 332 canonical rows; evidence remained `AWAITING_EVIDENCE_SNAPSHOT`. Current candidate corrects the assertion while retaining a separate pending-evidence check. Current-candidate rerun not yet terminal.
+- Value cohort remains blocked 18/42 due to 24 passports `PASSPORT_NOT_CLOSED`. Do not weaken the gate.
+- Phase-F restore is blocked by missing relation `public.intelligence_voi_requests` in the restored schema; 3/4 probes passed on predecessor.
+- The previous handoff contract caught stale report coverage. This checkpoint is rewritten for the current candidate and includes the code changes in the new archive entry.
+- Product status remains NOT COMPLETE.
+
 
 ## LIVE EXECUTION CHECKPOINT — 2026-10-10 — fresh head readback before normalization fix
 
