@@ -1,3 +1,16 @@
+# LIVE UPDATE — 2026-10-10 / FIXED PARSE ERROR; NETLIFY READY; OTHER GATES OPEN
+
+- PR #912 remains OPEN / NOT MERGED. Branch `fix/source-bound-generic-intelligence-20261009`, exact current code SHA at checkpoint: `dee505dc045d577b9015ca7cb2ba06adb00a6f76`.
+- The previous failing build output at SHA `7c0411b67f366a36fda9ff2c0a29c1f173ed6434` proved a parse error at `src/lib/report-smart.ts:985:39`. Repair commit `dee505dc045d577b9015ca7cb2ba06adb00a6f76` replaced the whole damaged region from the malformed `if (nonBlockingQualityWarnings.` to immediately before `const catalogItem = mapCatalogItem(`. Same-head readback showed a complete warning condition and clean generic-intelligence block.
+- **Observed positive build evidence:** Vercel build event for deployment `dpl_A324rGB56uAugR32zA2ZHAgcPgC5` logs `✓ built in 20.37s` and lists the new `GenericFileIntelligenceCard`, `SmartReportPage` and `ExternalFileAnalysisPage` bundles. The Vercel deployment state is still `BUILDING` and the commit status still shows Vercel `pending`; do not claim the deployment lifecycle/check has passed yet.
+- **Observed deploy evidence:** Netlify deploy `6ac98fa3e1c3c9000891b1e6` on exact SHA `dee505dc045d577b9015ca7cb2ba06adb00a6f76` reached state `ready`; combined GitHub status for this SHA shows `netlify/aghbari-report-advisor/deploy-preview: success`. Preview: https://deploy-preview-912--aghbari-report-advisor.netlify.app
+- Other current-head gates are not done: Product Build Gate run `38011880304` / job `114093485234` was queued; Full Product Browser E2E run `38011880015` was pending with no job payload at last read; runtime/security/quality gates are queued. No browser or persisted database readback pass is claimed.
+- This update verifies source/commit/deploy metadata and one Vite build log, not arbitrary-file browser journey completion.
+
+## Next action
+Refresh exact-head Vercel/Netlify state and wait through live tool reads for Product Build Gate, focused quality/file-intelligence tests, and Full Product Browser E2E. If deployment succeeds, test generic+specialized report screens against one known uploaded report and hash. If a gate fails, use that exact job log to repair the first failure.
+---
+
 # LIVE FAILURE + REPAIR — 2026-10-10 / REPORT-SMART PARSE BREAK
 
 - Failing code SHA: `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`; PR #912 open, branch `fix/source-bound-generic-intelligence-20261009`.

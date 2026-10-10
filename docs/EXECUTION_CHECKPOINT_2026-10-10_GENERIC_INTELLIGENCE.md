@@ -83,3 +83,13 @@ Refresh PR #912 head and CI at that exact SHA; resolve compilation or focused-te
 - The complete damaged region is being replaced from the current file offsets; this restores the warning condition and keeps generic descriptive analysis separate from the specialty eligibility/decision gate. Replacement-region text assertions passed; a successful build is not yet proven.
 - Pre-repair source blob `11b7ff70a3911930277537326e5bb49fd36e94b0`; parent SHA `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`.
 - Next action: read the new commit and its deploy/build results. If parsing/build succeeds, inspect TypeScript/focused tests and then source-bound Full Product Browser E2E. No PASS is pre-claimed.
+
+
+## Post-repair verification — 2026-10-10
+
+- Repair code SHA: `dee505dc045d577b9015ca7cb2ba06adb00a6f76`; PR #912 remains open, not merged.
+- Same-head source readback confirms the `nonBlockingQualityWarnings` condition is syntactically intact and the accidental orphan text is gone.
+- Vercel build event for `dpl_A324rGB56uAugR32zA2ZHAgcPgC5` logs `✓ built in 20.37s` and lists emitted bundles for all three modified surfaces (Smart Report, File Lab, general intelligence card). Overall Vercel deployment state/status is still `BUILDING/PENDING`.
+- Netlify deploy `6ac98fa3e1c3c9000891b1e6` is `ready`; GitHub deploy-preview status for the exact repair SHA is `success`.
+- Product Build Gate and Full Product Browser E2E are still queued/pending. No runtime/readback/browser success yet.
+- Next: inspect exact current-head CI and source-bound browser run; fix first real gate error and verify displayed evidence through reload and source-hash readback.
