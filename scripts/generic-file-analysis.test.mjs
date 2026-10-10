@@ -118,6 +118,11 @@ async function main() {
   assert.ok(portfolioIntelligence.recommendations.some(item => item.id === 'generic:table:reconcile-totals'), 'monthly-to-total mismatch must produce a reconciliation recommendation');
   assert.ok(portfolioIntelligence.recommendations.some(item => item.id === 'generic:table:review-monthly-change'), 'monthly source values must be compared across periods');
   assert.ok(portfolioIntelligence.guidance.inspect.some(item => item.includes('عميل مستمر') || item.includes('عميل منقطع مهم')), 'top customer rows should appear as evidence');
+  const lateNumericProfile = portfolioIntelligence.guidance.inspect.find(item => item.includes('نسبة النمو (يوليو-أغسطس)'));
+  assert.ok(lateNumericProfile, 'numeric profile must include numeric fields after the first five columns');
+  assert.ok(lateNumericProfile.includes('المتوسط الحسابي') && lateNumericProfile.includes('الأدنى') && lateNumericProfile.includes('الأعلى') && lateNumericProfile.includes('سجل'), 'every numeric field should expose descriptive statistics and source-record evidence');
+  const structureSignal = portfolioIntelligence.signals.find(signal => signal.id === 'generic:table:structure');
+  assert.ok(structureSignal?.evidence.some(item => item.includes('نسبة النمو (يوليو-أغسطس)')), 'signal evidence must not lose later numeric fields');
 
   const sourceBoundPreview = {
     ...portfolioIntelligence,

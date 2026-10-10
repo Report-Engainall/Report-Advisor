@@ -30,8 +30,20 @@ function datasetText(dataset: Dataset): string[] {
     return [values.map(text).join(' | ')];
   }).filter(Boolean);
 }
-function matchingLines(lines: string[], terms: string[], limit = 5): string[] {
-  return lines.filter((line) => terms.some((term) => normalize(line).includes(normalize(term)))).slice(0, limit);
+const MAX_INLINE_EVIDENCE_LINES = 100;
+
+function matchingLineCount(lines: string[], terms: string[]): number {
+  return lines.reduce((count, line) => count + (terms.some((term) => normalize(line).includes(normalize(term))) ? 1 : 0), 0);
+}
+
+function matchingLines(lines: string[], terms: string[]): string[] {
+  const matched: string[] = [];
+  for (const line of lines) {
+    if (!terms.some((term) => normalize(line).includes(normalize(term)))) continue;
+    matched.push(line);
+    if (matched.length >= MAX_INLINE_EVIDENCE_LINES) break;
+  }
+  return matched;
 }
 function countMatches(lines: string[], terms: string[]): number {
   return lines.reduce((count, line) => count + terms.filter((term) => normalize(line).includes(normalize(term))).length, 0);
@@ -51,7 +63,7 @@ function numericEvidence(lines: string[]): string[] {
   for (const line of lines) {
     const values = line.match(numericRegex) ?? [];
     if (values.length) result.push(line + ' · أرقام مرصودة: ' + values.slice(0, 5).join(', '));
-    if (result.length >= 5) break;
+    if (result.length >= MAX_INLINE_EVIDENCE_LINES) break;
   }
   return result;
 }
@@ -82,6 +94,15 @@ type StructuredTableProfile = {
 
 function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null {
   if (dataset.rowCount < 2 || dataset.columnCount < 2) return null;
+
+  // Plain documents are represented as synthetic {line_number, text} rows.
+  // Treating that adapter shape as a business table hides the actual source text.
+  const rawHeaders = dataset.columns.map((column) =>
+    String(column.name ?? '').toLowerCase().normalize('NFKC').replace(/[\s_.-]+/g, ''),
+  );
+  const hasLineOrdinal = rawHeaders.some((header) => ['linenumber', 'lineno', 'lineindex', 'rowindex'].includes(header));
+  const hasLineContent = rawHeaders.some((header) => ['text', 'content', 'body', 'paragraph', 'rawtext', 'pagetext'].includes(header));
+  if (dataset.columnCount <= 2 && hasLineOrdinal && hasLineContent) return null;
   const headerKey = (column: Dataset['columns'][number]) => normalize(column.mappedField || column.name).replace(/[()]/g, '');
   const valueFor = (row: Record<string, unknown>, column: Dataset['columns'][number]) =>
     row[column.name] ?? row[column.mappedField ?? ''];
@@ -142,14 +163,32 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
       .sort((a, b) => (b.value ?? 0) - (a.value ?? 0))
       .slice(0, 5)
     : [];
-  const numericSummary = numericColumns.slice(0, 5).map((column) => {
-    const values = dataset.rows.map((row) => numericValue(valueFor(row, column))).filter((value): value is number => value !== null);
+  // Profile every numeric field from every source row. Do not silently omit
+  // later measures in wide workbooks because the first fields happened to be numeric.
+  const numericSummary = numericColumns.map((column) => {
+    const observed = dataset.rows
+      .map((row, index) => ({ rowNumber: index + 1, value: numericValue(valueFor(row, column)) }))
+      .filter((item): item is { rowNumber: number; value: number } => item.value !== null);
+    const values = observed.map((item) => item.value);
+    const missingCount = Math.max(0, dataset.rows.length - observed.length);
+    if (!values.length) {
+      return 'المقياس «' + column.name + '»: لا توجد قيم رقمية مقروءة · صفوف المصدر ' + dataset.rows.length
+        + ' · فارغ/غير رقمي ' + missingCount;
+    }
     const sum = values.reduce((total, value) => total + value, 0);
-    const min = values.length ? Math.min(...values) : null;
-    const max = values.length ? Math.max(...values) : null;
-    return column.name + ': مجموع ' + numberLabel(sum) + (min !== null && max !== null ? ' · نطاق ' + numberLabel(min) + '–' + numberLabel(max) : '');
+    const min = values.reduce((current, value) => Math.min(current, value), values[0]);
+    const max = values.reduce((current, value) => Math.max(current, value), values[0]);
+    const mean = sum / values.length;
+    const minRow = observed.find((item) => item.value === min)?.rowNumber;
+    const maxRow = observed.find((item) => item.value === max)?.rowNumber;
+    return 'المقياس «' + column.name + '»: قيم رقمية ' + values.length + '/' + dataset.rows.length
+      + ' · فارغ/غير رقمي ' + missingCount
+      + ' · المجموع الحسابي ' + numberLabel(sum)
+      + ' · المتوسط الحسابي ' + numberLabel(mean)
+      + ' · الأدنى ' + numberLabel(min) + ' (سجل ' + String(minRow ?? 'غير محدد') + ')'
+      + ' · الأعلى ' + numberLabel(max) + ' (سجل ' + String(maxRow ?? 'غير محدد') + ')';
   });
-  const statusSummary = [...statusCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
+  const statusSummary = [...statusCounts.entries()].sort((a, b) => b[1] - a[1])
     .map(([label, count]) => label + ': ' + count.toLocaleString('ar-YE'));
   const portfolioLike = Boolean(customerColumn && statusColumn && (totalColumn || monthColumns.length >= 3));
   const totalValue = totalColumn
@@ -183,7 +222,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     priority: portfolioLike && stoppedCount ? 'high' : 'medium',
     title: portfolioLike ? 'ملف نشاط العملاء' : 'ملخص الجدول المستخرج',
     statement: headline,
-    evidence: [...statusSummary, ...topEvidence, ...monthStats.slice(-2).map((month) => month.label + ': ' + numberLabel(month.total))].slice(0, 8),
+    evidence: [...statusSummary, ...topEvidence, ...monthStats.map((month) => month.label + ': ' + numberLabel(month.total))],
     limitation: 'هذا الوصف مشتق من القيم والعناوين الظاهرة؛ لا يفترض عملة أو سببًا أو أثرًا غير موجود في الملف.',
     action: portfolioLike && stoppedCount
       ? 'راجع عينة السجلات المصنفة بالانقطاع وتحقق من آخر تعامل قبل اعتماد قائمة استعادة العملاء.'
@@ -194,7 +233,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     severity: 'low',
     title: 'تم تحليل بنية الجدول وقياساته',
     message: 'تم فحص ' + dataset.rowCount.toLocaleString('ar-YE') + ' صفًا و' + dataset.columnCount + ' عمودًا؛ القياسات المعروضة محسوبة من القيم الموجودة.',
-    evidence: inspect.slice(0, 6),
+    evidence: inspect,
     affectedRows: dataset.rowCount,
     soWhat: 'يوفر هذا ملخصًا يمكن تتبعه إلى الحقول والصفوف الأصلية بدل الاقتصار على اقتباسات من النص.',
     impact: 'لا يُثبت أثرًا ماليًا أو سببيًا دون سياق عمل موثق.',
@@ -224,7 +263,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
       ? 'تحقق من آخر فاتورة وتاريخ شراء وتعريف «منقطع» لكل سجل، ثم وثّق نتيجة المراجعة قبل بدء إجراء استعادة.'
       : 'راجع تعريف الحقول الرقمية والتصنيفية، ثم ثبّت المؤشرات ذات الصلة بسؤال العمل قبل تحويلها إلى قرار.',
     why: headline,
-    evidence: [...statusSummary, ...stoppedSamples, ...topEvidence].slice(0, 8),
+    evidence: [...statusSummary, ...stoppedSamples, ...topEvidence],
     ownerHint: portfolioLike ? 'مدير المبيعات / مسؤول حسابات العملاء' : 'مالك التقرير أو مسؤول البيانات',
     impact: 'لا يُدّعى أثر مالي قبل وجود قياس بعد التنفيذ.',
     expectedOutcome: 'سجلات مصنفة ومراجعة مع قرار قابل للتتبع وقياس قبل/بعد.',
@@ -285,6 +324,11 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
   const words = allText.split(/\s+/).filter(Boolean);
   const riskLines = matchingLines(lines, RISK_TERMS);
   const actionLines = matchingLines(lines, ACTION_TERMS);
+  const riskLineCount = matchingLineCount(lines, RISK_TERMS);
+  const actionLineCount = matchingLineCount(lines, ACTION_TERMS);
+  const numericLineCount = lines.filter((line) =>
+    /(?:[$€£¥]|ر\.?س|ريال|دولار|USD|EUR|SAR|YER)?\s*[-+]?\d[\d,\u066B\u066C.]*/i.test(line),
+  ).length;
   const numbers = numericEvidence(lines);
   const keywords = topKeywords(lines);
   const riskCount = countMatches(lines, RISK_TERMS);
@@ -297,33 +341,37 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
     const severity = riskCount >= 5 ? 'high' : riskCount >= 2 ? 'medium' : 'low';
     signals.push({
       id: 'generic:file:risk-language', severity, title: 'إشارات مخاطر أو استثناءات داخل المحتوى',
-      message: 'رُصدت ' + riskCount + ' إشارات لغوية مرتبطة بالمخاطر/الاستثناءات ضمن ' + lines.length + ' سطرًا قابلاً للفحص.',
-      evidence: riskLines, affectedRows: riskLines.length,
+      message: 'رُصدت ' + riskCount + ' مطابقات لكلمات المخاطر في ' + riskLineCount + ' سطرًا من المصدر ضمن ' + lines.length + ' سطرًا قابلاً للفحص.'
+        + (riskLineCount > riskLines.length ? ' تعرض الأدلة أول ' + riskLines.length + ' سطرًا من أصل ' + riskLineCount + '.' : ''),
+      evidence: riskLines, affectedRows: riskLineCount,
       soWhat: 'هذه البنود تستحق مراجعة مباشرة وربطها بمصدرها أو إجراءها، لكنها ليست إثباتًا سببيًا بحد ذاتها.',
       impact: 'الأثر غير مثبت ماليًا/تشغيليًا من المحتوى وحده.', ownerHint: 'المسؤول عن الموضوع المذكور في الملف',
-      priority: severity === 'high' ? 'P1' : 'P2', priorityReason: ['risk_terms=' + riskCount, 'evidence_lines=' + riskLines.length],
+      priority: severity === 'high' ? 'P1' : 'P2', priorityReason: ['risk_term_matches=' + riskCount, 'source_lines=' + riskLineCount, 'evidence_lines_shown=' + riskLines.length],
     });
   }
   if (!tableProfile && actionLines.length) {
     signals.push({
       id: 'generic:file:action-language', severity: riskLines.length ? 'medium' : 'low', title: 'لغة قرار أو إجراء داخل الملف',
-      message: 'رُصدت ' + actionCount + ' إشارات مرتبطة بالإجراء/المراجعة/الاعتماد.',
-      evidence: actionLines, affectedRows: actionLines.length,
+      message: 'رُصدت ' + actionCount + ' مطابقات لكلمات الإجراء في ' + actionLineCount + ' سطرًا من المصدر.'
+        + (actionLineCount > actionLines.length ? ' تعرض الأدلة أول ' + actionLines.length + ' سطرًا من أصل ' + actionLineCount + '.' : ''),
+      evidence: actionLines, affectedRows: actionLineCount,
       soWhat: 'يوجد محتوى يمكن تحويله إلى قائمة إجراءات أو قرارات موثقة بدل بقائه نصًا ساكنًا.',
       impact: 'لم يُثبت التنفيذ الفعلي من الملف وحده.', ownerHint: 'المسؤول الوظيفي المرتبط بالإجراء',
-      priority: riskLines.length ? 'P2' : 'P3', priorityReason: ['action_terms=' + actionCount],
+      priority: riskLines.length ? 'P2' : 'P3', priorityReason: ['action_term_matches=' + actionCount, 'source_lines=' + actionLineCount, 'evidence_lines_shown=' + actionLines.length],
     });
   }
   const genericFinding: BusinessFinding = {
     id: 'generic:file:content-profile', kind: riskLines.length ? 'RISK' : actionLines.length ? 'FINDING' : 'OPPORTUNITY',
     priority: riskLines.length ? 'high' : 'medium',
     title: 'بروفايل المحتوى العام',
-    statement: 'الملف من نوع ' + format + ' ويحتوي ' + lines.length.toLocaleString('ar-YE') + ' وحدة نصية قابلة للفحص، ' + words.length.toLocaleString('ar-YE') + ' كلمة تقريبًا، ' + dateCount + ' تواريخ و' + numbers.length + ' مقاطع رقمية قابلة للعرض.',
-    evidence: [...riskLines.slice(0, 3), ...actionLines.slice(0, 2), ...numbers.slice(0, 2)],
+    statement: 'الملف من نوع ' + format + ' ويحتوي ' + lines.length.toLocaleString('ar-YE') + ' وحدة نصية قابلة للفحص، '
+      + words.length.toLocaleString('ar-YE') + ' كلمة تقريبًا، ' + dateCount + ' تواريخ، و'
+      + numericLineCount + ' أسطر تحتوي أرقامًا؛ أمثلة الأرقام المعروضة: ' + numbers.length + '.',
+    evidence: [...riskLines, ...actionLines, ...numbers],
     limitation: 'هذا تحليل عام للمحتوى، وليس تصنيفًا تجاريًا مفترضًا.',
     action: riskLines.length ? 'راجع بنود المخاطر المقتبسة واربط كل بند بمالك ومصدر وقرار.' : 'حدّد الغرض التجاري من الملف ثم اربط الحقول/الفقرات ذات الصلة بمؤشر أو قرار.',
   };
-  const recommendation = genericRecommendation([...riskLines.slice(0, 4), ...actionLines.slice(0, 2)], riskLines.length ? 'ظهرت عبارات مرتبطة بمخاطر/استثناءات داخل المصدر.' : 'الملف لا يثبت سياقه التجاري تلقائيًا، لذلك يبدأ التحليل من المحتوى نفسه.');
+  const recommendation = genericRecommendation([...riskLines, ...actionLines], riskLines.length ? 'ظهرت عبارات مرتبطة بمخاطر/استثناءات داخل المصدر.' : 'الملف لا يثبت سياقه التجاري تلقائيًا، لذلك يبدأ التحليل من المحتوى نفسه.');
   const keywordEvidence = keywords.map((item) => item.word + ':' + item.count).join(' · ');
   return {
     ...base,
@@ -339,7 +387,13 @@ export function buildGenericFileIntelligence(dataset: Dataset, format: string): 
     guidance: {
       ...base.guidance,
       focus: tableProfile?.headline ?? (riskLines[0] ? 'بنود المخاطر/الاستثناءات' : actionLines[0] ? 'بنود الإجراء والاعتماد' : 'فهم محتوى الملف'),
-      inspect: tableProfile?.inspect ?? [...riskLines.slice(0, 3), ...actionLines.slice(0, 2), ...numbers.slice(0, 2), ...(keywordEvidence ? ['الكلمات البارزة: ' + keywordEvidence] : [])],
+      inspect: tableProfile?.inspect ?? [
+        ...riskLines, ...actionLines, ...numbers,
+        ...(riskLineCount > riskLines.length ? ['مطابقات المخاطر في المصدر: ' + riskLineCount + ' سطرًا؛ أمثلة معروضة: ' + riskLines.length + ' من أصل ' + riskLineCount + '.'] : []),
+        ...(actionLineCount > actionLines.length ? ['مطابقات الإجراء في المصدر: ' + actionLineCount + ' سطرًا؛ أمثلة معروضة: ' + actionLines.length + ' من أصل ' + actionLineCount + '.'] : []),
+        ...(numericLineCount > numbers.length ? ['أسطر تحتوي أرقامًا: ' + numericLineCount + '؛ أمثلة رقمية معروضة: ' + numbers.length + ' من أصل ' + numericLineCount + '.'] : []),
+        ...(keywordEvidence ? ['الكلمات البارزة: ' + keywordEvidence] : []),
+      ],
       boundary: 'التحليل العام يحفظ الدليل كما ورد في الملف. لا يحول النص الوصفي إلى حقيقة تجارية أو أثر مالي دون مصدر إضافي.',
     },
     advisorBrief: {

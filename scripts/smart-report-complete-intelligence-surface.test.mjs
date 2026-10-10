@@ -52,6 +52,14 @@ for (const marker of ['evidence.slice(', 'signals.slice(', 'recommendations.slic
   if (genericCard.includes(marker)) throw new Error('Generic intelligence card must not truncate result collections: ' + marker);
 }
 
+const genericEngine = fs.readFileSync(new URL('../src/lib/file-engine/generic-intelligence.ts', import.meta.url), 'utf8');
+if (genericEngine.includes('numericColumns.slice(0, 5)')) throw new Error('Generic table intelligence must not silently omit numeric fields beyond the first five');
+if (!genericEngine.includes('const numericSummary = numericColumns.map')) throw new Error('Every source numeric column must receive a complete descriptive profile');
+if (!genericEngine.includes('hasLineOrdinal') || !genericEngine.includes('hasLineContent')) throw new Error('Document line/text adapters must retain text evidence rather than becoming synthetic business tables');
+
+const universalChain = fs.readFileSync(new URL('../src/components/UniversalIntelligenceChain.tsx', import.meta.url), 'utf8');
+if (universalChain.includes('item.evidence.slice(0, 3)')) throw new Error('Universal intelligence chain must not hide available stage evidence');
+
 const reportSmartForGeneric = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
 if (!reportSmartForGeneric.includes('composeIntelligenceLayers(genericIntelligence, intelligence)')) throw new Error('Persisted reports must compose general and applicable specialist intelligence');
 if (!reportSmartForGeneric.includes('genericIntelligence: ReportIntelligence | null')) throw new Error('Smart Report detail must return the general intelligence layer separately');
