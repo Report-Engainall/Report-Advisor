@@ -6,7 +6,7 @@ const cohortCandidateQuery = fs.readFileSync(
   'utf8',
 );
 const cohortCandidateIndex = fs.readFileSync(
-  'supabase/migrations/20261010191500_report_value_cohort_candidates_source_index.sql',
+  'supabase/migrations/20261010202632_report_value_cohort_candidates_source_index.sql',
   'utf8',
 );
 const extractCohortSourcePathRegex = (source, label) => {
