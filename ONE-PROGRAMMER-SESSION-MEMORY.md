@@ -1,3 +1,18 @@
+# LIVE IMPLEMENTATION DELTA — 2026-10-10 / GENERAL LAYER NOW COMPOSED WITH SPECIALIST
+
+- Exact product candidate immediately before this delta writeback: `9caca7cf54c6c9d1d902e694e6fa5906a04890c4`; branch `fix/source-bound-generic-intelligence-20261009`; PR #912 OPEN / NOT MERGED.
+- New helper: `src/lib/report-intelligence/compose-intelligence-layers.ts`; composes general and specialist intelligence. Specialist records keep their interpretation and order; general-only records are appended; same-ID records retain both evidence lists; cautionary quality state wins; recommendations stay PROPOSED.
+- `src/lib/universal-report-intelligence.ts`: accepts `generalIntelligence` and composes it with rule-set or preview intelligence rather than allowing preview to replace every layer.
+- `src/pages/ExternalFileAnalysisPage.tsx`: invokes general-file intelligence on every parsed dataset regardless of specialty, supplies it to the universal chain, and exposes the source path + SHA-256 on the card.
+- `src/lib/report-smart.ts`: builds `genericIntelligence` independently of specialty/quality-gate success, keeps the original review-state brief when a specialist gate fails, composes the general layer into the full report intelligence, and returns the general layer separately for its card.
+- `src/pages/SmartReportPage.tsx`: renders the general card unconditionally and binds it to the same `jobId + sourceHash + sourcePath`.
+- `src/components/GenericFileIntelligenceCard.tsx`: replaced five-item evidence and eight-item inspection truncation with complete rendering of all available signals, recommendations, their evidence, findings/risks/opportunities, drivers, owners, measurements, impact limitations, and source identity.
+- Tests changed: `scripts/generic-file-analysis.test.mjs` now checks deterministic merge/dedup/evidence union/general+specialist recommendations; `scripts/smart-report-complete-intelligence-surface.test.mjs` rejects specialty-only hiding or list truncation and requires source lineage.
+- WRITEBACK: the checkpoint below was saved before these product edits and must be refreshed after the next live checks. No build, runtime, browser or persisted readback success is claimed yet. Focused tests are authored but not yet proven executed.
+- NEXT ACTION: read back each modified blob, remove any lint/test defects found in the diff, then check current-head GitHub Actions/required gate results and repair the first real failure.
+
+---
+
 # LIVE RESUME — 2026-10-10 / SOURCE-AGNOSTIC INTELLIGENCE ACROSS EVERY REPORT SURFACE
 
 - REPOSITORY: `Report-Engainall/Report-Advisor` (do not substitute another repository).
