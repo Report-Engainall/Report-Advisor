@@ -1,4 +1,27 @@
 SESSION HANDOFF = READY
+CURRENT_BRANCH_HEAD_OBSERVED = c10429178ba4f414b27c254b1675b8daf0f6ddc1
+CURRENT_CODE_TEST_HEAD = ae75608296a7bdff7d271e87439dace0f3817eb8
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume queued exact-head browser/build/quality/Phase-F results; diagnose and repair the first demonstrated failure. Verify generic card visibility + exact source identity in browser and prove clean restore. Preserve UNKNOWN != ZERO. Then persist the next verified checkpoint.
+
+## LIVE EXECUTION CHECKPOINT — source-bound report context + generic-card proof + saved_views restore parity
+
+- Code commits: Reports Center exact context [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974); E2E report context [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4); context contract [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c); live browser general-card source-ID / hash / signal / recommendation checks [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8).
+- Staging only: migration `20261010165742_restore_saved_views_schema_parity` applied in project `fnqbvfuwbdpwvhcgzksl`. Readback confirmed 9 columns, 4 constraints, 3 indexes, RLS enabled, tenant+user owner policy, authenticated CRUD, and no anon grants. Clean-restore gate has not run to completion yet.
+- Preview ready: Netlify [deploy-preview-912](https://deploy-preview-912--aghbari-report-advisor.netlify.app/) serves code commit ae756; Vercel [latest docs preview](https://report-advisor-35w5janp3-injaz2.vercel.app/) is READY at branch checkpoint c104. Production Netlify is still old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b`.
+- Exact-head run cohort for branch checkpoint c104: Quality [38070293237](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293237), Device-Independent Browser [38070293268](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293268), Session Handoff [38070293310](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293310), Product Build [38070293366](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293366), Full Product Browser [38070293490](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293490), data quality [38070293495](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293495), Report Value Cohort [38070293415](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293415), Phase-F [38070293496](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293496): all QUEUED when last checked. Desktop Windows [38070293439](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070293439) remains IN_PROGRESS. Its web build step passed; desktop dependency installation is ongoing. No browser/restore PASS claimed.
+- Prior blocker history: Full Product Browser failed due Reports Center ignoring explicit report ID/hash; fixed at code level, waiting for live E2E. Device-independent browser exposed Postgres 57014 on `/reports/sales`; unresolved until current rerun. Phase-F restore previously missed `saved_views`; schema migration now tracked/applied to staging.
+- Archived latest report: `docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-C104291-LIVE-RESUME.md`.
+- Next: consume workflow results, inspect first failed job logs, repair only proven defect, then update this state and a new dated report. No merge or completion declaration until varied file types are browser-proven and source lineage survives refresh/re-entry.
+---
+
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = cf28f9e24e04c69f1ae068b1053768c4dc32179a
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
