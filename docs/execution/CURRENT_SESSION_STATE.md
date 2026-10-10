@@ -1,16 +1,29 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e
+CURRENT_EXACT_HEAD = 84c881eae999ae218b2cf6b448394cbdc73d0775
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912 OPEN / NOT MERGED
 ACTION_STATUS = ACTIVE_EXECUTION
-APPLICATION_CODE_HEAD = 8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e
-REPORT_BASE_HEAD = 8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e
+APPLICATION_CODE_HEAD = 84c881eae999ae218b2cf6b448394cbdc73d0775
+REPORT_BASE_HEAD = 84c881eae999ae218b2cf6b448394cbdc73d0775
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-UPDATED_AT = 2026-10-10
+UPDATED_AT = 2026-10-10T18:05:00+03:00
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Create and apply a narrowly scoped migration to repair legacy import row counters only where source hash/file security/rendered row count/analyzed rows/canonical commits/canonical rows match exactly; write proof provenance, refresh the associated passports, then read back the changed records and rerun cohort + restore verification.
+NEXT_EXACT_ACTION = Consume terminal exact-head Quality, Product Build Gate, Report Value Cohort, Full Product Browser E2E, Session Handoff Contract and Phase-F runs; fix the first confirmed failure without relaxing evidence gates, then prove same reportJobId + sourceHash across upload, navigation, reload and saved readback.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10T18:05:00+03:00 — legacy import row-count repair verified on staging and synchronized to GitHub
+
+- Code/governance HEAD: `84c881eae999ae218b2cf6b448394cbdc73d0775`; PR #912 open/not merged.
+- Applied source-proof-gated row-counter reconciliation to staging. Pre-write selection was 49 imports / 49 unique source-bound proofs / 0 conflicting counts; row counts matched rendered output, analyzed snapshot, canonical commit and canonical dataset rows, with hash/file-security/source-quality guards.
+- Post-write readback: `reconciled_import_jobs=49`; related passports are `VERIFIED / READY / FULL = 49`; unresolved reconciled reports = 0.
+- Audit proof stored in `import_jobs.result_summary.legacyRowCountReconciliation`; no unsupported rows were inferred.
+- Synchronized exact Supabase migration history versions `20261010144953` and `20261010145143` to tracked SQL files; migration body is guarded and idempotent.
+- Updated session handoff contract to permit the persistent memory file while keeping report ancestry and governance-only descendants enforced.
+- Report Value Cohort, Quality and Product Build Gate passed on predecessor `e017b865...` after the DB reconciliation. Current exact-head actions are queued, so current-head success is not yet proven.
+- Phase-F previous attempt stopped at runtime provenance mismatch because preview still served `8f610fef...` instead of expected `e017b865...`; restore probes did not run.
+- Product completion remains NO.
+
 
 ## LIVE EXECUTION CHECKPOINT — 2026-10-10 — zero-row legacy import ledger diagnosed by independent source evidence
 

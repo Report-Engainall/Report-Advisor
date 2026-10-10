@@ -1,3 +1,36 @@
+# LIVE RESUME — 2026-10-10T18:05:00+03:00 / 49 SOURCE-PROVEN IMPORT COUNTERS RECONCILED; PASSPORTS CLOSED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Application/governance candidate: `84c881eae999ae218b2cf6b448394cbdc73d0775`.
+- Product completion: NO.
+
+## Verified staging correction
+- 49 unique imports had all four row counters zero but independent source-bound row proofs all matched.
+- Applied guarded migration `reconcile_legacy_import_rowcount_from_source_proof`; only strict hash/file-security/status/rendered-row/analysis-quality/commit/canonical-count matches were eligible.
+- Every changed import stores `result_summary.legacyRowCountReconciliation` with rule version, source hash, file record id, report job ids and detailed proof. Existing result summary is preserved.
+- Readback: reconciled imports = 49; associated passports = 49 VERIFIED/READY/FULL; unresolved reconciled passports = 0.
+- Supabase migration history has versions `20261010144953` and `20261010145143`; both source files are now tracked in GitHub.
+
+## Current CI status at checkpoint
+- Predecessor cohort [38061102673](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061102673): PASS after reconciliation.
+- Predecessor Quality [38061102377](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061102377): PASS.
+- Predecessor Product Build Gate [38061102647](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061102647): PASS.
+- Current-candidate Quality [38061710334](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710334): queued.
+- Current-candidate Product Build Gate [38061710287](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710287): queued.
+- Current-candidate Report Value Cohort [38061710049](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710049): queued.
+- Current-candidate Full Product Browser E2E [38061710300](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710300): queued.
+- Current-candidate Device-Independent Browser E2E [38061710398](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710398): queued.
+- Current-candidate Phase-F [38061710107](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710107): queued.
+- Current-candidate Session Handoff [38061710418](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710418): pending.
+- Older Phase-F attempt failed early because the preview still served `8f610fef...` while the expected SHA was `e017b865...`; restore probes were not run.
+
+## Next exact action
+Consume terminal current-head CI; prove the same `reportJobId + sourceHash` across varied-format upload, full result display, navigation/reload and saved readback. Keep PR #912 open until browser and restore proofs pass.
+
+---
+
 # LIVE RESUME — 2026-10-10 / SOURCE-PROVEN ROW-COUNT RECONCILIATION PREPARED
 
 - Repository `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
