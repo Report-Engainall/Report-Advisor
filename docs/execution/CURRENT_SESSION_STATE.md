@@ -1,5 +1,30 @@
 SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
+CURRENT_BRANCH_HEAD_OBSERVED = ce2004024bf53c03a1a63ff138db9b35d93d727c (verified before atomic documentation writeback; re-read live PR ref on resume)
+CURRENT_CODE_TEST_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T23:25:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume current-head Quality/Build/Full Product Browser and other gates; prove the expanded unified chain and source-bound save/readback/refresh using a varied non-fixture file, then diagnose the independent value-cohort timeout.
+
+## Latest verification summary
+- Code/test HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c; latest branch head before this checkpoint = ce2004024bf53c03a1a63ff138db9b35d93d727c (documentation-only).
+- Directly executed 14 source-contract assertions against GitHub-read-back source files; all 14 PASS. The list and boundary (“not an npm/browser pass”) are in [REPORT-20261010-CE2004-SOURCE-CONTRACT-READBACK.md](PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-CE2004-SOURCE-CONTRACT-READBACK.md).
+- The two main upload/report screens now have the combined Universal Intelligence chain expanded on initial render, still collapsible. Regression assertion checks both screens.
+- Netlify PR preview is reachable: [deploy-preview-912](https://deploy-preview-912--aghbari-report-advisor.netlify.app/). Its extracted landing content is fixture-bound to `28-inventory-stockout-reorder.csv`; that is demo behavior, not proof of a live uploaded customer's report.
+- Current-head workflows: Product Build [38082993240], Quality [38082993284], Data Quality [38082993408], Device Browser [38082993243], Session Handoff [38082993478], Phase-F [38082993291], Value Cohort [38082993416], Full Product Browser [38082993415]. Most remained queued; cohort was in progress with logs not available. Never infer PASS from queue state.
+- Older exact-head proof only: Build and Data Quality PASS on dedd9ac; Device browser smoke PASS but authenticated E2E was skipped/manual-only. Quality on dedd9ac passed the topology parser and then failed the Quality concurrency contract, fixed in 108a881; fresh current-head run pending.
+- Vercel rate-limited. Cohort SQL timeout remains unresolved. Authenticated source-bound save/readback/refresh and clean restore remain NOT PROVEN.
+- PRODUCT_COMPLETE = NO; PR remains open and production unpromoted.
+
+---
+SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
 CURRENT_BRANCH_HEAD_OBSERVED = 24b3e10201a07fc971bafc4de09db2df491d529c (verified before atomic documentation checkpoint writeback; re-read live PR ref on resume)
 CURRENT_CODE_TEST_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
 REPOSITORY = Report-Engainall/Report-Advisor

@@ -1,3 +1,32 @@
+# LIVE RESUME — 2026-10-10T23:25:00+03:00 / 14 SOURCE-CONTRACT ASSERTIONS PASS; BROWSER AND CURRENT-HEAD GATES PENDING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Code/test head: `24b3e10201a07fc971bafc4de09db2df491d529c`
+- Branch/doc head at entry: `ce2004024bf53c03a1a63ff138db9b35d93d727c`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO; do not merge or promote production.
+- Latest dated report: [REPORT-20261010-CE2004-SOURCE-CONTRACT-READBACK.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-CE2004-SOURCE-CONTRACT-READBACK.md).
+
+## Actual code changes preserved on this branch
+- [`dedd9ac`](https://github.com/Report-Engainall/Report-Advisor/commit/dedd9ac8c63e69082c403cdac68372718e281f0f): repairs the CI trigger parser so `pull_request.paths` does not masquerade as a `push` filter; adds regression coverage.
+- [`108a881`](https://github.com/Report-Engainall/Report-Advisor/commit/108a881a12b8982a4f31458c7eb044de0d8e2a78): gives Quality runs unique `github.run_id` concurrency groups and disables cancellation of in-flight proof.
+- [`5aeea95`](https://github.com/Report-Engainall/Report-Advisor/commit/5aeea95db8f5c2c41cece263c464cb27f082dfed): displays the full `UniversalIntelligenceChain` expanded by default on both Smart Report and File Lab, while retaining collapsibility.
+- [`24b3e10`](https://github.com/Report-Engainall/Report-Advisor/commit/24b3e10201a07fc971bafc4de09db2df491d529c): fixes the regression test's open-attribute regular expression.
+- Core engines were not rebuilt. Current readback confirms full signal/recommendation/evidence lists, general+specialist composition, sourceHash/jobId binding, and no artificial card truncation.
+
+## Current executed checks and external runtime
+- Executed 14 direct source-contract assertions against current GitHub-read-back code; all 14 passed. These check general card/source lineage, open-by-default unified chain on each route, complete untruncated signals/recommendations/evidence, all numeric-column profiles, general+specialty composition, and the regression assertions themselves. This was a direct in-memory readback execution, not `npm test` or real authenticated browser proof.
+- Netlify preview `https://deploy-preview-912--aghbari-report-advisor.netlify.app/` is reachable and its source metadata identifies branch/doc commit `ce2004024bf53c03a1a63ff138db9b35d93d727c`. Extracted landing page explicitly says its displayed inventory report is a repository fixture, not a live tenant upload.
+- Fresh workflows at code head 24b3e10201a07fc971bafc4de09db2df491d529c were still queued/in progress: Build [38082993240], Quality [38082993284], Data Quality [38082993408], Device Browser [38082993243], Handoff [38082993478], Phase-F [38082993291], Value Cohort [38082993416], Full Product Browser [38082993415]. Fetch again before using outcomes.
+- Older exact-head evidence: Build PASS and Data Quality PASS on dedd9ac; Device Browser smoke PASS with authenticated E2E skipped. Quality on dedd9ac advanced past the repaired topology parser, then failed on the concurrency contract fixed by 108a881.
+- Independent unresolved failure: value cohort RPC `get_report_value_cohort_candidates` timed out with PostgreSQL `57014`; no claim the retry fixes it.
+- Vercel is rate-limited. Authenticated varied-file upload → result display → save/readback → refresh/re-entry with the same `reportJobId + sourceHash`, and clean backup restore, remain unproven.
+
+## Single next action
+Consume current-head Quality/Build/Full Product Browser outcomes, fix the first confirmed failure, and complete authenticated source-bound persistence proof on a varied non-fixture source. Only then reassess cohort SQL and restore certification. Keep PR open / PRODUCT_COMPLETE=NO.
+---
 # LIVE RESUME — 2026-10-10T23:20:00+03:00 / UNIVERSAL INTELLIGENCE CHAIN NOW EXPANDED BY DEFAULT
 
 - Repository: `Report-Engainall/Report-Advisor`
