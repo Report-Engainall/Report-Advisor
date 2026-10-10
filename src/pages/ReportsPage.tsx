@@ -139,6 +139,11 @@ const reportCards = [
 ];
 
 export function ReportsCenterPage() {
+  // Preserve explicit report context when navigation originates from a Smart Report.
+  // A requested source must never silently fall back to the tenant's latest report.
+  const [searchParams] = useSearchParams();
+  const requestedReportJobId = searchParams.get('reportJobId')?.trim() || '';
+  const requestedSourceHash = searchParams.get('sourceHash')?.trim() || '';
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -204,22 +209,41 @@ export function ReportsCenterPage() {
     // enriches the first/latest report without blocking the whole customer surface.
     if (catalog.length > 0 || dashboard) setLoading(false);
 
-    const selected = catalog[0] ?? null;
-    if (selected) {
+    let requestedContextFailure: unknown = null;
+    const selected = requestedReportJobId
+      ? { jobId: requestedReportJobId, sourceHash: requestedSourceHash }
+      : catalog[0] ?? null;
+
+    if (requestedReportJobId && !requestedSourceHash) {
+      requestedContextFailure = new Error('REPORT_SOURCE_HASH_REQUIRED');
+      firstFailure ??= requestedContextFailure;
+      setPrimarySmartReport(null);
+      window.sessionStorage.removeItem('aghbari:last-smart-report-job');
+      window.sessionStorage.removeItem('aghbari:last-smart-report-source-hash');
+    } else if (selected) {
       try {
         const detail = await fetchSmartReport(
           selected.jobId,
           selected.sourceHash,
           { signal: AbortSignal.timeout(15000) },
         );
-        if (detail) {
-          setPrimarySmartReport(detail);
-          window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
-          window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
+        if (!detail) throw new Error(requestedReportJobId ? 'INVALID_REPORT_CONTEXT' : 'SMART_REPORT_DETAIL_UNAVAILABLE');
+        if (requestedReportJobId && detail.sourceHash !== requestedSourceHash) {
+          throw new Error('REPORT_SOURCE_HASH_MISMATCH');
         }
+        setPrimarySmartReport(detail);
+        window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
+        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
       } catch (cause) {
         firstFailure ??= cause;
-        console.warn('[ReportsCenter] latest smart report detail readback failed', cause);
+        requestedContextFailure = requestedReportJobId ? cause : null;
+        console.warn(
+          requestedReportJobId
+            ? '[ReportsCenter] requested source context readback failed'
+            : '[ReportsCenter] latest smart report detail readback failed',
+          cause,
+        );
+        if (requestedReportJobId) setPrimarySmartReport(null);
       }
     } else {
       setPrimarySmartReport(null);
@@ -227,7 +251,9 @@ export function ReportsCenterPage() {
       window.sessionStorage.removeItem('aghbari:last-smart-report-source-hash');
     }
 
-    if (catalog.length === 0 && !dashboard && firstFailure) {
+    if (requestedContextFailure) {
+      setError(errorMessage(requestedContextFailure));
+    } else if (catalog.length === 0 && !dashboard && firstFailure) {
       setError(errorMessage(firstFailure));
     } else {
       setError(null);
@@ -237,7 +263,7 @@ export function ReportsCenterPage() {
       setLoading(false);
     }
     setRefreshing(false);
-  }, []);
+  }, [requestedReportJobId, requestedSourceHash]);
 
   useEffect(() => { void load(); }, [load]);
 
