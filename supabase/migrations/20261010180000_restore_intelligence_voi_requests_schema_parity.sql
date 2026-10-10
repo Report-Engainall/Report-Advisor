@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.intelligence_voi_requests (
   CONSTRAINT intelligence_voi_requests_estimated_value_check CHECK (estimated_value >= 0),
   CONSTRAINT intelligence_voi_requests_priority_score_check CHECK (priority_score >= 0),
   CONSTRAINT intelligence_voi_requests_state_check
-    CHECK (state = ANY (ARRAY['OPEN'::text, 'COLLECTING'::text, 'SUFFICIENT'::text, 'DEFERRED'::text, 'BLOCKED'::text))
+    CHECK (state = ANY (ARRAY['OPEN'::text, 'COLLECTING'::text, 'SUFFICIENT'::text, 'DEFERRED'::text, 'BLOCKED'::text]))
 );
 
 CREATE INDEX IF NOT EXISTS idx_voi_requests_priority
