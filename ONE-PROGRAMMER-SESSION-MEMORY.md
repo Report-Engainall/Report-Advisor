@@ -1,3 +1,15 @@
+# LIVE RESUME — 2026-10-10 / DOMAIN-NEUTRAL GENERIC TABLE INFERENCE FIX
+
+- Repository `Report-Engainall/Report-Advisor`; PR #912 OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`.
+- Latest code/test candidate will be the commit immediately after parent `789700d2f77dbab841ca5e68bc82aced63cf7717`. The prior application/test HEAD is `a077dfebea99f8848b086f0b04dbedf83a2d6b17`, main base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Generic analysis composition now spans File Lab and saved Smart Report regardless of inferred specialty. The general source layer augments the specialist layer; the existing specialist evidence gates remain closed when source eligibility is not met.
+- Current fix narrows customer-portfolio classification to actual customer columns + status + totals/month columns; generic product/supplier tables must not be labeled customer churn. Merge regression now genuinely tests that general-only records arrive from the general layer rather than already being present in the mock specialist object.
+- Existing format matrix: TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF and XLSX, source-evidence assertions. Current new assertions are written but not yet executed.
+- Previous app deployment SHA `a077dfebea99f8848b086f0b04dbedf83a2d6b17` was Vercel READY with Netlify preview and CodeRabbit success. This new source fix requires fresh build/typecheck/test proof.
+- Never treat a queued job as pass. No authenticated user journey/persisted readback/relogin/production completion is yet proven.
+- NEXT ONE ACTION: inspect new-head Product Build Gate/Quality terminal results; fix first confirmed failure, then prove same jobId/sourceHash across upload, Smart Report, navigation and reload.
+---
+
 # LIVE RESUME — 2026-10-10 / TEST MATRIX EXPANDED; FOCUSED RUNS PENDING
 
 - Repo `Report-Engainall/Report-Advisor`; PR #912 open/not merged; branch `fix/source-bound-generic-intelligence-20261009`.

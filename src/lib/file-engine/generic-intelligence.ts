@@ -97,6 +97,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
   });
   const entityColumn = find('customer_name', 'supplier_name', 'product_name', 'اسم العميل', 'اسم المورد', 'اسم المنتج', 'اسم الصنف', 'العميل', 'المورد');
   const totalColumn = find('total', 'grand total', 'total amount', 'net_amount', 'الإجمالي الكلي', 'اجمالي الفاتورة', 'الإجمالي');
+  const customerColumn = find('customer_name', 'client_name', 'اسم العميل', 'اسم الزبون', 'العميل', 'الزبون');
   const statusColumn = find('customer_status', 'status', 'حالة الزبون', 'حالة العميل', 'الحالة');
   const monthOrder = ['january','february','march','april','may','june','july','august','september','october','november','december'];
   const monthColumns = dataset.columns.map((column) => ({ column, key: headerKey(column) }))
@@ -144,7 +145,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
   });
   const statusSummary = [...statusCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
     .map(([label, count]) => label + ': ' + count.toLocaleString('ar-YE'));
-  const portfolioLike = Boolean(entityColumn && statusColumn && (totalColumn || monthColumns.length >= 3));
+  const portfolioLike = Boolean(customerColumn && statusColumn && (totalColumn || monthColumns.length >= 3));
   const totalValue = totalColumn
     ? dataset.rows.reduce((sum, row) => sum + (numericValue(valueFor(row, totalColumn)) ?? 0), 0)
     : null;

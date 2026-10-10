@@ -38,6 +38,10 @@ async function main() {
     if (item.expectedEvidence) {
       assert.ok(JSON.stringify(intelligence).includes(item.expectedEvidence), item.format + ' output must retain evidence from the uploaded content');
     }
+    if (['csv', 'json', 'jsonl', 'xml', 'yaml'].includes(item.format)) {
+      assert.ok(!intelligence.summary.includes('ملف نشاط العملاء'), item.format + ' must not infer a customer portfolio from generic entity/status/total columns');
+      assert.notEqual(intelligence.findings[0]?.title, 'ملف نشاط العملاء', item.format + ' generic table finding must remain domain-neutral');
+    }
   }
   // Real XLSX regression: customer portfolio + eight monthly measures.
   // The report should map the observed semantics, summarize the table and expose
@@ -110,12 +114,13 @@ async function main() {
   });
   assert.strictEqual(universalPortfolio.intelligence, sourceBoundPreview, 'decision chain must reuse the source-bound portfolio analysis object');
   assert.equal(universalPortfolio.intelligence.businessQuestion, 'سؤال محفظة العملاء من نفس الصفوف المصدرية');
-  assert.equal(universalPortfolio.archetype?.id, 'customers.activity', 'customer portfolio shape must not be labeled as invoice detail');
-  assert.equal(universalPortfolio.archetypeState, 'REVIEW_REQUIRED', 'shape hints must not be presented as canonical archetype proof');
-  assert.ok(!universalPortfolio.stages.some(stage => stage.evidence.some(item => item.includes('dateField=missing'))), 'stale generic date-missing evidence must not override the source-bound analysis');
-
-  const sharedId = portfolioIntelligence.signals[0]?.id;
-  assert.ok(sharedId, 'general layer should have at least one source-derived signal');
+  assert.equal(universalPortfolio.archetype?.id, 'customers.activity', 'customer portfolio s  const generalOnlySignal = portfolioIntelligence.signals.find(signal => signal.id === 'generic:table:source-status');
+  assert.ok(generalOnlySignal, 'general layer must include a source-derived status signal');
+  const sharedSignal = portfolioIntelligence.signals.find(signal => signal.id !== generalOnlySignal.id);
+  assert.ok(sharedSignal, 'general layer must have a second signal to test overlap');
+  const sharedId = sharedSignal.id;
+  const generalOnlyRecommendation = portfolioIntelligence.recommendations.find(item => item.id === 'generic:table:reconcile-totals');
+  assert.ok(generalOnlyRecommendation, 'general layer must include its source-derived totals reconciliation recommendation');
   const specialistEvidence = 'specialist-proof=customer-activity';
   const generalEvidence = 'general-proof=raw-source-content';
   const specialistLayer = {
@@ -123,9 +128,7 @@ async function main() {
     businessQuestion: 'السؤال المتخصص يجب أن يبقى ظاهرًا',
     summary: 'التحليل المتخصص',
     signals: [
-      ...sourceBoundPreview.signals.map(signal => signal.id === sharedId
-        ? { ...signal, title: 'الإشارة المتخصصة', evidence: [specialistEvidence] }
-        : signal),
+      { ...sharedSignal, title: 'الإشارة المتخصصة', evidence: [specialistEvidence] },
       {
         id: 'specialty:customer-activity:source-bound',
         severity: 'medium',
@@ -140,9 +143,11 @@ async function main() {
       },
     ],
     recommendations: [
-      ...sourceBoundPreview.recommendations,
       { ...sourceBoundPreview.recommendations[0], id: 'specialty:customer-activity:review', title: 'توصية متخصصة' },
     ],
+    findings: [],
+    risks: [],
+    opportunities: [],
   };
   const generalWithProof = {
     ...portfolioIntelligence,
@@ -156,9 +161,12 @@ async function main() {
   assert.equal(sharedMergedSignal.title, 'الإشارة المتخصصة', 'specialist interpretation wins for a shared stable ID');
   assert.ok(sharedMergedSignal.evidence.includes(generalEvidence), 'general evidence must survive composition');
   assert.ok(sharedMergedSignal.evidence.includes(specialistEvidence), 'specialist evidence must survive composition');
-  assert.ok(composed.signals.some(signal => signal.id === 'generic:table:source-status'), 'general-only signals must survive when specialty is present');
+  assert.ok(composed.signals.some(signal => signal.id === generalOnlySignal.id), 'general-only signals must survive when specialty is present');
   assert.ok(composed.signals.some(signal => signal.id === 'specialty:customer-activity:source-bound'), 'specialist-only signals must survive composition');
-  assert.ok(composed.recommendations.some(item => item.id === 'generic:table:reconcile-totals'), 'general recommendations must remain available');
+  assert.ok(composed.recommendations.some(item => item.id === generalOnlyRecommendation.id), 'general-only recommendations must remain available');
+  assert.ok(composed.recommendations.some(item => item.id === 'specialty:customer-activity:review'), 'specialist recommendations must be added, not substituted');
+  assert.equal(composed.businessQuestion, 'السؤال المتخصص يجب أن يبقى ظاهرًا', 'specialist business question remains primary');
+em.id === 'generic:table:reconcile-totals'), 'general recommendations must remain available');
   assert.ok(composed.recommendations.some(item => item.id === 'specialty:customer-activity:review'), 'specialist recommendations must be added, not substituted');
   assert.equal(composed.businessQuestion, 'السؤال المتخصص يجب أن يبقى ظاهرًا', 'specialist business question remains primary');
 

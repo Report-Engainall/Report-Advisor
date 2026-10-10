@@ -1,3 +1,21 @@
+# LIVE CHECKPOINT — 2026-10-10 / KEEP GENERIC TABLES DOMAIN-NEUTRAL
+
+- Repository `Report-Engainall/Report-Advisor`, PR #912 OPEN / NOT MERGED, branch `fix/source-bound-generic-intelligence-20261009`.
+- Parent branch HEAD verified before this code+report transaction: `789700d2f77dbab841ca5e68bc82aced63cf7717`. Previous application/test HEAD `a077dfebea99f8848b086f0b04dbedf83a2d6b17`; main base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Material code fix: `src/lib/file-engine/generic-intelligence.ts` now declares a customer-specific portfolio only if actual customer identity aliases exist together with a status column and totals/month data. Generic product/supplier/name+status+total tables remain neutral, rather than being mislabeled customer churn/portfolio.
+- Test improvements: `scripts/generic-file-analysis.test.mjs` now asserts CSV/JSON/JSONL/XML/YAML records with item/status/total fields remain domain-neutral; it also proves the generic-only source-status signal and reconciliation recommendation are absent from the simulated specialist layer and survive composition from the general layer. The overlap test still checks both evidence lists are unioned.
+- Existing implementation retained: universal report-chain composer, file-lab/general card, persisted Smart Report generic layer, sourceHash/jobId bindings, full result/evidence display and canonical recovery lineage fix.
+- Deployment proof prior to this commit: application/test SHA `a077dfebea99f8848b086f0b04dbedf83a2d6b17` was READY on Vercel, and combined statuses were success for Vercel, Netlify deploy-preview and CodeRabbit. This new code fix is not yet build/test proven.
+- Exact-head GitHub Actions for `a077dfebea99f8848b086f0b04dbedf83a2d6b17` had a busy queue (Product Build Gate `38012609562` queued, Quality `38012609570` queued, Full Product Browser E2E `38012609619` queued). The newer docs-head cohort was likewise queued. Runtime execution of the expanded format matrix remains unproven.
+- No authenticated end-to-end upload→Smart Report→navigate/reload→saved readback is proven; PRODUCT_COMPLETE = NO.
+- NEXT EXACT ACTION: consume the first terminal focused test/build result for the new code head; fix only the first confirmed failure, then validate varied-format sourceHash/readback with Full Product Browser E2E.
+
+---
+
+
+
+## HISTORICAL STATE BELOW — preserved verbatim
+
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
 REPOSITORY = Report-Engainall/Report-Advisor
