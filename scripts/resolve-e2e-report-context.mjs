@@ -15,7 +15,7 @@ if (!supabaseURL || !serviceRoleKey || !companyId || !envFile || !outputFile) {
 const legacyHash = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 const legacyFileName = 'تقارير ادارية.xlsx';
 const sha256Pattern = /^sha256:[0-9a-f]{64}$/i;
-const supportedPath = /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i;
+const supportedPath = /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|xml|yaml|yml|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i;
 
 function safeErrorBody(body) {
   try {
@@ -101,8 +101,8 @@ const candidates = rpcRows
   .sort((a, b) => {
     const aExt = String(a.source_path || '').match(/\.([^.]+)$/)?.[1]?.toLowerCase() || '';
     const bExt = String(b.source_path || '').match(/\.([^.]+)$/)?.[1]?.toLowerCase() || '';
-    const aTabular = ['csv','tsv','json','jsonl','xml','yaml','txt','md','markdown','rtf'].includes(aExt) ? 0 : 1;
-    const bTabular = ['csv','tsv','json','jsonl','xml','yaml','txt','md','markdown','rtf'].includes(bExt) ? 0 : 1;
+    const aTabular = ['csv','tsv','json','jsonl','xml','yaml','yml','txt','md','markdown','rtf'].includes(aExt) ? 0 : 1;
+    const bTabular = ['csv','tsv','json','jsonl','xml','yaml','yml','txt','md','markdown','rtf'].includes(bExt) ? 0 : 1;
     if (aTabular !== bTabular) return aTabular - bTabular;
     return String(b.updated_at || '').localeCompare(String(a.updated_at || ''));
   });
@@ -184,8 +184,8 @@ if (!resolved.length) {
 }
 
 resolved.sort((a, b) => {
-  const aTable = ['csv','tsv','json','jsonl','xml','yaml','txt','md','markdown','rtf'].includes(a.format) ? 0 : 1;
-  const bTable = ['csv','tsv','json','jsonl','xml','yaml','txt','md','markdown','rtf'].includes(b.format) ? 0 : 1;
+  const aTable = ['csv','tsv','json','jsonl','xml','yaml','yml','txt','md','markdown','rtf'].includes(a.format) ? 0 : 1;
+  const bTable = ['csv','tsv','json','jsonl','xml','yaml','yml','txt','md','markdown','rtf'].includes(b.format) ? 0 : 1;
   if (aTable !== bTable) return aTable - bTable;
   return b.updatedAt.localeCompare(a.updatedAt);
 });

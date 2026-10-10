@@ -9,6 +9,10 @@ const cohortCandidateIndex = fs.readFileSync(
   'supabase/migrations/20261010202632_report_value_cohort_candidates_source_index.sql',
   'utf8',
 );
+const cohortCandidateExpandedFormats = fs.readFileSync(
+  'supabase/migrations/20261010211000_expand_report_value_cohort_xml_yaml_support.sql',
+  'utf8',
+);
 const extractCohortSourcePathRegex = (source, label) => {
   const line = source.split('\n').find((candidate) => candidate.includes('source_path ~*'));
   assert.ok(line, label + ' must declare source-path eligibility');
@@ -26,6 +30,23 @@ assert.equal(
 assert.ok(cohortCandidateIndex.includes('idx_report_value_cohort_candidates_source'));
 assert.ok(cohortCandidateIndex.includes('(source_hash, lower(source_path), company_id, id)'));
 console.log('REPORT_VALUE_COHORT_INDEX_CONTRACT_PASS');
+
+const expandedSourcePathRegexes = cohortCandidateExpandedFormats
+  .split('\n')
+  .filter((line) => line.includes('source_path ~*'))
+  .map((line) => {
+    const operator = line.indexOf('~*');
+    const start = line.indexOf("'", operator) + 1;
+    const end = line.indexOf("'", start);
+    assert.ok(operator >= 0 && start > operator && end > start, 'Expanded-format predicate must be a quoted regex');
+    return line.slice(start, end);
+  });
+assert.equal(expandedSourcePathRegexes.length, 2, 'Expanded migration must apply format predicate to both RPC and partial index');
+assert.equal(expandedSourcePathRegexes[0], expandedSourcePathRegexes[1], 'Expanded migration RPC/index format predicates must be byte-identical');
+assert.match(expandedSourcePathRegexes[0], /\|xml\|yaml\|yml\|/);
+assert.ok(cohortCandidateExpandedFormats.includes('DROP INDEX IF EXISTS public.idx_report_value_cohort_candidates_source'));
+assert.match(cohortCandidateExpandedFormats, /create or replace function public\.get_report_value_cohort_candidates/i);
+
 
 const passportSchema = fs.readFileSync(
   'supabase/migrations/20261002143000_create_report_evidence_passport.sql',
