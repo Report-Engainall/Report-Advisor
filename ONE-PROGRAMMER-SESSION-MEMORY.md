@@ -1,3 +1,32 @@
+# LIVE RESUME — 2026-10-10T23:10:00+03:00 / TOPOLOGY PARSER REPAIRED; EXACT-HEAD PRODUCT PROOFS RUNNING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/test checkpoint: `dedd9ac8c63e69082c403cdac68372718e281f0f`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. Do not merge or promote production.
+- Current report: [REPORT-20261010-DEDD9AC-CI-PARSER-FIX.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-DEDD9AC-CI-PARSER-FIX.md).
+
+## What changed in this launch
+- Confirmed the live PR head before editing; the previously recorded `a1d365...` was stale. PR HEAD was `e2084af...` before this source change.
+- Fixed `scripts/check-ci-execution-topology.mjs`: `pushTrigger()` now stops at the next two-space YAML trigger sibling, rather than reading sibling `pull_request.paths` as a push filter. Added a regression fixture for a main push plus path-scoped pull request.
+- Commit [`dedd9ac`](https://github.com/Report-Engainall/Report-Advisor/commit/dedd9ac8c63e69082c403cdac68372718e281f0f) is confirmed as PR #912 HEAD. Isolated parser regression check passed.
+- Source readback: `SmartReportPage.tsx` renders the general `GenericFileIntelligenceCard` outside the collapsed Evidence Passport section and passes the selected report’s source hash/job ID. `report-smart.ts` composes the source-general layer with eligible specialist analysis. This is code readback, not yet authenticated browser proof.
+
+## Exact-head workflow frontier
+- Data Quality Runtime [38082440151](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440151): PASS.
+- Product Build [38082440345], Quality [38082440412], Full Product Browser [38082440347], Value Cohort [38082440300], Phase-F [38082440417], Device Browser [38082440390]: queued/in progress at last read; check each before claiming success.
+- Session Handoff [38082440404](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440404) failed because the prior report baseline did not cover four files changed after it. `PROGRAMMER_CURRENT_REPORT.md` now sets `REPORT_FOR_HEAD=dedd9ac8c63e69082c403cdac68372718e281f0f`; subsequent changes must be limited to the allowed session-report documentation paths.
+- Value Cohort on the previous `a1d365...` head timed out twice in `get_report_value_cohort_candidates` (PostgreSQL `57014`). Existing retry logic did not solve the SQL timeout; it needs separate query/index diagnosis.
+- Preview build for this commit was pending at last read; production is not promoted. Do not present an old preview as proof for this exact HEAD.
+
+## Do not rebuild the brain
+The generic layer, general/specialist composition, source-bound Smart Report, full signals/recommendations/evidence rendering, and format regression tests are already present in the branch. Continue at integration/runtime proof seams. Preserve `universal-report-intelligence.ts`, `generic-intelligence.ts`, `report-smart.ts`, and `UniversalIntelligenceChain.tsx`; do not replace either analysis layer with the other.
+
+## Single next action
+Consume the terminal workflows for exact code head `dedd9ac8c63e69082c403cdac68372718e281f0f`. Fix the first confirmed current-head blocker; if cohort still fails, diagnose its database RPC separately. Then prove upload → complete visible general + applicable specialist results → save/readback → refresh/re-entry, with the same report job ID and SHA-256 source hash. Keep product status NOT COMPLETE until those are browser-proven.
+---
 # LIVE RESUME — 2026-10-10T22:10:00+03:00 / HEAD a1d365; AUTH LOAD STILL DEGRADED; PHASE-F LIVE PROBES IN PROGRESS
 
 - Repository: `Report-Engainall/Report-Advisor`
