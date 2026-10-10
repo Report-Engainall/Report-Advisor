@@ -573,7 +573,7 @@ function runtimeCodeEquivalentToExactHead(deploymentSha) {
       ['diff', '--name-only', deploymentSha + '..' + exactHead],
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 },
     ).trim().split(/\r?\n/).map(value => value.trim()).filter(Boolean);
-    return changed.length > 0 && changed.every(file => file.startsWith('docs/execution/'));
+    return changed.length > 0 && changed.every(file => file.startsWith('docs/execution/') || file === 'ONE-PROGRAMMER-SESSION-MEMORY.md');
   } catch {
     return false;
   }

@@ -34,4 +34,5 @@ for (const token of [
   'rto_seconds',
   'logical-',
 ]) if (!probe.includes(token)) throw new Error(`Logical backup/restore runtime invariant missing: ${token}`);
+if (!probe.includes("file === 'ONE-PROGRAMMER-SESSION-MEMORY.md'")) throw new Error('Phase F runtime must treat session memory as governance-only provenance');
 console.log('Phase F runtime closure contract: PASS');
