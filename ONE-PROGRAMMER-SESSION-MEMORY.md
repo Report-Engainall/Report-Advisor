@@ -1,3 +1,35 @@
+# LIVE RESUME — 2026-10-10T17:45:00+03:00 / VOI RESTORE PARITY + EXACT CANDIDATE CI PENDING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Application/test candidate: `8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e`; this documentation snapshot is a docs-only child.
+- Product completion: NO.
+
+## Confirmed
+- Generic file intelligence test matrix had passed on the predecessor, with TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF/XLSX source evidence and structured XLSX portfolio 3 rows × 17 columns.
+- Shared header normalization now preserves specialty detection from spaced English/Arabic raw columns, while generic `name,status,total` remains domain-neutral.
+- Browser E2E trust assertion corrected to distinguish `موثوق` source trust from pending/Review evidence passport state; current rerun still pending.
+- Staging schema was inspected read-only; `public.intelligence_voi_requests` exists with expected columns, FKs/checks/index/RLS/tenant policy, but no table-creation migration is present in the repo tree.
+- Added tracked migration `supabase/migrations/20261010180000_restore_intelligence_voi_requests_schema_parity.sql` and a required-schema check in `scripts/check-migration-schema-audit.mjs`. No live DDL was executed.
+
+## CI status at checkpoint
+- Quality [38060131336](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131336): queued.
+- Product Build Gate [38060131167](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131167): queued.
+- Full Product Browser E2E [38060131344](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131344): queued.
+- Device-Independent Browser E2E [38060131142](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131142): queued.
+- Phase-F live resilience [38060131133](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131133): queued.
+- Report Value Cohort [38060131257](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131257): queued.
+- Session Handoff Contract [38060131266](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131266): pending.
+- Adjacent prior Quality failure was setup/build noise: missing Vite package in `node_modules`, followed by `dist/index.html` missing. Not an established application regression.
+- Historical evidence cohort: 18/42 closed; 24 `PASSPORT_NOT_CLOSED`. Do not weaken.
+- Historical Phase-F restore failed on the missing VOI relation; new migration still needs workflow proof.
+
+## Next one action
+Consume the terminal latest-head Quality/Product Build/Full Browser/Session Handoff/Phase-F results. Fix the first proven failure; keep PR #912 open. Then prove source-bound browser readback and close evidence-passport cohort without fabricating verification.
+
+---
+
 # LIVE RESUME — 2026-10-10T17:30:00+03:00 / TRUST ASSERTION CORRECTED; EXACT-HEAD PROOF RECORDED
 
 - Repository: `Report-Engainall/Report-Advisor`
