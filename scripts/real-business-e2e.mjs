@@ -584,7 +584,8 @@ async function proveCurrentSmartReport(page, report) {
 
 async function proveReportsCenterRealSurface(page, report) {
   const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
-  const response = await page.goto(baseURL + '/reports', { waitUntil: 'networkidle', timeout: 30000 });
+  const reportsCenterURL = baseURL + '/reports?reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
+  const response = await page.goto(reportsCenterURL, { waitUntil: 'networkidle', timeout: 30000 });
   assert.ok(response && response.status() < 400, 'REPORTS_CENTER_HTTP_FAILURE');
   const jobResponse = await responsePromise;
   assert.ok(jobResponse, 'REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING');
