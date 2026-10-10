@@ -1693,3 +1693,18 @@ NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts w
 - Correction to earlier notes: `docs/execution/CURRENT_SESSION_STATE.md` and `docs/execution/PROGRAMMER_CURRENT_REPORT.md` do exist under `docs/execution/`. The prior absence claim arose from checking their root paths.
 - No authenticated multi-format upload, complete visible report, navigate/reload, or current-source hash-matched persistence proof has been established. `PRODUCT_COMPLETE = NO`; PR #912 remains unmerged.
 - NEXT EXACT ACTION: consume Quality / Product Build Gate results for exact code SHA `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489`; fix its first confirmed failure and only then write a report-only handoff commit referencing the tested code checkpoint, and validate Session Handoff Contract again.
+
+
+# LIVE RESUME — 2026-10-11T00:02:00+03:00 / RE-VERIFY LIVE HEAD; PRODUCT NOT COMPLETE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Live branch ref observed directly through GitHub: `fix/source-bound-generic-intelligence-20261009`
+- Live branch HEAD observed on 2026-10-11: `3ebe4bb04dc9719e590c31701f363e92ec1f0645` (commit `fix(db): align expanded cohort index predicate`, 2026-10-10T21:02:15Z).
+- PR #912: OPEN / NOT MERGED; head SHA `3ebe4bb04dc9719e590c31701f363e92ec1f0645`; main/base SHA `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- The previous memory/current report described code head `d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`; that is STALE as a branch pointer. Do not reuse old CI results as proof for 3ebe4bb.
+- Exact intent of this session: preserve the existing universal/generic/specialty intelligence core; fix shared general-analysis execution for all supported file kinds and full display of signals/recommendations/evidence in File Lab + Smart Report, maintain one source identity (reportJobId + SHA-256 sourceHash) across pages/refresh/readback; improve professional Arabic RTL executive UI without fixture-specific logic or fabricated metrics.
+- Read from branch before work: ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; latest dated checkpoint from 2026-10-10.
+- Live code tree confirms existing core files remain: `src/lib/universal-report-intelligence.ts`, `src/lib/file-engine/generic-intelligence.ts`, `src/lib/report-smart.ts`, `src/components/UniversalIntelligenceChain.tsx`, `src/components/GenericFileIntelligenceCard.tsx`, `src/pages/ExternalFileAnalysisPage.tsx`, `src/pages/SmartReportPage.tsx`; do not replace/rebuild these engines.
+- Previous exact-head evidence (d00556b only, not transferable to 3ebe4bb): Quality [38085246442] PASS; Product Build [38085246488] PASS; Data Quality Runtime [38085246448] PASS; Device-independent browser smoke [38085246495] PASS, authenticated E2E SKIPPED. Full Product Browser [38085246315] and 40-report cohort [38085246415] failed on HTTP 503/PGRST002 in `rpc/get_report_value_cohort_candidates`; Phase-F [38085246320] last seen 12/16; staging schema-cache recovery was not confirmed. Vercel build-rate-limit is a hosting blocker, not product proof.
+- PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true until current-head proof and real source-bound journey pass.
+- First action now: inspect exact 3ebe4bb source, latest GitHub workflow runs and current component composition; repair source-level/UI issue with smallest safe patch and focused regression. Check whether staging PostgREST recovered before any heavy live cohort/E2E run. Save current findings and next exact action after every material result.
