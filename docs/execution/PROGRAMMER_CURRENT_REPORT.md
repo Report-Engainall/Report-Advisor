@@ -1,3 +1,39 @@
+## CURRENT EXECUTION REPORT — 2026-10-10 — source-bound report context, visible generic intelligence, saved_views restore parity
+
+SESSION HANDOFF = READY
+REPORT_FOR_BRANCH_HEAD = c10429178ba4f414b27c254b1675b8daf0f6ddc1
+APPLICATION_CODE_HEAD = ae75608296a7bdff7d271e87439dace0f3817eb8
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+
+WHAT_CHANGED
+- Reports Center accepts an explicit `reportJobId + sourceHash`, fetches that exact tenant-scoped source, checks the hash and refuses silent substitution. Commit [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974).
+- Full Product E2E supplies the same source context to the Reports Center. Commit [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4).
+- Source context regression contract added in commit [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c).
+- Full Product browser script checks visible general intelligence card, source ID/path/hash and visible generic signals/recommendations on the Smart Report even with a detected specialty. Commit [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8).
+- Added and applied saved_views restore parity migration only in Staging; exact schema/policy/privilege readback documented in archived report and session memory. No production DDL performed.
+
+WHAT_IS_PROVEN
+- GitHub readback: code and regression changes are committed to PR #912; PR remains open and mergeable.
+- Staging table readback: saved_views exists (9 columns, 4 constraints, 3 indexes), RLS enabled, owner policy includes both tenant and auth user predicates, authenticated CRUD grants, no anon grants. Migration ledger version = 20261010165742.
+- Netlify preview containing code commit ae756 is READY: https://deploy-preview-912--aghbari-report-advisor.netlify.app/
+- Vercel preview at docs checkpoint c104 is READY: https://report-advisor-35w5janp3-injaz2.vercel.app/
+- The exact-head browser and clean-restore gates are NOT YET PROVEN. Queued run IDs: Quality 38070293237; Device-Independent Browser 38070293268; Session Handoff 38070293310; Build 38070293366; Full Product Browser 38070293490; data quality 38070293495; Value Cohort 38070293415; Phase-F 38070293496. Desktop Windows 38070293439 is still in progress and blocks the queue; its web build step itself passed.
+- Known unresolved prior failures: sales query statement timeout on /reports/sales; clean restore lacked saved_views (migration now addresses this); Reports Center browser readback missing (code fix plus E2E now exercise exact context).
+
+WHAT REMAINS
+- Consume exact-current-head browser/build/quality/Phase-F run conclusions and logs.
+- Prove upload → analysis → visible complete results → save/readback → refresh/re-entry retains exact source hash and report ID across Screens.
+- If sales timeout repeats, capture actual failure/log/plan evidence before changing pagination, exact count or financial totals; do not relabel missing as zero.
+- Keep PR #912 open and product-complete = NO until those proofs pass.
+
+NEXT_EXACT_ACTION = consume the current-head workflows, inspect the first confirmed failing job's logs, fix the proven cause, and persist an updated checkpoint.
+---
+
+
 ## CURRENT EXECUTION REPORT — 2026-10-10T19:10:00+03:00 — visible executive summary + metric restore schema parity
 
 SESSION HANDOFF = READY
