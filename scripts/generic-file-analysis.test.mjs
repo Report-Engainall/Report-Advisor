@@ -43,6 +43,28 @@ async function main() {
       assert.notEqual(intelligence.findings[0]?.title, 'ملف نشاط العملاء', item.format + ' generic table finding must remain domain-neutral');
     }
   }
+  // A semantic mapper may guess that "name" means customer_name. The raw
+  // source header is generic, so that guess must not authorize specialization.
+  const genericMappedDataset = await parseFile(
+    buffer('name,status,total\\nItem A,تأخير,100\\nItem B,مكتمل,200'),
+    'generic-mapped.csv',
+    'csv',
+  );
+  assert.equal(genericMappedDataset.length, 1, 'generic-mapped fixture should parse');
+  const mappedCustomerGuess = {
+    ...genericMappedDataset[0],
+    columns: genericMappedDataset[0].columns.map((column) => ({
+      ...column,
+      mappedField: column.name === 'name' ? 'customer_name'
+        : column.name === 'status' ? 'customer_status'
+          : column.name === 'total' ? 'total'
+            : column.mappedField,
+    })),
+  };
+  const guessedCustomerIntelligence = buildGenericFileIntelligence(mappedCustomerGuess, 'csv');
+  assert.ok(!guessedCustomerIntelligence.summary.includes('ملف نشاط العملاء'), 'inferred mappedField must not override a generic raw header');
+  assert.notEqual(guessedCustomerIntelligence.findings[0]?.title, 'ملف نشاط العملاء', 'a generic raw name column must not trigger customer specialization');
+
   // Real XLSX regression: customer portfolio + eight monthly measures.
   // The report should map the observed semantics, summarize the table and expose
   // evidence-backed customer-status, monthly-trend and reconciliation signals.
@@ -114,7 +136,13 @@ async function main() {
   });
   assert.strictEqual(universalPortfolio.intelligence, sourceBoundPreview, 'decision chain must reuse the source-bound portfolio analysis object');
   assert.equal(universalPortfolio.intelligence.businessQuestion, 'سؤال محفظة العملاء من نفس الصفوف المصدرية');
-  assert.equal(universalPortfolio.archetype?.id, 'customers.activity', 'customer portfolio s  const generalOnlySignal = portfolioIntelligence.signals.find(signal => signal.id === 'generic:table:source-status');
+  assert.equal(universalPortfolio.archetype?.id, 'customers.activity', 'customer portfolio archetype must be preserved');
+  assert.ok(
+    !universalPortfolio.stages.some(stage => stage.evidence.some(item => item.includes('dateField=missing'))),
+    'stale generic date-missing evidence must not override the source-bound analysis',
+  );
+
+  const generalOnlySignal = portfolioIntelligence.signals.find(signal => signal.id === 'generic:table:source-status');
   assert.ok(generalOnlySignal, 'general layer must include a source-derived status signal');
   const sharedSignal = portfolioIntelligence.signals.find(signal => signal.id !== generalOnlySignal.id);
   assert.ok(sharedSignal, 'general layer must have a second signal to test overlap');
@@ -166,10 +194,6 @@ async function main() {
   assert.ok(composed.recommendations.some(item => item.id === generalOnlyRecommendation.id), 'general-only recommendations must remain available');
   assert.ok(composed.recommendations.some(item => item.id === 'specialty:customer-activity:review'), 'specialist recommendations must be added, not substituted');
   assert.equal(composed.businessQuestion, 'السؤال المتخصص يجب أن يبقى ظاهرًا', 'specialist business question remains primary');
-em.id === 'generic:table:reconcile-totals'), 'general recommendations must remain available');
-  assert.ok(composed.recommendations.some(item => item.id === 'specialty:customer-activity:review'), 'specialist recommendations must be added, not substituted');
-  assert.equal(composed.businessQuestion, 'السؤال المتخصص يجب أن يبقى ظاهرًا', 'specialist business question remains primary');
-
 
   console.log('GENERIC FILE ANALYSIS PASS');
   console.log('STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation');

@@ -97,7 +97,13 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
   });
   const entityColumn = find('customer_name', 'supplier_name', 'product_name', 'اسم العميل', 'اسم المورد', 'اسم المنتج', 'اسم الصنف', 'العميل', 'المورد');
   const totalColumn = find('total', 'grand total', 'total amount', 'net_amount', 'الإجمالي الكلي', 'اجمالي الفاتورة', 'الإجمالي');
-  const customerColumn = find('customer_name', 'client_name', 'اسم العميل', 'اسم الزبون', 'العميل', 'الزبون');
+  // Customer specialization must be supported by raw source headers, not guessed mappings.
+  const customerAliases = ['customer_name', 'customer name', 'client_name', 'client name', 'اسم العميل', 'اسم الزبون', 'العميل', 'الزبون']
+    .map((alias) => normalize(alias).replace(/[()]/g, '').replace(/[\s-]+/g, '_'));
+  const customerColumn = dataset.columns.find((column) => {
+    const rawHeader = normalize(column.name).replace(/[()]/g, '').replace(/[\s-]+/g, '_');
+    return customerAliases.some((alias) => rawHeader.includes(alias));
+  });
   const statusColumn = find('customer_status', 'status', 'حالة الزبون', 'حالة العميل', 'الحالة');
   const monthOrder = ['january','february','march','april','may','june','july','august','september','october','november','december'];
   const monthColumns = dataset.columns.map((column) => ({ column, key: headerKey(column) }))
