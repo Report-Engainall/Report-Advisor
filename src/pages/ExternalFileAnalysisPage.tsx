@@ -434,17 +434,18 @@ export function ExternalFileAnalysisPage() {
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
   const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
   const customerPortfolio = Boolean(intelligence?.findings.some((finding) => finding.id === 'preview:customer-portfolio:interruption'));
+  const genericIntelligence = useMemo(() => dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format]);
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
     specialty: specialty ?? null,
     archetypeHintId: customerPortfolio ? 'customers.activity' : undefined,
     previewIntelligence: customerPortfolio ? intelligence ?? undefined : undefined,
+    generalIntelligence: genericIntelligence ?? undefined,
     rowCount: dataset.rowCount,
     sourceAnalysis: { datasets: [dataset] },
     canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
     sourcePath: file?.name ?? dataset.name,
     sourceHash: file?.hash ?? null,
-  }) : null, [dataset, file, specialty, customerPortfolio, intelligence]);
-  const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
+  }) : null, [dataset, file, specialty, customerPortfolio, intelligence, genericIntelligence]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
     unmapped: dataset.columns.filter(c => !c.mappedField).length,
@@ -483,7 +484,7 @@ export function ExternalFileAnalysisPage() {
       </div>
     </CardBody></Card>}
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
-    {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} />}
+    {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} sourcePath={file.name} sourceHash={file.hash} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {file && universalIntelligence && <Card className="overflow-hidden border-primary-100 bg-[linear-gradient(135deg,rgba(247,245,255,.98),rgba(255,255,255,.98)_55%,rgba(255,249,236,.98))]">
       <CardBody>
