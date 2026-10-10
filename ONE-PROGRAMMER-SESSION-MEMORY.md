@@ -1,3 +1,49 @@
+# LIVE RESUME — 2026-10-10 / REPORTS CENTER CONTEXT + GENERIC-CARD BROWSER ASSERTIONS + SAVED_VIEWS RESTORE PARITY
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Branch head observed immediately before this memory write: `46685acadd2ed66e838a1fc1284e20116fff4776` (documentation updates after code checkpoint)
+- Last code/test change: `ae75608296a7bdff7d271e87439dace0f3817eb8`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+
+## What was executed
+
+1. Reports Center now honors URL `reportJobId + sourceHash` and loads only that same-tenant source context, rejecting source-hash drift rather than silently selecting the tenant's latest report. [Code commit d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974)
+2. Full Product E2E navigates to Reports Center with the exact job ID/hash. [Test commit 943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4)
+3. Contract regression asserts URL source identity and mismatch handling. [Test commit 639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c)
+4. Authenticated browser E2E now requires the general intelligence card to be visibly rendered even with a detected specialty, and checks exact job ID, path, SHA-256, signal region, and recommendation region. [Test commit ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8)
+5. Added `supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql`; applied only to Staging project ref `fnqbvfuwbdpwvhcgzksl`. Migration ledger confirms version `20261010165742`. Readback proves saved_views table exists with 9 columns, 4 constraints, 3 indexes, RLS enabled, owner policy includes both `company_id = current_company_id()` and `user_id = auth.uid()`, authenticated SELECT/INSERT/UPDATE/DELETE and zero anon grants. No production DDL performed.
+6. Checkpoint docs committed:
+   - Archived report [REPORT-20261010-C104291-LIVE-RESUME.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-C104291-LIVE-RESUME.md), commit [eadda15](https://github.com/Report-Engainall/Report-Advisor/commit/eadda15e695dbd86470117b078a1c19bd9ebda43) with a follow-up correction to staging ref.
+   - Report index update [82aa58c](https://github.com/Report-Engainall/Report-Advisor/commit/82aa58cc4dd8acf620c4b905af1e8b7906334bd5).
+   - Current state [82f3bed](https://github.com/Report-Engainall/Report-Advisor/commit/82f3bed0f61daf695aeb83c92595629dab6cf55c).
+   - Current programmer report [46685ac](https://github.com/Report-Engainall/Report-Advisor/commit/46685acadd2ed66e838a1fc1284e20116fff4776).
+
+## Current deploy URLs
+
+- Netlify PR preview is READY at code commit `ae75608296a7bdff7d271e87439dace0f3817eb8`: [https://deploy-preview-912--aghbari-report-advisor.netlify.app/](https://deploy-preview-912--aghbari-report-advisor.netlify.app/).
+- Vercel code preview, READY at the same code commit: [https://report-advisor-or4bj18m7-injaz2.vercel.app/](https://report-advisor-or4bj18m7-injaz2.vercel.app/).
+- A Vercel deployment for the latest docs-only branch head `46685ac...` is queued at [https://report-advisor-7z42j3w8h-injaz2.vercel.app](https://report-advisor-7z42j3w8h-injaz2.vercel.app); do not use this unready queued URL as the main try-it link.
+- Production `https://aghbari-report-advisor.netlify.app/` remains old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b`; production is not updated.
+- The Netlify event for docs-only commit c104 was canceled as “no content change”. The successful Netlify deploy remains tied to code commit ae756. This was not an application build failure.
+
+## Live proof status / unresolved blockers
+
+- Current docs-head PR is still OPEN. Last PR fetch briefly reported `mergeable=false`; recheck mergeability state and branch head before any action; DO NOT MERGE until proof gates pass.
+- Current-head Actions were queued behind a Windows desktop dependency-install step. At checkpoint c104 the runs were: Quality [38070293237], Device-Independent Browser [38070293268], Session Handoff [38070293310], Product Build [38070293366], Full Product Browser [38070293490], data quality [38070293495], Report Value Cohort [38070293415], Phase-F [38070293496]; desktop-windows [38070293439] in progress. Windows job's web-build step had passed; desktop dependency installation still in progress. These runs need fresh status/log readback after this docs update.
+- Prior Full Product Browser [38065584337](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584337) failed at `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING`. The exact-source Reports Center fix and browser test are in branch but not yet proven by a completed current-head run.
+- Prior Device-Independent Browser [38065584293](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584293) found Postgres `57014 statement timeout` at `/reports/sales` on the 500-row sales query. Staging EXPLAIN on the available schema didn't reproduce an obvious expensive plan; do not change page size/count/financial semantics or add indexes without new evidence. Confirm whether it repeats.
+- Prior Phase-F [38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312) failed clean restore due to missing `public.saved_views`; the table parity migration is now applied/read back on staging, but restore gate is still unproven until current job passes.
+- Generic analysis engine and card were already present in the PR. Existing `scripts/generic-file-analysis.test.mjs` tests unknown readable text, TXT, CSV, JSON, JSONL, XML, YAML, Markdown, RTF and XLSX; current quality/browser outcomes need readback.
+- Product complete remains NO. Preview deployed is not authenticated user-journey proof.
+
+## Single next action
+
+Re-read live PR head/mergeability and the Actions run cohort for that exact HEAD. Consume first completed browser/build/Phase-F results and relevant job logs. Repair the first confirmed failure without weakening source-hash validation, evidence states, tenant isolation, or UNKNOWN-versus-zero semantics. When proofs settle, append another dated report and update CURRENT_SESSION_STATE, PROGRAMMER_CURRENT_REPORT, README and this memory with exact test results. Do not declare completion or merge before varied-file upload→analysis→full results→persist/readback→refresh/re-entry is browser-proven.
+---
+
 # LIVE RESUME — 2026-10-10 / SOURCE CONTEXT + GENERIC-CARD BROWSER PROOF ADDED; SAVED_VIEWS PARITY APPLIED
 
 - Repository: `Report-Engainall/Report-Advisor`
