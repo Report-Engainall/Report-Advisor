@@ -33,9 +33,34 @@ console.log('smart-report-complete-intelligence-surface: PASS');
 
 const smartReportPage = fs.readFileSync(new URL('../src/pages/SmartReportPage.tsx', import.meta.url), 'utf8');
 if (!smartReportPage.includes("GenericFileIntelligenceCard")) throw new Error('Smart Report page must expose source-agnostic intelligence');
-if (!smartReportPage.includes('smart-report-generic-intelligence')) throw new Error('Smart Report generic intelligence test marker missing');
-if (!smartReportPage.includes('!report.specialty')) throw new Error('Generic intelligence must remain available when no business specialty is inferred');
-console.log('smart-report-generic-intelligence-surface: PASS');
+if (!smartReportPage.includes('data-testid="smart-report-generic-intelligence"')) throw new Error('Smart Report generic intelligence test marker missing');
+if (!smartReportPage.includes('intelligence={report.genericIntelligence ?? report.intelligence}')) throw new Error('Smart Report must render the independent general intelligence layer');
+if (!smartReportPage.includes('sourceHash={report.sourceHash}') || !smartReportPage.includes('reportJobId={report.jobId}')) throw new Error('Generic intelligence card must retain report source lineage');
+if (smartReportPage.includes('{!report.specialty && (')) throw new Error('General intelligence must render even when a specialty is detected');
+
+const uploadPage = fs.readFileSync(new URL('../src/pages/ExternalFileAnalysisPage.tsx', import.meta.url), 'utf8');
+if (!uploadPage.includes('buildGenericFileIntelligence(dataset')) throw new Error('File Lab must run generic analysis for every recognized dataset');
+if (!uploadPage.includes('generalIntelligence: genericIntelligence ?? undefined')) throw new Error('File Lab must merge general intelligence into the universal chain');
+if (!uploadPage.includes('sourceHash={file.hash}')) throw new Error('File Lab generic results must show the uploaded source hash');
+
+const genericCard = fs.readFileSync(new URL('../src/components/GenericFileIntelligenceCard.tsx', import.meta.url), 'utf8');
+for (const marker of ['signals.map((signal)', 'recommendations.map((recommendation)', 'signal.evidence ?? []', 'recommendation.evidence ?? []', 'intelligence.guidance.inspect.map(', 'finding.evidence ?? []', 'generic-intelligence-source-lineage']) {
+  if (!genericCard.includes(marker)) throw new Error('Generic intelligence card must expose all source-derived results/evidence: ' + marker);
+}
+for (const marker of ['evidence.slice(', 'signals.slice(', 'recommendations.slice(', 'guidance.inspect.slice(']) {
+  if (genericCard.includes(marker)) throw new Error('Generic intelligence card must not truncate result collections: ' + marker);
+}
+
+const reportSmartForGeneric = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
+if (!reportSmartForGeneric.includes('composeIntelligenceLayers(genericIntelligence, intelligence)')) throw new Error('Persisted reports must compose general and applicable specialist intelligence');
+if (!reportSmartForGeneric.includes('genericIntelligence: ReportIntelligence | null')) throw new Error('Smart Report detail must return the general intelligence layer separately');
+if (!reportSmartForGeneric.includes('intelligence = baseIntelligence;')) throw new Error('A failed specialist eligibility gate must preserve review state while allowing general analysis');
+
+const composer = fs.readFileSync(new URL('../src/lib/report-intelligence/compose-intelligence-layers.ts', import.meta.url), 'utf8');
+for (const marker of ['mergeSignals', 'mergeRecommendations', 'uniqueStrings([...(existing.evidence ?? []), ...(incoming.evidence ?? [])])', 'moreCautiousHealth']) {
+  if (!composer.includes(marker)) throw new Error('General/specialist layer composition guard missing: ' + marker);
+}
+console.log('smart-report-generic-intelligence-composition: PASS');
 
 const smartReportSource = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
 const fetchStart = smartReportSource.indexOf('export async function fetchSmartReport');
