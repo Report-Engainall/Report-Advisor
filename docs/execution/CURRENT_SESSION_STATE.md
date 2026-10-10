@@ -1,4 +1,27 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = dedd9ac8c63e69082c403cdac68372718e281f0f
+CURRENT_BRANCH_HEAD_OBSERVED = dedd9ac8c63e69082c403cdac68372718e281f0f (verified before the documentation-only checkpoint writeback; re-read live PR head on resume)
+CURRENT_CODE_TEST_HEAD = dedd9ac8c63e69082c403cdac68372718e281f0f
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T23:10:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume terminal Quality/Build/Full Product Browser/Value Cohort/Phase-F/Device Browser checks for exact code head dedd9ac8c63e69082c403cdac68372718e281f0f; repair the first current-head blocker and record readback evidence.
+
+## Current verified checkpoint
+- Code change committed: dedd9ac8c63e69082c403cdac68372718e281f0f — isolate sibling workflow triggers in the CI topology parser and add a regression fixture.
+- Data Quality Runtime [38082440151](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440151): PASS.
+- At last read, Product Build [38082440345], Quality [38082440412], Full Product Browser [38082440347], Value Cohort [38082440300], Phase-F [38082440417], and Device Browser [38082440390] were queued/in progress. The Session Handoff run [38082440404] failed because the current report still pointed at a previous code head; this checkpoint now pins dedd9ac8c63e69082c403cdac68372718e281f0f.
+- Current exact-head product/browser, report save/readback/refresh, and clean restore proof are not yet established.
+- Prior Value Cohort run [38078344810](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344810) timed out twice with PostgreSQL 57014 in the candidate RPC. Do not treat it as a UI or intelligence-engine failure.
+- Product remains IN PROGRESS; no merge or production promotion.
+
+---
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = a1d365d3e08a20cbb5ab27f4e708435c1ec724d8
 CURRENT_BRANCH_HEAD_OBSERVED = a1d365d3e08a20cbb5ab27f4e708435c1ec724d8
 CURRENT_CODE_TEST_HEAD = a1d365d3e08a20cbb5ab27f4e708435c1ec724d8
