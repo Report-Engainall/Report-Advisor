@@ -1,6 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
 import { buildGenericFileIntelligence } from './file-engine/generic-intelligence.ts';
+import { composeIntelligenceLayers } from './report-intelligence/compose-intelligence-layers.ts';
 import type { ColumnProfile, Dataset } from './file-engine/types.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
@@ -70,6 +71,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
+  genericIntelligence: ReportIntelligence | null;
   runtimeWarnings?: string[];
 };
 
@@ -980,15 +982,28 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     })
     .map((column) => String(column.name ?? column.mappedField ?? 'غير مسمى'));
 
-  if (nonBlockingQualityWarnings.length > 0) {
-    runtimeWarnings.push(
-      'ملاحظات غير مانعة في حقول مساندة: ' + nonBlockingQualityWarnings.slice(0, 8).join('، '),
-    );
+  if (nonBlockingQualityWarnings.  let genericIntelligence: ReportIntelligence | null = null;
+  try {
+    const genericDataset = buildGenericDatasetForReport({
+      sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
+      sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
+      canonicalRows,
+      qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+    });
+    if (genericDataset) {
+      genericIntelligence = buildGenericFileIntelligence(
+        genericDataset,
+        String(sourceAnalysis?.sourceFormat ?? 'generic'),
+      );
+    }
+  } catch (error) {
+    runtimeWarnings.push('تعذر اشتقاق طبقة التحليل العام من الصفوف المتاحة؛ تبقى النتائج المتخصصة خاضعة لبوابة الإثبات.');
+    console.error('[SmartReport] buildGenericFileIntelligence failed', error);
   }
 
   let baseIntelligence: ReportIntelligence;
   if (!intelligenceEligible) {
-    runtimeWarnings.push('تم حجب الذكاء التنفيذي لأن طبقة المصدر لم تجتز بوابة الجودة البنيوية والدلالية.');
+    runtimeWarnings.push('تم حجب الذكاء التنفيذي المتخصص لأن طبقة المصدر لم تجتز بوابة الجودة البنيوية والدلالية؛ سيظل التحليل الوصفي العام ظاهرًا إن أمكن اشتقاقه.');
     baseIntelligence = emptyReportIntelligence(specialty);
     baseIntelligence.advisorBrief = {
       ...baseIntelligence.advisorBrief,
@@ -1005,26 +1020,12 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       canonicalRows,
       persistedIntelligenceCalculations: persistedCalculationRows,
     });
-
-    // Keep source-agnostic intelligence alive after canonical import. Generic
-    // files must not lose their content-derived signals when moving from /try-report
-    // into the persisted Smart Report route.
-    if (!specialty) {
-      const genericDataset = buildGenericDatasetForReport({
-        sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
-        sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
-        canonicalRows,
-        qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
-      });
-      if (genericDataset) {
-        baseIntelligence = buildGenericFileIntelligence(
-          genericDataset,
-          String(sourceAnalysis?.sourceFormat ?? 'generic'),
-        );
-      }
-    }
   } catch (error) {
-    runtimeWarnings.push('تعذر اشتقاق طبقة الذكاء من هذا المصدر؛ تم إظهار حالة مراجعة بدل تجميد التقرير.');
+    runtimeWarnings.push('تعذر اشتقاق الذكاء التنفيذي من هذا المصدر؛ تم إظهار حالة مراجعة بدل تجميد التقرير.');
+    console.error('[SmartReport] deriveReportIntelligence failed', error);
+    baseIntelligence = emptyReportIntelligence(specialty);
+  }
+تقرير.');
     console.error('[SmartReport] deriveReportIntelligence failed', error);
     baseIntelligence = emptyReportIntelligence(specialty);
   }
@@ -1052,7 +1053,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
   if (!intelligenceEligible) {
     archetypeState = 'REVIEW_REQUIRED';
-    intelligence = emptyReportIntelligence(specialty);
+    intelligence = baseIntelligence;
   } else if (detectedArchetype.profile) {
     try {
       const archetypeRun = runReportArchetype({
@@ -1114,6 +1115,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     };
   }
 
+  if (genericIntelligence) intelligence = composeIntelligenceLayers(genericIntelligence, intelligence);
+
   const runtimeSignalStatus = intelligence.signals.length
     ? 'SIGNALS_PRESENT'
     : 'NO_EXCEPTIONAL_SIGNALS';
@@ -1163,6 +1166,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     specialty,
     canonicalRows,
     intelligence,
+    genericIntelligence,
     evidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),
