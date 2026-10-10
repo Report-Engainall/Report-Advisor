@@ -46,7 +46,7 @@ async function main() {
   // A semantic mapper may guess that "name" means customer_name. The raw
   // source header is generic, so that guess must not authorize specialization.
   const genericMappedDataset = await parseFile(
-    buffer('name,status,total\\nItem A,تأخير,100\\nItem B,مكتمل,200'),
+    buffer('name,status,total\nItem A,تأخير,100\nItem B,مكتمل,200'),
     'generic-mapped.csv',
     'csv',
   );
