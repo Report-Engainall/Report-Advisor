@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import rollbackHandler, { deploymentReady } from '../api/rollback-drill.mjs';
+import { isTransientPostgresConnectionError, retryTransientPostgresConnection } from '../src/server/resilience-db-retry.mjs';
 import { isDisallowedOutboundAddress, isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch, sha256ResponseBody, runtimeIdentity } from '../src/server/resilience-runtime.mjs';
 
 const files = [
@@ -20,6 +21,42 @@ assert.match(phaseFProbe, /EXECUTE format\(/);
 assert.match(phaseFProbe, /SELECT table_name \|\| '\|' \|\| row_count::text FROM _phase_f_counts/);
 assert.match(phaseFProbe, /const governanceHead = process\.env\.GOVERNANCE_HEAD\?\.trim\(\) \|\| exactHead/);
 assert.match(phaseFProbe, /governanceHead,/);
+assert.match(phaseFProbe, /retryTransientPostgresConnection/);
+assert.match(phaseFProbe, /PHASE_F_TRANSIENT_POSTGRES_RETRY/);
+assert.equal(isTransientPostgresConnectionError(new Error('FATAL: Failed to connect to database: authentication did not complete within 15000ms')), true);
+assert.equal(isTransientPostgresConnectionError(new Error('ECHECKOUTTIMEOUT unable to check out connection from pool')), true);
+assert.equal(isTransientPostgresConnectionError(new Error('ERROR: duplicate key value violates unique constraint')), false);
+
+let transientAttempts = 0;
+const retryDelays = [];
+const retryEvents = [];
+const connected = retryTransientPostgresConnection(() => {
+  transientAttempts += 1;
+  if (transientAttempts < 3) throw new Error('authentication did not complete within 15000ms');
+  return 'connected';
+}, {
+  label: 'unit-test',
+  pause: (milliseconds) => retryDelays.push(milliseconds),
+  onRetry: (event) => retryEvents.push(event),
+});
+assert.equal(connected, 'connected');
+assert.equal(transientAttempts, 3);
+assert.deepEqual(retryDelays, [1000, 2000]);
+assert.equal(retryEvents.length, 2);
+
+let sqlErrorAttempts = 0;
+assert.throws(() => retryTransientPostgresConnection(() => {
+  sqlErrorAttempts += 1;
+  throw new Error('canceling statement due to statement timeout');
+}, { pause: () => assert.fail('SQL errors must not be retried') }), /statement timeout/);
+assert.equal(sqlErrorAttempts, 1, 'real SQL failures must fail immediately');
+
+let exhaustedAttempts = 0;
+assert.throws(() => retryTransientPostgresConnection(() => {
+  exhaustedAttempts += 1;
+  throw new Error('authentication did not complete within 15000ms');
+}, { maxAttempts: 2, pause: () => undefined, onRetry: () => undefined }), /authentication did not complete/);
+assert.equal(exhaustedAttempts, 2, 'transient retries must remain strictly bounded');
 
 assert.equal(timingSafeEqual(Buffer.from('resilience-secret'), Buffer.from('resilience-secret')), true);
 process.env.RESILIENCE_TARGET_ENV = 'production';

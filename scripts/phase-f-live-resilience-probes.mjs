@@ -6,6 +6,7 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import dns from 'node:dns/promises';
+import { retryTransientPostgresConnection } from '../src/server/resilience-db-retry.mjs';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
 // Use the Docker Official Images mirror in Amazon ECR Public to avoid Docker Hub's
@@ -150,14 +151,18 @@ function toTransactionPooler(databaseUrl) {
 }
 
 function runDockerPsql(databaseUrl, sql) {
-  return runCommand('docker', [
+  const args = [
     'run', '--rm', '--network', 'host',
     '-e', `PGURI=${databaseUrl}`,
     '-e', `QUERY=${sql}`,
     postgresClientImage,
     'sh', '-lc',
     'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "SET statement_timeout = 0" -c "$QUERY"',
-  ]);
+  ];
+  return retryTransientPostgresConnection(
+    () => runCommand('docker', args),
+    { label: 'psql', maxAttempts: 3 },
+  );
 }
 
 function runDockerPsqlFile(databaseUrl, filePath) {
@@ -201,13 +206,17 @@ function runDockerPgDump(databaseUrl, outputPath) {
   const outputName = path.basename(outputPath);
   const containerDir = '/tmp/phase-f-output';
   const containerPath = `${containerDir}/${outputName}`;
-  runCommand('docker', [
+  const args = [
     'run', '--rm', '--network', 'host',
     '-v', `${outputDir}:${containerDir}`,
     '-e', `PGURI=${databaseUrl}`,
     postgresClientImage,
     'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
-  ]);
+  ];
+  return retryTransientPostgresConnection(
+    () => runCommand('docker', args),
+    { label: 'pg_dump', maxAttempts: 3 },
+  );
 }
 
 const VOLATILE_RESTORE_TABLES = new Set([
