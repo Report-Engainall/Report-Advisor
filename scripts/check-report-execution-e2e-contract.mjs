@@ -9,6 +9,7 @@ const files = [
   'src/lib/report-execution/download.ts',
   'src/lib/report-execution/durable-worker-adapter.ts',
   'src/lib/report-execution/execution-ledger.ts',
+  'netlify/functions/canonical-import-execute.mts',
 ];
 
 for (const file of files) if (!existsSync(file)) throw new Error(`Missing report execution component: ${file}`);
@@ -21,6 +22,7 @@ const renderers = read(files[4]);
 const download = read(files[5]);
 const durable = read(files[6]);
 const ledger = read(files[7]);
+const canonicalImport = read(files[8]);
 
 const required = (source, tokens, label) => {
   for (const token of tokens) if (!source.includes(token)) throw new Error(`${label} missing ${token}`);
@@ -34,6 +36,12 @@ required(renderers.toLowerCase(), ['pdf', 'xlsx', 'web'], 'Renderer');
 required(download, ['renderArtifact', 'downloadReportArtifact', 'Blob', 'anchor.download'], 'Report download path');
 required(durable, ['claim_report_execution_job', 'heartbeat_report_execution_job', 'advance_report_execution_checkpoint', 'complete_report_execution_job', 'fail_report_execution_job', 'retry_report_execution_job'], 'Durable worker adapter');
 required(ledger, ['artifactRefs', 'evidence', 'tenantId', 'immutable'], 'Execution ledger');
+required(canonicalImport, [
+  ".select('id,company_id,source_path,source_hash,job_key,status,checkpoint,evidence')",
+  'sourceHash: String(reportJob.source_hash ?? sourceHash)',
+  'sourcePath: String(reportJob.source_path ?? fileName)',
+  'importId: checkpointImportId',
+], 'Canonical evidence recovery must preserve source lineage');
 
 const assertGateImplementation = (source) => {
   if (!source.includes("if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');")) {
