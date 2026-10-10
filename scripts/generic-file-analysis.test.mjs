@@ -3,6 +3,7 @@ import { parseFile } from '../src/lib/file-engine/adapters.ts';
 import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
 import { buildUniversalReportIntelligence } from '../src/lib/universal-report-intelligence.ts';
+import { composeIntelligenceLayers } from '../src/lib/report-intelligence/compose-intelligence-layers.ts';
 import * as XLSX from 'xlsx';
 
 function buffer(value) {
@@ -104,6 +105,56 @@ async function main() {
   assert.equal(universalPortfolio.archetype?.id, 'customers.activity', 'customer portfolio shape must not be labeled as invoice detail');
   assert.equal(universalPortfolio.archetypeState, 'REVIEW_REQUIRED', 'shape hints must not be presented as canonical archetype proof');
   assert.ok(!universalPortfolio.stages.some(stage => stage.evidence.some(item => item.includes('dateField=missing'))), 'stale generic date-missing evidence must not override the source-bound analysis');
+
+  const sharedId = portfolioIntelligence.signals[0]?.id;
+  assert.ok(sharedId, 'general layer should have at least one source-derived signal');
+  const generalSignal = portfolioIntelligence.signals.find(signal => signal.id === sharedId);
+  const specialistEvidence = 'specialist-proof=customer-activity';
+  const generalEvidence = 'general-proof=raw-source-content';
+  const specialistLayer = {
+    ...sourceBoundPreview,
+    businessQuestion: 'السؤال المتخصص يجب أن يبقى ظاهرًا',
+    summary: 'التحليل المتخصص',
+    signals: [
+      ...sourceBoundPreview.signals.map(signal => signal.id === sharedId
+        ? { ...signal, title: 'الإشارة المتخصصة', evidence: [specialistEvidence] }
+        : signal),
+      {
+        id: 'specialty:customer-activity:source-bound',
+        severity: 'medium',
+        title: 'إشارة متخصصة مستقلة',
+        message: 'تظهر فقط في الطبقة المتخصصة',
+        evidence: ['specialtyRow=2'],
+        soWhat: 'مراجعة خاصة بالشكل المكتشف',
+        impact: 'لا يثبت أثرًا ماليًا',
+        ownerHint: 'مراجع التقرير',
+        priority: 'P2',
+        priorityReason: ['specialtySupported=true'],
+      },
+    ],
+    recommendations: [
+      ...sourceBoundPreview.recommendations,
+      { ...sourceBoundPreview.recommendations[0], id: 'specialty:customer-activity:review', title: 'توصية متخصصة' },
+    ],
+  };
+  const generalWithProof = {
+    ...portfolioIntelligence,
+    signals: portfolioIntelligence.signals.map(signal => signal.id === sharedId
+      ? { ...signal, evidence: [...signal.evidence, generalEvidence] }
+      : signal),
+  };
+  const composed = composeIntelligenceLayers(generalWithProof, specialistLayer);
+  const sharedMergedSignal = composed.signals.find(signal => signal.id === sharedId);
+  assert.ok(sharedMergedSignal, 'merged result must preserve overlapping source signal');
+  assert.equal(sharedMergedSignal.title, 'الإشارة المتخصصة', 'specialist interpretation wins for a shared stable ID');
+  assert.ok(sharedMergedSignal.evidence.includes(generalEvidence), 'general evidence must survive composition');
+  assert.ok(sharedMergedSignal.evidence.includes(specialistEvidence), 'specialist evidence must survive composition');
+  assert.ok(composed.signals.some(signal => signal.id === 'generic:table:source-status'), 'general-only signals must survive when specialty is present');
+  assert.ok(composed.signals.some(signal => signal.id === 'specialty:customer-activity:source-bound'), 'specialist-only signals must survive composition');
+  assert.ok(composed.recommendations.some(item => item.id === 'generic:table:reconcile-totals'), 'general recommendations must remain available');
+  assert.ok(composed.recommendations.some(item => item.id === 'specialty:customer-activity:review'), 'specialist recommendations must be added, not substituted');
+  assert.equal(composed.businessQuestion, 'السؤال المتخصص يجب أن يبقى ظاهرًا', 'specialist business question remains primary');
+
 
   console.log('GENERIC FILE ANALYSIS PASS');
   console.log('STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation');
