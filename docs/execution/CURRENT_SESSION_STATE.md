@@ -1,16 +1,27 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489
+CURRENT_EXACT_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912 OPEN / NOT MERGED
 ACTION_STATUS = ACTIVE_EXECUTION
-APPLICATION_CODE_HEAD = 87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489
-REPORT_BASE_HEAD = 2495372e2b7bfc89042f435274c1cde4e4511bec
+APPLICATION_CODE_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
+REPORT_BASE_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-UPDATED_AT = 2026-10-10T16:50:00+03:00
+UPDATED_AT = 2026-10-10
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Consume the terminal current-code Product Build Gate and browser results, establish an actual passing generic multi-format runtime matrix, then prove upload-to-persisted-readback with the identical reportJobId and sourceHash.
+NEXT_EXACT_ACTION = Extract and test a shared specialty-header normalizer, replace the defective File Lab normalization, then consume exact-head Quality and browser results before the source-bound readback proof.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10 — fresh head readback before normalization fix
+
+- Live PR head at inspection: `350d0c69596a3eaffa8e3982c0cf71e31d08a266`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`; PR #912 OPEN.
+- Quality exact-head job `114228066670`: PASS; typecheck, lint, build, performance budget, file-engine regressions, and generic multi-format/XLSX behavioral test passed.
+- Value cohort job `114228066563`: FAIL, 18/42 accepted and 24 remained UNVERIFIED due to PASSPORT_NOT_CLOSED. Preserve this evidence gate; do not loosen it to make the cohort green.
+- Full Product Browser E2E, Device-Independent Browser E2E, and Phase-F live resilience were in progress at last read. Authenticated browser/persisted readback is not proven.
+- Netlify preview is fixture-backed at root and shows auth/marketing route at `/reports` without session. This is not live customer-report proof.
+- Root cause for the next code patch: duplicated bad regex normalizer in File Lab specialty detection. Fix with a shared helper and behavior tests for spaced English/Arabic source headers.
+- Product status remains NOT COMPLETE.
+
 
 ## LIVE EXECUTION CHECKPOINT — 2026-10-10 — CSV heading regression and current test boundary
 
