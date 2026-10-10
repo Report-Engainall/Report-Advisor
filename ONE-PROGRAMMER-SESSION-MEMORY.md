@@ -1,3 +1,33 @@
+# LIVE RESUME — 2026-10-10T18:35:00+03:00 / 49 IMPORTS RECONCILED; PHASE-F GOVERNANCE-PROVENANCE GATE SYNCED
+
+- Repo Report-Engainall/Report-Advisor, PR https://github.com/Report-Engainall/Report-Advisor/pull/912 OPEN / NOT MERGED.
+- Branch fix/source-bound-generic-intelligence-20261009; main fa1ab4cbade9b01685507aa966c10f700a03f576.
+- Current application/code candidate: ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5. The current execution report is a governance-only child.
+- Product complete: NO.
+
+## Verified staging evidence
+- Applied source-proof-gated reconciliation for 49 unique all-zero-counter imports; every eligible source hash, file security/status, rendered row count, analysis quality/row count, canonical commit count and canonical dataset count matched exactly.
+- Audit proof persisted in result_summary.legacyRowCountReconciliation.
+- Readback: 49 audited imports, 49 passports VERIFIED/READY/FULL, zero unresolved reconciled reports.
+- Migration versions 20261010144953 and 20261010145143 are tracked as SQL files.
+
+## Proven predecessor checks
+- Report Value Cohort 38062072330: PASS.
+- Product Build Gate 38062072179: PASS.
+- Session Handoff Contract 38062072369: PASS.
+- Product Build Gate 38061977142 on code candidate 2055600a895c05ef8239b6be4014b121d5cea775: PASS (typecheck, build, smart-report, evidence-boundary, customer-report, and upload UI contracts).
+- These are predecessor/current-predecessor passes, not proof the newest code candidate ce10536... passed.
+
+## New Phase-F correction
+- Both workflow preflight and runtime probe now allow docs/execution/* plus ONE-PROGRAMMER-SESSION-MEMORY.md as governance-only differences. Any non-governance file delta still fails closed.
+- New candidate ce10536... builds the corrected rule into source; its exact-head Phase-F and Quality/Browser runs must still be consumed.
+- Last confirmed Netlify app SHA before this candidate was 2055600...; inspect /api/health deployment_sha and the live preview before interpreting Phase-F.
+
+## Next one action
+Consume terminal current-candidate Quality, Product Build Gate, Full Product Browser E2E, Device-Independent Browser E2E, Session Handoff and Phase-F logs. Prove source-bound upload/render/navigation/reload with identical reportJobId + sourceHash, then consider completion.
+
+---
+
 # LIVE RESUME — 2026-10-10T18:20:00+03:00 / 49 LEGACY PASSPORTS CLOSED; PHASE-F PROVENANCE RULE CORRECTED
 
 - Repository: Report-Engainall/Report-Advisor

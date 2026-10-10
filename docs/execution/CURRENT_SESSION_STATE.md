@@ -1,16 +1,27 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 2055600a895c05ef8239b6be4014b121d5cea775
+CURRENT_EXACT_HEAD = ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912 OPEN / NOT MERGED
 ACTION_STATUS = ACTIVE_EXECUTION
-APPLICATION_CODE_HEAD = 2055600a895c05ef8239b6be4014b121d5cea775
-REPORT_BASE_HEAD = 2055600a895c05ef8239b6be4014b121d5cea775
+APPLICATION_CODE_HEAD = ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5
+REPORT_BASE_HEAD = ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-UPDATED_AT = 2026-10-10T18:20:00+03:00
+UPDATED_AT = 2026-10-10T18:35:00+03:00
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Consume terminal exact-head Quality/Product Build/Full Browser/Value Cohort/Session Handoff/Phase-F runs for 2055600a895c05ef8239b6be4014b121d5cea775; verify the current preview SHA and restore probe, then prove persisted source-bound user flow without relaxing evidence gates.
+NEXT_EXACT_ACTION = Consume terminal exact-head Quality, Product Build Gate, Full Product Browser E2E, Device-Independent Browser E2E, Session Handoff and Phase-F logs for ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5; validate deployment SHA and saved readback without relaxing source/evidence boundaries.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10T18:35:00+03:00 — 49 source-proven imports repaired; Phase-F provenance guard corrected in both layers
+
+- Code candidate ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5; PR #912 remains open/not merged.
+- Staging row-counter reconciliation: 49 audited imports, 49 associated passports VERIFIED/READY/FULL, unresolved reports = 0.
+- Migration source synchronized at versions 20261010144953 and 20261010145143.
+- Predecessor run 38062072330 Report Value Cohort PASS; 38062072179 Product Build Gate PASS; 38062072369 Session Handoff PASS.
+- Phase-F provenance correction now aligns the workflow preflight and JS runtime validator: only docs/execution/* and ONE-PROGRAMMER-SESSION-MEMORY.md may differ from the deployed app SHA. Code-source drift still fails closed.
+- Current candidate’s exact-head tests are not terminal. Last live app source SHA observed before candidate was 2055600....
+- PRODUCT_COMPLETE = NO until current-head Phase-F/restore and full source-bound browser readback pass.
+
 
 ## LIVE EXECUTION CHECKPOINT — 2026-10-10T18:20:00+03:00 — legacy row-count repair and governance-only runtime provenance allowed
 
