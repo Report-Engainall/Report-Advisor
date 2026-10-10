@@ -100,6 +100,16 @@ console.log('smart-report-executive-result-surface: PASS');
 
 const reportsPage = fs.readFileSync(new URL('../src/pages/ReportsPage.tsx', import.meta.url), 'utf8');
 for (const marker of [
+  "const requestedReportJobId = searchParams.get('reportJobId')?.trim() || '';",
+  "const requestedSourceHash = searchParams.get('sourceHash')?.trim() || '';",
+  'const selected = requestedReportJobId',
+  'detail.sourceHash !== requestedSourceHash',
+  '[requestedReportJobId, requestedSourceHash]',
+  'REPORT_SOURCE_HASH_MISMATCH',
+]) {
+  if (!reportsPage.includes(marker)) throw new Error('Reports Center must preserve and validate an explicit source report context: ' + marker);
+}
+for (const marker of [
   'fetchSmartReportCatalogPage',
   'catalogHasMore',
   'loadMoreCatalog',
