@@ -1,5 +1,16 @@
 SESSION HANDOFF = READY
-CURRENT_BRANCH_HEAD_OBSERVED = c10429178ba4f414b27c254b1675b8daf0f6ddc1
+CURRENT_EXACT_HEAD = c10429178ba4f414b27c254b1675b8daf0f6ddc1
+CURRENT_BRANCH_HEAD_OBSERVED = 93a9d823f80d4d36a2196976167b5a731c5648f7
+CURRENT_CODE_TEST_HEAD = ae75608296a7bdff7d271e87439dace0f3817eb8
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume current-head quality/build/browser/Phase-F runs; repair the first confirmed gate failure while keeping source hashes, tenant guards and UNKNOWN != ZERO intact; then persist exact proof.
 CURRENT_CODE_TEST_HEAD = ae75608296a7bdff7d271e87439dace0f3817eb8
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
