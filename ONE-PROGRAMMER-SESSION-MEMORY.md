@@ -1,3 +1,30 @@
+# LIVE RESUME — 2026-10-10T19:10:00+03:00 / 49 PASSPORTS CLOSED; METRIC TABLE RESTORE + VISIBLE SUMMARY FIX
+
+- Repository: `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`; code/test candidate `cf28f9e24e04c69f1ae068b1053768c4dc32179a`.
+- Product completion = NO.
+
+## Executed staging result
+- 49 legacy generic imports with all-zero ledger counters were repaired only where source fingerprint/file hash/security/rendered rows/analyzed rows/canonical commit rows/canonical rows exactly agreed. Provenance saved to `result_summary.legacyRowCountReconciliation`.
+- Verified readback: 49 corrected imports, 49 linked passports VERIFIED/READY/FULL, 0 unresolved for that repaired population.
+- Restore schema parity migrations are tracked/applied for `intelligence_voi_requests`, `report_cell_lineage`, and `report_intelligence_calculations`. Last one is migration version `20261010155211`; readback shows RLS on, 3 tenant policies, 77 metrics across 2 reports.
+- UI bug fixed: the executive summary was nested in collapsed Evidence Passport details. It now sits before the details disclosure with a test id; the E2E asserts visible DOM, not hidden source text.
+- Cohort [38065456403](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065456403) passed on current candidate; earlier proof closed 40/40 reports.
+
+## Current next task
+Consume exact-head Quality, Product Build, Phase-F restore, Full Product Browser and Device-Independent Browser runs for `cf28f9e24e04c69f1ae068b1053768c4dc32179a`; then repair the first verified blocker. The current runs were pending/in progress at this checkpoint. Previous restore failed specifically on `report_intelligence_calculations` missing from clean restore; the tracked parity migration should now unblock that relation, but the whole restore remains unproven until the workflow passes.
+
+## Current code changes in this candidate
+- `supabase/migrations/20261010155211_restore_report_intelligence_calculations_schema_parity.sql`
+- `scripts/check-migration-schema-audit.mjs`
+- `src/pages/SmartReportPage.tsx`
+- `scripts/real-business-e2e.mjs`
+- `scripts/smart-report-complete-intelligence-surface.test.mjs`
+
+Next exact action: read current run conclusions and relevant logs; keep PR #912 open and never promote pending evidence to verified.
+
+---
+
 # LIVE RESUME — 2026-10-10T18:45:00+03:00 / 49 PASSPORTS FIXED; LINEAGE RESTORE + COHORT TIMEOUT DIAGNOSTICS
 
 - Repo: `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.

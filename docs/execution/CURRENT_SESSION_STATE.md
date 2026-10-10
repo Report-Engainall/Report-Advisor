@@ -1,4 +1,27 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = cf28f9e24e04c69f1ae068b1053768c4dc32179a
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+APPLICATION_CODE_HEAD = cf28f9e24e04c69f1ae068b1053768c4dc32179a
+REPORT_BASE_HEAD = cf28f9e24e04c69f1ae068b1053768c4dc32179a
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T19:10:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume exact-head Quality, Product Build, Phase-F, Full Product Browser, Device-Independent Browser, Report Value Cohort and Session Handoff results; confirm visible executive summary after refresh and full clean logical restore; fix the first proven failure without relaxing evidence gates.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10T19:10:00+03:00
+
+- Code/test head: `cf28f9e24e04c69f1ae068b1053768c4dc32179a`.
+- 49 source-proof-based legacy imports repaired; 49 linked passports read back VERIFIED/READY/FULL, zero unresolved in the repaired set.
+- The clean-restore blocker is now tracked: `report_intelligence_calculations` restore migration `20261010155211` is applied in staging, 3 RLS tenant policies verified, 77 metric rows retained.
+- Executive summary moved outside collapsed Evidence Passport details and browser E2E now checks the visible summary DOM marker.
+- Cohort run [38065456403](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065456403) passed on this code head. Other exact-head validation still pending/in progress at checkpoint time.
+- Product complete remains NO.
+
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = 242c072a1293346109edd3a67cd45a438f53d359
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
