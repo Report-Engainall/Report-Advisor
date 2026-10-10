@@ -1,3 +1,61 @@
+# LIVE RESUME — 2026-10-10 / SESSION HANDOFF REPORT CORRECTED; CURRENT-HEAD PROOFS QUEUED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED / mergeable was last true.
+- Branch head observed before this memory update: `b33d2a1550c82d76982a2c5d43fdb2725c6a20c1`.
+- Code/test head containing latest product code: `ae75608296a7bdff7d271e87439dace0f3817eb8`.
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- PRODUCT_COMPLETE = NO.
+
+## Why Session Handoff failed and what is now corrected
+
+On source-code commit ae756, [Session Handoff Contract run 38070065336](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065336) failed with `SESSION_HANDOFF_CONTRACT_FAIL: stale report; unreported files: scripts/real-business-e2e.mjs, scripts/smart-report-complete-intelligence-surface.test.mjs, src/pages/ReportsPage.tsx, supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql`. The checker requires a `REPORT_FOR_HEAD` that is an ancestor of HEAD and then allows only documentation files to change after that report head. The existing report still pointed to an older code head.
+- Current report now sets `REPORT_FOR_HEAD = c10429178ba4f414b27c254b1675b8daf0f6ddc1`, the code checkpoint before later documentation-only commits, and it contains every required session handoff field.
+- Current session state now has the required `CURRENT_EXACT_HEAD`, `BRANCH`, `PR`, `ACTION_STATUS`, `NEXT_EXACT_ACTION` fields at the top.
+- The latest Session Handoff job for updated PR head b33 is still pending/no job payload visible yet; it is not yet proven PASS. Verify new run [38070618351](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070618351).
+- Allowed changes since report baseline c104 are documentation only: `ONE-PROGRAMMER-SESSION-MEMORY.md`, `docs/execution/CURRENT_SESSION_STATE.md`, `docs/execution/PROGRAMMER_CURRENT_REPORT.md`, `docs/execution/PROGRAMMER_REPORTS/README.md`, and dated report `docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-C104291-LIVE-RESUME.md`.
+
+## Product/source changes already committed
+
+- [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974): Reports Center respects explicit `reportJobId + sourceHash`, reads the same report, and refuses to silently substitute another job/source.
+- [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4): Full Product E2E navigates with exact ID/hash.
+- [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c): source identity regression contract.
+- [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8): browser tests visible generic layer, source path, SHA, job ID, signal area and recommendation area.
+- Existing generic engine/card and `scripts/generic-file-analysis.test.mjs` already cover unknown text fallback plus TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF/XLSX; do not rebuild engine.
+- Staging schema parity migration `supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql` was applied only to project `fnqbvfuwbdpwvhcgzksl`. Readback: 9 columns, 4 constraints, 3 indexes, RLS enabled, authenticated tenant+owner policy, CRUD authenticated grants, zero anon grants. Production schema was not changed. Clean restore still needs a passing gate.
+
+## Current-head gates / jobs last queried
+
+For PR branch head b33, the fresh cohort:
+- Quality [38070618199] — queued
+- Device-Independent Browser E2E [38070618304] — queued, browser-smoke job [114267087142] queued
+- Session Handoff Contract [38070618351] — pending, no job payload exposed yet
+- Product Build Gate [38070618307] — queued, build-and-contracts [114267087110] queued
+- Full Product Browser E2E [38070618341] — queued, browser-e2e [114267087401] queued; corpus sub-job skipped
+- Phase-F live resilience [38070618280] — queued, certify job [114267088304] queued
+- Report Value Cohort [38070618329] — queued
+- Desktop Windows [38070618291] — build-windows [114267087274] in progress.
+The current-head jobs need a new read after docs updates. Previous desktop-web build step on ae756 succeeded, but that does not substitute for this cohort.
+
+## Preview and production truth
+
+- Ready code preview (Netlify): [https://deploy-preview-912--aghbari-report-advisor.netlify.app/](https://deploy-preview-912--aghbari-report-advisor.netlify.app/) on code SHA ae756.
+- Ready code preview (Vercel): [https://report-advisor-or4bj18m7-injaz2.vercel.app/](https://report-advisor-or4bj18m7-injaz2.vercel.app/) on code SHA ae756.
+- The Vercel URL generated for latest docs branch head `b33` is queued: `https://report-advisor-n8q9194uy-injaz2.vercel.app`; do not give it to customer as a working link until READY.
+- Production `https://aghbari-report-advisor.netlify.app/` still points to old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b`, not the latest branch.
+
+## Known product failure history
+
+- Prior Full Product Browser [38065584337](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584337) failed Reports Center readback. The code now handles the explicit ID/hash; the current browser must prove it.
+- Prior Device-Independent Browser [38065584293](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584293) encountered PostgreSQL `57014 statement timeout` on `/reports/sales` for a 500-row request. EXPLAIN from current staging showed an index scan plus incremental sort, but no authenticated timeout reproduced. Do not change exact count/page size/financial semantics or add unmeasured index until a current run reproduces with evidence.
+- Prior Phase-F [38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312) failed restore because `saved_views` was missing from migration history; the parity migration is now tracked/applied to staging, but clean-restore proof is pending.
+
+## Single next action
+
+Re-read PR head/current runs and consume the new Session Handoff, build/quality, authenticated browser, device-independent browser, and Phase-F outcomes. Inspect the first failed job's logs; correct the handoff baseline if still failing or fix the first real application/test failure. Do not merge or declare product complete until varied-file upload→analysis→visible results→persist/readback→refresh/re-entry is proven with the original source hash.
+---
+
 # LIVE RESUME — 2026-10-10 / REPORTS CENTER CONTEXT + GENERIC-CARD BROWSER ASSERTIONS + SAVED_VIEWS RESTORE PARITY
 
 - Repository: `Report-Engainall/Report-Advisor`
