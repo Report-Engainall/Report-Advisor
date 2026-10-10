@@ -1,3 +1,16 @@
+# LIVE RESUME — 2026-10-10 / TEST MATRIX EXPANDED; FOCUSED RUNS PENDING
+
+- Repo `Report-Engainall/Report-Advisor`; PR #912 open/not merged; branch `fix/source-bound-generic-intelligence-20261009`.
+- Application head for this checkpoint: `a077dfebea99f8848b086f0b04dbedf83a2d6b17`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Implemented: general+specialist composition across File Lab/universal/Smart Report; sourceHash/job/path bindings; complete list/evidence rendering; canonical evidence recovery lineage repair. Specialist gates remain fail-closed.
+- Confirmed syntax failure at ancestor `7c0411b` repaired in `dee505d`, Vercel build log `✓ built in 20.37s`, app deployment READY.
+- New format regression matrix in `scripts/generic-file-analysis.test.mjs` covers TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF/XLSX and asserts source-derived findings/evidence. Added at `a077dfebea99f8848b086f0b04dbedf83a2d6b17`, execution is not yet proven.
+- Live exact-head gates: Product Build Gate `38012609562` queued; Full Product Browser E2E `38012609619` queued; Quality `38012609570` queued; Data Quality Runtime `38012609428` queued; File Intelligence Security `38012609431` queued; Session Handoff Contract `38012609304` pending. Vercel and Netlify status checks are pending after this test-only push.
+- Phase-F restore/schema parity remains an independent open release item. No authenticated browser journey, source-bound reentry/readback or production proof; PRODUCT_COMPLETE=NO.
+- ONE NEXT ACTION: consume the first terminal Product Build Gate/Quality/Full Product Browser E2E result on exact code head `a077dfebea99f8848b086f0b04dbedf83a2d6b17`, fix first verified failure, then prove same report job+sourceHash from upload through reload/readback.
+
+---
+
 # LIVE RESUME — 2026-10-10 / CURRENT APPLICATION CODE AND EXECUTION STATE
 
 - Repository: `Report-Engainall/Report-Advisor`

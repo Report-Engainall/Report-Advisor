@@ -1,6 +1,33 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
 REPOSITORY = Report-Engainall/Report-Advisor
+PR = #912 OPEN / NOT MERGED
+BRANCH = fix/source-bound-generic-intelligence-20261009
+CURRENT_CODE_HEAD = a077dfebea99f8848b086f0b04dbedf83a2d6b17
+REPORT_FOR_HEAD = a077dfebea99f8848b086f0b04dbedf83a2d6b17
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T03:15:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+## LIVE CHECKPOINT — 2026-10-10 03:15
+
+- General intelligence is now composed with applicable specialist intelligence; the specialist layer augments rather than replaces general source analysis. File Lab runs the general analyzer for recognized datasets regardless of specialty. Saved Smart Report returns and renders the generic layer even when a specialty is detected, carries job ID/sourceHash/source path, and keeps specialist eligibility/decision gates fail-closed.
+- Generic result card no longer truncates its provided signals, recommendations, findings/risks/opportunities or evidence. Canonical recovery selects stored evidence and preserves sourceHash/sourcePath/importId.
+- Syntax issue at ancestor `7c0411b` was fixed by `dee505d`; Vercel build logs show `✓ built in 20.37s`, and the repaired application code is deployed READY. This is deployment proof only, not end-to-end completion.
+- New format matrix committed at `a077dfebea99f8848b086f0b04dbedf83a2d6b17`: the generic runtime test covers TXT, CSV, JSON, JSONL, XML, YAML, Markdown, RTF and XLSX, with assertions for source-derived findings/evidence. Test is committed, NOT YET proven executed.
+- Current exact-head gate states: Exact-head run state at a077dfebea99f8848b086f0b04dbedf83a2d6b17: 56 Action runs total; 2 completed (one success, one skipped), 49 queued, 4 pending, 1 in progress. Product Build Gate #38012609562 QUEUED; Full Product Browser E2E #38012609619 QUEUED; Quality #38012609570 QUEUED; Data Quality Runtime #38012609428 QUEUED; File Intelligence Security #38012609431 QUEUED; Session Handoff Contract #38012609304 PENDING. Combined statuses: CodeRabbit success, Vercel pending, Netlify deploy-preview pending.
+- PR #906/#909 overlap the affected report/card/test paths, but their checked branch contents lack the current composer + unconditional generic layer + latest assertions. Do not merge blindly.
+- Separate Phase-F blocker: previous restore test lacked `public.intelligence_causal_hypotheses`; parity migration/preflight is in the branch, but its current run is not proven green.
+- Not proven: authenticated upload/browser journey, multiple-format saved-report readback after reload/re-entry, full tenant/job/hash continuity, production.
+CURRENT_FIRST_FAILURE = No new terminal failure is available yet; focused checks remain queued.
+NEXT_EXACT_ACTION = Inspect the first terminal exact-head Product Build Gate/Quality/Full Product Browser E2E job and fix only its verified root cause; then prove the same jobId/sourceHash through navigation, reload and persisted readback.
+
+## HISTORICAL STATE BELOW — preserved verbatim
+
+SESSION HANDOFF = READY
+ACTION_STATUS = ACTIVE_EXECUTION
+REPOSITORY = Report-Engainall/Report-Advisor
 PR = #912 (OPEN / NOT MERGED)
 BRANCH = fix/source-bound-generic-intelligence-20261009
 CURRENT_CODE_HEAD = 85f69f2ab10fee85293b99e902cfe15eab8f4f91
