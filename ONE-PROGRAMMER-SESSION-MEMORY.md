@@ -1,3 +1,20 @@
+# LIVE RESUME — 2026-10-10 / SOURCE-PROVEN ROW-COUNT RECONCILIATION PREPARED
+
+- Repository `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
+- Branch `fix/source-bound-generic-intelligence-20261009`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`; current application/test candidate `8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e`. This checkpoint commit changes documentation only.
+- Product completion = NO. No row counts are inferred from filenames or guessed mappings.
+
+## Exact read-only proof found
+- Live Supabase staging query found 49 unique completed generic-import jobs with a passport in `UNVERIFIED / REVIEW / PARTIAL` and all import ledger counters stored as zero.
+- Every one of these 49 was independently source-proven: the import's `source_fingerprint`, `file_records.file_hash`, report `source_hash`, and passport/snapshot `source_hash` match; source file security is `passed`; file status is `ready/processed/verified`; report is `completed` at `rendered`; rendered row count, analyzed snapshot row count, canonical commit count, and canonical dataset count all match exactly; analysis quality is at least 70.
+- Aggregate: `report_proof_rows=49`, `unique_import_jobs=49`, `conflict_free_import_jobs=49`, `conflicting_import_jobs=0`, proven row counts range 1–886. All reads were SELECT-only; no staging rows have been changed yet.
+- The current `refresh_report_evidence_passport` correctly refuses FULL coverage if legacy `import_jobs.total_rows/processed_rows/valid_rows` are zero. This is the direct cause of the cohort failure, not a reason to relax the evidence gate.
+
+## Next exact action
+Create and apply an idempotent, audited repair migration that backfills only those import jobs whose source/hash/file-security/rendered/analysis/commit/canonical evidence agrees exactly; record provenance in `import_jobs.result_summary`, then refresh and read back the matching evidence passports. Do not update any row that fails even one proof condition. Persist the migration under its actual generated version in GitHub immediately after application, and rerun Report Value Cohort + Phase-F restore verification.
+
+---
+
 # LIVE RESUME — 2026-10-10T17:45:00+03:00 / VOI RESTORE PARITY + EXACT CANDIDATE CI PENDING
 
 - Repository: `Report-Engainall/Report-Advisor`
