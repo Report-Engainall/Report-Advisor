@@ -542,6 +542,23 @@ async function proveCurrentSmartReport(page, report) {
   const jobRows = await response.json();
   assert.equal(jobRows.length, 1); assert.equal(jobRows[0].id, report.reportJobId); assert.equal(jobRows[0].source_hash, CURRENT_REPORT_SOURCE_HASH); assert.equal(jobRows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
   await waitForSmartReportEvidenceSurface(page);
+
+  // Prove the cross-cutting general layer is visible even when the report has a specialty.
+  const genericCard = page.locator('[data-testid="smart-report-generic-intelligence"] [data-testid="generic-file-intelligence"]');
+  await genericCard.waitFor({ state: 'visible', timeout: 15000 });
+  const sourceLineage = genericCard.locator('[data-testid="generic-intelligence-source-lineage"]');
+  await sourceLineage.waitFor({ state: 'visible', timeout: 15000 });
+  const sourceLineageText = await sourceLineage.innerText();
+  assert.ok(sourceLineageText.includes(report.reportJobId), 'GENERIC_INTELLIGENCE_REPORT_JOB_MISSING');
+  assert.ok(sourceLineageText.includes(CURRENT_REPORT_SOURCE_PATH), 'GENERIC_INTELLIGENCE_SOURCE_PATH_MISMATCH');
+  assert.ok(sourceLineageText.includes(CURRENT_REPORT_SOURCE_HASH), 'GENERIC_INTELLIGENCE_SOURCE_HASH_MISMATCH');
+
+  for (const regionName of ['كل إشارات التحليل العام', 'كل توصيات التحليل العام']) {
+    const region = genericCard.locator('[aria-label="' + regionName + '"]');
+    assert.equal(await region.count(), 1, 'GENERIC_INTELLIGENCE_REGION_MISSING:' + regionName);
+    await region.waitFor({ state: 'visible', timeout: 15000 });
+  }
+
   const before = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(before, 'current smart report');
   assert.ok(before.includes('EVIDENCE PASSPORT'));
