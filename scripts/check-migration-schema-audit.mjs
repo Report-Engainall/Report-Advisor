@@ -75,6 +75,33 @@ for (const file of files) {
   // Keep them inventoried, but do not treat repeated function names as duplicates by themselves.
 }
 
+// A live staging restore proved that this table exists in the governed schema but
+// the originating historical migration is absent from this repository. Keep the
+// relation, tenant gate, privileges, and priority index in the tracked schema chain.
+const voiParityFile = files.find((file) => file.includes('restore_intelligence_voi_requests_schema_parity'));
+if (!voiParityFile) {
+  findings.push('missing restore parity migration: intelligence_voi_requests');
+} else {
+  const voiSql = fs.readFileSync(path.join(dir, voiParityFile), 'utf8');
+  const voiRequirements = [
+    ['table definition', /CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+public\.intelligence_voi_requests/i],
+    ['priority index', /CREATE\s+INDEX\s+IF\s+NOT\s+EXISTS\s+idx_voi_requests_priority/i],
+    ['RLS enabled', /ALTER\s+TABLE\s+public\.intelligence_voi_requests\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY/i],
+    ['tenant policy', /CREATE\s+POLICY\s+voi_requests_tenant/i],
+    ['tenant policy check', /USING\s*\(company_id\s*=\s*public\.current_company_id\(\)\)\s*WITH\s+CHECK\s*\(company_id\s*=\s*public\.current_company_id\(\)\)/i],
+    ['anon/public revoke', /REVOKE\s+ALL\s+ON\s+TABLE\s+public\.intelligence_voi_requests\s+FROM\s+PUBLIC\s*,\s*anon/i],
+    ['authenticated privileges', /GRANT\s+SELECT\s*,\s*INSERT\s*,\s*UPDATE\s*,\s*DELETE\s+ON\s+TABLE\s+public\.intelligence_voi_requests\s+TO\s+authenticated/i],
+    ['service-role privileges', /GRANT\s+SELECT\s*,\s*INSERT\s*,\s*UPDATE\s*,\s*DELETE\s+ON\s+TABLE\s+public\.intelligence_voi_requests\s+TO\s+service_role/i],
+    ['sensitivity nonnegative guard', /intelligence_voi_requests_sensitivity_check[\s\S]*?CHECK\s*\(sensitivity\s*>=\s*0\)/i],
+    ['value nonnegative guard', /intelligence_voi_requests_estimated_value_check[\s\S]*?CHECK\s*\(estimated_value\s*>=\s*0\)/i],
+    ['priority nonnegative guard', /intelligence_voi_requests_priority_score_check[\s\S]*?CHECK\s*\(priority_score\s*>=\s*0\)/i],
+    ['explicit state guard', /intelligence_voi_requests_state_check[\s\S]*?CHECK\s*\(state\s*=\s*ANY\s*\(ARRAY\[/i],
+  ];
+  for (const [label, pattern] of voiRequirements) {
+    if (!pattern.test(voiSql)) findings.push(voiParityFile + ': VOI restore parity missing ' + label);
+  }
+}
+
 if (duplicateObjects.length) {
   for (const d of duplicateObjects) findings.push(`unsafe duplicate ${d.kind} ${d.name}: ${d.previous} -> ${d.file}`);
 }
