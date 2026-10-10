@@ -417,7 +417,7 @@ export function ExternalFileAnalysisPage() {
 
   const dataset = datasets[active] ?? null;
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
-  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
+  const specialty = useMemo(() => dataset ? inferReportSpecialty(dataset) : undefined, [dataset]);
   const customerPortfolio = Boolean(intelligence?.findings.some((finding) => finding.id === 'preview:customer-portfolio:interruption'));
   const genericIntelligence = useMemo(() => dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format]);
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
