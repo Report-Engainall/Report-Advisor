@@ -49,3 +49,18 @@ The product remains **IN PROGRESS**. A static contract, passing build, public pr
 ## Exact first action on resume
 
 Read the live PR head/check statuses after the checkpoint commit; then make the smallest source-bound intelligence composition and UI exposure patch, followed by focused tests and a new immutable report. Do not rebuild the platform from scratch.
+
+
+## Implementation delta — 2026-10-10
+
+Candidate product commit before this documentation writeback: `9caca7cf54c6c9d1d902e694e6fa5906a04890c4` (PR #912; OPEN / NOT MERGED).
+
+- Added `src/lib/report-intelligence/compose-intelligence-layers.ts` to merge general-source results with applicable specialist results, deduplicate on stable IDs, union evidence, retain general-only and specialist-only signals/recommendations, and choose the more cautious health state.
+- Updated `universal-report-intelligence.ts`, `ExternalFileAnalysisPage.tsx`, `report-smart.ts`, and `SmartReportPage.tsx` to keep general intelligence available on both preview and persisted routes regardless of specialty.
+- Exposed the general layer separately on `SmartReportDetail`, while merging it into the main intelligence object for the other report surfaces.
+- Reworked `GenericFileIntelligenceCard.tsx` so all available signals, recommendations, evidence, drivers, findings/risks/opportunities and measurement/owner/limitation fields render without the former 5-evidence/8-inspection truncation. The card accepts source path/hash/job ID and renders them.
+- Extended `generic-file-analysis.test.mjs` with merge behavior assertions and `smart-report-complete-intelligence-surface.test.mjs` with specialty-independent exposure, completeness and source-lineage assertions.
+- These are code/test changes verified by GitHub write/read operations only. **They are not yet test PASS evidence**; no local runtime is connected through this GitHub-only path, and current-head CI is the next verification source.
+
+### First next action
+Refresh PR #912 head and CI at that exact SHA; resolve compilation or focused-test failures first. Then validate varied text/XML/YAML/RTF and XLSX source shapes, followed by authenticated browser/persisted readback of the same report job + source hash across navigation/reload.
