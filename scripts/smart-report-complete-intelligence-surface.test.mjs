@@ -63,7 +63,7 @@ function assertUniversalChainExpandedByDefault(pageSource, pageName) {
   const disclosureStart = pageSource.lastIndexOf('<details', chainPosition);
   const openingTagEnd = pageSource.indexOf('>', disclosureStart);
   const openingTag = disclosureStart >= 0 && openingTagEnd >= 0 ? pageSource.slice(disclosureStart, openingTagEnd + 1) : '';
-  if (!/\\bopen\\b/.test(openingTag)) throw new Error(pageName + ' must show the complete unified intelligence chain expanded by default');
+  if (!/\bopen\b/.test(openingTag)) throw new Error(pageName + ' must show the complete unified intelligence chain expanded by default');
 }
 assertUniversalChainExpandedByDefault(smartReportPage, 'Smart Report');
 assertUniversalChainExpandedByDefault(uploadPage, 'File Lab');
