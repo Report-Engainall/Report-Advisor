@@ -1286,27 +1286,7 @@ export function SmartReportPage() {
       </div>
     </details>
 
-    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
-      <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="section-kicker">EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل</div>
-            <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
-            <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
-          </div>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">استكشاف التفاصيل</span>
-        </div>
-      </summary>
-      <div className="space-y-5 border-t border-ink-100 p-5 lg:p-6">
-        <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">الثقة</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">المصدر</div><div className="mt-2 font-black text-ink-950">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'} · البصمة محفوظة ضمن سجل التدقيق</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">السجلات</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">نوع التقرير</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
-          </div>
-        </section>
-    <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+    <section data-testid="smart-report-executive-summary" className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
         <div className="section-kicker">الملخص التنفيذي</div>
         <h2 className="mt-1 text-xl font-black text-ink-950">ماذا يقول هذا التقرير فعليًا؟</h2>
@@ -1327,7 +1307,27 @@ export function SmartReportPage() {
       </div>
     </section>
 
-    <EvidenceInspector report={report}/>
+    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+      <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="section-kicker">EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل</div>
+            <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
+          </div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">استكشاف التفاصيل</span>
+        </div>
+      </summary>
+      <div className="space-y-5 border-t border-ink-100 p-5 lg:p-6">
+        <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">الثقة</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">المصدر</div><div className="mt-2 font-black text-ink-950">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'} · البصمة محفوظة ضمن سجل التدقيق</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">السجلات</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">نوع التقرير</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
+          </div>
+        </section>
+        <EvidenceInspector report={report}/>
     {report.runtimeWarnings?.length ? (
       <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="تحذيرات التشغيل">
         <div className="text-[9px] font-black tracking-[.12em]">قراءة النظام</div>

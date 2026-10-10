@@ -90,6 +90,12 @@ for (const marker of [
 ]) {
   if (!smartReportPage.includes(marker)) throw new Error('Smart Report executive result surface marker missing: ' + marker);
 }
+const executiveSummaryMarker = 'data-testid="smart-report-executive-summary"';
+const executiveSummaryPosition = smartReportPage.indexOf(executiveSummaryMarker);
+const passportDisclosurePosition = smartReportPage.indexOf('EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل');
+if (executiveSummaryPosition < 0 || passportDisclosurePosition < 0 || executiveSummaryPosition > passportDisclosurePosition) {
+  throw new Error('Smart Report executive summary must render before the collapsed Evidence Passport disclosure');
+}
 console.log('smart-report-executive-result-surface: PASS');
 
 const reportsPage = fs.readFileSync(new URL('../src/pages/ReportsPage.tsx', import.meta.url), 'utf8');

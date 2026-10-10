@@ -129,6 +129,37 @@ if (!cellLineageParityFile) {
   }
 }
 
+// Persisted metric lineage is imported by the logical restore and consumed by Smart Report.
+const metricParityFile = files.find((file) => file.includes('restore_report_intelligence_calculations_schema_parity'));
+if (!metricParityFile) {
+  findings.push('missing restore parity migration: report_intelligence_calculations');
+} else {
+  const metricSql = fs.readFileSync(path.join(dir, metricParityFile), 'utf8');
+  const metricRequirements = [
+    ['table definition', /CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+public\.report_intelligence_calculations/i],
+    ['job/source lookup index', /CREATE\s+INDEX\s+IF\s+NOT\s+EXISTS\s+report_intelligence_calculations_job_idx/i],
+    ['metric lookup index', /CREATE\s+INDEX\s+IF\s+NOT\s+EXISTS\s+report_intelligence_calculations_metric_idx/i],
+    ['company foreign key', /FOREIGN\s+KEY\s*\(company_id\)\s+REFERENCES\s+public\.companies/i],
+    ['report-job foreign key', /FOREIGN\s+KEY\s*\(report_execution_job_id\)\s+REFERENCES\s+public\.report_execution_jobs/i],
+    ['snapshot foreign key', /FOREIGN\s+KEY\s*\(evidence_snapshot_id\)\s+REFERENCES\s+public\.report_evidence_snapshots/i],
+    ['passport foreign key', /FOREIGN\s+KEY\s*\(evidence_passport_id\)\s+REFERENCES\s+public\.report_evidence_passports/i],
+    ['unique metric lineage', /UNIQUE\s*\(company_id,\s*report_execution_job_id,\s*source_hash,\s*archetype_id,\s*profile_version,\s*metric_id\)/i],
+    ['availability-state guard', /report_intelligence_calculations_availability_state_check[\s\S]*?CHECK\s*\(availability_state\s*=\s*ANY/i],
+    ['sample bounds guard', /report_intelligence_calculations_check[\s\S]*?CHECK\s*\(usable_sample\s*>=\s*0\s+AND\s+usable_sample\s*<=\s*sample_size\)/i],
+    ['confidence guard', /report_intelligence_calculations_confidence_check[\s\S]*?CHECK\s*\(confidence\s*>=\s*0\s+AND\s+confidence\s*<=\s*1\)/i],
+    ['RLS enabled', /ALTER\s+TABLE\s+public\.report_intelligence_calculations\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY/i],
+    ['tenant select policy', /CREATE\s+POLICY\s+report_intelligence_calculations_select[\s\S]*?USING\s*\(company_id\s*=\s*public\.current_company_id\(\)\)/i],
+    ['tenant insert policy', /CREATE\s+POLICY\s+report_intelligence_calculations_insert[\s\S]*?WITH\s+CHECK\s*\(company_id\s*=\s*public\.current_company_id\(\)\)/i],
+    ['tenant update policy', /CREATE\s+POLICY\s+report_intelligence_calculations_update[\s\S]*?USING\s*\(company_id\s*=\s*public\.current_company_id\(\)\)\s*WITH\s+CHECK\s*\(company_id\s*=\s*public\.current_company_id\(\)\)/i],
+    ['public access revoked', /REVOKE\s+ALL\s+ON\s+TABLE\s+public\.report_intelligence_calculations\s+FROM\s+PUBLIC\s*,\s*anon/i],
+    ['authenticated read/write grants', /GRANT\s+SELECT\s*,\s*INSERT\s*,\s*UPDATE\s+ON\s+TABLE\s+public\.report_intelligence_calculations\s+TO\s+authenticated/i],
+    ['service role grants', /GRANT\s+SELECT\s*,\s*INSERT\s*,\s*UPDATE\s*,\s*DELETE\s*,\s*REFERENCES\s*,\s*TRIGGER\s*,\s*TRUNCATE\s+ON\s+TABLE\s+public\.report_intelligence_calculations\s+TO\s+service_role/i],
+  ];
+  for (const [label, pattern] of metricRequirements) {
+    if (!pattern.test(metricSql)) findings.push(metricParityFile + ': report_intelligence_calculations restore parity missing ' + label);
+  }
+}
+
 if (duplicateObjects.length) {
   for (const d of duplicateObjects) findings.push(`unsafe duplicate ${d.kind} ${d.name}: ${d.previous} -> ${d.file}`);
 }

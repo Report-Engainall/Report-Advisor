@@ -555,7 +555,9 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes('الدليل يحتاج مراجعة') || before.includes('لا توجد لقطة دليل مثبتة') || before.includes('الدليل النهائي غير مثبت') || before.includes('AWAITING_EVIDENCE_SNAPSHOT'), 'Smart Report must show the separate pending evidence-snapshot state when it is not yet proven');
   assert.ok(before.includes('WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF'), 'Smart Report decision chain missing');
   assert.ok(await page.locator('[data-testid="smart-report-decision-chain"]').count() === 1, 'Smart Report decision chain DOM surface missing');
-  assert.ok(before.includes('ماذا يقول هذا التقرير فعليًا؟') || before.includes('ماذا يحدث في هذا التقرير؟'), 'Smart Report executive summary missing');
+  const executiveSummary = page.locator('[data-testid="smart-report-executive-summary"]');
+  await executiveSummary.waitFor({ state: 'visible', timeout: 15000 });
+  assert.ok((await executiveSummary.innerText()).includes('ماذا يقول هذا التقرير فعليًا؟'), 'Smart Report executive summary must be visible outside collapsed evidence details');
   assert.ok(before.includes('التفاصيل الكاملة للتقرير'), 'Smart Report evidence disclosure missing');
   assert.ok(before.includes('التوصية'), 'Smart Report recommendation state missing');
   assert.ok(before.includes('القرار'), 'Smart Report decision state missing');
