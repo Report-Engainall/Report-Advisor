@@ -505,11 +505,11 @@ export function ExternalFileAnalysisPage() {
         </div>
       </CardBody>
     </Card>}
-    {file && universalIntelligence && <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+    {file && universalIntelligence && <details open className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4">
         <div className="flex items-center justify-between gap-4">
-          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والدليل الفني متاحان للمراجعة دون إغراق النتيجة التنفيذية.</div></div>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح التفاصيل</span>
+          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل مع الإشارات والأدلة ظاهر مباشرة، ويمكن طيّه بعد المراجعة.</div></div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">ظاهر الآن · اضغط للطي</span>
         </div>
       </summary>
       <div className="border-t border-ink-100 p-3 lg:p-4"><UniversalIntelligenceChain result={universalIntelligence}/></div>

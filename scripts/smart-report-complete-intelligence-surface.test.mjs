@@ -57,6 +57,17 @@ if (genericEngine.includes('numericColumns.slice(0, 5)')) throw new Error('Gener
 if (!genericEngine.includes('const numericSummary = numericColumns.map')) throw new Error('Every source numeric column must receive a complete descriptive profile');
 if (!genericEngine.includes('hasLineOrdinal') || !genericEngine.includes('hasLineContent')) throw new Error('Document line/text adapters must retain text evidence rather than becoming synthetic business tables');
 
+function assertUniversalChainExpandedByDefault(pageSource, pageName) {
+  const chainPosition = pageSource.indexOf('<UniversalIntelligenceChain result={universalIntelligence}');
+  if (chainPosition < 0) throw new Error(pageName + ' must render the unified intelligence chain');
+  const disclosureStart = pageSource.lastIndexOf('<details', chainPosition);
+  const openingTagEnd = pageSource.indexOf('>', disclosureStart);
+  const openingTag = disclosureStart >= 0 && openingTagEnd >= 0 ? pageSource.slice(disclosureStart, openingTagEnd + 1) : '';
+  if (!/\\bopen\\b/.test(openingTag)) throw new Error(pageName + ' must show the complete unified intelligence chain expanded by default');
+}
+assertUniversalChainExpandedByDefault(smartReportPage, 'Smart Report');
+assertUniversalChainExpandedByDefault(uploadPage, 'File Lab');
+
 const universalChain = fs.readFileSync(new URL('../src/components/UniversalIntelligenceChain.tsx', import.meta.url), 'utf8');
 if (universalChain.includes('item.evidence.slice(0, 3)')) throw new Error('Universal intelligence chain must not hide available stage evidence');
 
