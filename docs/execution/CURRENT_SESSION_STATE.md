@@ -1,4 +1,28 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = a1d365d3e08a20cbb5ab27f4e708435c1ec724d8
+CURRENT_BRANCH_HEAD_OBSERVED = a1d365d3e08a20cbb5ab27f4e708435c1ec724d8
+CURRENT_CODE_TEST_HEAD = a1d365d3e08a20cbb5ab27f4e708435c1ec724d8
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T22:10:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume current-head Full Product Browser, Phase-F, Report Cohort, Build/Quality and Handoff outcomes at a1d365d3e08a20cbb5ab27f4e708435c1ec724d8; correct the first confirmed failure and persist exact results while preserving source/evidence/tenant guards.
+
+## Current-head a1d365 checkpoint
+- Data Quality Runtime 38078344758 PASS.
+- Phase-F 38078344665 live probes in progress; local ops/static/canary/target/provenance steps passed.
+- Report Cohort 38078344810 running; Build 38078344906 installing dependencies; Quality 38078344863 in progress.
+- Handoff 38078344759 failed because prior baseline 12b did not cover a1d365 workflow edit; this state/report now pin a1d365 and next run should validate docs-only changes.
+- Full Product 38078344827 pending; predecessor 38078166196 built exact SHA and passed heart regressions but actor provisioning still running.
+- Device Independent 38078344615 pending; its duplicate authenticated run is manual-only.
+- Netlify preview ready for a1d365; production unchanged; Vercel currently rate-limited.
+---
+
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = 12b7106504aaeec247803e3ada311129ee495467
 CURRENT_BRANCH_HEAD_OBSERVED = 12b7106504aaeec247803e3ada311129ee495467
 CURRENT_CODE_TEST_HEAD = 12b7106504aaeec247803e3ada311129ee495467

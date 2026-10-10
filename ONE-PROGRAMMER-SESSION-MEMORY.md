@@ -1,3 +1,37 @@
+# LIVE RESUME — 2026-10-10T22:10:00+03:00 / HEAD a1d365; AUTH LOAD STILL DEGRADED; PHASE-F LIVE PROBES IN PROGRESS
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Current code/workflow head: `a1d365d3e08a20cbb5ab27f4e708435c1ec724d8`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Latest report: [REPORT-20261010-A1D365-PHASEF-CURRENT-HEAD.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-A1D365-PHASEF-CURRENT-HEAD.md).
+
+## Current results
+- Data Quality Runtime [38078344758](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344758): PASS on a1d365.
+- Phase-F [38078344665](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344665): local operational/static tests, Canary auth, target resolution and preview provenance PASS; live probes in progress, clean restore not yet proven.
+- Report Value Cohort [38078344810](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344810): running, no final PASS yet.
+- Product Build [38078344906](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344906): dependency install running; further steps pending.
+- Quality [38078344863] in progress.
+- Handoff [38078344759] failed due stale baseline 12b not covering the a1d365 Phase-F workflow edit. This report now sets `REPORT_FOR_HEAD=a1d365d3e08a20cbb5ab27f4e708435c1ec724d8`; changes after baseline should be docs-only and next handoff run must pass.
+- Full Product Browser [38078344827] pending; predecessor [38078166196] built exact SHA and passed canonical heart regressions but remained at E2E actor provisioning.
+- Device Independent [38078344615] pending; authenticated duplicate is manual-only.
+- Staging `saved_views` migration applied and read back; production database untouched.
+
+## Confirmed Supabase Auth issue
+The logs identify internal Postgres connection timeouts for `supabase_auth_admin`: earlier windows showed 81/98 token 504s and 25/21 token 500s; latest available 19:04–19:05 UTC shows 10 token 504, 7 admin-user 504, and 4 500 failures. This happens before UI assertions; don't mislabel it as a generic-card failure. Old in-progress runs from multiple PR heads are still a residual load source, despite newer-run cancellation policies.
+
+## Existing product fixes
+- Reports Center source context fix: [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974)
+- Visible general-intelligence source-bound browser assertions: [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8)
+- Generic file tests previously logged `GENERIC FILE ANALYSIS PASS`; engine was not rebuilt.
+- Netlify preview is ready on a1d365; Vercel is free-rate-limited; production unchanged.
+
+## Next exact action
+Consume a1d365 Full Product Browser, Phase-F, cohort, build/quality and handoff outcomes; inspect first failing logs, repair only the reproduced cause, and persist results. Do not merge or claim complete until matching source hash survives varied-file upload/results/persistence/refresh and clean restore passes.
+---
+
 # LIVE RESUME — 2026-10-10T22:05:00+03:00 / STAGING AUTH SATURATION DIAGNOSED; LATEST-HEAD RUN CONTROL ADDED
 
 - Repository: `Report-Engainall/Report-Advisor`

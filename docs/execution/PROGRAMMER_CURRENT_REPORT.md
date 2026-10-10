@@ -1,3 +1,15 @@
+## CURRENT EXECUTION REPORT — 2026-10-10T22:10:00+03:00 — a1d365 current-head verification
+
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = a1d365d3e08a20cbb5ab27f4e708435c1ec724d8
+UPDATED_AT = 2026-10-10T22:10:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing Report-Advisor, preserve universal intelligence, bind findings to the exact source, and prove varied-file upload through visible results, persistence and refresh without rebuilding the engine.
+WHAT_I_ACTUALLY_DID = Read current-head Actions and Staging Auth telemetry, verified Data Quality PASS and Phase-F preflight/local checks, and corrected the programmer-report baseline after a workflow edit on a1d365.
+WHAT_IS_PROVEN = Data Quality Runtime 38078344758 PASS on a1d365; Phase-F local operations/static/canary/runtime-target/preview-provenance steps passed and live probes started; generic-file test suite previously logged GENERIC FILE ANALYSIS PASS; staging saved_views parity is applied/read back; Netlify preview is ready for a1d365.
+FIRST_ACTIVE_FAILURE = Session Handoff 38078344759 failed stale report coverage because REPORT_FOR_HEAD 12b did not cover the a1d365 Phase-F workflow file update. Full Product 38078344827 is pending behind predecessor 38078166196 whose actor provisioning was still in progress. Phase-F live probes, 40-report cohort, build and quality have no final current-head conclusions yet.
+ROOT_CAUSE = Handoff checkpoint lagged the latest workflow edit. Separately, Staging Auth logs still show internal database connection pressure (10 token 504, 7 admin-user 504 and 4 total 500 events in latest available window); previous Full Product attempt failed before UI assertions during actor provision/auth.
+NEXT_EXACT_ACTION = Consume new-head Full Product, Phase-F, cohort, build/quality and handoff outcomes, repair first confirmed failing step and prove exact report ID/hash through upload/results/save/readback/refresh. Do not merge or declare product complete yet.
+
 ## CURRENT EXECUTION REPORT — 2026-10-10T22:05:00+03:00 — Auth saturation and latest-head workflow controls
 
 SESSION HANDOFF = READY
