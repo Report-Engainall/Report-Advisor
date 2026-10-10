@@ -16,13 +16,14 @@ const files = [
 ];
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 const phaseFProbe = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
+const postgresRetrySource = fs.readFileSync('src/server/resilience-db-retry.mjs', 'utf8');
 assert.match(phaseFProbe, /create temp table _phase_f_counts\(table_name text, row_count bigint\)/);
 assert.match(phaseFProbe, /EXECUTE format\(/);
 assert.match(phaseFProbe, /SELECT table_name \|\| '\|' \|\| row_count::text FROM _phase_f_counts/);
 assert.match(phaseFProbe, /const governanceHead = process\.env\.GOVERNANCE_HEAD\?\.trim\(\) \|\| exactHead/);
 assert.match(phaseFProbe, /governanceHead,/);
 assert.match(phaseFProbe, /retryTransientPostgresConnection/);
-assert.match(phaseFProbe, /PHASE_F_TRANSIENT_POSTGRES_RETRY/);
+assert.match(postgresRetrySource, /PHASE_F_TRANSIENT_POSTGRES_RETRY/);
 assert.equal(isTransientPostgresConnectionError(new Error('FATAL: Failed to connect to database: authentication did not complete within 15000ms')), true);
 assert.equal(isTransientPostgresConnectionError(new Error('ECHECKOUTTIMEOUT unable to check out connection from pool')), true);
 assert.equal(isTransientPostgresConnectionError(new Error('ERROR: duplicate key value violates unique constraint')), false);
