@@ -1,3 +1,15 @@
+## CURRENT EXECUTION REPORT — 2026-10-10T22:05:00+03:00 — Auth saturation and latest-head workflow controls
+
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = 12b7106504aaeec247803e3ada311129ee495467
+UPDATED_AT = 2026-10-10T22:05:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing Report-Advisor without rebuilding the engine; expose general intelligence alongside applicable specialty intelligence, preserve report ID/source hash across screens, and prove the real upload-to-readback user journey.
+WHAT_I_ACTUALLY_DID = Queried live Auth telemetry and GitHub active runs; added bounded retries for only pre-query connection errors; corrected the regression assertion; made the duplicate authenticated Device-Independent journey manual-only; fixed workflow concurrency contract; configured same-workflow stale-run cancellation and Phase-F path filters; saved latest state.
+WHAT_IS_PROVEN = Source-context UI fix/test and generic-card visible-source assertions are committed. Generic-file-format regression previously logged GENERIC FILE ANALYSIS PASS. Staging saved_views parity migration is applied/read back with RLS owner policy. At e9, Phase-F local operational checks passed after test assertion fix; latest code/CI head is 12b7106504aaeec247803e3ada311129ee495467.
+FIRST_ACTIVE_FAILURE = Latest-head Full Product, Phase-F, cohort, quality/build and handoff are pending; no current-head full browser or clean restore PASS yet. Earlier Auth browser failure was HTTP 504/500 before the UI assertions.
+ROOT_CAUSE = Staging Auth could not connect to its internal Postgres endpoint for supabase_auth_admin. Telemetry recorded 81 password-token 504s and 25 token 500s, then another 54 token 504s. At least five stale PR heads had concurrent Storage/Auth/Full Product/Evidence/Phase-F jobs.
+NEXT_EXACT_ACTION = Consume current-head workflow results; fix first reproduced blocker and prove exact source SHA from upload through visible general + specialist findings, persistence/readback and refresh/re-entry. Don't merge or claim complete until browser and restore pass.
+
 ## CURRENT EXECUTION REPORT — 2026-10-10T21:40:00+03:00 — staging concurrency and current proof status
 
 SESSION HANDOFF = READY

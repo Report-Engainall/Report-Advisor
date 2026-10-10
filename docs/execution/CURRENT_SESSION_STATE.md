@@ -1,4 +1,27 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = 12b7106504aaeec247803e3ada311129ee495467
+CURRENT_BRANCH_HEAD_OBSERVED = 12b7106504aaeec247803e3ada311129ee495467
+CURRENT_CODE_TEST_HEAD = 12b7106504aaeec247803e3ada311129ee495467
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T22:05:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume latest-head Full Product, Device Independent, Phase-F, Report Cohort, Quality/Build and Session Handoff results for 12b7106504aaeec247803e3ada311129ee495467; diagnose first confirmed failure and persist exact readback, keeping tenant/source/evidence semantics intact.
+
+## Latest-head checkpoint
+- Added bounded connection retries; local Phase-F tests passed on e9 after assertion repair.
+- Added newest-run cancellation to same workflow E2E gates and filtered Phase-F away from docs-only changes at 12b7106504aaeec247803e3ada311129ee495467.
+- Report Cohort prior PASS [38076567370] covers 40 reports but on old head 2d77663; current-head cohort 38077978974 pending.
+- Full Product 38077978966, Device Independent 38077979075, Phase-F 38077979117, Build 38077979233, Quality 38077979087 and Handoff 38077979084 pending.
+- Auth failures show internal Staging Postgres connect errors; don't conflate with UI generic-card assertions.
+- No production DB changes or production promotion.
+---
+
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = 2d77663a8fea44cfbc98e367cca48107a63d3ec2
 CURRENT_BRANCH_HEAD_OBSERVED = 2d77663a8fea44cfbc98e367cca48107a63d3ec2
 CURRENT_CODE_TEST_HEAD = 2d77663a8fea44cfbc98e367cca48107a63d3ec2

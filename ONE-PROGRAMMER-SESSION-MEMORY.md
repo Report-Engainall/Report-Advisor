@@ -1,3 +1,32 @@
+# LIVE RESUME — 2026-10-10T22:05:00+03:00 / STAGING AUTH SATURATION DIAGNOSED; LATEST-HEAD RUN CONTROL ADDED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Code/CI checkpoint: `12b7106504aaeec247803e3ada311129ee495467`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Latest report: [REPORT-20261010-12B710-LATEST-HEAD-CI-LOAD.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-12B710-LATEST-HEAD-CI-LOAD.md)
+
+## Confirmed cause
+Supabase Auth logs show internal DB connection exhaustion/timeout for `supabase_auth_admin` at `localhost:5432`: 81 token 504 + 25 token 500 in 18:35–18:50 UTC, and another 54 token 504 in 18:50–18:56 UTC. GitHub's active run inventory showed stale test runs from multiple PR heads doing Auth/Storage/Evidence/Phase-F work at the same time; prior Full Product failure occurred before UI assertions, so it does not prove a general-card defect.
+
+## Fixes committed
+- [81c6b39](https://github.com/Report-Engainall/Report-Advisor/commit/81c6b393c587f37d1c7e8750f01b65fa907f29b1): retry transient connection-establishment errors (not SQL statement-timeout/constraint failures); operational regression passed on e9.
+- [e9d5de6](https://github.com/Report-Engainall/Report-Advisor/commit/e9d5de68122601a2a6f9a1d5c08b12b50bc0c9b3): correct retry diagnostic assertion in runtime test.
+- [e77c919](https://github.com/Report-Engainall/Report-Advisor/commit/e77c919510ff3d7e9dd0d3708427855975a4d438): Device-Independent authenticated duplicate is manual-only on PR.
+- [6a3cc01](https://github.com/Report-Engainall/Report-Advisor/commit/6a3cc0148845e1e05344b5d2590559db3762a21e): fix Device concurrency key expected by integrity checker.
+- [12b7106](https://github.com/Report-Engainall/Report-Advisor/commit/12b7106504aaeec247803e3ada311129ee495467): latest-head cancellation for same-workflow E2Es, plus Phase-F path filters to avoid docs-only live restore runs.
+Stale runners that started before these controls are not retroactively canceled.
+
+## Current exact-head runs waiting on 12b7106504aaeec247803e3ada311129ee495467
+Full Product [38077978966], Device Independent [38077979075], Phase-F [38077979117], Report Cohort [38077978974], Build [38077979233], Quality [38077979087], Data Quality [38077979172], Handoff [38077979084], Storage [38077979196], Commercial [38077979063], Evidence [38077978905].
+Previous 40-case cohort success [38076567370] was from a stale head and is not final evidence.
+
+## Next action
+Consume latest-head results, inspect first failing logs, and repair only proven blockers. Preserve source hash across visible results/save/readback/refresh. Do not merge or claim product complete until authenticated upload-to-results browser proof and clean restore pass.
+---
+
 # LIVE RESUME — 2026-10-10T21:40:00+03:00 / CI CONCURRENCY COMMITTED; COHORT PASS; BROWSER/RESTORE OPEN
 
 - Repo: `Report-Engainall/Report-Advisor`
