@@ -151,3 +151,13 @@ Next: consume exact-head build and runtime test results for the new fix SHA. Do 
 - CI remains pending: Product Build Gate #38013755538 queued; Quality #38013755480 queued; Full Product Browser E2E #38013755671 queued. CodeRabbit success; Vercel account build-rate-limit; Netlify deploy preview building/pending.
 - Runtime test, authenticated browser flow, varied-format persisted readback and production are not proven. Product complete = NO.
 - Next: consume the first terminal focused test log for this exact code head and correct the first verified failure.
+
+
+## Exact-head generic evidence fix — 2026-10-10 — quality exposed CSV header detector defect
+
+- Code SHA `3d6d04feea0cbb69652020d941b9ba6176b1310e`; PR #912 OPEN / NOT MERGED; main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Source changes read back: generic table intelligence now profiles every numeric field, preserves source-linked min/max record ordinals, shows all source category counts/months/recommendation evidence, caps inline text samples only at 100 with explicit total/omission counts, and the Universal Intelligence Chain no longer slices stage evidence to three items. Document adapters with `line_number/text` are routed through generic text analysis rather than mistaken for a business table.
+- Runtime truth: parent SHA `d2a611b...` Quality failed first on missing TXT evidence. On this SHA, Quality #11939 `38056756921` reached the CSV case and failed at line 33: `csv row count`, expected 2 but parsed 1. This narrows the next root cause to header detection: valid `اسم الصنف` is treated as a suspicious composite header, allowing a data row to beat the actual header.
+- Product Build Gate #994 `38056756845` PASS; header contract #8634 `38056756912` PASS. Quality is NOT PASS. Full Product Browser E2E #9600 pending and #9599 running; Device-Independent Browser E2E #5114 running. Browser/persistence proof remains absent.
+- Documentation follow-up is required because Session Handoff Contract #2323 failed on stale report coverage. Correctly located state/report files are `docs/execution/CURRENT_SESSION_STATE.md` and `docs/execution/PROGRAMMER_CURRENT_REPORT.md`.
+- NEXT: fix the legitimate Arabic composite-label header case with a regression in `scripts/check-header-detection.mjs`, re-run the exact-head generic matrix, then checkpoint the new hash before the report-only handoff commit. Product complete remains NO.
