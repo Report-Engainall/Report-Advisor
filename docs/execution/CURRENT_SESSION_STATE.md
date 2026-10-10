@@ -1,4 +1,29 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = 108a881a12b8982a4f31458c7eb044de0d8e2a78
+CURRENT_BRANCH_HEAD_OBSERVED = 108a881a12b8982a4f31458c7eb044de0d8e2a78 (verified before the atomic documentation checkpoint commit; refresh the live PR ref on resume)
+CURRENT_CODE_TEST_HEAD = 108a881a12b8982a4f31458c7eb044de0d8e2a78
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T23:12:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume the exact-head 108a881a12b8982a4f31458c7eb044de0d8e2a78 Quality, Product Build, Full Product Browser, Value Cohort, Phase-F, Device Browser, Data Quality and Session Handoff runs; fix the first proven failure and verify source ID/hash readback across refresh.
+
+## Evidence at checkpoint
+- dedd9ac8c63e69082c403cdac68372718e281f0f: topology parser regression fixed; CI topology passed that check, exposing the subsequent Quality concurrency-contract failure.
+- Product Build Gate [38082440345](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440345): PASS on dedd9ac.
+- Data Quality Runtime [38082440151](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440151): PASS on dedd9ac.
+- Device-Independent Browser [38082440390](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440390): browser smoke passed; authenticated E2E skipped/manual-only.
+- 108a881a12b8982a4f31458c7eb044de0d8e2a78: Quality concurrency now satisfies the contract by using `github.run_id` and `cancel-in-progress: false`. Exact-head checks are newly queued/pending and must not be pre-claimed.
+- Previous value cohort failure [38078344810](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344810): PostgreSQL `57014` statement timeout after retry in `get_report_value_cohort_candidates`.
+- Smart Report source code readback shows the general intelligence card is visibly rendered, and receives `sourceHash` and `reportJobId`; browser-backed persistence/readback remains unproven.
+- PRODUCT_COMPLETE = NO. PR must remain open; production not promoted.
+
+---
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = dedd9ac8c63e69082c403cdac68372718e281f0f
 CURRENT_BRANCH_HEAD_OBSERVED = dedd9ac8c63e69082c403cdac68372718e281f0f (verified before the documentation-only checkpoint writeback; re-read live PR head on resume)
 CURRENT_CODE_TEST_HEAD = dedd9ac8c63e69082c403cdac68372718e281f0f

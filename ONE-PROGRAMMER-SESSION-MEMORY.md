@@ -1,3 +1,32 @@
+# LIVE RESUME — 2026-10-10T23:12:00+03:00 / QUALITY CONCURRENCY FIX COMMITTED; CURRENT-HEAD PROOFS PENDING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/test checkpoint: `108a881a12b8982a4f31458c7eb044de0d8e2a78`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. No merge or production promotion.
+- Dated report: [REPORT-20261010-108A881-QUALITY-RUN-CONTROL.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-108A881-QUALITY-RUN-CONTROL.md).
+
+## Changes actually committed
+1. [`dedd9ac`](https://github.com/Report-Engainall/Report-Advisor/commit/dedd9ac8c63e69082c403cdac68372718e281f0f): fixed `scripts/check-ci-execution-topology.mjs`. The parser now stops at the next sibling trigger (two-space indentation), so `pull_request.paths` can no longer be interpreted as a `push` filter. A regression fixture was added.
+2. [`108a881`](https://github.com/Report-Engainall/Report-Advisor/commit/108a881a12b8982a4f31458c7eb044de0d8e2a78): `.github/workflows/quality.yml` now gives each quality attempt a unique `github.run_id` group and `cancel-in-progress: false`, matching `scripts/check-quality-workflow-contract.mjs`. Both changes are read back from the repository.
+
+## Verified facts vs pending proof
+- On dedd9ac, CI topology passed its previous failing stage; the first failure moved to the Quality concurrency contract.
+- Product Build Gate [38082440345](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440345) PASS on dedd9ac.
+- Data Quality Runtime [38082440151](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440151) PASS on dedd9ac.
+- Device-Independent Browser [38082440390](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440390) smoke job PASS; authenticated E2E is skipped/manual-only.
+- On exact code head `108a881a12b8982a4f31458c7eb044de0d8e2a78`, Quality [38082699904], Product Build [38082699975], Full Product Browser [38082699868], Value Cohort [38082699916], Phase-F [38082699801], Device Browser [38082699826], Data Quality [38082699672] and Handoff [38082699901] were queued/pending on last read. Query them anew before relying on results.
+- Value Cohort on a previous head timed out twice with PostgreSQL `57014` in `get_report_value_cohort_candidates`; investigate actual SQL/index plan if this repeats. Don't misrepresent as a generic UI failure.
+- Latest source readback confirms the general card is directly rendered on Smart Report and receives the current `sourceHash` and `reportJobId`; this is not yet real browser proof that save/readback/refresh preserves the same source identity.
+
+## Do not rebuild the intelligence core
+The branch already contains the generic file intelligence builder, general/specialist layer composition, source-bound Smart Report path, untruncated signals/recommendations/evidence card, and tests for txt/csv/json/jsonl/xml/yaml/markdown/RTF/XLSX. Continue at integration and current-head runtime proof. Preserve `universal-report-intelligence.ts`, `generic-intelligence.ts`, `report-smart.ts`, and `UniversalIntelligenceChain.tsx`.
+
+## One next action
+Consume the exact-head workflows above; fix their first confirmed blocker. Then prove a varied-file upload through the actual authenticated browser, showing all available general + applicable specialist outputs, saving and reading back the same report ID + SHA-256 hash after refresh/re-entry. Leave PR open and product status NOT COMPLETE until proved.
+---
 # LIVE RESUME — 2026-10-10T23:10:00+03:00 / TOPOLOGY PARSER REPAIRED; EXACT-HEAD PRODUCT PROOFS RUNNING
 
 - Repository: `Report-Engainall/Report-Advisor`
