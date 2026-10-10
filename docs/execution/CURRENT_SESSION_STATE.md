@@ -1,16 +1,29 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = eb95f709a8ebead63e556380e18394c02c17726
+CURRENT_EXACT_HEAD = 8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912 OPEN / NOT MERGED
 ACTION_STATUS = ACTIVE_EXECUTION
-APPLICATION_CODE_HEAD = eb95f709a8ebead63e556380e18394c02c17726
-REPORT_BASE_HEAD = eb95f709a8ebead63e556380e18394c02c17726
+APPLICATION_CODE_HEAD = 8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e
+REPORT_BASE_HEAD = 8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-UPDATED_AT = 2026-10-10T17:30:00+03:00
+UPDATED_AT = 2026-10-10T17:45:00+03:00
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Consume terminal exact-head Quality/Product Build Gate/Full Product Browser E2E results for eb95f709a8ebead63e556380e18394c02c17726; fix the first verified product failure without promoting a pending evidence snapshot to verified; then work the passport-closure cohort and restore-schema defect.
+NEXT_EXACT_ACTION = Consume terminal exact-candidate Quality, Product Build Gate, Full Product Browser E2E, Session Handoff, and Phase-F results; fix the first confirmed failure without relaxing source/evidence gates.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10T17:45:00+03:00 — VOI restore schema parity migration added
+
+- Candidate code/test HEAD: `8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e`; PR #912 remains open/not merged.
+- Specialty header normalization was centralized and regression-tested; the prior TS missing-symbol failure was fixed before this candidate.
+- Read-only staging schema inspection proved `intelligence_voi_requests` has tenant RLS, FK/check constraints, and priority index; repo migration tree had no tracked CREATE TABLE for it. The historical Phase-F restore failure is a migration-history/schema-parity gap.
+- Added `supabase/migrations/20261010180000_restore_intelligence_voi_requests_schema_parity.sql` matching the observed schema, including least-privilege grants and tenant policy.
+- Extended `scripts/check-migration-schema-audit.mjs` so the tracked migration chain must continue to include the VOI table, RLS, policy, grants, and validation guards.
+- No live staging DDL was run. Restore remains NOT PROVEN until Phase-F workflow passes.
+- Latest CI: Quality/Product Build Gate/Full Browser/Device-Independent/Phase-F/Report Value Cohort queued or pending on `8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e`. A previous Quality run failed because Vite was absent from `node_modules`; missing `dist/index.html` was downstream of that environment failure.
+- Historical Report Value Cohort still has 24/42 evidence passports unclosed. Do not promote these to verified.
+- Product completion remains NO.
+
 
 ## LIVE EXECUTION CHECKPOINT — 2026-10-10T17:30:00+03:00 — current candidate and distinct trust/evidence states
 
