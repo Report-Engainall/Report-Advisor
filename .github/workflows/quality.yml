@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  # Keep only the latest quality run for this PR/ref; stale merge-ref diagnostics must not race the current HEAD.
-  group: quality-${{ github.event.pull_request.number || github.ref_name }}
-  cancel-in-progress: true
+  # Give each verification attempt its own group. Never cancel an in-flight quality proof.
+  group: quality-${{ github.run_id }}-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
 jobs:
   verify:
     runs-on: ubuntu-22.04
