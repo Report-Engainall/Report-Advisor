@@ -7,8 +7,9 @@ import { AuthGate } from '@/components/AuthGate';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ProductJourneyNav } from '@/components/ProductJourneyNav';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
-import { DashboardPage } from '@/pages/DashboardPage';
+
 const ScenarioTruthGuardPage = lazy(() => import('@/pages/ScenarioTruthGuardPage').then(m => ({ default: m.ScenarioTruthGuardPage })));
+const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 import { markAlertRead } from '@/lib/queries';
 import { fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { getAuthenticatedUser } from '@/lib/auth-session';
@@ -214,9 +215,14 @@ function PublicOrAuthenticatedWorkspace() {
   const authQuery = query.get('auth') === '1';
   const isPublicSmartReportDemo = location.pathname === '/reports/smart/demo' || location.pathname === '/reports/smart/demo/';
 
-  if (authQuery) return <AuthGate />;
+  if (location.pathname === '/import/analyze') return <ExternalFileAnalysisPage />;
+  if (location.pathname === '/import') return <AuthGate><AppShell /></AuthGate>;
+  if (authQuery) return <AuthGate><AppShell /></AuthGate>;
   if (isPublicSmartReportDemo) return <PublicSmartReportDemoPage />;
-  if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview) return <ProposalDemoPage />;
+  const isLandingPath = location.pathname === '/' || location.pathname === '';
+  // Public/demo hosts use the proposal screen only for the landing path. Workspace routes
+  // must still pass through AuthGate so saved reports remain accessible to their tenant.
+  if (demoQuery || (isLandingPath && (isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview))) return <ProposalDemoPage />;
   return <AuthGate><AppShell /></AuthGate>;
 }
 

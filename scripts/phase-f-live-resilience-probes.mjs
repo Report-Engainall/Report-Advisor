@@ -6,8 +6,13 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import dns from 'node:dns/promises';
+import { retryTransientPostgresConnection } from '../src/server/resilience-db-retry.mjs';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
+// Use the Docker Official Images mirror in Amazon ECR Public to avoid Docker Hub's
+// anonymous pull-rate limit in the fail-closed backup/restore certification probe.
+const postgresClientImage = (process.env.RESILIENCE_POSTGRES_CLIENT_IMAGE || 'public.ecr.aws/docker/library/postgres:17').trim();
+if (!postgresClientImage) throw new Error('RESILIENCE_POSTGRES_CLIENT_IMAGE_EMPTY');
 if (!['managed', 'logical'].includes(backupMode)) throw new Error(`invalid_resilience_backup_mode:${backupMode}`);
 
 const baseRequired = [
@@ -146,14 +151,18 @@ function toTransactionPooler(databaseUrl) {
 }
 
 function runDockerPsql(databaseUrl, sql) {
-  return runCommand('docker', [
+  const args = [
     'run', '--rm', '--network', 'host',
     '-e', `PGURI=${databaseUrl}`,
     '-e', `QUERY=${sql}`,
-    'postgres:17',
+    postgresClientImage,
     'sh', '-lc',
     'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "SET statement_timeout = 0" -c "$QUERY"',
-  ]);
+  ];
+  return retryTransientPostgresConnection(
+    () => runCommand('docker', args),
+    { label: 'psql', maxAttempts: 3 },
+  );
 }
 
 function runDockerPsqlFile(databaseUrl, filePath) {
@@ -161,7 +170,7 @@ function runDockerPsqlFile(databaseUrl, filePath) {
     'run', '--rm', '--network', 'host',
     '-v', `${path.resolve(filePath)}:/tmp/phase-f-backup.sql:ro`,
     '-e', `PGURI=${databaseUrl}`,
-    'postgres:17',
+    postgresClientImage,
     'sh', '-lc',
     'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -c "ALTER TABLE public.recommendations DISABLE TRIGGER trg_source_recommendation_evidence" -f /tmp/phase-f-backup.sql -c "ALTER TABLE public.recommendations ENABLE TRIGGER trg_source_recommendation_evidence"',
   ]);
@@ -197,13 +206,17 @@ function runDockerPgDump(databaseUrl, outputPath) {
   const outputName = path.basename(outputPath);
   const containerDir = '/tmp/phase-f-output';
   const containerPath = `${containerDir}/${outputName}`;
-  runCommand('docker', [
+  const args = [
     'run', '--rm', '--network', 'host',
     '-v', `${outputDir}:${containerDir}`,
     '-e', `PGURI=${databaseUrl}`,
-    'postgres:17',
+    postgresClientImage,
     'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
-  ]);
+  ];
+  return retryTransientPostgresConnection(
+    () => runCommand('docker', args),
+    { label: 'pg_dump', maxAttempts: 3 },
+  );
 }
 
 const VOLATILE_RESTORE_TABLES = new Set([
@@ -357,6 +370,11 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     localDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
 
     runCommand('supabase', ['db', 'reset', '--debug', '--no-seed'], { cwd: workDir });
+
+    const causalSchema = runDockerPsql(localDbUrl, "select coalesce(to_regclass('public.intelligence_causal_hypotheses')::text, '')");
+    if (!causalSchema.includes('intelligence_causal_hypotheses')) {
+      throw new Error('local_restore_schema_missing_intelligence_causal_hypotheses');
+    }
 
     let snapshotText;
     try {
@@ -564,7 +582,7 @@ function runtimeCodeEquivalentToExactHead(deploymentSha) {
       ['diff', '--name-only', deploymentSha + '..' + exactHead],
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 },
     ).trim().split(/\r?\n/).map(value => value.trim()).filter(Boolean);
-    return changed.length > 0 && changed.every(file => file.startsWith('docs/execution/'));
+    return changed.length > 0 && changed.every(file => file.startsWith('docs/execution/') || file === 'ONE-PROGRAMMER-SESSION-MEMORY.md');
   } catch {
     return false;
   }

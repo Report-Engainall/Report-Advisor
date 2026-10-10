@@ -81,7 +81,13 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
     const unique = uniqueRatio(headers);
     const hintCounts = normalized.map(h => HEADER_HINTS.filter(x => h.includes(normalizeColumnName(x))).length);
     const hints = hintCounts.filter(Boolean).length;
-    const compositeCells = hintCounts.filter((count) => count >= 2).length;
+    // Natural compound labels are single business fields, not merged PDF headers.
+    // In Arabic, "اسم الصنف" contains the independent hints "اسم" and "صنف";
+    // penalizing it lets a data row ("صنف متأخر") win over the actual CSV header.
+    const SAFE_COMPOUND_HEADER = /^(?:(?:اسم|رقم|كود)\s+(?:(?:ال)?(?:صنف|منتج|عميل|مورد|فاتورة|مستند|مخزن))|(?:(?:product|item|customer|supplier|invoice|document|warehouse)\s+(?:name|code|number|no\.?)))$/iu;
+    const compositeCells = normalized.filter((header, index) =>
+      hintCounts[index] >= 2 && !SAFE_COMPOUND_HEADER.test(header),
+    ).length;
     const structurallySuspicious = compositeCells > 0;
     const dataLike = headers.filter((value) =>
       /^[-+]?\d[\d.,٬،/\s-]*$/u.test(value) ||

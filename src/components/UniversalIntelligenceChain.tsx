@@ -32,7 +32,7 @@ function stageConnector(status: UniversalIntelligenceStageStatus) {
 export function UniversalIntelligenceChain({ result }: { result: UniversalIntelligenceResult }) {
   const strongest = result.intelligence.advisorBrief.headline || result.intelligence.summary;
   const archetypeLabel = result.archetype?.title
-    ? result.archetype.title
+    ? result.archetype.title + (result.archetypeState === 'REVIEW_REQUIRED' ? ' · يحتاج مراجعة' : '')
     : result.archetypeState === 'REVIEW_REQUIRED'
       ? 'النمط يحتاج مراجعة'
       : 'نمط عام / غير محدد';
@@ -92,7 +92,7 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
               <div className="mt-1 text-[10px] leading-5 text-ink-600">{item.detail}</div>
               {item.evidence.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {item.evidence.slice(0, 3).map((evidence) => (
+                  {item.evidence.map((evidence) => (
                     <span key={evidence} className="rounded-lg border border-ink-200 bg-white px-2 py-1 text-[9px] text-ink-500">
                       {evidence}
                     </span>

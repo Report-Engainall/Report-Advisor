@@ -4,9 +4,22 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/phase-f-live-resilience.yml'
+      - 'scripts/phase-f-live-resilience-probes.mjs'
+      - 'scripts/resilience-runtime.test.mjs'
+      - 'scripts/check-operational-resilience-contract.mjs'
+      - 'scripts/check-backup-restore-evidence-integrity.mjs'
+      - 'scripts/check-release-resilience-manifest.mjs'
+      - 'src/server/**'
+      - 'api/**'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 permissions:
   contents: read
+# Keep the newest same-workflow Phase-F proof for a PR; do not retain stale-head restores.
 concurrency:
   group: phase-f-live-resilience-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: true
@@ -221,7 +234,7 @@ jobs:
             fi
             if [[ -n "$source" && "$source" == "$build" && "$build" == "$deployment" && "$deployment" != "$expected" ]]; then
               mapfile -t changed_files < <(git diff --name-only "$deployment..$expected")
-              if (( ${#changed_files[@]} > 0 )) && printf "%s\n" "${changed_files[@]}" | grep -vqv "^docs/execution/"; then
+              if (( ${#changed_files[@]} > 0 )) && printf "%s\n" "${changed_files[@]}" | grep -vqE "^(docs/execution/|ONE-PROGRAMMER-SESSION-MEMORY\\.md$)"; then
                 echo "RUNTIME_PROVENANCE_CODE_DRIFT=true"
               elif (( ${#changed_files[@]} > 0 )); then
                 echo "RUNTIME_PROVENANCE_CODE_EQUIVALENT=true"

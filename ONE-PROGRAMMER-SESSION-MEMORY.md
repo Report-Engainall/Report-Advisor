@@ -1,3 +1,892 @@
+# LIVE RESUME — 2026-10-10T23:56:00+03:00 / DYNAMIC E2E SOURCE RESOLVER COMMITTED; POSTGREST 503 STILL BLOCKS LIVE PROOF
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Current code/test head: `d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. Do not merge or promote production.
+- Latest report: [REPORT-20261010-D00556B-DYNAMIC-SOURCE-E2E-PGRST002.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-D00556B-DYNAMIC-SOURCE-E2E-PGRST002.md).
+
+## Code changes in this launch
+- `dedd9ac`: CI topology parser now stops before sibling workflow triggers, so `pull_request.paths` cannot masquerade as a `push` filter.
+- `108a881`: Quality concurrency uses a unique `github.run_id` group and never cancels an in-flight proof.
+- `5aeea95` + `24b3e10`: Unified intelligence chain visible/expanded by default on Smart Report and File Lab; regression assertions guard both routes.
+- `312e672` + migration file `20261010202632_report_value_cohort_candidates_source_index.sql`: partial-index predicate matches the cohort RPC predicate; executable contract checks exact regex parity.
+- `41205d8`: dynamic report context resolver added and fixed hard-coded report identity removed from the full-product browser workflow; browser/business/48-archetype tests consume env-propagated job ID, source hash/path, row/column counts and entity type.
+- `d00556b`: browser page-evaluate source-name check now reads the passed `smartReportSourcePath` argument, with regression coverage.
+
+## Exact-head check results (`d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`)
+- Quality [38085246442](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246442): PASS.
+- Product Build [38085246488](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246488): PASS.
+- Data Quality Runtime [38085246448](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246448): PASS.
+- Device-Independent Browser [38085246495](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246495): browser smoke PASS; authenticated E2E SKIPPED.
+- Report Value Cohort [38085246415](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246415): FAIL at RPC, HTTP 503/PGRST002 after five attempts. Both source/passport/index contracts passed before the DB call.
+- Full Product Browser E2E [38085246315](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246315): FAIL at dynamic source resolver, HTTP 503/PGRST002. No result JSON; gate correctly failed closed rather than claiming browser proof.
+- Session Handoff [38085246399](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246399): failed stale-report coverage because six code files were missing from the previous checkpoint; this report now enumerates them and pins `REPORT_FOR_HEAD=d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`.
+- Phase-F [38085246320](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246320): last observed in live resilience probes, 12/16 steps complete; terminal status not verified.
+- Netlify preview check: success. Vercel failed due build-rate-limit; do not claim Vercel deployment success.
+
+## Staging/runtime finding
+The corrected partial index is present in `pg_indexes` and migration ledger `20261010202632` is recorded in Report-Advisor-P0-2-Staging. Both the cohort RPC and E2E resolver then returned PGRST002 “Could not query the database for the schema cache. Retrying.” Sent `pg_notify('pgrst','reload schema')` to staging only; a subsequent probe was blocked, so no service-recovery claim is made.
+
+## Single next action
+Re-check PR HEAD and Phase-F. Confirm PostgREST recovery via the cohort RPC. If healthy, rerun Full Product Browser with the dynamic non-fixture source resolver and require same report job ID/hash across visible intelligence, save/readback and refresh. If still 503, fix staging API/schema-cache availability before further heavy retries. PRODUCT_COMPLETE remains NO.
+---
+# LIVE RESUME — 2026-10-10T23:35:00+03:00 / INDEX MIGRATION ALIGNED; NEW COHORT RUN ACTIVE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/test head: `1ae6fb43b113e18576477deb90eaa6ba7cfbd900`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. Do not merge or promote production.
+- Latest report: [REPORT-20261010-1AE6FB4-COHORT-INDEX-RECONCILIATION.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-1AE6FB4-COHORT-INDEX-RECONCILIATION.md).
+
+## Product/UI fixes kept in place
+- `5aeea95`: expanded-by-default universal chain on Smart Report and File Lab, with regression coverage.
+- `24b3e10`: fixed the open-state contract regex.
+- Direct source-contract execution earlier: 14/14 assertions PASS; this is not authenticated/browser proof.
+- Existing generic analyzer + specialty composition and full evidence lists are preserved.
+
+## CI fixes kept in place
+- `dedd9ac`: fixed the YAML trigger parser so sibling pull_request paths no longer get mistaken for push filters.
+- `108a881`: Quality run concurrency now uses a unique `github.run_id` group and `cancel-in-progress: false`.
+- Exact head `312e672`: Quality/Build/Data Quality/Device Browser passed; cohort timed out while the fixed index was not yet confirmed ready.
+
+## Supabase cohort-index fix
+- The partial index predicate in code used two backslashes before the file-extension dot while the RPC source predicate used one. Fixed it and added `REPORT_VALUE_COHORT_INDEX_CONTRACT_PASS` to `scripts/report-evidence-passport-contract.test.mjs`.
+- Applied to Report-Advisor-P0-2-Staging only. Verified index `idx_report_value_cohort_candidates_source` in `pg_indexes` and migration ledger version `20261010202632` name `report_value_cohort_candidates_source_index`.
+- Renamed the repo migration file to `supabase/migrations/20261010202632_report_value_cohort_candidates_source_index.sql` and changed the contract test path in one atomic commit (`1ae6fb43b113e18576477deb90eaa6ba7cfbd900`) so repo and staging history use the same migration identifier.
+- Current 40-report run [38084184347](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38084184347) is in the candidate RPC stage at last read. Need terminal conclusion; don't claim it passed yet.
+- Prior candidate query failed with PostgreSQL `57014`. If it still fails while the index exists, diagnose query planner and duration rather than retrying.
+
+## Current-head run frontier
+- Phase-F [38084184470] is in live probes. Previous Phase-F failed backup/restore because the source snapshot connection hit a PostgreSQL SSL authentication timeout (3/4 probes passed).
+- Quality [38084184260], Product Build [38084184406], Data Quality [38084184493], Device Browser [38084184466] are in progress.
+- Full Product Browser [38084184533] pending/no job available at last read.
+- Session Handoff [38084184492] failed because old report had not yet included the two changed code files. This checkpoint updates the baseline to `1ae6fb43b113e18576477deb90eaa6ba7cfbd900`; its next run should validate docs-only changes.
+- Current preview check for `1ae6fb43b113e18576477deb90eaa6ba7cfbd900` was pending and Vercel reported a rate-limit failure at last read. Prior green preview on `312e672` is not proof for newer head.
+
+## Single next action
+Consume the exact-head cohort + Phase-F + Quality + Build + Data Quality + Device Browser + Full Product Browser outcomes; then prove actual authenticated upload of a varied non-fixture file through complete visible intelligence, save/readback, refresh/re-entry, all preserving the same `reportJobId + SHA-256 sourceHash`. Keep PRODUCT_COMPLETE=NO until this passes.
+---
+# LIVE RESUME — 2026-10-10T23:25:00+03:00 / 14 SOURCE-CONTRACT ASSERTIONS PASS; BROWSER AND CURRENT-HEAD GATES PENDING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Code/test head: `24b3e10201a07fc971bafc4de09db2df491d529c`
+- Branch/doc head at entry: `ce2004024bf53c03a1a63ff138db9b35d93d727c`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO; do not merge or promote production.
+- Latest dated report: [REPORT-20261010-CE2004-SOURCE-CONTRACT-READBACK.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-CE2004-SOURCE-CONTRACT-READBACK.md).
+
+## Actual code changes preserved on this branch
+- [`dedd9ac`](https://github.com/Report-Engainall/Report-Advisor/commit/dedd9ac8c63e69082c403cdac68372718e281f0f): repairs the CI trigger parser so `pull_request.paths` does not masquerade as a `push` filter; adds regression coverage.
+- [`108a881`](https://github.com/Report-Engainall/Report-Advisor/commit/108a881a12b8982a4f31458c7eb044de0d8e2a78): gives Quality runs unique `github.run_id` concurrency groups and disables cancellation of in-flight proof.
+- [`5aeea95`](https://github.com/Report-Engainall/Report-Advisor/commit/5aeea95db8f5c2c41cece263c464cb27f082dfed): displays the full `UniversalIntelligenceChain` expanded by default on both Smart Report and File Lab, while retaining collapsibility.
+- [`24b3e10`](https://github.com/Report-Engainall/Report-Advisor/commit/24b3e10201a07fc971bafc4de09db2df491d529c): fixes the regression test's open-attribute regular expression.
+- Core engines were not rebuilt. Current readback confirms full signal/recommendation/evidence lists, general+specialist composition, sourceHash/jobId binding, and no artificial card truncation.
+
+## Current executed checks and external runtime
+- Executed 14 direct source-contract assertions against current GitHub-read-back code; all 14 passed. These check general card/source lineage, open-by-default unified chain on each route, complete untruncated signals/recommendations/evidence, all numeric-column profiles, general+specialty composition, and the regression assertions themselves. This was a direct in-memory readback execution, not `npm test` or real authenticated browser proof.
+- Netlify preview `https://deploy-preview-912--aghbari-report-advisor.netlify.app/` is reachable and its source metadata identifies branch/doc commit `ce2004024bf53c03a1a63ff138db9b35d93d727c`. Extracted landing page explicitly says its displayed inventory report is a repository fixture, not a live tenant upload.
+- Fresh workflows at code head 24b3e10201a07fc971bafc4de09db2df491d529c were still queued/in progress: Build [38082993240], Quality [38082993284], Data Quality [38082993408], Device Browser [38082993243], Handoff [38082993478], Phase-F [38082993291], Value Cohort [38082993416], Full Product Browser [38082993415]. Fetch again before using outcomes.
+- Older exact-head evidence: Build PASS and Data Quality PASS on dedd9ac; Device Browser smoke PASS with authenticated E2E skipped. Quality on dedd9ac advanced past the repaired topology parser, then failed on the concurrency contract fixed by 108a881.
+- Independent unresolved failure: value cohort RPC `get_report_value_cohort_candidates` timed out with PostgreSQL `57014`; no claim the retry fixes it.
+- Vercel is rate-limited. Authenticated varied-file upload → result display → save/readback → refresh/re-entry with the same `reportJobId + sourceHash`, and clean backup restore, remain unproven.
+
+## Single next action
+Consume current-head Quality/Build/Full Product Browser outcomes, fix the first confirmed failure, and complete authenticated source-bound persistence proof on a varied non-fixture source. Only then reassess cohort SQL and restore certification. Keep PR open / PRODUCT_COMPLETE=NO.
+---
+# LIVE RESUME — 2026-10-10T23:20:00+03:00 / UNIVERSAL INTELLIGENCE CHAIN NOW EXPANDED BY DEFAULT
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Code/test head: `24b3e10201a07fc971bafc4de09db2df491d529c`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO; don't merge or promote production.
+- Latest archived report: [REPORT-20261010-24B3E10-UI-CHAIN-EXPANDED.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-24B3E10-UI-CHAIN-EXPANDED.md).
+
+## Product change in this launch
+- [5aeea95](https://github.com/Report-Engainall/Report-Advisor/commit/5aeea95db8f5c2c41cece263c464cb27f082dfed) now sets the universal-intelligence disclosure `open` by default on both `SmartReportPage.tsx` and `ExternalFileAnalysisPage.tsx`. This directly removes the hidden-by-default brain/decision chain from both user journeys, while retaining the ability to collapse it manually.
+- Updated summary wording to say the chain is visible now, and added a regression test requiring both routes' `UniversalIntelligenceChain` details to be expanded on initial render.
+- [24b3e10](https://github.com/Report-Engainall/Report-Advisor/commit/24b3e10201a07fc971bafc4de09db2df491d529c) fixes the new test's regular-expression word-boundary syntax. The exact current test result is still awaiting GitHub Actions.
+- Existing source-bound generic card still receives `sourceHash` + `reportJobId`; general and eligible specialty content are composed into the chain, so showing it expanded does not replace either layer.
+
+## Exact-head checks as last read
+- Runs at `24b3e10201a07fc971bafc4de09db2df491d529c`: Data Quality [38082931758], Phase-F [38082931908], Product Build [38082931812], Full Product Browser [38082931895], Value Cohort [38082931955], Quality [38082931665], Device Browser [38082931628], Handoff [38082931644] were queued/pending. Re-fetch them; do not infer PASS from creation.
+- Previously proven on older dedd9ac head: Product Build Gate PASS, Data Quality PASS, Device browser smoke PASS. Authenticated E2E was skipped/manual-only, and the Full Product Browser/Phase-F/Cohort runs were subsequently cancelled after a docs-only PR update.
+- CI fixes since dedd9ac: topology parser now stops at sibling YAML triggers; Quality concurrency includes `github.run_id` and `cancel-in-progress: false`. New current-head checks must prove both.
+- Known independent blocker: the prior value cohort RPC `get_report_value_cohort_candidates` timed out twice (PostgreSQL `57014`). Inspect SQL/index plan if repeated.
+- The current production alias has not been promoted, and the latest Netlify preview deployment was not yet confirmed at this exact code head.
+
+## Single next action
+Consume all current-head checks and inspect the first reproduced failure. Ensure the browser visibly shows the expanded universal chain on both screens, then prove upload → complete results → save/readback → refresh/re-entry with the same report job ID/source hash. Keep PR open and PRODUCT_COMPLETE=NO until proof passes.
+---
+# LIVE RESUME — 2026-10-10T23:12:00+03:00 / QUALITY CONCURRENCY FIX COMMITTED; CURRENT-HEAD PROOFS PENDING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/test checkpoint: `108a881a12b8982a4f31458c7eb044de0d8e2a78`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. No merge or production promotion.
+- Dated report: [REPORT-20261010-108A881-QUALITY-RUN-CONTROL.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-108A881-QUALITY-RUN-CONTROL.md).
+
+## Changes actually committed
+1. [`dedd9ac`](https://github.com/Report-Engainall/Report-Advisor/commit/dedd9ac8c63e69082c403cdac68372718e281f0f): fixed `scripts/check-ci-execution-topology.mjs`. The parser now stops at the next sibling trigger (two-space indentation), so `pull_request.paths` can no longer be interpreted as a `push` filter. A regression fixture was added.
+2. [`108a881`](https://github.com/Report-Engainall/Report-Advisor/commit/108a881a12b8982a4f31458c7eb044de0d8e2a78): `.github/workflows/quality.yml` now gives each quality attempt a unique `github.run_id` group and `cancel-in-progress: false`, matching `scripts/check-quality-workflow-contract.mjs`. Both changes are read back from the repository.
+
+## Verified facts vs pending proof
+- On dedd9ac, CI topology passed its previous failing stage; the first failure moved to the Quality concurrency contract.
+- Product Build Gate [38082440345](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440345) PASS on dedd9ac.
+- Data Quality Runtime [38082440151](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440151) PASS on dedd9ac.
+- Device-Independent Browser [38082440390](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440390) smoke job PASS; authenticated E2E is skipped/manual-only.
+- On exact code head `108a881a12b8982a4f31458c7eb044de0d8e2a78`, Quality [38082699904], Product Build [38082699975], Full Product Browser [38082699868], Value Cohort [38082699916], Phase-F [38082699801], Device Browser [38082699826], Data Quality [38082699672] and Handoff [38082699901] were queued/pending on last read. Query them anew before relying on results.
+- Value Cohort on a previous head timed out twice with PostgreSQL `57014` in `get_report_value_cohort_candidates`; investigate actual SQL/index plan if this repeats. Don't misrepresent as a generic UI failure.
+- Latest source readback confirms the general card is directly rendered on Smart Report and receives the current `sourceHash` and `reportJobId`; this is not yet real browser proof that save/readback/refresh preserves the same source identity.
+
+## Do not rebuild the intelligence core
+The branch already contains the generic file intelligence builder, general/specialist layer composition, source-bound Smart Report path, untruncated signals/recommendations/evidence card, and tests for txt/csv/json/jsonl/xml/yaml/markdown/RTF/XLSX. Continue at integration and current-head runtime proof. Preserve `universal-report-intelligence.ts`, `generic-intelligence.ts`, `report-smart.ts`, and `UniversalIntelligenceChain.tsx`.
+
+## One next action
+Consume the exact-head workflows above; fix their first confirmed blocker. Then prove a varied-file upload through the actual authenticated browser, showing all available general + applicable specialist outputs, saving and reading back the same report ID + SHA-256 hash after refresh/re-entry. Leave PR open and product status NOT COMPLETE until proved.
+---
+# LIVE RESUME — 2026-10-10T23:10:00+03:00 / TOPOLOGY PARSER REPAIRED; EXACT-HEAD PRODUCT PROOFS RUNNING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/test checkpoint: `dedd9ac8c63e69082c403cdac68372718e281f0f`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. Do not merge or promote production.
+- Current report: [REPORT-20261010-DEDD9AC-CI-PARSER-FIX.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-DEDD9AC-CI-PARSER-FIX.md).
+
+## What changed in this launch
+- Confirmed the live PR head before editing; the previously recorded `a1d365...` was stale. PR HEAD was `e2084af...` before this source change.
+- Fixed `scripts/check-ci-execution-topology.mjs`: `pushTrigger()` now stops at the next two-space YAML trigger sibling, rather than reading sibling `pull_request.paths` as a push filter. Added a regression fixture for a main push plus path-scoped pull request.
+- Commit [`dedd9ac`](https://github.com/Report-Engainall/Report-Advisor/commit/dedd9ac8c63e69082c403cdac68372718e281f0f) is confirmed as PR #912 HEAD. Isolated parser regression check passed.
+- Source readback: `SmartReportPage.tsx` renders the general `GenericFileIntelligenceCard` outside the collapsed Evidence Passport section and passes the selected report’s source hash/job ID. `report-smart.ts` composes the source-general layer with eligible specialist analysis. This is code readback, not yet authenticated browser proof.
+
+## Exact-head workflow frontier
+- Data Quality Runtime [38082440151](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440151): PASS.
+- Product Build [38082440345], Quality [38082440412], Full Product Browser [38082440347], Value Cohort [38082440300], Phase-F [38082440417], Device Browser [38082440390]: queued/in progress at last read; check each before claiming success.
+- Session Handoff [38082440404](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38082440404) failed because the prior report baseline did not cover four files changed after it. `PROGRAMMER_CURRENT_REPORT.md` now sets `REPORT_FOR_HEAD=dedd9ac8c63e69082c403cdac68372718e281f0f`; subsequent changes must be limited to the allowed session-report documentation paths.
+- Value Cohort on the previous `a1d365...` head timed out twice in `get_report_value_cohort_candidates` (PostgreSQL `57014`). Existing retry logic did not solve the SQL timeout; it needs separate query/index diagnosis.
+- Preview build for this commit was pending at last read; production is not promoted. Do not present an old preview as proof for this exact HEAD.
+
+## Do not rebuild the brain
+The generic layer, general/specialist composition, source-bound Smart Report, full signals/recommendations/evidence rendering, and format regression tests are already present in the branch. Continue at integration/runtime proof seams. Preserve `universal-report-intelligence.ts`, `generic-intelligence.ts`, `report-smart.ts`, and `UniversalIntelligenceChain.tsx`; do not replace either analysis layer with the other.
+
+## Single next action
+Consume the terminal workflows for exact code head `dedd9ac8c63e69082c403cdac68372718e281f0f`. Fix the first confirmed current-head blocker; if cohort still fails, diagnose its database RPC separately. Then prove upload → complete visible general + applicable specialist results → save/readback → refresh/re-entry, with the same report job ID and SHA-256 source hash. Keep product status NOT COMPLETE until those are browser-proven.
+---
+# LIVE RESUME — 2026-10-10T22:10:00+03:00 / HEAD a1d365; AUTH LOAD STILL DEGRADED; PHASE-F LIVE PROBES IN PROGRESS
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Current code/workflow head: `a1d365d3e08a20cbb5ab27f4e708435c1ec724d8`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Latest report: [REPORT-20261010-A1D365-PHASEF-CURRENT-HEAD.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-A1D365-PHASEF-CURRENT-HEAD.md).
+
+## Current results
+- Data Quality Runtime [38078344758](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344758): PASS on a1d365.
+- Phase-F [38078344665](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344665): local operational/static tests, Canary auth, target resolution and preview provenance PASS; live probes in progress, clean restore not yet proven.
+- Report Value Cohort [38078344810](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344810): running, no final PASS yet.
+- Product Build [38078344906](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38078344906): dependency install running; further steps pending.
+- Quality [38078344863] in progress.
+- Handoff [38078344759] failed due stale baseline 12b not covering the a1d365 Phase-F workflow edit. This report now sets `REPORT_FOR_HEAD=a1d365d3e08a20cbb5ab27f4e708435c1ec724d8`; changes after baseline should be docs-only and next handoff run must pass.
+- Full Product Browser [38078344827] pending; predecessor [38078166196] built exact SHA and passed canonical heart regressions but remained at E2E actor provisioning.
+- Device Independent [38078344615] pending; authenticated duplicate is manual-only.
+- Staging `saved_views` migration applied and read back; production database untouched.
+
+## Confirmed Supabase Auth issue
+The logs identify internal Postgres connection timeouts for `supabase_auth_admin`: earlier windows showed 81/98 token 504s and 25/21 token 500s; latest available 19:04–19:05 UTC shows 10 token 504, 7 admin-user 504, and 4 500 failures. This happens before UI assertions; don't mislabel it as a generic-card failure. Old in-progress runs from multiple PR heads are still a residual load source, despite newer-run cancellation policies.
+
+## Existing product fixes
+- Reports Center source context fix: [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974)
+- Visible general-intelligence source-bound browser assertions: [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8)
+- Generic file tests previously logged `GENERIC FILE ANALYSIS PASS`; engine was not rebuilt.
+- Netlify preview is ready on a1d365; Vercel is free-rate-limited; production unchanged.
+
+## Next exact action
+Consume a1d365 Full Product Browser, Phase-F, cohort, build/quality and handoff outcomes; inspect first failing logs, repair only the reproduced cause, and persist results. Do not merge or claim complete until matching source hash survives varied-file upload/results/persistence/refresh and clean restore passes.
+---
+
+# LIVE RESUME — 2026-10-10T22:05:00+03:00 / STAGING AUTH SATURATION DIAGNOSED; LATEST-HEAD RUN CONTROL ADDED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Code/CI checkpoint: `12b7106504aaeec247803e3ada311129ee495467`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Latest report: [REPORT-20261010-12B710-LATEST-HEAD-CI-LOAD.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-12B710-LATEST-HEAD-CI-LOAD.md)
+
+## Confirmed cause
+Supabase Auth logs show internal DB connection exhaustion/timeout for `supabase_auth_admin` at `localhost:5432`: 81 token 504 + 25 token 500 in 18:35–18:50 UTC, and another 54 token 504 in 18:50–18:56 UTC. GitHub's active run inventory showed stale test runs from multiple PR heads doing Auth/Storage/Evidence/Phase-F work at the same time; prior Full Product failure occurred before UI assertions, so it does not prove a general-card defect.
+
+## Fixes committed
+- [81c6b39](https://github.com/Report-Engainall/Report-Advisor/commit/81c6b393c587f37d1c7e8750f01b65fa907f29b1): retry transient connection-establishment errors (not SQL statement-timeout/constraint failures); operational regression passed on e9.
+- [e9d5de6](https://github.com/Report-Engainall/Report-Advisor/commit/e9d5de68122601a2a6f9a1d5c08b12b50bc0c9b3): correct retry diagnostic assertion in runtime test.
+- [e77c919](https://github.com/Report-Engainall/Report-Advisor/commit/e77c919510ff3d7e9dd0d3708427855975a4d438): Device-Independent authenticated duplicate is manual-only on PR.
+- [6a3cc01](https://github.com/Report-Engainall/Report-Advisor/commit/6a3cc0148845e1e05344b5d2590559db3762a21e): fix Device concurrency key expected by integrity checker.
+- [12b7106](https://github.com/Report-Engainall/Report-Advisor/commit/12b7106504aaeec247803e3ada311129ee495467): latest-head cancellation for same-workflow E2Es, plus Phase-F path filters to avoid docs-only live restore runs.
+Stale runners that started before these controls are not retroactively canceled.
+
+## Current exact-head runs waiting on 12b7106504aaeec247803e3ada311129ee495467
+Full Product [38077978966], Device Independent [38077979075], Phase-F [38077979117], Report Cohort [38077978974], Build [38077979233], Quality [38077979087], Data Quality [38077979172], Handoff [38077979084], Storage [38077979196], Commercial [38077979063], Evidence [38077978905].
+Previous 40-case cohort success [38076567370] was from a stale head and is not final evidence.
+
+## Next action
+Consume latest-head results, inspect first failing logs, and repair only proven blockers. Preserve source hash across visible results/save/readback/refresh. Do not merge or claim product complete until authenticated upload-to-results browser proof and clean restore pass.
+---
+
+# LIVE RESUME — 2026-10-10T21:40:00+03:00 / CI CONCURRENCY COMMITTED; COHORT PASS; BROWSER/RESTORE OPEN
+
+- Repo: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/CI head: `2d77663a8fea44cfbc98e367cca48107a63d3ec2`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Latest dated report: [REPORT-20261010-2D77663-CI-STAGING-CONCURRENCY.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-2D77663-CI-STAGING-CONCURRENCY.md)
+
+## Proof at this checkpoint
+- [2d77663](https://github.com/Report-Engainall/Report-Advisor/commit/2d77663a8fea44cfbc98e367cca48107a63d3ec2) serializes browser E2Es together and heavy restore/cohort jobs together without cancelling active proofs.
+- Report Value Cohort [38076567370](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567370) passed on exact head: 40-report artifact uploaded (11679650509). REVIEW / INSUFFICIENT SAMPLE were kept explicit.
+- Full Product Browser [38076567127](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567127) IN_PROGRESS; UI/card/source lineage still awaiting live proof.
+- Phase-F [38076567468](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567468) IN_PROGRESS; clean restore not certified.
+- Device-Independent Browser [38076567296](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567296) PENDING behind browser lane.
+- Build [38076567171], Quality [38076567159], Data Quality [38076567488] IN_PROGRESS.
+- Handoff [38076567285](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567285) FAILED because the prior report omitted changed workflow paths. The current report now pins `REPORT_FOR_HEAD=2d77663a8fea44cfbc98e367cca48107a63d3ec2`; all later edits should be docs-only. The rerun must pass.
+
+## Product facts already checked
+- Reports Center source identity fix: [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974).
+- Visible generic-card browser assertions: [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8).
+- Generic engine/file format tests passed in Quality previously (`GENERIC FILE ANALYSIS PASS`).
+- Staging-only `saved_views` parity applied and readback verified; production DB untouched.
+- Latest deployment links still known-ready: [Netlify preview](https://deploy-preview-912--aghbari-report-advisor.netlify.app/) and [Vercel code preview ae756](https://report-advisor-or4bj18m7-injaz2.vercel.app/). Production alias has not been promoted.
+
+## Current root causes / next action
+Prior errors were Supabase Auth 504, PostgreSQL 57014 and pooler ECHECKOUTTIMEOUT under staging load, not a demonstrated failure of generic engine logic. Continue polling exact-head browser/Phase-F; fix first replicated cause, then prove upload → visible results → save/readback → refresh/re-entry with matching source SHA. Keep PR open and product-complete NO.
+---
+
+# LIVE RESUME — 2026-10-10 / SESSION HANDOFF REPORT CORRECTED; CURRENT-HEAD PROOFS QUEUED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED / mergeable was last true.
+- Branch head observed before this memory update: `b33d2a1550c82d76982a2c5d43fdb2725c6a20c1`.
+- Code/test head containing latest product code: `ae75608296a7bdff7d271e87439dace0f3817eb8`.
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- PRODUCT_COMPLETE = NO.
+
+## Why Session Handoff failed and what is now corrected
+
+On source-code commit ae756, [Session Handoff Contract run 38070065336](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065336) failed with `SESSION_HANDOFF_CONTRACT_FAIL: stale report; unreported files: scripts/real-business-e2e.mjs, scripts/smart-report-complete-intelligence-surface.test.mjs, src/pages/ReportsPage.tsx, supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql`. The checker requires a `REPORT_FOR_HEAD` that is an ancestor of HEAD and then allows only documentation files to change after that report head. The existing report still pointed to an older code head.
+- Current report now sets `REPORT_FOR_HEAD = c10429178ba4f414b27c254b1675b8daf0f6ddc1`, the code checkpoint before later documentation-only commits, and it contains every required session handoff field.
+- Current session state now has the required `CURRENT_EXACT_HEAD`, `BRANCH`, `PR`, `ACTION_STATUS`, `NEXT_EXACT_ACTION` fields at the top.
+- The latest Session Handoff job for updated PR head b33 is still pending/no job payload visible yet; it is not yet proven PASS. Verify new run [38070618351](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070618351).
+- Allowed changes since report baseline c104 are documentation only: `ONE-PROGRAMMER-SESSION-MEMORY.md`, `docs/execution/CURRENT_SESSION_STATE.md`, `docs/execution/PROGRAMMER_CURRENT_REPORT.md`, `docs/execution/PROGRAMMER_REPORTS/README.md`, and dated report `docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-C104291-LIVE-RESUME.md`.
+
+## Product/source changes already committed
+
+- [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974): Reports Center respects explicit `reportJobId + sourceHash`, reads the same report, and refuses to silently substitute another job/source.
+- [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4): Full Product E2E navigates with exact ID/hash.
+- [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c): source identity regression contract.
+- [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8): browser tests visible generic layer, source path, SHA, job ID, signal area and recommendation area.
+- Existing generic engine/card and `scripts/generic-file-analysis.test.mjs` already cover unknown text fallback plus TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF/XLSX; do not rebuild engine.
+- Staging schema parity migration `supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql` was applied only to project `fnqbvfuwbdpwvhcgzksl`. Readback: 9 columns, 4 constraints, 3 indexes, RLS enabled, authenticated tenant+owner policy, CRUD authenticated grants, zero anon grants. Production schema was not changed. Clean restore still needs a passing gate.
+
+## Current-head gates / jobs last queried
+
+For PR branch head b33, the fresh cohort:
+- Quality [38070618199] — queued
+- Device-Independent Browser E2E [38070618304] — queued, browser-smoke job [114267087142] queued
+- Session Handoff Contract [38070618351] — pending, no job payload exposed yet
+- Product Build Gate [38070618307] — queued, build-and-contracts [114267087110] queued
+- Full Product Browser E2E [38070618341] — queued, browser-e2e [114267087401] queued; corpus sub-job skipped
+- Phase-F live resilience [38070618280] — queued, certify job [114267088304] queued
+- Report Value Cohort [38070618329] — queued
+- Desktop Windows [38070618291] — build-windows [114267087274] in progress.
+The current-head jobs need a new read after docs updates. Previous desktop-web build step on ae756 succeeded, but that does not substitute for this cohort.
+
+## Preview and production truth
+
+- Ready code preview (Netlify): [https://deploy-preview-912--aghbari-report-advisor.netlify.app/](https://deploy-preview-912--aghbari-report-advisor.netlify.app/) on code SHA ae756.
+- Ready code preview (Vercel): [https://report-advisor-or4bj18m7-injaz2.vercel.app/](https://report-advisor-or4bj18m7-injaz2.vercel.app/) on code SHA ae756.
+- The Vercel URL generated for latest docs branch head `b33` is queued: `https://report-advisor-n8q9194uy-injaz2.vercel.app`; do not give it to customer as a working link until READY.
+- Production `https://aghbari-report-advisor.netlify.app/` still points to old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b`, not the latest branch.
+
+## Known product failure history
+
+- Prior Full Product Browser [38065584337](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584337) failed Reports Center readback. The code now handles the explicit ID/hash; the current browser must prove it.
+- Prior Device-Independent Browser [38065584293](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584293) encountered PostgreSQL `57014 statement timeout` on `/reports/sales` for a 500-row request. EXPLAIN from current staging showed an index scan plus incremental sort, but no authenticated timeout reproduced. Do not change exact count/page size/financial semantics or add unmeasured index until a current run reproduces with evidence.
+- Prior Phase-F [38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312) failed restore because `saved_views` was missing from migration history; the parity migration is now tracked/applied to staging, but clean-restore proof is pending.
+
+## Single next action
+
+Re-read PR head/current runs and consume the new Session Handoff, build/quality, authenticated browser, device-independent browser, and Phase-F outcomes. Inspect the first failed job's logs; correct the handoff baseline if still failing or fix the first real application/test failure. Do not merge or declare product complete until varied-file upload→analysis→visible results→persist/readback→refresh/re-entry is proven with the original source hash.
+---
+
+# LIVE RESUME — 2026-10-10 / REPORTS CENTER CONTEXT + GENERIC-CARD BROWSER ASSERTIONS + SAVED_VIEWS RESTORE PARITY
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Branch head observed immediately before this memory write: `46685acadd2ed66e838a1fc1284e20116fff4776` (documentation updates after code checkpoint)
+- Last code/test change: `ae75608296a7bdff7d271e87439dace0f3817eb8`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+
+## What was executed
+
+1. Reports Center now honors URL `reportJobId + sourceHash` and loads only that same-tenant source context, rejecting source-hash drift rather than silently selecting the tenant's latest report. [Code commit d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974)
+2. Full Product E2E navigates to Reports Center with the exact job ID/hash. [Test commit 943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4)
+3. Contract regression asserts URL source identity and mismatch handling. [Test commit 639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c)
+4. Authenticated browser E2E now requires the general intelligence card to be visibly rendered even with a detected specialty, and checks exact job ID, path, SHA-256, signal region, and recommendation region. [Test commit ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8)
+5. Added `supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql`; applied only to Staging project ref `fnqbvfuwbdpwvhcgzksl`. Migration ledger confirms version `20261010165742`. Readback proves saved_views table exists with 9 columns, 4 constraints, 3 indexes, RLS enabled, owner policy includes both `company_id = current_company_id()` and `user_id = auth.uid()`, authenticated SELECT/INSERT/UPDATE/DELETE and zero anon grants. No production DDL performed.
+6. Checkpoint docs committed:
+   - Archived report [REPORT-20261010-C104291-LIVE-RESUME.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-C104291-LIVE-RESUME.md), commit [eadda15](https://github.com/Report-Engainall/Report-Advisor/commit/eadda15e695dbd86470117b078a1c19bd9ebda43) with a follow-up correction to staging ref.
+   - Report index update [82aa58c](https://github.com/Report-Engainall/Report-Advisor/commit/82aa58cc4dd8acf620c4b905af1e8b7906334bd5).
+   - Current state [82f3bed](https://github.com/Report-Engainall/Report-Advisor/commit/82f3bed0f61daf695aeb83c92595629dab6cf55c).
+   - Current programmer report [46685ac](https://github.com/Report-Engainall/Report-Advisor/commit/46685acadd2ed66e838a1fc1284e20116fff4776).
+
+## Current deploy URLs
+
+- Netlify PR preview is READY at code commit `ae75608296a7bdff7d271e87439dace0f3817eb8`: [https://deploy-preview-912--aghbari-report-advisor.netlify.app/](https://deploy-preview-912--aghbari-report-advisor.netlify.app/).
+- Vercel code preview, READY at the same code commit: [https://report-advisor-or4bj18m7-injaz2.vercel.app/](https://report-advisor-or4bj18m7-injaz2.vercel.app/).
+- A Vercel deployment for the latest docs-only branch head `46685ac...` is queued at [https://report-advisor-7z42j3w8h-injaz2.vercel.app](https://report-advisor-7z42j3w8h-injaz2.vercel.app); do not use this unready queued URL as the main try-it link.
+- Production `https://aghbari-report-advisor.netlify.app/` remains old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b`; production is not updated.
+- The Netlify event for docs-only commit c104 was canceled as “no content change”. The successful Netlify deploy remains tied to code commit ae756. This was not an application build failure.
+
+## Live proof status / unresolved blockers
+
+- Current docs-head PR is still OPEN. Last PR fetch briefly reported `mergeable=false`; recheck mergeability state and branch head before any action; DO NOT MERGE until proof gates pass.
+- Current-head Actions were queued behind a Windows desktop dependency-install step. At checkpoint c104 the runs were: Quality [38070293237], Device-Independent Browser [38070293268], Session Handoff [38070293310], Product Build [38070293366], Full Product Browser [38070293490], data quality [38070293495], Report Value Cohort [38070293415], Phase-F [38070293496]; desktop-windows [38070293439] in progress. Windows job's web-build step had passed; desktop dependency installation still in progress. These runs need fresh status/log readback after this docs update.
+- Prior Full Product Browser [38065584337](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584337) failed at `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING`. The exact-source Reports Center fix and browser test are in branch but not yet proven by a completed current-head run.
+- Prior Device-Independent Browser [38065584293](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584293) found Postgres `57014 statement timeout` at `/reports/sales` on the 500-row sales query. Staging EXPLAIN on the available schema didn't reproduce an obvious expensive plan; do not change page size/count/financial semantics or add indexes without new evidence. Confirm whether it repeats.
+- Prior Phase-F [38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312) failed clean restore due to missing `public.saved_views`; the table parity migration is now applied/read back on staging, but restore gate is still unproven until current job passes.
+- Generic analysis engine and card were already present in the PR. Existing `scripts/generic-file-analysis.test.mjs` tests unknown readable text, TXT, CSV, JSON, JSONL, XML, YAML, Markdown, RTF and XLSX; current quality/browser outcomes need readback.
+- Product complete remains NO. Preview deployed is not authenticated user-journey proof.
+
+## Single next action
+
+Re-read live PR head/mergeability and the Actions run cohort for that exact HEAD. Consume first completed browser/build/Phase-F results and relevant job logs. Repair the first confirmed failure without weakening source-hash validation, evidence states, tenant isolation, or UNKNOWN-versus-zero semantics. When proofs settle, append another dated report and update CURRENT_SESSION_STATE, PROGRAMMER_CURRENT_REPORT, README and this memory with exact test results. Do not declare completion or merge before varied-file upload→analysis→full results→persist/readback→refresh/re-entry is browser-proven.
+---
+
+# LIVE RESUME — 2026-10-10 / SOURCE CONTEXT + GENERIC-CARD BROWSER PROOF ADDED; SAVED_VIEWS PARITY APPLIED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Code/test head consumed at this checkpoint: `ae75608296a7bdff7d271e87439dace0f3817eb8`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+
+## Current code changes
+- [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974): `src/pages/ReportsPage.tsx` reads optional URL `reportJobId` + `sourceHash`, fetches that exact same-tenant report, and fails visibly on missing/mismatched hash instead of silently using catalog[0].
+- [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4): Full Product E2E now navigates to the Reports Center with the exact report context.
+- [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c): source-context contract regression added.
+- [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8): live browser E2E now requires the generic layer to be visible on Smart Report even when specialty exists, including matching job id, source path/hash, and visible signal/recommendation regions.
+- General intelligence functions/card were already present on the original PR head; no reimplementation/rebuild was performed.
+
+## Staging restore migration — performed and verified
+- Migration file tracked on branch: `supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql`.
+- Applied only to Supabase staging project ref `fnqbvfuwbdpwvhcgzksl` using migration `restore_saved_views_schema_parity`; database migration ledger readback recorded exact version `20261010165742`.
+- Staging readback after apply: `saved_views` exists, 9 columns, 4 constraints, 3 indexes, RLS enabled, policy `saved_views_owner` for authenticated with `company_id = current_company_id() AND user_id = auth.uid()`, authenticated SELECT/INSERT/UPDATE/DELETE, 0 anon grants.
+- A clean restore had been failing because the table was absent from tracked migrations ([Phase-F predecessor run](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312)); the current run must prove the restore fix. Production schema was not changed.
+
+## Deployment and verification state
+- Current Netlify PR-preview deploy is READY at commit `ae75608296a7bdff7d271e87439dace0f3817eb8`: [https://deploy-preview-912--aghbari-report-advisor.netlify.app/](https://deploy-preview-912--aghbari-report-advisor.netlify.app/).
+- Current Vercel preview deploy is READY at the same commit: [https://report-advisor-or4bj18m7-injaz2.vercel.app/](https://report-advisor-or4bj18m7-injaz2.vercel.app/).
+- Production Netlify alias remains old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b`; do not call production updated.
+- On exact commit ae756, [Session Handoff Contract](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065336) was IN_PROGRESS when checked. Product Build Gate [38070065379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065379), Quality [38070065244](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065244), Device-Independent Browser E2E [38070065231](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065231), Full Product Browser E2E [38070065123](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065123), Phase-F [38070065187](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065187), and Report Value Cohort [38070065255](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065255) were QUEUED/PENDING when checked. No current-head browser/restore pass is claimed.
+- Prior confirmed predecessor evidence on d974: build/quality/certification/cohort/handoff passed, but Full Product E2E failed at Reports Center context readback, Device-Independent E2E reported `57014 statement timeout` on `/reports/sales`, and Phase-F failed due to missing `saved_views`.
+
+## Next exact action
+Consume the current-head browser/build/quality/Phase-F runs and read failure logs. Confirm the generic-card identity assertions, explicit Reports Center source context, and clean restore succeed. If the sales query timeout repeats, use a real execution-plan/log observation before changing row limits or financial semantics; keep `UNKNOWN` distinct from zero and do not add unmeasured schema indexes. Then update CURRENT_SESSION_STATE, PROGRAMMER_CURRENT_REPORT, and a new dated report with exact run outcomes. Do not merge or declare product complete yet.
+---
+
+# LIVE RESUME — 2026-10-10 / REPORT-CENTER CONTEXT FIX COMMITTED; RESTORE SCHEMA GAP INSPECTED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Exact code/test head at checkpoint: `639f5d92ed3b9768dd1d48e9a732cdd92561e07c`
+- Base SHA: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+
+## Latest executed source changes
+- Commit [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974) updates `src/pages/ReportsPage.tsx`: if `reportJobId` and `sourceHash` are present in the URL, the Reports Center fetches exactly that tenant-owned report; it validates the same source hash and fails visibly rather than silently replacing it with a different/latest report.
+- Commit [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4) updates `scripts/real-business-e2e.mjs` to navigate into the Reports Center with the exact current report ID + hash.
+- Commit [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c) adds a source contract regression to `scripts/smart-report-complete-intelligence-surface.test.mjs`.
+- GitHub readback confirms those files contain the new context checks. Exact-head workflows were queued/in progress when last queried; the fix is not yet proven by a completed browser run.
+
+## Staging saved_views schema — read-only evidence
+Project `Report-Advisor-P0-2-Staging` / ref `fnqbvfuwbdpwvhcgzksl`. The live table exists, but Phase-F clean restore fails because it is absent from the restore schema: [Phase-F run 38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312). Observed schema:
+- Columns: `id uuid PK default gen_random_uuid()`, `company_id uuid NOT NULL`, `user_id uuid NOT NULL`, `view_key text NOT NULL`, `name text NOT NULL`, `route text NOT NULL`, `state jsonb NOT NULL DEFAULT '{}'`, `created_at timestamptz NOT NULL DEFAULT now()`, `updated_at timestamptz NOT NULL DEFAULT now()`.
+- FKs: company_id → companies(id) ON DELETE CASCADE; user_id → auth.users(id) ON DELETE CASCADE; unique key (company_id,user_id,view_key), primary key id.
+- Index: (company_id,user_id,route,updated_at DESC) plus PK and unique index.
+- RLS is enabled (not forced); policy `saved_views_owner` for authenticated ALL, using/check `company_id = current_company_id() AND user_id = auth.uid()`.
+- Grants read from staging: authenticated SELECT/INSERT/UPDATE/DELETE; service_role full table privileges; no anon grants observed; no user triggers/dependent FKs observed.
+- No schema writes performed yet for saved_views. Do not modify production schema.
+
+## Exact-head proof status before schema migration
+- Quality + Product Build + Final Certification + Report Value Cohort + Session Handoff were PASS on predecessor d974:
+  [Quality](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584285),
+  [Build](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584294),
+  [Certification](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584259),
+  [Cohort](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584089),
+  [Handoff](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584323).
+- Full Product Browser E2E failed on `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING` (root cause: Reports Center selected only catalog[0], while test required the exact current report). This is the source-context defect now patched; wait for exact-head browser run.
+- Device-independent E2E also exposed a distinct `sales_invoices` statement timeout at `/reports/sales`.
+- Phase-F failed because `public.saved_views` is not restored into the clean target. The table’s staging schema has been read-only inspected above; next action is to add a guarded migration in the PR, apply it only to staging, and verify table/RLS/policy/index/constraint readback.
+- Netlify deploy-preview run for docs-only d974 was canceled due no content change (not an app failure). Check the latest preview/deployment after a code commit; production alias still refers to old main.
+---
+
+# LIVE RESUME — 2026-10-10T20:00:00+03:00 / EXACT-HEAD GATES CONSUMED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED
+- Live app code candidate read from GitHub: `d974d765cb0ac6d00bb65230df40a854e0919af3`
+- Main base from PR metadata: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Historical supplied SHA `ab292d6cfd9ca948b362c0a975cc38cb489ada24` is stale.
+
+## Exact-head gate evidence consumed
+
+- Quality: PASS — [run 38065584285](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584285)
+- Product Build Gate: PASS — [run 38065584294](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584294)
+- Final Certification Gate: PASS — [run 38065584259](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584259)
+- Report Value Cohort: PASS — [run 38065584089](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584089)
+- Session Handoff Contract: PASS — [run 38065584323](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584323)
+- Commercial Product Creation E2E: PASS — [run 38065584205](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584205)
+- Full Product Browser E2E: FAIL — [run 38065584337](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584337); source-bound Smart Report durable proof and refresh readback passed for report job `16709d80-e012-40ef-9c12-6fd8255897f8`, hash `sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313`, source `تقارير ادارية.xlsx`, 332 source rows/canonical rows, trust TRUSTED, quality 98. It then failed at `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING` while opening `/reports`. Inspect `waitForCurrentJobResponse` and Reports catalog route; do not weaken source lineage assertions.
+- Device-Independent Browser E2E: FAIL — [run 38065584293](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584293); 32/32 routes scanned, 40 checks passed, 2 failures on `/reports/sales` due PostgREST/Postgres `57014 canceling statement due to statement timeout` on a 500-row `sales_invoices` query. Diagnose the real query/index/timeout pressure; don't classify this as generic-intelligence pass.
+- Phase-F Live Resilience: FAIL — [run 38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312); 3/4 probes passed. Clean logical restore failed at SQL line 289076 because `public.saved_views` is absent from the restore schema. Inspect staging schema and tracked migration history, then reconstruct exact RLS/tenant access from observed schema before adding a parity migration. Do not invent columns/policies or modify production schema.
+- Netlify deploy preview, Vercel, CodeRabbit statuses on d974 were success; these are not authenticated product journey proof.
+
+## Generic intelligence implementation already present — do not rebuild
+
+- General layer composed with applicable specialist layer in `src/lib/report-intelligence/compose-intelligence-layers.ts`.
+- Smart Report renders `GenericFileIntelligenceCard` even with specialty; card uses source path + source hash + report job identity and renders signals/recommendations/findings/evidence without former UI truncation.
+- File Lab composes the general layer into Universal Intelligence for recognized datasets.
+- `scripts/generic-file-analysis.test.mjs` covers TXT, CSV, JSON, JSONL, XML, YAML, Markdown, RTF and XLSX/domain neutrality; source-level surface contract checks all lists and source lineage. Build/quality passed on d974; don't call user journey complete until exact-head browser and restore gates pass.
+- Live production Netlify alias `https://aghbari-report-advisor.netlify.app/` is READY but currently serves old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b` (Oct 5); use PR preview `https://deploy-preview-912--aghbari-report-advisor.netlify.app/` for the current branch only after verifying preview commit.
+
+## Next exact action
+
+Inspect and repair the first source-bound browser failure `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING` by reading `waitForCurrentJobResponse`, its URL/filters, and the actual Reports catalog network contract. Commit the minimum compatible fix plus a focused regression; then consume new exact-head runs. Afterward diagnose the actual current Phase-F schema gap `saved_views` against the dedicated staging project `fnqbvfuwbdpwvhcgzksl` (never assume production schema or permissions). Keep PR open and preserve all evidence gates.
+
+---
+
+# LIVE RESUME — 2026-10-10T19:10:00+03:00 / 49 PASSPORTS CLOSED; METRIC TABLE RESTORE + VISIBLE SUMMARY FIX
+
+- Repository: `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`; code/test candidate `cf28f9e24e04c69f1ae068b1053768c4dc32179a`.
+- Product completion = NO.
+
+## Executed staging result
+- 49 legacy generic imports with all-zero ledger counters were repaired only where source fingerprint/file hash/security/rendered rows/analyzed rows/canonical commit rows/canonical rows exactly agreed. Provenance saved to `result_summary.legacyRowCountReconciliation`.
+- Verified readback: 49 corrected imports, 49 linked passports VERIFIED/READY/FULL, 0 unresolved for that repaired population.
+- Restore schema parity migrations are tracked/applied for `intelligence_voi_requests`, `report_cell_lineage`, and `report_intelligence_calculations`. Last one is migration version `20261010155211`; readback shows RLS on, 3 tenant policies, 77 metrics across 2 reports.
+- UI bug fixed: the executive summary was nested in collapsed Evidence Passport details. It now sits before the details disclosure with a test id; the E2E asserts visible DOM, not hidden source text.
+- Cohort [38065456403](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065456403) passed on current candidate; earlier proof closed 40/40 reports.
+
+## Current next task
+Consume exact-head Quality, Product Build, Phase-F restore, Full Product Browser and Device-Independent Browser runs for `cf28f9e24e04c69f1ae068b1053768c4dc32179a`; then repair the first verified blocker. The current runs were pending/in progress at this checkpoint. Previous restore failed specifically on `report_intelligence_calculations` missing from clean restore; the tracked parity migration should now unblock that relation, but the whole restore remains unproven until the workflow passes.
+
+## Current code changes in this candidate
+- `supabase/migrations/20261010155211_restore_report_intelligence_calculations_schema_parity.sql`
+- `scripts/check-migration-schema-audit.mjs`
+- `src/pages/SmartReportPage.tsx`
+- `scripts/real-business-e2e.mjs`
+- `scripts/smart-report-complete-intelligence-surface.test.mjs`
+
+Next exact action: read current run conclusions and relevant logs; keep PR #912 open and never promote pending evidence to verified.
+
+---
+
+# LIVE RESUME — 2026-10-10T18:45:00+03:00 / 49 PASSPORTS FIXED; LINEAGE RESTORE + COHORT TIMEOUT DIAGNOSTICS
+
+- Repo: `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main: `fa1ab4cbade9b01685507aa966c10f700a03f576`; tested code candidate: `242c072a1293346109edd3a67cd45a438f53d359`.
+- Product complete = NO.
+
+## Verified staging mutation
+- A source-proof-gated idempotent migration repaired 49 legacy imports where the counter fields were zero even though source hash/file security/rendered row count/analyzed row count/canonical commit rows/canonical dataset rows matched exactly.
+- Persisted audit evidence is in `import_jobs.result_summary.legacyRowCountReconciliation`.
+- Readback: 49 reconciled import records; 49 related passports are `VERIFIED / READY / FULL`; zero unresolved repaired reports.
+
+## Restore / runtime
+- Added VOI restore schema parity previously. Staging logical restore then revealed `public.report_cell_lineage` was also absent from the clean restored schema while existing in live staging.
+- Applied `restore_report_cell_lineage_schema_parity` to staging; migration history version is `20261010153717`. Current checkpoint adds matching repository migration and a static audit contract.
+- Quality / Product Build Gate / Session Handoff were PASS on `242c072a1293346109edd3a67cd45a438f53d359`.
+- Full browser and device-independent browser are not closed; they showed business-flow FAIL and HTTP 500/Postgres `57014` timeouts under concurrent heavy workflows. Report Value Cohort also timed out before candidate logging. A quiet-window candidate RPC returns 42 candidates in ~139ms.
+- Cohort fetch now logs endpoint path/stage and caps statement-timeout retry to one retry to avoid blind ~97-second exponential retry. This is diagnostic and does not suppress failure.
+
+## Next exact action
+Consume exact-head Quality, Product Build, Phase-F, Report Value Cohort, Full Browser and Device-Independent Browser results. Verify restore relation exists after restore; cohort should close 40 proof-bound reports without loosening its gate. Keep PR #912 open until the same reportJobId/sourceHash is proven through upload, rendering, navigation/reload and persisted readback.
+
+---
+
+# LIVE RESUME — 2026-10-10T18:35:00+03:00 / 49 IMPORTS RECONCILED; PHASE-F GOVERNANCE-PROVENANCE GATE SYNCED
+
+- Repo Report-Engainall/Report-Advisor, PR https://github.com/Report-Engainall/Report-Advisor/pull/912 OPEN / NOT MERGED.
+- Branch fix/source-bound-generic-intelligence-20261009; main fa1ab4cbade9b01685507aa966c10f700a03f576.
+- Current application/code candidate: ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5. The current execution report is a governance-only child.
+- Product complete: NO.
+
+## Verified staging evidence
+- Applied source-proof-gated reconciliation for 49 unique all-zero-counter imports; every eligible source hash, file security/status, rendered row count, analysis quality/row count, canonical commit count and canonical dataset count matched exactly.
+- Audit proof persisted in result_summary.legacyRowCountReconciliation.
+- Readback: 49 audited imports, 49 passports VERIFIED/READY/FULL, zero unresolved reconciled reports.
+- Migration versions 20261010144953 and 20261010145143 are tracked as SQL files.
+
+## Proven predecessor checks
+- Report Value Cohort 38062072330: PASS.
+- Product Build Gate 38062072179: PASS.
+- Session Handoff Contract 38062072369: PASS.
+- Product Build Gate 38061977142 on code candidate 2055600a895c05ef8239b6be4014b121d5cea775: PASS (typecheck, build, smart-report, evidence-boundary, customer-report, and upload UI contracts).
+- These are predecessor/current-predecessor passes, not proof the newest code candidate ce10536... passed.
+
+## New Phase-F correction
+- Both workflow preflight and runtime probe now allow docs/execution/* plus ONE-PROGRAMMER-SESSION-MEMORY.md as governance-only differences. Any non-governance file delta still fails closed.
+- New candidate ce10536... builds the corrected rule into source; its exact-head Phase-F and Quality/Browser runs must still be consumed.
+- Last confirmed Netlify app SHA before this candidate was 2055600...; inspect /api/health deployment_sha and the live preview before interpreting Phase-F.
+
+## Next one action
+Consume terminal current-candidate Quality, Product Build Gate, Full Product Browser E2E, Device-Independent Browser E2E, Session Handoff and Phase-F logs. Prove source-bound upload/render/navigation/reload with identical reportJobId + sourceHash, then consider completion.
+
+---
+
+# LIVE RESUME — 2026-10-10T18:20:00+03:00 / 49 LEGACY PASSPORTS CLOSED; PHASE-F PROVENANCE RULE CORRECTED
+
+- Repository: Report-Engainall/Report-Advisor
+- PR: https://github.com/Report-Engainall/Report-Advisor/pull/912 OPEN / NOT MERGED.
+- Branch: fix/source-bound-generic-intelligence-20261009; main base fa1ab4cbade9b01685507aa966c10f700a03f576.
+- Current application/code candidate: 2055600a895c05ef8239b6be4014b121d5cea775; current execution report is a governance-only child.
+- Product completion: NO.
+
+## Verified staging correction
+- 49 unique imports had all four row counters zero but independent source-bound row proofs all matched.
+- Applied guarded migration reconcile_legacy_import_rowcount_from_source_proof; only strict hash/file-security/status/rendered-row/analysis-quality/commit/canonical-count matches were eligible.
+- Every changed import stores result_summary.legacyRowCountReconciliation with rule version, source hash, file record id, report job ids and detailed proof. Existing result summary is preserved.
+- Readback: reconciled imports = 49; associated passports = 49 VERIFIED / READY / FULL; unresolved reconciled passports = 0.
+- Supabase migration history has versions 20261010144953 and 20261010145143; both source files are tracked in GitHub.
+
+## Proven predecessor CI
+- Report Value Cohort 38061102673: PASS after reconciliation.
+- Quality 38061102377: PASS.
+- Product Build Gate 38061102647: PASS.
+- These passes were on a predecessor commit, not on the current application candidate.
+
+## New provenance correction
+- Phase-F runtime equivalence allows a differing deployment SHA only when the diff to the workflow head contains docs/execution/* and ONE-PROGRAMMER-SESSION-MEMORY.md; other source changes remain fail-closed.
+- Current candidate workflows are queued/pending; current-head build/browser/Phase-F remain unproven.
+- Last inspected Netlify app SHA was 84c881e...; candidate 2055600a895c05ef8239b6be4014b121d5cea775 is deploying. Wait for an exact or governance-only-equivalent app SHA before interpreting Phase-F.
+
+## Next exact action
+Consume terminal CI for 2055600a895c05ef8239b6be4014b121d5cea775; verify preview provenance and Phase-F restore. Then prove the same reportJobId + sourceHash through varied-format upload, complete general + applicable specialty analysis, navigation/reload and durable readback.
+
+---
+
+# LIVE RESUME — 2026-10-10T18:05:00+03:00 / 49 SOURCE-PROVEN IMPORT COUNTERS RECONCILED; PASSPORTS CLOSED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Application/governance candidate: `84c881eae999ae218b2cf6b448394cbdc73d0775`.
+- Product completion: NO.
+
+## Verified staging correction
+- 49 unique imports had all four row counters zero but independent source-bound row proofs all matched.
+- Applied guarded migration `reconcile_legacy_import_rowcount_from_source_proof`; only strict hash/file-security/status/rendered-row/analysis-quality/commit/canonical-count matches were eligible.
+- Every changed import stores `result_summary.legacyRowCountReconciliation` with rule version, source hash, file record id, report job ids and detailed proof. Existing result summary is preserved.
+- Readback: reconciled imports = 49; associated passports = 49 VERIFIED/READY/FULL; unresolved reconciled passports = 0.
+- Supabase migration history has versions `20261010144953` and `20261010145143`; both source files are now tracked in GitHub.
+
+## Current CI status at checkpoint
+- Predecessor cohort [38061102673](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061102673): PASS after reconciliation.
+- Predecessor Quality [38061102377](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061102377): PASS.
+- Predecessor Product Build Gate [38061102647](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061102647): PASS.
+- Current-candidate Quality [38061710334](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710334): queued.
+- Current-candidate Product Build Gate [38061710287](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710287): queued.
+- Current-candidate Report Value Cohort [38061710049](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710049): queued.
+- Current-candidate Full Product Browser E2E [38061710300](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710300): queued.
+- Current-candidate Device-Independent Browser E2E [38061710398](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710398): queued.
+- Current-candidate Phase-F [38061710107](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710107): queued.
+- Current-candidate Session Handoff [38061710418](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38061710418): pending.
+- Older Phase-F attempt failed early because the preview still served `8f610fef...` while the expected SHA was `e017b865...`; restore probes were not run.
+
+## Next exact action
+Consume terminal current-head CI; prove the same `reportJobId + sourceHash` across varied-format upload, full result display, navigation/reload and saved readback. Keep PR #912 open until browser and restore proofs pass.
+
+---
+
+# LIVE RESUME — 2026-10-10 / SOURCE-PROVEN ROW-COUNT RECONCILIATION PREPARED
+
+- Repository `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
+- Branch `fix/source-bound-generic-intelligence-20261009`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`; current application/test candidate `8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e`. This checkpoint commit changes documentation only.
+- Product completion = NO. No row counts are inferred from filenames or guessed mappings.
+
+## Exact read-only proof found
+- Live Supabase staging query found 49 unique completed generic-import jobs with a passport in `UNVERIFIED / REVIEW / PARTIAL` and all import ledger counters stored as zero.
+- Every one of these 49 was independently source-proven: the import's `source_fingerprint`, `file_records.file_hash`, report `source_hash`, and passport/snapshot `source_hash` match; source file security is `passed`; file status is `ready/processed/verified`; report is `completed` at `rendered`; rendered row count, analyzed snapshot row count, canonical commit count, and canonical dataset count all match exactly; analysis quality is at least 70.
+- Aggregate: `report_proof_rows=49`, `unique_import_jobs=49`, `conflict_free_import_jobs=49`, `conflicting_import_jobs=0`, proven row counts range 1–886. All reads were SELECT-only; no staging rows have been changed yet.
+- The current `refresh_report_evidence_passport` correctly refuses FULL coverage if legacy `import_jobs.total_rows/processed_rows/valid_rows` are zero. This is the direct cause of the cohort failure, not a reason to relax the evidence gate.
+
+## Next exact action
+Create and apply an idempotent, audited repair migration that backfills only those import jobs whose source/hash/file-security/rendered/analysis/commit/canonical evidence agrees exactly; record provenance in `import_jobs.result_summary`, then refresh and read back the matching evidence passports. Do not update any row that fails even one proof condition. Persist the migration under its actual generated version in GitHub immediately after application, and rerun Report Value Cohort + Phase-F restore verification.
+
+---
+
+# LIVE RESUME — 2026-10-10T17:45:00+03:00 / VOI RESTORE PARITY + EXACT CANDIDATE CI PENDING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Application/test candidate: `8f610fef2a966b4ae179ba26f1dbfd2fdfdb2c4e`; this documentation snapshot is a docs-only child.
+- Product completion: NO.
+
+## Confirmed
+- Generic file intelligence test matrix had passed on the predecessor, with TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF/XLSX source evidence and structured XLSX portfolio 3 rows × 17 columns.
+- Shared header normalization now preserves specialty detection from spaced English/Arabic raw columns, while generic `name,status,total` remains domain-neutral.
+- Browser E2E trust assertion corrected to distinguish `موثوق` source trust from pending/Review evidence passport state; current rerun still pending.
+- Staging schema was inspected read-only; `public.intelligence_voi_requests` exists with expected columns, FKs/checks/index/RLS/tenant policy, but no table-creation migration is present in the repo tree.
+- Added tracked migration `supabase/migrations/20261010180000_restore_intelligence_voi_requests_schema_parity.sql` and a required-schema check in `scripts/check-migration-schema-audit.mjs`. No live DDL was executed.
+
+## CI status at checkpoint
+- Quality [38060131336](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131336): queued.
+- Product Build Gate [38060131167](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131167): queued.
+- Full Product Browser E2E [38060131344](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131344): queued.
+- Device-Independent Browser E2E [38060131142](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131142): queued.
+- Phase-F live resilience [38060131133](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131133): queued.
+- Report Value Cohort [38060131257](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131257): queued.
+- Session Handoff Contract [38060131266](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38060131266): pending.
+- Adjacent prior Quality failure was setup/build noise: missing Vite package in `node_modules`, followed by `dist/index.html` missing. Not an established application regression.
+- Historical evidence cohort: 18/42 closed; 24 `PASSPORT_NOT_CLOSED`. Do not weaken.
+- Historical Phase-F restore failed on the missing VOI relation; new migration still needs workflow proof.
+
+## Next one action
+Consume the terminal latest-head Quality/Product Build/Full Browser/Session Handoff/Phase-F results. Fix the first proven failure; keep PR #912 open. Then prove source-bound browser readback and close evidence-passport cohort without fabricating verification.
+
+---
+
+# LIVE RESUME — 2026-10-10T17:30:00+03:00 / TRUST ASSERTION CORRECTED; EXACT-HEAD PROOF RECORDED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) — OPEN / NOT MERGED
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- Current application/test candidate: `eb95f709a8ebead63e556380e18394c02c17726` (fresh E2E assertion patch; rerun results pending at checkpoint creation)
+- Last fully proven code head: `8f064944f5f3b42c25ce1d3e687426abafd4b080`
+- Product completion: NO. Keep evidence/decision gates fail-closed.
+
+## Latest proved evidence
+- Quality run [38058146785](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146785): PASS on `8f064944...`. The log explicitly reports `GENERIC FILE ANALYSIS PASS` and `STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation`; typecheck/lint/build/performance and file-engine checks passed.
+- Product Build Gate [38058146826](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146826): PASS on `8f064944...`.
+- Device-Independent Browser E2E [38058146520](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146520): PASS; browser-smoke and authenticated E2E passed.
+- Full Product Browser E2E [38058146828](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146828): FAIL at the report trust assertion, while route/auth/tenant/source-lineage checks passed. Stored source report `16709d80-e012-40ef-9c12-6fd8255897f8` matched `تقارير ادارية.xlsx`, SHA `sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313`, 332 source/canonical/committed rows, quality 98; its evidence state was `AWAITING_EVIDENCE_SNAPSHOT`.
+- Root cause of that browser assertion: test accepted Arabic wording `موثّق` / `التقرير موثق` but omitted the actual UI’s source-trust label `موثوق`. The report correctly distinguishes trusted extraction from not-yet-verified evidence passport; do not fake a verified passport.
+- Fixed the E2E check in `scripts/real-business-e2e.mjs` through candidate `eb95f709a8ebead63e556380e18394c02c17726`: accept the visible source trust state (`موثوق`/TRUSTED) and separately assert that the evidence snapshot is still pending/review where applicable. Exact-head CI for this newest commit was not terminal at checkpoint creation.
+- Report Value Cohort [38058146878](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146878): FAIL, 18/42 reports closed as verified; 24 remain `PASSPORT_NOT_CLOSED`, `UNVERIFIED`, and `PARTIAL`. Do not weaken the passport gate.
+- Phase-F live resilience [38058146545](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146545): FAIL, 3/4 probes passed; backup restore stops because `public.intelligence_voi_requests` is missing in the restored schema.
+- Session Handoff Contract [38058146969](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146969): FAIL because the prior report omitted changed files `ONE-PROGRAMMER-SESSION-MEMORY.md`, `scripts/generic-file-analysis.test.mjs`, `src/lib/file-engine/specialty-inference.ts`, and `src/pages/ExternalFileAnalysisPage.tsx`. This update resets report coverage at the new application candidate and preserves archived prior reports.
+
+## Implemented since initial checkpoint
+- Shared source-heading normalizer/specialty inference in `src/lib/file-engine/specialty-inference.ts`.
+- File Lab uses the shared helper in both preview inference and memoized specialty selection; the old `inferSpecialty` references are gone.
+- `scripts/generic-file-analysis.test.mjs` covers spaced English and Arabic headings, explicit customer/supplier header evidence, and domain-neutral generic columns.
+- Source-bound general intelligence remains composed with applicable specialist intelligence, and the general card continues to show all available signals, recommendations, findings, evidence and limitations without silent list truncation.
+
+## Next exact action
+Consume terminal Quality/Product Build Gate/Full Product Browser E2E results for `eb95f709a8ebead63e556380e18394c02c17726`; fix the first verified failure without promoting `AWAITING_EVIDENCE_SNAPSHOT` to verified. Then address the independent passport-closure cohort and restore-schema blocker. Re-prove the same `reportJobId + sourceHash` across upload, Smart Report, navigation and reload before calling the product complete.
+
+---
+
+# LIVE RESUME — 2026-10-10 / VERIFIED HEAD + SPECIALTY NORMALIZATION ROOT CAUSE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Application candidate inspected: `350d0c69596a3eaffa8e3982c0cf71e31d08a266`
+- Main base at inspection: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- Product complete: NO. Do not merge based only on build or deployment status.
+- Exact-head proof read: Quality job `114228066670` PASS, including TypeScript, lint, build/performance, file-engine regressions, and `test:generic-file-analysis`; observed log markers: `GENERIC FILE ANALYSIS PASS` and `STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17`.
+- Open gates: report-value cohort job `114228066563` FAILED with `candidatePool=42, attempted=42, accepted=18, unverified=24`; the 24 records remain `UNVERIFIED/REVIEW/PARTIAL` due to `PASSPORT_NOT_CLOSED`. Full Product Browser E2E, Device-Independent Browser E2E, and Phase-F live resilience were still in progress at read time.
+- Preview inspection: Netlify preview renders a fixture-backed public demo at the root and an unauthenticated/marketing surface at `/reports`; this is not authenticated customer-upload/readback proof. Preview meta source SHA was a docs checkpoint, not the inspected application SHA.
+- Confirmed code defect to fix next: `ExternalFileAnalysisPage.tsx` has duplicated header normalizers using `/[\\\\s_./-]+/g` in the regex character class, which treats `s`/other characters literally rather than matching whitespace as intended. That can break specialty detection for source headings such as `Current Stock` and `الرصيد المستحق`. Keep general intelligence intact; fix normalization and add a direct behavioral regression.
+- Next one action: extract a shared, tested source-header normalizer/specialty inference helper, use it in File Lab, and add behavior tests for spaced Arabic/English columns without weakening specialization evidence rules.
+- No claim is made for authenticated varied-format browser flow, persisted readback/relogin, closed 40-report value cohort, or production completion.
+
+---
+
+# LIVE RESUME — 2026-10-10 / GENERIC CSV FIXTURE ESCAPING REPAIRED
+
+- Repository `Report-Engainall/Report-Advisor`; PR #912 OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`.
+- Exact application SHA: `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`, parent branch commit `761ef9b922637f23817b2612d50ffe53de092c77`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`. This memory/report commit is documentation-only and advances the branch ref; live PR metadata is the authority for that docs child.
+- General source-derived intelligence remains composed alongside applicable specialist intelligence across File Lab and Smart Report. Source path/report job/source hash remain bound and visible; specialist decision/evidence gates stay fail-closed.
+- Customer portfolio wording requires raw customer identity in the source header, not just inferred `mappedField=customer_name`.
+- Runtime test source was repaired (no orphan fragment); the new raw-header regression uses correct single-backslash newline escapes at `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`. Test command execution still NOT PROVEN.
+- Current CI: CodeRabbit success; Vercel build check points to account build-rate-limit; Netlify preview pending; Product Build Gate #38013755538 queued; Quality #38013755480 queued; Full Product Browser E2E #38013755671 queued; Data Quality Runtime #38013755732 queued; File Intelligence Security #38013755423 queued; Session Handoff Contract #38013755760 pending. No terminal focused test result.
+- Historical report job `16709d80-e012-40ef-9c12-6fd8255897f8` proves exact source/rendered hash equality and 332 canonical rows for an XLSX; no varied-format authenticated browser readback yet.
+- Separate Phase-F restore blocker `public.intelligence_causal_hypotheses` not proven closed. PRODUCT_COMPLETE=NO.
+- NEXT ONE ACTION: consume terminal Quality/Product Build Gate logs at `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`, fix the first proven failure, then source-bound browser readback.
+
+---
+
+# LIVE RESUME — 2026-10-10 / TEST FILE REPAIRED; SOURCE HEADER REQUIRED FOR SPECIALTY
+
+- Repo `Report-Engainall/Report-Advisor`; PR #912 open/not merged; branch `fix/source-bound-generic-intelligence-20261009`.
+- Exact application SHA: `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`; parent `17556d7af347502e8fe549c99ed6bb191b1df392`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`. The state/report updates are a documentation-only child; read live PR metadata for current branch ref SHA.
+- Generic source-derived intelligence remains composed across File Lab and saved Smart Report with applicable specialist analysis added; source path/jobId/sourceHash lineage is rendered. Decision/approval gates remain fail-closed.
+- Customer specialization now requires an explicit customer identity in the raw source header, not a guessed `mappedField=customer_name`. Test fixture guards the generic raw `name` case.
+- The broken orphan test tail at parent `17556d7...` has been removed at `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`; the general/specialist composition assertions and footer now form one well-bounded block. Source readback succeeded, but test execution is not proven.
+- Latest observed CI: CodeRabbit success; Vercel check points to `build-rate-limit`; Netlify deploy-preview pending; Product Build Gate #38013524659 queued; Quality #38013525077 queued; Full Product Browser E2E #38013524550 pending. No terminal focused runtime test yet.
+- Historical XLSX DB job `16709d80-e012-40ef-9c12-6fd8255897f8` source_hash matches renderedOutput.sourceHash; sourcePath matches; 332 canonical rows. This is not current-head varied-format/browser proof.
+- Separate Phase-F restore-schema issue `public.intelligence_causal_hypotheses` remains unresolved by current passing evidence. Product and production completion not proven.
+- NEXT ONE ACTION: consume the first terminal exact-head Quality/Product Build Gate job; inspect log and fix the first confirmed failure, then prove the same report job/hash through upload→report→navigation/reload→saved readback.
+
+---
+
+# LIVE RESUME — 2026-10-10 / DOMAIN-NEUTRAL GENERIC TABLE INFERENCE FIX
+
+- Repository `Report-Engainall/Report-Advisor`; PR #912 OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`.
+- Latest code/test candidate will be the commit immediately after parent `789700d2f77dbab841ca5e68bc82aced63cf7717`. The prior application/test HEAD is `a077dfebea99f8848b086f0b04dbedf83a2d6b17`, main base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Generic analysis composition now spans File Lab and saved Smart Report regardless of inferred specialty. The general source layer augments the specialist layer; the existing specialist evidence gates remain closed when source eligibility is not met.
+- Current fix narrows customer-portfolio classification to actual customer columns + status + totals/month columns; generic product/supplier tables must not be labeled customer churn. Merge regression now genuinely tests that general-only records arrive from the general layer rather than already being present in the mock specialist object.
+- Existing format matrix: TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF and XLSX, source-evidence assertions. Current new assertions are written but not yet executed.
+- Previous app deployment SHA `a077dfebea99f8848b086f0b04dbedf83a2d6b17` was Vercel READY with Netlify preview and CodeRabbit success. This new source fix requires fresh build/typecheck/test proof.
+- Never treat a queued job as pass. No authenticated user journey/persisted readback/relogin/production completion is yet proven.
+- NEXT ONE ACTION: inspect new-head Product Build Gate/Quality terminal results; fix first confirmed failure, then prove same jobId/sourceHash across upload, Smart Report, navigation and reload.
+---
+
+# LIVE RESUME — 2026-10-10 / TEST MATRIX EXPANDED; FOCUSED RUNS PENDING
+
+- Repo `Report-Engainall/Report-Advisor`; PR #912 open/not merged; branch `fix/source-bound-generic-intelligence-20261009`.
+- Application head for this checkpoint: `a077dfebea99f8848b086f0b04dbedf83a2d6b17`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Implemented: general+specialist composition across File Lab/universal/Smart Report; sourceHash/job/path bindings; complete list/evidence rendering; canonical evidence recovery lineage repair. Specialist gates remain fail-closed.
+- Confirmed syntax failure at ancestor `7c0411b` repaired in `dee505d`, Vercel build log `✓ built in 20.37s`, app deployment READY.
+- New format regression matrix in `scripts/generic-file-analysis.test.mjs` covers TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF/XLSX and asserts source-derived findings/evidence. Added at `a077dfebea99f8848b086f0b04dbedf83a2d6b17`, execution is not yet proven.
+- Live exact-head gates: Product Build Gate `38012609562` queued; Full Product Browser E2E `38012609619` queued; Quality `38012609570` queued; Data Quality Runtime `38012609428` queued; File Intelligence Security `38012609431` queued; Session Handoff Contract `38012609304` pending. Vercel and Netlify status checks are pending after this test-only push.
+- Phase-F restore/schema parity remains an independent open release item. No authenticated browser journey, source-bound reentry/readback or production proof; PRODUCT_COMPLETE=NO.
+- ONE NEXT ACTION: consume the first terminal Product Build Gate/Quality/Full Product Browser E2E result on exact code head `a077dfebea99f8848b086f0b04dbedf83a2d6b17`, fix first verified failure, then prove same report job+sourceHash from upload through reload/readback.
+
+---
+
+# LIVE RESUME — 2026-10-10 / CURRENT APPLICATION CODE AND EXECUTION STATE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Application code SHA covered by the latest current-state report: `85f69f2ab10fee85293b99e902cfe15eab8f4f91`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- Documentation-only commits now keep the official live files current: `8d23ff1f63887ed0dfc9d84c85276ce2ce048ee5` refreshed `docs/execution/CURRENT_SESSION_STATE.md`; `22b260d8c7cd87c669509b3bfc0b5e075527eb9e` refreshed `docs/execution/PROGRAMMER_CURRENT_REPORT.md`, the append-only report archive/index and new archive `REPORT-20261010-031000-85f69f2.md`. Branch head may be a docs-only child; always read live PR info before further work.
+- PRODUCT IMPLEMENTATION: the generic source-derived intelligence layer is composed with the specialist layer, not substituted; upload File Lab computes the general layer regardless of inferred specialty; saved Smart Report exposes and returns the same general layer irrespective of specialty; result card shows all evidence/list items given to it, with source path/job ID/source hash. Decision/evidence gates remain fail-closed.
+- CANONICAL SOURCE RECOVERY: `canonical-import-execute.mts` now selects existing `evidence` before updating recovered rendered output and preserves `sourceHash`, `sourcePath`, and `importId`; regression assertions added.
+- BUILD REPAIR: ancestor `7c0411b67f366a36fda9ff2c0a29c1f173ed6434` had a verified parse failure in `report-smart.ts:985:39`. Code repair `dee505dc045d577b9015ca7cb2ba06adb00a6f76` replaced the malformed region; Vercel build log says `✓ built in 20.37s`; Vercel and Netlify app deployment for the repaired source are READY.
+- LATEST DEPLOYMENT STATUS on application code SHA `85f69f2...`: Vercel, Vercel Deployments – Injaz, Netlify deploy-preview status, CodeRabbit all success; Vercel deployment `dpl_43GeHixA1kSFvuwrwQkeh6SFKN8X` READY. A docs-only Netlify retry was canceled as “no content change”; do not mistake that cancellation for an app build failure.
+- CURRENT EXACT-HEAD ACTIONS snapshot when this state was written: 56 total; 3 completed (2 skipped, desktop-windows success but not product proof), 49 queued, 4 pending, zero in progress. Product Build Gate #38012001245 QUEUED; Full Product Browser E2E #38012001488 QUEUED; Quality #38012001386 QUEUED; File Intelligence Security #38012001065 QUEUED; Data Quality Runtime #38012001327 QUEUED; Device-Independent Browser E2E #38012001097 QUEUED; Phase-F Live Resilience #38012001221 QUEUED; Session Handoff Contract #38012001369 PENDING.
+- OVERLAPPING OPEN PRS #906/#909 share report/card/page/test paths; their checked branch heads lack this line’s current composition helper and regression assertions. Do not merge/cherry-pick blindly.
+- SEPARATE RELEASE BLOCKER: a prior Phase-F restore found missing relation `public.intelligence_causal_hypotheses`; a schema-parity migration/preflight was added, but exact-head Phase-F run is still queued.
+- NOT PROVEN: authenticated upload→analysis→Smart Report→navigation/reload→saved-report readback for varied file types; re-login/sourceHash persistence; full file-format matrix; production current-SHA proof. Deployment success alone is not product completion.
+- ONE NEXT ACTION: consume a terminal exact-head Product Build Gate / Quality / Full Product Browser E2E result, inspect its full job log, repair the first confirmed failure, and then verify the same report job ID/source hash across user-facing navigation/reload and database readback. Do not merge or mark product complete.
+
+---
+
+# LIVE VERIFICATION — 2026-10-10 / REPAIRED CODE DEPLOYMENT READY; NEW DOC HEAD PENDING
+
+- Code repair commit `dee505dc045d577b9015ca7cb2ba06adb00a6f76` is verified deployed on both hosts: Vercel deployment `dpl_A324rGB56uAugR32zA2ZHAgcPgC5` state `READY`; Netlify deploy `6ac98fa3e1c3c9000891b1e6` state `ready`. The exact-code-head combined statuses were Vercel success, Vercel Deployments – Injaz success, Netlify deploy-preview success, CodeRabbit success. [Vercel deployment](https://vercel.com/injaz2/report-advisor/A324rGB56uAugR32zA2ZHAgcPgC5) · [Netlify preview](https://deploy-preview-912--aghbari-report-advisor.netlify.app).
+- The code repair is now backed by a successful build/deploy, but that does **not** establish product completion or browser/database correctness.
+- The documentation-only checkpoint commit `aff08b7819ee50f6ce2aabb07be3d33b8663e82c` moved the branch head again. For this latest head, current combined statuses: Netlify deploy-preview success; Vercel pending; the exact-head Vercel deployment is `https://vercel.com/injaz2/report-advisor/5VMhxVWprRZY8eDoHazjZTCD5agE`.
+- Current-head Product Build Gate run `38011967171` was queued; Full Product Browser E2E run `38011967276` was queued; quality run `38011967189` queued. Do not transfer passes from the prior code SHA to the new docs SHA.
+- PR #912 remains open / not merged, branch `fix/source-bound-generic-intelligence-20261009`. Source analysis/general+specialist composition is in code; actual source-bound user journey and persisted readback are still unproven.
+
+## One next action
+Read the terminal result for the current-head Product Build Gate, then the current-head Full Product Browser E2E. Fix only the first concrete failure and preserve a verified report-job/source-hash pair through reload/navigation.
+---
+
+# LIVE UPDATE — 2026-10-10 / FIXED PARSE ERROR; NETLIFY READY; OTHER GATES OPEN
+
+- PR #912 remains OPEN / NOT MERGED. Branch `fix/source-bound-generic-intelligence-20261009`, exact current code SHA at checkpoint: `dee505dc045d577b9015ca7cb2ba06adb00a6f76`.
+- The previous failing build output at SHA `7c0411b67f366a36fda9ff2c0a29c1f173ed6434` proved a parse error at `src/lib/report-smart.ts:985:39`. Repair commit `dee505dc045d577b9015ca7cb2ba06adb00a6f76` replaced the whole damaged region from the malformed `if (nonBlockingQualityWarnings.` to immediately before `const catalogItem = mapCatalogItem(`. Same-head readback showed a complete warning condition and clean generic-intelligence block.
+- **Observed positive build evidence:** Vercel build event for deployment `dpl_A324rGB56uAugR32zA2ZHAgcPgC5` logs `✓ built in 20.37s` and lists the new `GenericFileIntelligenceCard`, `SmartReportPage` and `ExternalFileAnalysisPage` bundles. The Vercel deployment state is still `BUILDING` and the commit status still shows Vercel `pending`; do not claim the deployment lifecycle/check has passed yet.
+- **Observed deploy evidence:** Netlify deploy `6ac98fa3e1c3c9000891b1e6` on exact SHA `dee505dc045d577b9015ca7cb2ba06adb00a6f76` reached state `ready`; combined GitHub status for this SHA shows `netlify/aghbari-report-advisor/deploy-preview: success`. Preview: https://deploy-preview-912--aghbari-report-advisor.netlify.app
+- Other current-head gates are not done: Product Build Gate run `38011880304` / job `114093485234` was queued; Full Product Browser E2E run `38011880015` was pending with no job payload at last read; runtime/security/quality gates are queued. No browser or persisted database readback pass is claimed.
+- This update verifies source/commit/deploy metadata and one Vite build log, not arbitrary-file browser journey completion.
+
+## Next action
+Refresh exact-head Vercel/Netlify state and wait through live tool reads for Product Build Gate, focused quality/file-intelligence tests, and Full Product Browser E2E. If deployment succeeds, test generic+specialized report screens against one known uploaded report and hash. If a gate fails, use that exact job log to repair the first failure.
+---
+
+# LIVE FAILURE + REPAIR — 2026-10-10 / REPORT-SMART PARSE BREAK
+
+- Failing code SHA: `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`; PR #912 open, branch `fix/source-bound-generic-intelligence-20261009`.
+- Vercel deployment `dpl_AWB56DhZXAZMCPeTafQ4m5x91KPG` is `ERROR`; `npm run build` exited 1. [Build](https://vercel.com/injaz2/report-advisor/AWB56DhZXAZMCPeTafQ4m5x91KPG).
+- Netlify deploy `6ac98f18d2e77d0008483c23` is `error`; build returned non-zero. [Deploy](https://app.netlify.com/projects/aghbari-report-advisor/deploys/6ac98f18d2e77d0008483c23).
+- Exact Vercel error: `src/lib/report-smart.ts:985:39: Expected ")" but found "genericIntelligence"`. Prior range replacement used stale offsets after imports/type edits, splitting the `nonBlockingQualityWarnings` condition and leaving an orphan duplicate tail.
+- Repair is prepared from fresh source blob `11b7ff70a3911930277537326e5bb49fd36e94b0`: replace from `if (nonBlockingQualityWarnings.` through just before `const catalogItem = mapCatalogItem(`. The replacement region itself passed text-boundary validation; build/test proof is pending.
+- Parent: `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`.
+- Do not claim deployment/tests are passing until the new head's checks and logs prove it. After this fix, inspect build errors, focused tests and Full Product Browser E2E/readback for the same job+sourceHash.
+
+---
+
+# LIVE CHECKPOINT — 2026-10-10 / GENERAL INTELLIGENCE COMPOSITION + CURRENT CI FRONTIER
+
+- REPOSITORY: `Report-Engainall/Report-Advisor`.
+- PR #912: OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`; base `main`.
+- Exact product/test HEAD immediately before this governance refresh: `0444faab81a75f222db978040e485c59e23b2839` (newer than the original historical SHA supplied in the startup instruction).
+- Product work present in the candidate: shared layer composer; File Lab general analysis for all detected specialties; persisted smart report returns and composes the general layer; Smart Report renders a general-analysis card unconditionally with source path, report job ID and source SHA-256; result lists and evidence now render without the card's previous 5/8 item truncation; regression tests added for layer merge and cross-surface visibility.
+- Exact latest readback before governance refresh: `src/lib/report-smart.ts` blob `11b7ff70a3911930277537326e5bb49fd36e94b0`; generic card blob `5b8fcac106ca9ef5d439036e1896da5fa198edb7`; general/specialist composer blob `3991d5e1e0cae9e4bff893066e11ed908a7bdb28`; generic runtime test blob `adb44c8a7c3ea125039e19da98150e39e5794162`; complete-surface contract blob `6dba116af8a64e00533a293006c32db8e56cabc1`.
+- CI snapshot for exact head `0444faab81a75f222db978040e485c59e23b2839`: CodeRabbit success was previously visible at the earlier code candidate; current combined status showed Vercel pending. Latest observed Full Product Browser E2E run `38011635086` queued; Product Build Gate `38011635134` queued; `Commercial PWA E2E` `38011635125` in progress. The rest of the listed gate runs are queued/pending. No product/browser/database PASS is claimed.
+- This connector can commit code and tests to GitHub. It does not provide local Node execution, so the new test assertions are authored and read-back verified but not yet reported as executed.
+- First next action: wait only through active tool reads (no background promise); re-fetch the exact new commit's check statuses and Full Product Browser E2E + Product Build Gate jobs/logs. Fix any terminal compilation/focused-test failure at that exact SHA. Keep source-bound evidence and decision gates fail-closed.
+
+---
+
+# LIVE IMPLEMENTATION DELTA — 2026-10-10 / GENERAL LAYER NOW COMPOSED WITH SPECIALIST
+
+- Exact product candidate immediately before this delta writeback: `9caca7cf54c6c9d1d902e694e6fa5906a04890c4`; branch `fix/source-bound-generic-intelligence-20261009`; PR #912 OPEN / NOT MERGED.
+- New helper: `src/lib/report-intelligence/compose-intelligence-layers.ts`; composes general and specialist intelligence. Specialist records keep their interpretation and order; general-only records are appended; same-ID records retain both evidence lists; cautionary quality state wins; recommendations stay PROPOSED.
+- `src/lib/universal-report-intelligence.ts`: accepts `generalIntelligence` and composes it with rule-set or preview intelligence rather than allowing preview to replace every layer.
+- `src/pages/ExternalFileAnalysisPage.tsx`: invokes general-file intelligence on every parsed dataset regardless of specialty, supplies it to the universal chain, and exposes the source path + SHA-256 on the card.
+- `src/lib/report-smart.ts`: builds `genericIntelligence` independently of specialty/quality-gate success, keeps the original review-state brief when a specialist gate fails, composes the general layer into the full report intelligence, and returns the general layer separately for its card.
+- `src/pages/SmartReportPage.tsx`: renders the general card unconditionally and binds it to the same `jobId + sourceHash + sourcePath`.
+- `src/components/GenericFileIntelligenceCard.tsx`: replaced five-item evidence and eight-item inspection truncation with complete rendering of all available signals, recommendations, their evidence, findings/risks/opportunities, drivers, owners, measurements, impact limitations, and source identity.
+- Tests changed: `scripts/generic-file-analysis.test.mjs` now checks deterministic merge/dedup/evidence union/general+specialist recommendations; `scripts/smart-report-complete-intelligence-surface.test.mjs` rejects specialty-only hiding or list truncation and requires source lineage.
+- WRITEBACK: the checkpoint below was saved before these product edits and must be refreshed after the next live checks. No build, runtime, browser or persisted readback success is claimed yet. Focused tests are authored but not yet proven executed.
+- NEXT ACTION: read back each modified blob, remove any lint/test defects found in the diff, then check current-head GitHub Actions/required gate results and repair the first real failure.
+
+---
+
+# LIVE RESUME — 2026-10-10 / SOURCE-AGNOSTIC INTELLIGENCE ACROSS EVERY REPORT SURFACE
+
+- REPOSITORY: `Report-Engainall/Report-Advisor` (do not substitute another repository).
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED, branch `fix/source-bound-generic-intelligence-20261009`, base `main`.
+- EXACT PR HEAD BEFORE THIS CHECKPOINT: `0e3821e960c4138b6073c2ad26fff13b6de8fe9b`; this is newer than the user-provided historical SHA `ab292d6cfd9ca948b362c0a975cc38cb489ada24`.
+- MAIN SHA in PR metadata: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- GITHUB WRITE PROOF: direct `update_file` commits succeeded and readback verified in this connector. Latest pre-checkpoint commits: `c951d7228ee1802536c40177f0b22347e7ffb816` (canonical recovery preserves `evidence/sourceHash/sourcePath/importId`) and `0e3821e960c4138b6073c2ad26fff13b6de8fe9b` (regression contract assertions).
+- PRODUCT ROOT-CAUSE FRONTIER: code in `src/lib/report-smart.ts` clears generic/source-derived intelligence whenever `intelligenceEligible` fails and returns `emptyReportIntelligence`; `src/pages/SmartReportPage.tsx` exposes `GenericFileIntelligenceCard` only under `!report.specialty`; `src/pages/ExternalFileAnalysisPage.tsx` also sets generic intelligence only when no specialty is detected; `src/components/GenericFileIntelligenceCard.tsx` truncates evidence to 5 items and inspect/guidance to 8. `buildUniversalReportIntelligence` accepts `previewIntelligence` as a full replacement instead of compositing general and specialist layers.
+- PRESERVE EXISTING CORE: do not rebuild `universal-report-intelligence.ts`, `generic-intelligence.ts`, `report-smart.ts` or `UniversalIntelligenceChain.tsx`; fix the assembly and the visible result surfaces. Combine only source-derived fields/signals/findings/recommendations with stable IDs and deduplicated evidence; do not relax quality/evidence gates for decisions, approval, action, confidence, forecasts or financial impact.
+- STATUS FILE DISCOVERY: `CURRENT_SESSION_STATE.md`, `PROGRAMMER_CURRENT_REPORT.md`, and `PROGRAMMER_REPORTS/` were NOT_FOUND on the current PR branch. Existing durable index is `ONE-PROGRAMMER-SESSION-MEMORY.md`; current docs also include `docs/LATEST_SESSION_HANDOFF.md`, and root ledgers `E2E_FAILURE_LEDGER.md`, `E2E_PRODUCT_GAP_LEDGER.md`.
+- LIVE CI AT HEAD `0e3821e960c4138b6073c2ad26fff13b6de8fe9b`: CodeRabbit status success, Vercel pending; Product Build Gate was in_progress (run `38011206476`); Full Product Browser E2E was queued (run `38011206342`, browser-e2e job queued). Many security/certification checks are queued or in_progress. None of these are being treated as pass.
+- RELEVANT OPEN PRODUCT PRs: #912 current source-bound generic-intelligence line; #909 generic evidence-driven smart reports; #906 generic intelligence across Smart Report surfaces; #911 critical bundle/release gates; #882 recommendation readiness language. Inspect overlap and merge/base boundaries before duplicating adjacent changes.
+- USER'S DURABLE PRODUCT REQUIREMENT: any uploaded file, irrespective of specialty, must retain a general content-derived analysis layer; applicable specialist analysis augments but never replaces it. Show all findings/signals/recommendations/evidence/limits, bind every displayed result to job ID + source hash + source identity, and preserve one report context across screens. No made-up facts, causes, financial effects, benchmarks or forecast values.
+- REQUIRED EXECUTION RULE: before long operation, checkpoint to GitHub; after each material result, update checkpoint and create an immutable dated report. Re-read live PR head and check statuses after each push.
+- FIRST NEXT ACTION AFTER CHECKPOINT: inspect exact current implementation regions and tests; change the shared composition seam and card display so general intelligence is present whether specialty is detected or not, combine specialist results source-safely, then run `test:generic-file-analysis`, `test:smart-report-complete-intelligence-surface`, `test:report-execution-e2e-contract`, typecheck/build, and consume current-head Full Product Browser E2E result. Browser/database readback remains unproven until an exact-head run succeeds.
+- NO FALSE COMPLETION: deployment preview, static-marker contract, successful build, or a queued E2E job is not product completion.
+
+---
+
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / AUTH PROVISIONING ROOT FIX + EXACT-HEAD HANDOFF
 - CURRENT DOCUMENTATION HEAD → 79c2b4798dceea4a37159e94303bafd7d4382393.
 - CURRENT PRODUCT CODE HEAD → f95d5f2ead0a186bf783f20c81d3351988baf292.
@@ -765,3 +1654,57 @@ No new parallel truth engine, importer, runner, or billing/entitlement model was
 Runtime/deployment proof remains OPEN. No current-head browser/deployment PASS is claimed.
 
 NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts where execution infrastructure is available, inspect the latest code for regressions, then move to collaboration/API integrations and commercial packaging only after the product wave is regression-clean.
+
+## LIVE CHECKPOINT — 2026-10-10 / UNIVERSAL FILE INTELLIGENCE RESUME
+
+- Repository: `Report-Engainall/Report-Advisor` (verified; default branch `main`).
+- Live state before this checkpoint write: `main` = `fa1ab4cbade9b01685507aa966c10f700a03f576`; PR #912 is OPEN, not merged, mergeable=true; head branch = `fix/source-bound-generic-intelligence-20261009`; exact PR head before this documentation commit = `b077da2705c6ed01dc2a5235ade59f34bae95c9f`; PR base SHA = `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Historical checkpoint SHA `ab292d6cfd9ca948b362c0a975cc38cb489ada24` is NOT the current PR head and must not be used as current proof.
+- PR #910 is already MERGED to `main` at `fa1ab4cbade9b01685507aa966c10f700a03f576`. It reports that universal file-analysis lifecycle/UI exposure and generic fallback contracts were implemented, but those reported tests are historical to #910 and do not prove #912 or production.
+- PR #912 remains the active candidate. Its description says source-bound generic numeric signals and recommendations, Arabic semantic mapping and jobId+sourceHash linkage are included. Verify actual diff, current-head workflow statuses, visible UI details, and test coverage before extending it.
+- Current reference files `CURRENT_SESSION_STATE.md` and `PROGRAMMER_CURRENT_REPORT.md` were not found on this PR branch at the time of inspection; do not claim they exist. Keep this memory file and add a dated report under `PROGRAMMER_REPORTS/` after the next verified milestone.
+- Constraints: do not rebuild or replace `universal-report-intelligence.ts`, `generic-intelligence.ts`, `report-smart.ts`, or `UniversalIntelligenceChain.tsx`; preserve source hash/report job context and tenant/security/evidence gates; no fabricated causes/impact/confidence; green build or preview alone is not product proof.
+- Objective: generic analysis must remain a common layer for every readable source while specialty intelligence augments it only when supported. The UI must expose all available facts, metrics, signals, explanations, recommendations, evidence references, confidence/limits and measurement needs, linked to the same original source across report surfaces.
+- NEXT EXACT ACTION: inspect PR #912 changed-file list and exact-head checks, identify the generic intelligence result model and its UI renderer, then make the smallest source-bound change that surfaces all returned generic signals/recommendations/evidence instead of a summary-only card; add/extend regression contracts and record exact outcomes.
+- No claim in this checkpoint that code tests, browser E2E, persistence/readback, or production are currently passing.
+
+
+## LIVE CHECKPOINT — 2026-10-10 / EXACT-HEAD QUALITY REGRESSION FOUND
+
+- Current repository: `Report-Engainall/Report-Advisor`; PR #912 is OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`; main head remains `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Current code commit `3d6d04feea0cbb69652020d941b9ba6176b1310e`, parent `d2a611b28087b5283837b6d0a82bcbed1cf25b82`. Four files changed by this code commit: generic file intelligence, universal intelligence chain stage evidence renderer, generic analysis test, smart-report intelligence surface contract.
+- The exact-head Product Build Gate #994 (`38056756845`) PASSED; file-engine header contract #8634 (`38056756912`) PASSED. Quality #11939 (`38056756921`) FAILED in `scripts/generic-file-analysis.test.mjs` at line 33 with `AssertionError: csv row count; 1 !== 2`. On parent `d2a611b...`, the first visible failure was TXT evidence missing; on `3d6d04f...` the TXT case now passes far enough to expose the next CSV fixture failure.
+- Root cause of CSV failure: `detectHeaderRow` penalizes a legitimate composite Arabic heading `اسم الصنف` because it contains the separate known tokens `اسم` and `صنف`; this can cause the first actual CSV data row to be selected as the header. The CSV row-count regression revealed this in a real generic-file fixture. Fix the header detector’s false-positive while retaining the deliberate merged-PDF-header rejection contract.
+- Current-source edits already read back from GitHub: table intelligence no longer discards numeric columns beyond five; text adapters exposing `line_number/text` are kept as document lines rather than synthetic business tables; table findings/recommendations and universal-chain stages do not silently truncate available source evidence. The TXT regression has progressed past its previous failure, but the overall generic-format matrix still FAILS because the CSV header case is failing.
+- Current-head checks at checkpoint: Product Build Gate PASS; header contract PASS; Quality FAIL due CSV row count; Session Handoff Contract #2323 also FAILS because reports do not cover the current code/memory/checkpoint/test files; Full Product Browser E2E #9600 pending and #9599 in progress; Device-Independent Browser E2E #5114 in progress. Vercel and Netlify preview checks were pending at last exact-head status read. These browser/deploy states are not proof of product completion.
+- Correction to the earlier checkpoint: `docs/execution/CURRENT_SESSION_STATE.md` and `docs/execution/PROGRAMMER_CURRENT_REPORT.md` DO exist under `docs/execution/`; prior absence was caused by querying the wrong root path, not missing files.
+- No authenticated varied-format upload → complete rendered intelligence → saved report readback/reload proof has been established for this head. `PRODUCT_COMPLETE = NO`; do not merge PR #912 yet.
+- NEXT EXACT ACTION: fix the `اسم الصنف` header false-positive with a targeted header-detection regression test, then wait for the exact-head generic-format test result before updating the state/report/archive and verifying the Session Handoff Contract.
+
+
+## LIVE CHECKPOINT — 2026-10-10 / ARABIC CSV HEADER FALSE-POSITIVE FIX
+
+- Active repository `Report-Engainall/Report-Advisor`; PR #912 OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`; main remains `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Current code SHA: `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489` (parent `b9f6cc20e899c77bd8cd7ee0a10d75ea8e01634f`). It adds a regression test and a narrowly scoped correction to header detection.
+- Exact current-head code changes already read back: in `src/lib/file-engine/header-detection.ts`, legitimate compound field labels such as Arabic `اسم الصنف`, `رقم الصنف`, `اسم المنتج`, `اسم العميل`, `اسم المورد` and English equivalents are no longer penalized as merged/multi-field header cells. Truly merged headings with multiple unrelated fields still take the structural-suspicion path. `scripts/check-header-detection.mjs` now explicitly asserts `اسم الصنف,الحالة,الإجمالي` is row-0 header and not structurally suspicious.
+- Exact-head results before this fix: on parent code `d2a611b...`, Quality failed first because TXT source evidence was suppressed; on code `3d6d04f...`, TXT case progressed but generic-format test failed CSV row count (expected 2 records, parsed 1). Root cause: valid heading `اسم الصنف` was treated as merged composite text, letting first data row become header. Product Build Gate #994 on `3d6d04f...` passed; header contract #8634 passed; Quality #11939 failed on the CSV row-count assertion.
+- Code currently on branch also removes silent numeric-field truncation to first 5, evidence cuts in table summaries/signals/recommendations and chain-stage display, and maintains document text line evidence. These are source changes, not yet end-to-end product proof.
+- The current-head checks for `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489` have started: Full Product Browser E2E #9601 queued, Session Handoff #2324 queued, Vercel and Netlify preview pending at last status read. The targeted Quality run has not yet been identified as a terminal result for this SHA. No runtime pass is asserted.
+- Correction to earlier notes: `docs/execution/CURRENT_SESSION_STATE.md` and `docs/execution/PROGRAMMER_CURRENT_REPORT.md` do exist under `docs/execution/`. The prior absence claim arose from checking their root paths.
+- No authenticated multi-format upload, complete visible report, navigate/reload, or current-source hash-matched persistence proof has been established. `PRODUCT_COMPLETE = NO`; PR #912 remains unmerged.
+- NEXT EXACT ACTION: consume Quality / Product Build Gate results for exact code SHA `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489`; fix its first confirmed failure and only then write a report-only handoff commit referencing the tested code checkpoint, and validate Session Handoff Contract again.
+
+
+# LIVE RESUME — 2026-10-11T00:02:00+03:00 / RE-VERIFY LIVE HEAD; PRODUCT NOT COMPLETE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Live branch ref observed directly through GitHub: `fix/source-bound-generic-intelligence-20261009`
+- Live branch HEAD observed on 2026-10-11: `3ebe4bb04dc9719e590c31701f363e92ec1f0645` (commit `fix(db): align expanded cohort index predicate`, 2026-10-10T21:02:15Z).
+- PR #912: OPEN / NOT MERGED; head SHA `3ebe4bb04dc9719e590c31701f363e92ec1f0645`; main/base SHA `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- The previous memory/current report described code head `d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`; that is STALE as a branch pointer. Do not reuse old CI results as proof for 3ebe4bb.
+- Exact intent of this session: preserve the existing universal/generic/specialty intelligence core; fix shared general-analysis execution for all supported file kinds and full display of signals/recommendations/evidence in File Lab + Smart Report, maintain one source identity (reportJobId + SHA-256 sourceHash) across pages/refresh/readback; improve professional Arabic RTL executive UI without fixture-specific logic or fabricated metrics.
+- Read from branch before work: ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; latest dated checkpoint from 2026-10-10.
+- Live code tree confirms existing core files remain: `src/lib/universal-report-intelligence.ts`, `src/lib/file-engine/generic-intelligence.ts`, `src/lib/report-smart.ts`, `src/components/UniversalIntelligenceChain.tsx`, `src/components/GenericFileIntelligenceCard.tsx`, `src/pages/ExternalFileAnalysisPage.tsx`, `src/pages/SmartReportPage.tsx`; do not replace/rebuild these engines.
+- Previous exact-head evidence (d00556b only, not transferable to 3ebe4bb): Quality [38085246442] PASS; Product Build [38085246488] PASS; Data Quality Runtime [38085246448] PASS; Device-independent browser smoke [38085246495] PASS, authenticated E2E SKIPPED. Full Product Browser [38085246315] and 40-report cohort [38085246415] failed on HTTP 503/PGRST002 in `rpc/get_report_value_cohort_candidates`; Phase-F [38085246320] last seen 12/16; staging schema-cache recovery was not confirmed. Vercel build-rate-limit is a hosting blocker, not product proof.
+- PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true until current-head proof and real source-bound journey pass.
+- First action now: inspect exact 3ebe4bb source, latest GitHub workflow runs and current component composition; repair source-level/UI issue with smallest safe patch and focused regression. Check whether staging PostgREST recovered before any heavy live cohort/E2E run. Save current findings and next exact action after every material result.

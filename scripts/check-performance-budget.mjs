@@ -45,7 +45,7 @@ const assets = await walk(dist);
 const totalBytes = assets.reduce((sum, item) => sum + item.size, 0);
 const jsChunks = assets.filter(item => item.path.endsWith('.js'));
 const largestChunk = Math.max(0, ...jsChunks.map(item => item.size));
-const compressible = assets.filter(({ path }) => /\\.(?:html|css|js|json|svg|txt|map)$/i.test(path));
+const compressible = assets.filter(({ path }) => /\.(?:html|css|js|json|svg|txt|map)$/i.test(path));
 let compressedBytes = 0;
 for (const item of compressible) compressedBytes += gzipSync(await readFile(item.path), { level: 6 }).length;
 

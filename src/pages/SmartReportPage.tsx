@@ -43,6 +43,7 @@ function stateLabel(value: string | null): string {
     FULL_SOURCE: 'المصدر كامل',
     PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
     PARTIAL_FETCH_ERROR: 'تحليل جزئي — تعذر قراءة جزء من المصدر',
+    PARTIAL_FETCH_INCOMPLETE: 'تحليل جزئي — تغطية الصفوف غير مكتملة',
     AWAITING_EVIDENCE_SNAPSHOT: 'الدليل النهائي غير مثبت',
     AVAILABLE_FROM_CANONICAL_ANALYSIS: 'متاح من التحليل الكانوني',
     NOT_COMMITTED: 'غير معتمد',
@@ -742,31 +743,89 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
 export function SmartReportPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const [searchParams] = useSearchParams();
+  const currentJobId = jobId?.trim() ?? '';
+  const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+  const requestContextKey = JSON.stringify([currentJobId, expectedSourceHash]);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorContextKey, setErrorContextKey] = useState<string | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let active = true;
-    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+    let timedOut = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 25000);
+
+    // Clear the previous report immediately. A new URL is a new report identity.
     setLoading(true);
     setError(null);
-    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
-      setReport(null);
+    setErrorContextKey(null);
+    setReport(null);
+
+    if (!currentJobId || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
       setError(userFacingError('INVALID_REPORT_CONTEXT'));
+      setErrorContextKey(requestContextKey);
       setLoading(false);
-      return () => { active = false; };
+      clearTimeout(timeout);
+      return () => {
+        active = false;
+        clearTimeout(timeout);
+        controller.abort();
+      };
     }
-    void fetchSmartReport(jobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
-      if (active) setReport(next)
-    }).catch((reason) => {
-      if (active) setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, [jobId, searchParams]);
+
+    void fetchSmartReport(currentJobId, expectedSourceHash, { signal: controller.signal })
+      .then((next) => {
+        if (!active) return;
+        if (
+          !next ||
+          next.jobId !== currentJobId ||
+          (expectedSourceHash && next.sourceHash !== expectedSourceHash)
+        ) {
+          throw new Error('INVALID_REPORT_CONTEXT');
+        }
+        setReport(next);
+      })
+      .catch((reason) => {
+        if (!active) return;
+        const message = timedOut
+          ? userFacingError('REPORT_LOAD_TIMEOUT')
+          : userFacingError(reason instanceof Error ? reason.message : String(reason));
+        setError(message);
+        setErrorContextKey(requestContextKey);
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [currentJobId, expectedSourceHash, requestContextKey, retryVersion]);
+
+  const reportContextMatches = Boolean(
+    report &&
+    report.jobId === currentJobId &&
+    (!expectedSourceHash || report.sourceHash === expectedSourceHash)
+  );
+
+  // Reuse the guarded effect for retries, so its AbortController cancels stale requests.
+  const retryReport = () => {
+    setLoading(true);
+    setError(null);
+    setErrorContextKey(null);
+    setReport(null);
+    setRetryVersion((value) => value + 1);
+  };
 
   const dataset = useMemo(() => {
     const first = report?.sourceAnalysis?.datasets?.[0];
@@ -817,26 +876,15 @@ export function SmartReportPage() {
     sourcePath: report.sourcePath,
     sourceHash: report.sourceHash,
     reportJobId: report.jobId,
+    generalIntelligence: report.genericIntelligence ?? undefined,
     archetypeId: report.archetypeId,
     evidenceSnapshotId: typeof report.renderedOutput.evidenceSnapshotId === 'string' ? report.renderedOutput.evidenceSnapshotId : null,
     evidencePassportId: typeof report.renderedOutput.evidencePassportId === 'string' ? report.renderedOutput.evidencePassportId : null,
   }) : null, [report]);
 
-  if (loading) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
-  if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
-    setLoading(true);
-    setError(null);
-    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
-    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
-      setError('INVALID_REPORT_CONTEXT');
-      setLoading(false);
-      return;
-    }
-    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
-      setReport(next);
-    }).catch((reason) => setError(userFacingError(reason instanceof Error ? reason.message : String(reason)))).finally(() => setLoading(false));
-  }} /></div>;
-  if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
+  if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
+  if (error && errorContextKey === requestContextKey) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={retryReport} /></div>;
+  if (!report || !reportContextMatches) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر إثبات هوية التقرير المطلوب." /><ErrorState message={userFacingError('INVALID_REPORT_CONTEXT')} onRetry={retryReport} /></div>;
 
   const output = report.renderedOutput;
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
@@ -997,15 +1045,15 @@ export function SmartReportPage() {
     </section>
 
     {universalIntelligence && (
-      <details className="progressive-disclosure rounded-[22px] border border-ink-200 bg-white shadow-card">
+      <details open className="progressive-disclosure rounded-[22px] border border-ink-200 bg-white shadow-card">
         <summary className="cursor-pointer list-none px-5 py-4">
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className="section-kicker">الإثبات التفصيلي</div>
               <div className="mt-1 text-base font-black text-ink-950">كيف وصل التقرير إلى الحكم والقرار المقترح؟</div>
-              <div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والتعيين والدليل متاح للمراجعة، بينما تبقى شاشة العميل مركزة على النتيجة والتصرف.</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل مع الإشارات والأدلة ظاهر مباشرة؛ يمكنك طيّه عند الحاجة.</div>
             </div>
-            <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح الإثبات</span>
+            <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">ظاهر الآن · اضغط للطي</span>
           </div>
         </summary>
         <div className="border-t border-ink-100 p-3 lg:p-4">
@@ -1014,19 +1062,20 @@ export function SmartReportPage() {
       </details>
     )}
 
-    {!report.specialty && (
-      <section aria-label="ذكاء الملف العام" data-testid="smart-report-generic-intelligence">
-        <GenericFileIntelligenceCard
-          intelligence={report.intelligence}
-          format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
-        />
-      </section>
-    )}
+    <section aria-label="التحليل العام للمصدر" data-testid="smart-report-generic-intelligence">
+      <GenericFileIntelligenceCard
+        intelligence={report.genericIntelligence ?? report.intelligence}
+        format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
+        sourcePath={report.sourcePath}
+        sourceHash={report.sourceHash}
+        reportJobId={report.jobId}
+      />
+    </section>
 
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="section-kicker text-primary-700">ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟</div>
+          <div className="section-kicker text-primary-700"><span className="tracking-[.14em]">ADVISOR BRIEF</span> · ملخص القرار · ماذا يفعل المدير بهذه المعلومة؟</div>
           <h2 className="mt-1 text-2xl font-black tracking-tight text-ink-950">التقرير لا يصف الأرقام؛ يحدد القضية والتصرف التالي</h2>
           <p className="mt-2 max-w-4xl text-xs leading-6 text-ink-600">هذه الطبقة هي نقطة البداية التنفيذية. الأرقام والصفوف التفصيلية أدناه تستخدم لإثبات الحكم، وليست بديلًا عنه.</p>
         </div>
@@ -1237,27 +1286,7 @@ export function SmartReportPage() {
       </div>
     </details>
 
-    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
-      <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="section-kicker">EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل</div>
-            <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
-            <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
-          </div>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">استكشاف التفاصيل</span>
-        </div>
-      </summary>
-      <div className="space-y-5 border-t border-ink-100 p-5 lg:p-6">
-        <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">الثقة</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">المصدر</div><div className="mt-2 font-black text-ink-950">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'} · البصمة محفوظة ضمن سجل التدقيق</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">السجلات</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">نوع التقرير</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
-          </div>
-        </section>
-    <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+    <section data-testid="smart-report-executive-summary" className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
         <div className="section-kicker">الملخص التنفيذي</div>
         <h2 className="mt-1 text-xl font-black text-ink-950">ماذا يقول هذا التقرير فعليًا؟</h2>
@@ -1278,7 +1307,27 @@ export function SmartReportPage() {
       </div>
     </section>
 
-    <EvidenceInspector report={report}/>
+    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+      <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="section-kicker">EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل</div>
+            <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
+          </div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">استكشاف التفاصيل</span>
+        </div>
+      </summary>
+      <div className="space-y-5 border-t border-ink-100 p-5 lg:p-6">
+        <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">الثقة</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">المصدر</div><div className="mt-2 font-black text-ink-950">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'} · البصمة محفوظة ضمن سجل التدقيق</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">السجلات</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">نوع التقرير</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
+          </div>
+        </section>
+        <EvidenceInspector report={report}/>
     {report.runtimeWarnings?.length ? (
       <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="تحذيرات التشغيل">
         <div className="text-[9px] font-black tracking-[.12em]">قراءة النظام</div>
@@ -1289,11 +1338,17 @@ export function SmartReportPage() {
       </section>
     ) : null}
 
-    {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? (
-      <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="حد نطاق التحليل">
+    {report.canonicalAnalysisScope !== 'FULL_SOURCE' ? (
+      <section data-testid="smart-report-partial-source-scope" className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="نطاق التحليل الجزئي">
         <div className="text-[9px] font-black tracking-[.12em]">نطاق التحليل</div>
-        <div className="mt-1 text-sm font-black">التحليل هنا جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.</div>
-        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر. يجب الاعتماد على تجميعات خادمية موثقة قبل أي قرار شامل.</div>
+        <div className="mt-1 text-sm font-black">
+          {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING'
+            ? 'التحليل جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.'
+            : report.canonicalAnalysisScope === 'PARTIAL_FETCH_INCOMPLETE'
+              ? 'القراءة الكانونية أعادت صفوفًا أقل من العدد المعلن للمصدر.'
+              : 'تعذر قراءة كل الصفوف الكانونية من المصدر.'}
+        </div>
+        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر، ولا يجوز اعتمادها كتحليل شامل قبل استكمال التغطية.</div>
       </section>
     ) : null}
 

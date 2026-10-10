@@ -24,4 +24,16 @@ const simple = detectHeaderRow([
 ]);
 if (!simple || simple.rowIndex !== 0) throw new Error('First-row header detection failed');
 
-console.log('Header detection contract: PASS');
+const genericArabicCsv = detectHeaderRow([
+  ['اسم الصنف', 'الحالة', 'الإجمالي'],
+  ['صنف متأخر', 'تأخير', '100'],
+  ['صنف سليم', 'مكتمل', '200'],
+]);
+if (!genericArabicCsv || genericArabicCsv.rowIndex !== 0) {
+  throw new Error('Valid Arabic compound heading "اسم الصنف" must remain the CSV header');
+}
+if (genericArabicCsv.structurallySuspicious) {
+  throw new Error('A single valid business heading must not be mistaken for merged multi-field PDF text');
+}
+
+console.log('Header detection contract: PASS (valid Arabic compound headings + merged-PDF guard)');

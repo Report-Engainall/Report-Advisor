@@ -79,7 +79,7 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
     if (resumeReportExecutionJobId) {
       const { data: reportJob, error: reportJobError } = await serviceClient
         .from('report_execution_jobs')
-        .select('id,company_id,source_path,source_hash,job_key,status,checkpoint')
+        .select('id,company_id,source_path,source_hash,job_key,status,checkpoint,evidence')
         .eq('id', resumeReportExecutionJobId)
         .eq('company_id', companyId)
         .maybeSingle();
@@ -178,6 +178,9 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
             recoveredFromCanonicalDataset: true,
             renderedOutput: {
               ...currentRendered,
+              sourceHash: String(reportJob.source_hash ?? sourceHash),
+              sourcePath: String(reportJob.source_path ?? fileName),
+              importId: checkpointImportId,
               sourceSnapshotId: snapshot.id,
               analysisSnapshotId: snapshot.id,
               authoritativeCurrentRowCount: Number(canonicalRowCount),

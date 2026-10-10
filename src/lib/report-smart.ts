@@ -1,6 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
 import { buildGenericFileIntelligence } from './file-engine/generic-intelligence.ts';
+import { composeIntelligenceLayers } from './report-intelligence/compose-intelligence-layers.ts';
 import type { ColumnProfile, Dataset } from './file-engine/types.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
@@ -65,11 +66,12 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
-  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR';
+  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR' | 'PARTIAL_FETCH_INCOMPLETE';
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
+  genericIntelligence: ReportIntelligence | null;
   runtimeWarnings?: string[];
 };
 
@@ -448,31 +450,40 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   };
 }
 
-export async function fetchSmartReportCatalog(limit = 500, options: ReportRequestOptions = {}): Promise<SmartReportCatalogItem[]> {
-  if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_LIMIT');
+export type SmartReportCatalogPage = {
+  reports: SmartReportCatalogItem[];
+  nextOffset: number | null;
+  scanned: number;
+};
+
+export async function fetchSmartReportCatalogPage(
+  limit = 60,
+  offset = 0,
+  options: ReportRequestOptions = {},
+): Promise<SmartReportCatalogPage> {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_PAGE_LIMIT');
+  if (!Number.isInteger(offset) || offset < 0 || offset > 1_000_000) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_OFFSET');
   const companyId = await resolveCurrentCompanyId(options.signal);
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
-  const pageSize = 200;
-  const jobs: Array<Record<string, unknown>> = [];
+  // Read one extra row so the UI can know whether another page exists.
+  // Advance by raw source jobs scanned, not filtered reports, so invalid rows
+  // cannot create repeated pages or gaps in report navigation.
+  const jobsQuery = supabase
+    .from('report_execution_jobs')
+    .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+    .eq('company_id', companyId)
+    .eq('status', 'completed')
+    .like('job_key', 'canonical-import:generic:%')
+    .order('completed_at', { ascending: false })
+    .range(offset, offset + limit);
+  const { data, error } = await maybeAbort(jobsQuery, options.signal);
+  if (error) throw error;
 
-  for (let offset = 0; offset < limit; offset += pageSize) {
-    const endRange = Math.min(offset + pageSize - 1, limit - 1);
-    const jobsQuery = supabase
-      .from('report_execution_jobs')
-      .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
-      .eq('company_id', companyId)
-      .eq('status', 'completed')
-      .like('job_key', 'canonical-import:generic:%')
-      .order('completed_at', { ascending: false })
-      .range(offset, endRange);
-    const { data, error } = await maybeAbort(jobsQuery, options.signal);
-
-    if (error) throw error;
-    if (!data?.length) break;
-    jobs.push(...(data as Array<Record<string, unknown>>));
-    if (data.length < endRange - offset + 1) break;
-  }
+  const receivedJobs = (data ?? []) as Array<Record<string, unknown>>;
+  const hasMore = receivedJobs.length > limit;
+  const jobs = receivedJobs.slice(0, limit);
+  const nextOffset = hasMore ? offset + jobs.length : null;
 
   const jobsWithImportIds = jobs.map((job) => ({
     job,
@@ -509,7 +520,7 @@ export async function fetchSmartReportCatalog(limit = 500, options: ReportReques
     }
   }
 
-  const catalog = jobsWithImportIds
+  const reports = jobsWithImportIds
     .map(({ job, importJobId }) => {
       const analysis = analysesByImportId.get(importJobId) ?? null;
       if (analysis && String(analysis.source_hash ?? '') !== String(job.source_hash ?? '')) return null;
@@ -517,7 +528,34 @@ export async function fetchSmartReportCatalog(limit = 500, options: ReportReques
     })
     .filter((item): item is SmartReportCatalogItem => Boolean(item && item.sourceHash));
 
-  return catalog.slice(0, limit);}
+  return { reports, nextOffset, scanned: jobs.length };
+}
+
+export async function fetchSmartReportCatalog(
+  limit = 500,
+  options: ReportRequestOptions = {},
+): Promise<SmartReportCatalogItem[]> {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_LIMIT');
+  const catalog: SmartReportCatalogItem[] = [];
+  let offset = 0;
+
+  while (catalog.length < limit) {
+    const pageSize = Math.min(200, limit - catalog.length);
+    const page = await fetchSmartReportCatalogPage(pageSize, offset, options);
+    catalog.push(...page.reports);
+    offset += page.scanned;
+    if (page.nextOffset === null || page.scanned === 0) break;
+  }
+
+  const seen = new Set<string>();
+  return catalog.filter((report) => {
+    const key = report.jobId + ':' + report.sourceHash;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
+}
+
 function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   const owner =
     specialty === 'inventory' ? 'مسؤول المخزون' :
@@ -799,16 +837,23 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   }
 
   const canonicalFetchCeilingReached = canonicalRows.length >= canonicalFetchLimit;
-  const canonicalRowsPartial = canonicalFetchError || canonicalFetchCeilingReached;
+  const canonicalFetchLimitMayTruncate =
+    sourceRowCount == null
+      ? canonicalFetchCeilingReached
+      : sourceRowCount > canonicalFetchLimit;
   const canonicalRowsComplete =
-    sourceRowCount == null ||
-    canonicalRows.length >= sourceRowCount;
+    sourceRowCount == null
+      ? !canonicalFetchError && !canonicalFetchCeilingReached
+      : canonicalRows.length >= sourceRowCount && !canonicalFetchError;
+  const canonicalRowsPartial = canonicalFetchError || canonicalFetchLimitMayTruncate || !canonicalRowsComplete;
   const canonicalAnalysisScope =
     canonicalFetchError
       ? 'PARTIAL_FETCH_ERROR'
-      : sourceRowCount != null && sourceRowCount > canonicalFetchLimit
+      : canonicalFetchLimitMayTruncate
         ? 'PARTIAL_FETCH_CEILING'
-        : 'FULL_SOURCE';
+        : !canonicalRowsComplete
+          ? 'PARTIAL_FETCH_INCOMPLETE'
+          : 'FULL_SOURCE';
 
   // The database read-back is the authoritative truth for canonical coverage.
   // Passport metadata may be stale; it must never upgrade an empty/missing canonical
@@ -943,9 +988,30 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     );
   }
 
+  // General analysis is descriptive and source-derived. Keep it available for
+  // every source even when the stronger specialist decision gate is not met.
+  let genericIntelligence: ReportIntelligence | null = null;
+  try {
+    const genericDataset = buildGenericDatasetForReport({
+      sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
+      sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
+      canonicalRows,
+      qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+    });
+    if (genericDataset) {
+      genericIntelligence = buildGenericFileIntelligence(
+        genericDataset,
+        String(sourceAnalysis?.sourceFormat ?? 'generic'),
+      );
+    }
+  } catch (error) {
+    runtimeWarnings.push('تعذر اشتقاق طبقة التحليل العام من الصفوف المتاحة؛ تبقى النتائج المتخصصة خاضعة لبوابة الإثبات.');
+    console.error('[SmartReport] buildGenericFileIntelligence failed', error);
+  }
+
   let baseIntelligence: ReportIntelligence;
   if (!intelligenceEligible) {
-    runtimeWarnings.push('تم حجب الذكاء التنفيذي لأن طبقة المصدر لم تجتز بوابة الجودة البنيوية والدلالية.');
+    runtimeWarnings.push('تم حجب الذكاء التنفيذي المتخصص لأن طبقة المصدر لم تجتز بوابة الجودة البنيوية والدلالية؛ سيظل التحليل الوصفي العام ظاهرًا إن أمكن اشتقاقه.');
     baseIntelligence = emptyReportIntelligence(specialty);
     baseIntelligence.advisorBrief = {
       ...baseIntelligence.advisorBrief,
@@ -962,26 +1028,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       canonicalRows,
       persistedIntelligenceCalculations: persistedCalculationRows,
     });
-
-    // Keep source-agnostic intelligence alive after canonical import. Generic
-    // files must not lose their content-derived signals when moving from /try-report
-    // into the persisted Smart Report route.
-    if (!specialty) {
-      const genericDataset = buildGenericDatasetForReport({
-        sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
-        sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
-        canonicalRows,
-        qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
-      });
-      if (genericDataset) {
-        baseIntelligence = buildGenericFileIntelligence(
-          genericDataset,
-          String(sourceAnalysis?.sourceFormat ?? 'generic'),
-        );
-      }
-    }
   } catch (error) {
-    runtimeWarnings.push('تعذر اشتقاق طبقة الذكاء من هذا المصدر؛ تم إظهار حالة مراجعة بدل تجميد التقرير.');
+    runtimeWarnings.push('تعذر اشتقاق الذكاء التنفيذي من هذا المصدر؛ تم إظهار حالة مراجعة بدل تجميد التقرير.');
     console.error('[SmartReport] deriveReportIntelligence failed', error);
     baseIntelligence = emptyReportIntelligence(specialty);
   }
@@ -1009,7 +1057,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
   if (!intelligenceEligible) {
     archetypeState = 'REVIEW_REQUIRED';
-    intelligence = emptyReportIntelligence(specialty);
+    intelligence = baseIntelligence;
   } else if (detectedArchetype.profile) {
     try {
       const archetypeRun = runReportArchetype({
@@ -1071,6 +1119,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     };
   }
 
+  if (genericIntelligence) intelligence = composeIntelligenceLayers(genericIntelligence, intelligence);
+
   const runtimeSignalStatus = intelligence.signals.length
     ? 'SIGNALS_PRESENT'
     : 'NO_EXCEPTIONAL_SIGNALS';
@@ -1120,6 +1170,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     specialty,
     canonicalRows,
     intelligence,
+    genericIntelligence,
     evidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),

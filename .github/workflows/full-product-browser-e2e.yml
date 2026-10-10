@@ -4,9 +4,12 @@
 name: Full Product Browser E2E
 
 on:
+  # PR branches use pull_request below; don't run a second staging browser pass on the same feature-branch push.
   push:
+    branches: [main]
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/resolve-e2e-report-context.mjs'
       - 'scripts/provision-e2e-actors.mjs'
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
@@ -73,6 +76,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/resolve-e2e-report-context.mjs'
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/real-48-source-matrix-preflight.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
@@ -101,8 +105,11 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+# Both browser workflows authenticate against the same staging project.
+# Serialize them by PR/ref so they do not overload Supabase Auth concurrently.
+# Only serialize duplicate runs of this workflow; do not evict another proof workflow.
 concurrency:
-  group: full-product-browser-e2e-${{ github.event.pull_request.head.sha || github.sha }}
+  group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -308,7 +315,16 @@ jobs:
           cat artifacts/e2e-browser/preview.log
           exit 1
 
+      - name: Resolve dynamic source-bound report context
+        id: resolve-report-context
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REAL_SMART_REPORT_COMPANY_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
+          E2E_REPORT_CONTEXT_TIMEOUT_MS: '12000'
+        run: node scripts/resolve-e2e-report-context.mjs
       - name: Provision rerunnable E2E actors with bounded recovery
+        if: ${{ steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
@@ -325,6 +341,7 @@ jobs:
           node scripts/provision-e2e-actors.mjs
 
       - name: Refresh governed real-corpus evidence passports
+        if: ${{ steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
@@ -346,19 +363,21 @@ jobs:
           set -euo pipefail
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-48-archetype-runtime-contract.mjs
 
-      - name: Resume and prove the real open report
-        if: ${{ always() }}
+      - name: Resume and prove the resolved open report
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
-          OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
-          OPEN_REPORT_EXPECTED_ROWS: '0'
-          OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
+          # Resume the real XLSX report in the same company that User C owns by default.
+          # Separate PDF extraction is covered by the parser regression gate; the legacy PDF job
+          # inspected during repair has completed import metadata (0 rows) that correctly fails
+          # IMPORT_JOB_COMPLETED_ROW_MISMATCH instead of being treated as a valid recovery.
+          OPEN_REPORT_TEST_USER_EMAIL: ${{ env.TEST_USER_C_EMAIL }}
+          OPEN_REPORT_TEST_USER_PASSWORD: ${{ env.TEST_USER_C_PASSWORD }}
         run: node scripts/resume-open-report-server-proof.mjs
       - name: Install deterministic browser tooling
-        if: ${{ always() }}
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -369,21 +388,17 @@ jobs:
           npx playwright --version
 
       - name: Real Chromium route and authenticated browser proof
-        if: ${{ always() }}
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
           E2E_REPORT_DIR: artifacts/e2e-browser
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          CURRENT_REPORT_SOURCE_PATH: 'تقارير ادارية.xlsx'
-          CURRENT_REPORT_SOURCE_HASH: 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313'
-          CURRENT_REPORT_ROW_COUNT: '332'
-          REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
         run: node scripts/run-full-product-browser-e2e.mjs
 
       - name: Real Chromium business journey and smart report proof
-        if: ${{ always() }}
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
@@ -393,6 +408,7 @@ jobs:
         run: node scripts/real-business-e2e.mjs
 
       - name: Report real-source 48 archetype coverage (non-blocking)
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
@@ -402,8 +418,6 @@ jobs:
           REAL_48_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
-          REAL_48_TARGET_JOB_ID: 16709d80-e012-40ef-9c12-6fd8255897f8
-          REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
         shell: bash
         run: |
           set +e

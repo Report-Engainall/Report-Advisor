@@ -16,11 +16,13 @@ const approverEmail = process.env.TEST_APPROVER_EMAIL?.trim();
 const approverPassword = process.env.TEST_APPROVER_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
-const REAL_SMART_REPORT_COMPANY_ID = '99e33354-cc45-4317-8eb3-0d486b6c5932';
-const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
-const REAL_SMART_REPORT_SOURCE_PATH = 'تقارير ادارية.xlsx';
-const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
-const REAL_SMART_REPORT_ROW_COUNT = 332;
+const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
+const REAL_SMART_REPORT_JOB_ID = process.env.REAL_SMART_REPORT_JOB_ID || '16709d80-e012-40ef-9c12-6fd8255897f8';
+const REAL_SMART_REPORT_SOURCE_PATH = process.env.REAL_SMART_REPORT_SOURCE_PATH || 'تقارير ادارية.xlsx';
+const REAL_SMART_REPORT_SOURCE_HASH = process.env.REAL_SMART_REPORT_SOURCE_HASH || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_ROW_COUNT = Number(process.env.REAL_SMART_REPORT_ROW_COUNT || '332');
+const REAL_SMART_REPORT_COLUMN_COUNT = Number(process.env.REAL_SMART_REPORT_COLUMN_COUNT || '18');
+const REAL_SMART_REPORT_ENTITY_TYPE = process.env.REAL_SMART_REPORT_ENTITY_TYPE || 'generic:inventory';
 const configuredRealSmartReportCompany = process.env.REAL_SMART_REPORT_COMPANY_ID?.trim();
 if (configuredRealSmartReportCompany && configuredRealSmartReportCompany !== REAL_SMART_REPORT_COMPANY_ID) {
   throw new Error('REAL_SMART_REPORT_COMPANY_ID_LINEAGE_DRIFT:' + configuredRealSmartReportCompany);
@@ -325,6 +327,20 @@ async function waitForRenderedSmartReport(page, companyId, sourceHash) {
   );
 }
 
+async function waitForSmartReportEvidenceSurface(page) {
+  // Avoid getByText(...).first(): the page also contains a hidden explanatory duplicate.
+  const decisionChain = page.locator('[data-testid="smart-report-decision-chain"]');
+  await decisionChain.waitFor({ state: 'visible', timeout: 30000 });
+
+  const passportSummary = page
+    .locator('details > summary')
+    .filter({ hasText: 'التفاصيل الكاملة للتقرير' })
+    .first();
+  await passportSummary.waitFor({ state: 'visible', timeout: 30000 });
+  const summaryText = (await passportSummary.innerText()).toUpperCase();
+  assert.ok(summaryText.includes('EVIDENCE PASSPORT'), 'SMART_REPORT_VISIBLE_EVIDENCE_PASSPORT_MISSING');
+}
+
 async function proveSmartReportAndEvidence(page, companyId, importResult, label) {
   const sourceHash = String(importResult.canonical?.source_hash ?? '');
   if (!sourceHash) {
@@ -366,10 +382,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     /\/reports\/smart\/[^/]+/.test(page.url()),
     'SMART_REPORT_BROWSER_ROUTE_MUST_REMAIN_SOURCE_BOUND'
   );
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({
-    state: 'visible',
-    timeout: 30000,
-  });
+  await waitForSmartReportEvidenceSurface(page);
 
   const beforeRefreshText = (await page.locator('body').innerText()).trim();
   assert.ok(
@@ -404,10 +417,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     /\/reports\/smart\/[^/]+/.test(page.url()),
     'SMART_REPORT_REFRESH_ROUTE_MUST_REMAIN_SOURCE_BOUND'
   );
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({
-    state: 'visible',
-    timeout: 30000,
-  });
+  await waitForSmartReportEvidenceSurface(page);
 
   const afterRefreshText = (await page.locator('body').innerText()).trim();
   assert.ok(
@@ -461,7 +471,7 @@ const CURRENT_REPORT_SOURCE_PATH = REAL_SMART_REPORT_SOURCE_PATH;
 const CURRENT_REPORT_SOURCE_HASH = REAL_SMART_REPORT_SOURCE_HASH;
 const CURRENT_REPORT_ROW_COUNT = REAL_SMART_REPORT_ROW_COUNT;
 const CURRENT_REPORT_TASK_COUNT = 9;
-const CURRENT_REPORT_ENTITY_TYPE = 'generic:inventory';
+const CURRENT_REPORT_ENTITY_TYPE = REAL_SMART_REPORT_ENTITY_TYPE;
 
 function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
@@ -477,7 +487,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const uniqueJobs = [...new Map(authoritativeJobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
-  assert.equal(job.id, '16709d80-e012-40ef-9c12-6fd8255897f8', 'CURRENT_REPORT_JOB_ID_CHANGED');
+  assert.equal(job.id, REAL_SMART_REPORT_JOB_ID, 'CURRENT_REPORT_JOB_ID_CHANGED');
   assert.equal(job.status, 'completed');
   assert.equal(job.source_hash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(job.source_path, CURRENT_REPORT_SOURCE_PATH);
@@ -510,7 +520,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const analyses = await restSelect(page, 'source_analysis_snapshots', { company_id: companyId, source_hash: CURRENT_REPORT_SOURCE_HASH, import_job_id: importId }, 'id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at', { order: 'created_at.desc', limit: 20 });
   assert.ok(analyses.length > 0, 'CURRENT_REPORT_ANALYSIS_MISSING');
   assert.equal(Number(analyses[0].row_count), CURRENT_REPORT_ROW_COUNT);
-  assert.equal(Number(analyses[0].column_count), 18, 'CURRENT_REPORT_COLUMN_COUNT_CHANGED');
+  assert.equal(Number(analyses[0].column_count), REAL_SMART_REPORT_COLUMN_COUNT, 'CURRENT_REPORT_COLUMN_COUNT_CHANGED');
   assert.equal(Number(analyses[0].quality_score), Number(rendered.qualityScore));
   const fileRecords = await restSelect(page, 'file_records', { company_id: companyId, id: imports[0].file_record_id }, 'id,company_id,file_name,file_hash,detected_format,status', { limit: 1 });
   assert.equal(fileRecords.length, 1);
@@ -533,7 +543,24 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(response, 'CURRENT_REPORT_SMART_BROWSER_JOB_READBACK_MISSING');
   const jobRows = await response.json();
   assert.equal(jobRows.length, 1); assert.equal(jobRows[0].id, report.reportJobId); assert.equal(jobRows[0].source_hash, CURRENT_REPORT_SOURCE_HASH); assert.equal(jobRows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(page);
+
+  // Prove the cross-cutting general layer is visible even when the report has a specialty.
+  const genericCard = page.locator('[data-testid="smart-report-generic-intelligence"] [data-testid="generic-file-intelligence"]');
+  await genericCard.waitFor({ state: 'visible', timeout: 15000 });
+  const sourceLineage = genericCard.locator('[data-testid="generic-intelligence-source-lineage"]');
+  await sourceLineage.waitFor({ state: 'visible', timeout: 15000 });
+  const sourceLineageText = await sourceLineage.innerText();
+  assert.ok(sourceLineageText.includes(report.reportJobId), 'GENERIC_INTELLIGENCE_REPORT_JOB_MISSING');
+  assert.ok(sourceLineageText.includes(CURRENT_REPORT_SOURCE_PATH), 'GENERIC_INTELLIGENCE_SOURCE_PATH_MISMATCH');
+  assert.ok(sourceLineageText.includes(CURRENT_REPORT_SOURCE_HASH), 'GENERIC_INTELLIGENCE_SOURCE_HASH_MISMATCH');
+
+  for (const regionName of ['كل إشارات التحليل العام', 'كل توصيات التحليل العام']) {
+    const region = genericCard.locator('[aria-label="' + regionName + '"]');
+    assert.equal(await region.count(), 1, 'GENERIC_INTELLIGENCE_REGION_MISSING:' + regionName);
+    await region.waitFor({ state: 'visible', timeout: 15000 });
+  }
+
   const before = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(before, 'current smart report');
   assert.ok(before.includes('EVIDENCE PASSPORT'));
@@ -543,18 +570,23 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes(REAL_SMART_REPORT_SOURCE_PATH), 'Smart Report certified source path missing from DOM');
   assert.equal(await page.locator('[data-testid="smart-report-job-id"]').count(), 1, 'Smart Report job id DOM proof missing or duplicated');
   assert.equal(await page.locator('[data-testid="smart-report-source-hash"]').count(), 1, 'Smart Report source hash DOM proof missing or duplicated');
-  assert.ok(before.includes('التقرير موثق') || before.includes('الدليل موثق') || before.includes('موثّق') || before.includes('TRUSTED'), 'Smart Report trust state missing');
+  assert.ok(before.includes('موثوق') || before.includes('TRUSTED'), 'Smart Report source trust state missing');
+  assert.ok(before.includes('الدليل يحتاج مراجعة') || before.includes('لا توجد لقطة دليل مثبتة') || before.includes('الدليل النهائي غير مثبت') || before.includes('AWAITING_EVIDENCE_SNAPSHOT'), 'Smart Report must show the separate pending evidence-snapshot state when it is not yet proven');
   assert.ok(before.includes('WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF'), 'Smart Report decision chain missing');
   assert.ok(await page.locator('[data-testid="smart-report-decision-chain"]').count() === 1, 'Smart Report decision chain DOM surface missing');
-  assert.ok(before.includes('ماذا يقول هذا التقرير فعليًا؟') || before.includes('ماذا يحدث في هذا التقرير؟'), 'Smart Report executive summary missing');
+  const executiveSummary = page.locator('[data-testid="smart-report-executive-summary"]');
+  await executiveSummary.waitFor({ state: 'visible', timeout: 15000 });
+  assert.ok((await executiveSummary.innerText()).includes('ماذا يقول هذا التقرير فعليًا؟'), 'Smart Report executive summary must be visible outside collapsed evidence details');
   assert.ok(before.includes('التفاصيل الكاملة للتقرير'), 'Smart Report evidence disclosure missing');
   assert.ok(before.includes('التوصية'), 'Smart Report recommendation state missing');
   assert.ok(before.includes('القرار'), 'Smart Report decision state missing');
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(page);
   const after = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(after, 'current smart report refresh');
+  assert.ok(after.includes('موثوق') || after.includes('TRUSTED'), 'Smart Report source trust state missing after refresh');
+  assert.ok(after.includes('الدليل يحتاج مراجعة') || after.includes('لا توجد لقطة دليل مثبتة') || after.includes('الدليل النهائي غير مثبت') || after.includes('AWAITING_EVIDENCE_SNAPSHOT'), 'Pending evidence snapshot state must survive report refresh');
   assert.ok(after.includes('EVIDENCE PASSPORT'));
   assert.ok(after.includes(String(Number(report.rendered.qualityScore)) + '%'));
   assert.ok(
@@ -571,7 +603,8 @@ async function proveCurrentSmartReport(page, report) {
 
 async function proveReportsCenterRealSurface(page, report) {
   const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
-  const response = await page.goto(baseURL + '/reports', { waitUntil: 'networkidle', timeout: 30000 });
+  const reportsCenterURL = baseURL + '/reports?reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
+  const response = await page.goto(reportsCenterURL, { waitUntil: 'networkidle', timeout: 30000 });
   assert.ok(response && response.status() < 400, 'REPORTS_CENTER_HTTP_FAILURE');
   const jobResponse = await responsePromise;
   assert.ok(jobResponse, 'REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING');
@@ -1188,7 +1221,7 @@ try {
   assert.equal(currentReport.sourcePath, REAL_SMART_REPORT_SOURCE_PATH, 'CERTIFIED_REPORT_SOURCE_PATH_MISMATCH');
   assert.equal(currentReport.sourceHash, REAL_SMART_REPORT_SOURCE_HASH, 'CERTIFIED_REPORT_SOURCE_HASH_MISMATCH');
   assert.equal(currentReport.canonicalRows.length, REAL_SMART_REPORT_ROW_COUNT, 'CERTIFIED_REPORT_ROW_COUNT_MISMATCH');
-  assert.equal(Number(currentReport.analysis.quality_score), 98, 'CERTIFIED_REPORT_QUALITY_MISMATCH');
+  assert.equal(Number(currentReport.analysis.quality_score), Number(currentReport.rendered.qualityScore), 'CERTIFIED_REPORT_QUALITY_MISMATCH');
   evidence.persisted.currentReport = { reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, canonicalCommitCount: currentReport.commits.reduce((sum,row)=>sum+Number(row.committed_count||0),0), taskCount: currentReport.tasks.length, completedTaskCount: currentReport.tasks.filter(task=>task.status==='completed').length, importJobId: currentReport.importJob.id, fileRecordId: currentReport.fileRecord.id, qualityScore: Number(currentReport.rendered.qualityScore), trustState: currentReport.rendered.trustState, evidenceState: currentReport.rendered.evidenceStatus, checkpointStage: currentReport.job.checkpoint?.stage ?? null };
   evidence.steps.push({ step: 'certified-report-durable-proof', status: 'PASS', reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, jobStatus: currentReport.job.status, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, qualityScore: Number(currentReport.rendered.qualityScore), evidenceState: currentReport.rendered.evidenceStatus });
 

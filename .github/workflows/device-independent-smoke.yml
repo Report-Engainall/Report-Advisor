@@ -20,6 +20,11 @@ on:
 permissions:
   contents: read
 
+# Keep retries of this workflow serialized without canceling another gate's pending run.
+concurrency:
+  group: device-independent-smoke-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
 env:
   EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
 
@@ -80,7 +85,10 @@ jobs:
           await browser.close();
           NODE
 
+  # Full Product Browser E2E is the PR's authenticated end-to-end gate.
+  # Keep this duplicate Auth/Product/Import journey manual-only; parallel actor provisioning overloads Staging Auth.
   authenticated-e2e:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     needs: browser-smoke
     runs-on: ubuntu-22.04
     timeout-minutes: 60
@@ -146,6 +154,9 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_ACTOR_MODE: ephemeral-run-scoped
+          # Route the dedicated actor to the report's real owner; keep RLS/tenant checks intact.
+          REAL_SMART_REPORT_COMPANY_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
+          E2E_CORPUS_TENANT_ID: '6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b'
           E2E_ACTOR_PROVISION_DEADLINE_MS: '360000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '15000'
           REPORT_ADVISOR_E2E_DEBUG: '1'

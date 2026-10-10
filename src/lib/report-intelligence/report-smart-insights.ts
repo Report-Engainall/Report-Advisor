@@ -407,7 +407,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       let totalStock = 0;
       let totalDailyRate = 0;
       let dailyRateRows = 0;
-      const lowCoverageRows: Array<{ name: string; stock: number; demand: number; sales: number; coverageDays: number; basis: string }> = [];
+      const lowCoverageRows: Array<{ name: string; stock: number; demand: number | null; sales: number | null; coverageDays: number; basis: string }> = [];
       const datedDemandRows: Array<{ date: Date; sales: number }> = [];
       const fastMovingProducts: Array<{ name: string; rate: number }> = [];
       const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
@@ -448,7 +448,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           coverageBasis = 'stockField=' + stockKey + ' salesField=' + netSalesKey + ' coverageMode=source_row_demand_proxy';
         }
         if (coverageDays != null && Number.isFinite(coverageDays) && coverageDays >= 0 && coverageDays <= 30) {
-          lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage ?? 0, sales: salesForCoverage ?? 0, coverageDays, basis: coverageBasis });
+          lowCoverageRows.push({ name: productName, stock, demand: dailyRate ?? salesForCoverage, sales: salesForCoverage, coverageDays, basis: coverageBasis });
         }
         if (dateKey && salesForCoverage != null && salesForCoverage > 0) {
           const date = parseDateValue(rowValue(row.data, dateKey));
@@ -526,12 +526,22 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           .slice(0, 5)
           .map(item => item.name + ':' + item.coverageDays.toFixed(1) + ' يوم')
           .join('، ');
-        const lowCoverageSales = lowCoverageRows.reduce((sum, item) => sum + (Number(item.sales) || 0), 0);
-        const allSales = rows.reduce((sum, row) => {
-          const value = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
-          return sum + (value != null && value > 0 ? value : 0);
-        }, 0);
-        const affectedSalesShare = allSales > 0 ? Math.round((lowCoverageSales / allSales) * 100) : null;
+        const lowCoverageSales = lowCoverageRows.every(
+          (item) => item.sales != null && Number.isFinite(item.sales),
+        )
+          ? lowCoverageRows.reduce((sum, item) => sum + (item.sales as number), 0)
+          : null;
+        const sourceSalesValues = rows.map((row) =>
+          netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null,
+        );
+        const allSales = sourceSalesValues.every(
+          (value): value is number => value != null && Number.isFinite(value),
+        )
+          ? sourceSalesValues.reduce((sum, value) => sum + value, 0)
+          : null;
+        const affectedSalesShare = lowCoverageSales != null && allSales != null && allSales > 0
+          ? Math.round((lowCoverageSales / allSales) * 100)
+          : null;
         const coverageEvidence = [
           'stockField=' + stockKey,
           ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : []),

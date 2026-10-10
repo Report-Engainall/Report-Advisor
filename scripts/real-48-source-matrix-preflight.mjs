@@ -7,14 +7,10 @@ const email = (process.env.REAL_48_TEST_USER_EMAIL || process.env.TEST_USER_B_EM
 const password = process.env.REAL_48_TEST_USER_PASSWORD || process.env.TEST_USER_B_PASSWORD || process.env.TEST_USER_A_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || '';
-const REAL_48_CERTIFIED_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
-const REAL_48_CERTIFIED_COMPANY_ID = '99e33354-cc45-4317-8eb3-0d486b6c5932';
-const REAL_48_CERTIFIED_SOURCE_PATH = 'تقارير ادارية.xlsx';
-const REAL_48_CERTIFIED_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
-const configuredTargetJobId = process.env.REAL_48_TARGET_JOB_ID?.trim();
-if (configuredTargetJobId && configuredTargetJobId !== REAL_48_CERTIFIED_JOB_ID) {
-  throw new Error('REAL_48_TARGET_JOB_ID_LINEAGE_DRIFT:' + configuredTargetJobId);
-}
+const REAL_48_CERTIFIED_JOB_ID = process.env.REAL_48_CERTIFIED_JOB_ID || process.env.REAL_48_TARGET_JOB_ID || '16709d80-e012-40ef-9c12-6fd8255897f8';
+const REAL_48_CERTIFIED_COMPANY_ID = process.env.REAL_48_CERTIFIED_COMPANY_ID || process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
+const REAL_48_CERTIFIED_SOURCE_PATH = process.env.REAL_48_CERTIFIED_SOURCE_PATH || process.env.REAL_SMART_REPORT_SOURCE_PATH || 'تقارير ادارية.xlsx';
+const REAL_48_CERTIFIED_SOURCE_HASH = process.env.REAL_48_CERTIFIED_SOURCE_HASH || process.env.REAL_SMART_REPORT_SOURCE_HASH || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 const targetJobId = REAL_48_CERTIFIED_JOB_ID;
 if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED');
 const outFile = process.env.E2E_REPORT_DIR

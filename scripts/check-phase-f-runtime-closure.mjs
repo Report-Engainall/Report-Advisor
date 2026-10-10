@@ -17,6 +17,7 @@ if (!workflow.includes('base="https://deploy-preview-${PR_NUMBER}--aghbari-repor
 if (!workflow.includes('PR_NUMBER: ${{ github.event.pull_request.number }}')) throw new Error('Phase F runtime target must be bound to the current PR number');
 if (workflow.includes('deploy-preview-754--aghbari-report-advisor.netlify.app')) throw new Error('Phase F workflow contains stale preview target deploy-preview-754');
 if (!workflow.includes('workflow_dispatch')) throw new Error('Phase F live resilience must remain explicitly dispatchable');
+if (!workflow.includes('ONE-PROGRAMMER-SESSION-MEMORY') || !workflow.includes('grep -vqE')) throw new Error('Phase F preview provenance must allow the required session-memory document as governance-only drift');
 const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 for (const script of ['test:operational-resilience','test:release-resilience-manifest','test:continuous-trust']) if (!pkg.scripts?.[script]) throw new Error(`Package gate missing: ${script}`);
 const probe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
@@ -34,4 +35,5 @@ for (const token of [
   'rto_seconds',
   'logical-',
 ]) if (!probe.includes(token)) throw new Error(`Logical backup/restore runtime invariant missing: ${token}`);
+if (!probe.includes("file === 'ONE-PROGRAMMER-SESSION-MEMORY.md'")) throw new Error('Phase F runtime must treat session memory as governance-only provenance');
 console.log('Phase F runtime closure contract: PASS');

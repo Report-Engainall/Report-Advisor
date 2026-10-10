@@ -9,9 +9,10 @@ const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
 
-const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
+const REAL_SMART_REPORT_JOB_ID = process.env.REAL_SMART_REPORT_JOB_ID || '16709d80-e012-40ef-9c12-6fd8255897f8';
 const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
-const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_SOURCE_HASH = process.env.REAL_SMART_REPORT_SOURCE_HASH || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_SOURCE_PATH = process.env.REAL_SMART_REPORT_SOURCE_PATH || 'تقارير ادارية.xlsx';
 
 const routes = [
   '/', '/command-center', '/onboarding', '/decision-experience', '/metrics', '/reports',
@@ -278,7 +279,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
   let lastState = null;
 
   while (Date.now() < deadline) {
-    const state = await targetPage.evaluate(({ expected, loadingMarkers, smartReportJobId, smartReportSourceHash }) => {
+    const state = await targetPage.evaluate(({ expected, loadingMarkers, smartReportJobId, smartReportSourceHash, smartReportSourcePath }) => {
       const text = document.body?.innerText?.trim() || '';
       const loading = loadingMarkers.filter(marker => text.includes(marker));
       const matches = expected.map(marker => ({ marker, found: text.includes(marker) }));
@@ -305,13 +306,14 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
         smartSourceHashPresent: text.includes(smartReportSourceHash) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes(smartReportSourceHash)),
         realReportJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
-        realReportSourcePresent: text.includes('تقارير ادارية.xlsx'),
+        realReportSourcePresent: text.includes(smartReportSourcePath),
       };
     }, {
       expected,
       loadingMarkers: REPORT_LOADING_MARKERS,
       smartReportJobId: REAL_SMART_REPORT_JOB_ID,
       smartReportSourceHash: REAL_SMART_REPORT_SOURCE_HASH,
+      smartReportSourcePath: REAL_SMART_REPORT_SOURCE_PATH,
     });
 
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
@@ -392,7 +394,7 @@ async function waitForRealReportFirstPaint(targetPage, timeoutMs = 8000) {
         textLength: text.length,
       };
     }, {
-      sourceName: 'تقارير ادارية.xlsx',
+      sourceName: REAL_SMART_REPORT_SOURCE_PATH,
     });
     if (lastState.visibleText && lastState.primaryCardPresent && lastState.sourcePresent) {
       return {
