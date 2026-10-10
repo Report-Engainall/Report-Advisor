@@ -142,3 +142,12 @@ Next: consume exact-head build and runtime test results for the new fix SHA. Do 
 - Latest observed status: CodeRabbit success; Vercel build-rate-limit check; Netlify deploy-preview pending; Product Build Gate #38013524659 queued; Quality #38013525077 queued; Full Product Browser E2E #38013524550 pending.
 - Historical XLSX source-hash readback exists for one job, but varied-format authenticated browser persistence/readback remains unproven. Product complete = NO.
 - Next: consume a terminal focused workflow log and correct the first confirmed failure before source-bound browser proof.
+
+
+## 2026-10-10 — final fixture escaping repair
+
+- Application code/test head: `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`; PR #912 open/not merged.
+- Raw-header customer classification guard remains in place; malformed assertion tail was removed earlier; the test fixture newline escapes now use one backslash per newline. Same-head GitHub readback verifies the source.
+- CI remains pending: Product Build Gate #38013755538 queued; Quality #38013755480 queued; Full Product Browser E2E #38013755671 queued. CodeRabbit success; Vercel account build-rate-limit; Netlify deploy preview building/pending.
+- Runtime test, authenticated browser flow, varied-format persisted readback and production are not proven. Product complete = NO.
+- Next: consume the first terminal focused test log for this exact code head and correct the first verified failure.

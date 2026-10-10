@@ -31,3 +31,5 @@ Archive is append-only. Never overwrite a historical report. The latest live rep
 - docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-GENERIC-DOMAIN-NEUTRAL-FIX.md
 
 - docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-0e2fc9b-TEST-REPAIR.md
+
+- docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-73c5205-FIXTURE-ESCAPING.md

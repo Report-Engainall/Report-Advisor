@@ -3,6 +3,50 @@ ACTION_STATUS = ACTIVE_EXECUTION
 REPOSITORY = Report-Engainall/Report-Advisor
 PR = #912 OPEN / NOT MERGED
 BRANCH = fix/source-bound-generic-intelligence-20261009
+APPLICATION_CODE_HEAD = 73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe
+PREVIOUS_CODE_CANDIDATE = 0e2fc9b2e7e55a01255cafc1286d4ab0bb506671
+DOCS_BASE_PARENT = 73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+## LIVE CHECKPOINT — 2026-10-10 — test fixture repaired and generic mapping guarded
+
+This report is for application code SHA `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`. A documentation-only child commit will advance the PR ref; the app/code SHA above remains the exact tested candidate.
+
+### Code changes
+- The general source-derived layer is composed with applicable specialist intelligence across File Lab, the universal intelligence chain and Smart Report; specialist data adds to the general layer instead of replacing it.
+- The general-result card exposes every signal, recommendation, finding, risk/opportunity, evidence item, driver, measurement and limitation passed to it. Source path, report job ID and source SHA-256 remain visible/bound.
+- Canonical recovery reads stored evidence and preserves sourceHash/sourcePath/importId when recovering the rendered output.
+- Generic table classification uses raw source headers to verify customer identity. A guessed `mappedField=customer_name` alone does not cause a customer-portfolio/churn classification.
+- The general-file format matrix contains TXT/CSV/JSON/JSONL/XML/YAML/Markdown/RTF plus the reference XLSX. The CSV regression forces `name → customer_name` in mappedField and checks that the raw generic header remains domain-neutral.
+- The test’s cut assertion/orphan duplicate tail found on parent `17556d7...` was repaired in `0e2fc9b...`. A second fixture escaping issue was corrected in `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`; same-head readback shows the CSV string has two single-backslash `\n` escape sequences, not double-escaped `\\n` sequences.
+
+### Deployment/test status
+- Latest code status at last check: CodeRabbit success; Vercel failed with a provider/account `build-rate-limit` target (no current source error reported by that status); Netlify deploy-preview status pending at deploy `6ac9965733e9f700081ad4f5`, source commit `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`.
+- Exact code-head Actions query for 73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe: 56 runs; 2 completed (both skipped), 48 queued, 6 pending, 0 in progress. Product Build Gate #38013755538 QUEUED; Quality #38013755480 QUEUED; Full Product Browser E2E #38013755671 QUEUED; Data Quality Runtime #38013755732 QUEUED; File Intelligence Security #38013755423 QUEUED; Session Handoff Contract #38013755760 PENDING (older #38013752963 also pending). No terminal focused runtime-test result yet.
+- The actual Node test did not yet reach a terminal run, so format-matrix runtime PASS is NOT claimed.
+- A public content fetch shows the Arabic `/import/analyze` File Lab landing view. This is not upload/browser/authenticated interaction proof.
+- Historical Supabase readback for job `16709d80-e012-40ef-9c12-6fd8255897f8` proves the XLSX source hash exactly equals renderedOutput.sourceHash, source path matches, and 332 canonical rows exist. This is one historic source-bound XLSX record only.
+
+### Remaining proof gaps
+- Authenticated upload → completed general analysis → Smart Report → navigation/reload → persisted readback across varied formats NOT PROVEN.
+- Separate Phase-F restore/schema blocker involving `public.intelligence_causal_hypotheses` remains unproven closed.
+- Adjacent PRs #906/#909 overlap report/card files but do not contain the current composition helper and new regression checks. Do not merge blindly.
+- PRODUCT_COMPLETE = NO.
+
+NEXT_EXACT_ACTION = Consume a terminal exact-head Quality/Product Build Gate result for `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`; inspect the complete job log and fix the first confirmed failure. Then verify the same jobId/sourceHash through authenticated upload, report render, route navigation/reload and persisted readback.
+
+---
+
+## HISTORICAL STATE BELOW — preserved verbatim
+
+SESSION HANDOFF = READY
+ACTION_STATUS = ACTIVE_EXECUTION
+REPOSITORY = Report-Engainall/Report-Advisor
+PR = #912 OPEN / NOT MERGED
+BRANCH = fix/source-bound-generic-intelligence-20261009
 APPLICATION_CODE_HEAD = 0e2fc9b2e7e55a01255cafc1286d4ab0bb506671
 CODE_PARENT_HEAD = 17556d7af347502e8fe549c99ed6bb191b1df392
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576

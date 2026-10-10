@@ -1,3 +1,17 @@
+# LIVE RESUME — 2026-10-10 / GENERIC CSV FIXTURE ESCAPING REPAIRED
+
+- Repository `Report-Engainall/Report-Advisor`; PR #912 OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`.
+- Exact application SHA: `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`, parent branch commit `761ef9b922637f23817b2612d50ffe53de092c77`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`. This memory/report commit is documentation-only and advances the branch ref; live PR metadata is the authority for that docs child.
+- General source-derived intelligence remains composed alongside applicable specialist intelligence across File Lab and Smart Report. Source path/report job/source hash remain bound and visible; specialist decision/evidence gates stay fail-closed.
+- Customer portfolio wording requires raw customer identity in the source header, not just inferred `mappedField=customer_name`.
+- Runtime test source was repaired (no orphan fragment); the new raw-header regression uses correct single-backslash newline escapes at `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`. Test command execution still NOT PROVEN.
+- Current CI: CodeRabbit success; Vercel build check points to account build-rate-limit; Netlify preview pending; Product Build Gate #38013755538 queued; Quality #38013755480 queued; Full Product Browser E2E #38013755671 queued; Data Quality Runtime #38013755732 queued; File Intelligence Security #38013755423 queued; Session Handoff Contract #38013755760 pending. No terminal focused test result.
+- Historical report job `16709d80-e012-40ef-9c12-6fd8255897f8` proves exact source/rendered hash equality and 332 canonical rows for an XLSX; no varied-format authenticated browser readback yet.
+- Separate Phase-F restore blocker `public.intelligence_causal_hypotheses` not proven closed. PRODUCT_COMPLETE=NO.
+- NEXT ONE ACTION: consume terminal Quality/Product Build Gate logs at `73c5205f75cc9ecf057ad0c5f956f69bc54b6ebe`, fix the first proven failure, then source-bound browser readback.
+
+---
+
 # LIVE RESUME — 2026-10-10 / TEST FILE REPAIRED; SOURCE HEADER REQUIRED FOR SPECIALTY
 
 - Repo `Report-Engainall/Report-Advisor`; PR #912 open/not merged; branch `fix/source-bound-generic-intelligence-20261009`.
