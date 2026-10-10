@@ -85,7 +85,7 @@ CREATE INDEX IF NOT EXISTS idx_report_value_cohort_candidates_source
     AND checkpoint ->> 'stage' = 'rendered'
     AND company_id IS NOT NULL
     AND source_hash ~ '^sha256:[0-9a-fA-F]{64}$'
-    AND source_path ~* '\\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|xml|yaml|yml|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$'
+    AND source_path ~* '\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|xml|yaml|yml|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$'
     AND source_path !~* '^canonical-import:'
     AND source_path !~* '^(customer|product|invoice)-'
     AND job_key ~ '^canonical-import:generic:'
