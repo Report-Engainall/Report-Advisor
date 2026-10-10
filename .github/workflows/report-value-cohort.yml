@@ -17,9 +17,10 @@ on:
 permissions:
   contents: read
 
+# Share a lane with Phase-F restore so candidate RPCs do not compete with logical backup.
 concurrency:
-  group: report-value-cohort-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: supabase-staging-heavy-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   exact-head-value-cohort:

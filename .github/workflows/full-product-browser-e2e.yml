@@ -101,9 +101,11 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+# Both browser workflows authenticate against the same staging project.
+# Serialize them by PR/ref so they do not overload Supabase Auth concurrently.
 concurrency:
-  group: full-product-browser-e2e-${{ github.event.pull_request.head.sha || github.sha }}
-  cancel-in-progress: true
+  group: supabase-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
