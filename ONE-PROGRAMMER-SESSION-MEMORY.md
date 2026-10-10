@@ -1,3 +1,16 @@
+# LIVE CHECKPOINT — 2026-10-10 / GENERAL INTELLIGENCE COMPOSITION + CURRENT CI FRONTIER
+
+- REPOSITORY: `Report-Engainall/Report-Advisor`.
+- PR #912: OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`; base `main`.
+- Exact product/test HEAD immediately before this governance refresh: `0444faab81a75f222db978040e485c59e23b2839` (newer than the original historical SHA supplied in the startup instruction).
+- Product work present in the candidate: shared layer composer; File Lab general analysis for all detected specialties; persisted smart report returns and composes the general layer; Smart Report renders a general-analysis card unconditionally with source path, report job ID and source SHA-256; result lists and evidence now render without the card's previous 5/8 item truncation; regression tests added for layer merge and cross-surface visibility.
+- Exact latest readback before governance refresh: `src/lib/report-smart.ts` blob `11b7ff70a3911930277537326e5bb49fd36e94b0`; generic card blob `5b8fcac106ca9ef5d439036e1896da5fa198edb7`; general/specialist composer blob `3991d5e1e0cae9e4bff893066e11ed908a7bdb28`; generic runtime test blob `adb44c8a7c3ea125039e19da98150e39e5794162`; complete-surface contract blob `6dba116af8a64e00533a293006c32db8e56cabc1`.
+- CI snapshot for exact head `0444faab81a75f222db978040e485c59e23b2839`: CodeRabbit success was previously visible at the earlier code candidate; current combined status showed Vercel pending. Latest observed Full Product Browser E2E run `38011635086` queued; Product Build Gate `38011635134` queued; `Commercial PWA E2E` `38011635125` in progress. The rest of the listed gate runs are queued/pending. No product/browser/database PASS is claimed.
+- This connector can commit code and tests to GitHub. It does not provide local Node execution, so the new test assertions are authored and read-back verified but not yet reported as executed.
+- First next action: wait only through active tool reads (no background promise); re-fetch the exact new commit's check statuses and Full Product Browser E2E + Product Build Gate jobs/logs. Fix any terminal compilation/focused-test failure at that exact SHA. Keep source-bound evidence and decision gates fail-closed.
+
+---
+
 # LIVE IMPLEMENTATION DELTA — 2026-10-10 / GENERAL LAYER NOW COMPOSED WITH SPECIALIST
 
 - Exact product candidate immediately before this delta writeback: `9caca7cf54c6c9d1d902e694e6fa5906a04890c4`; branch `fix/source-bound-generic-intelligence-20261009`; PR #912 OPEN / NOT MERGED.

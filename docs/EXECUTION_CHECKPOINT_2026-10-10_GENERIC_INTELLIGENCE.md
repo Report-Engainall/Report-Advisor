@@ -64,3 +64,13 @@ Candidate product commit before this documentation writeback: `9caca7cf54c6c9d1d
 
 ### First next action
 Refresh PR #912 head and CI at that exact SHA; resolve compilation or focused-test failures first. Then validate varied text/XML/YAML/RTF and XLSX source shapes, followed by authenticated browser/persisted readback of the same report job + source hash across navigation/reload.
+
+
+## Exact CI frontier and immediate correction — 2026-10-10
+
+- Pre-writeback candidate SHA: `0444faab81a75f222db978040e485c59e23b2839`; PR #912 open and unmerged.
+- Latest observed combined status: Vercel `pending`.
+- Latest observed PR workflows for that SHA include Full Product Browser E2E run `38011635086` (queued), Product Build Gate run `38011635134` (queued), and Commercial PWA E2E run `38011635125` (in progress). Remaining security/certification runs are largely queued/pending. These are not passes.
+- Readback verified the general/specialist composition code, the report runtime composition, the source-bound generic card, and the added runtime/static tests. Tests have not yet been executed; the GitHub connector is the available execution surface in this task.
+- One code-quality correction included in the next atomic commit: use an explicit optional-list guard before comparing signal priority-reason length. The surface contract also now verifies that the persisted report's general layer feeds the Universal Intelligence chain.
+- Exact next step after this commit: query its own current status/workflow runs; then inspect the first terminal failure from Product Build/Focused/Full Product Browser E2E and correct that failure before considering any release claim.

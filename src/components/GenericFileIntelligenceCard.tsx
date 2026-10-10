@@ -155,7 +155,7 @@ export function GenericFileIntelligenceCard({
                 {signal.impact && <div className="rounded-lg bg-ink-50 p-3"><div className="text-[10px] font-black text-ink-500">الأثر المثبت/حدوده</div><p className="mt-1 text-xs leading-5 text-ink-700">{signal.impact}</p></div>}
                 {signal.ownerHint && <div className="rounded-lg bg-ink-50 p-3"><div className="text-[10px] font-black text-ink-500">المالك المقترح</div><p className="mt-1 text-xs leading-5 text-ink-700">{signal.ownerHint}</p></div>}
               </div>
-              {signal.priorityReason?.length > 0 && <div className="mt-3"><div className="mb-1 text-[10px] font-black text-ink-500">سبب الأولوية كما حُسب</div><EvidenceList items={signal.priorityReason}/></div>}
+              {signal.priorityReason && signal.priorityReason.length > 0 && <div className="mt-3"><div className="mb-1 text-[10px] font-black text-ink-500">سبب الأولوية كما حُسب</div><EvidenceList items={signal.priorityReason}/></div>}
               {signal.drivers?.length ? <div className="mt-3 space-y-2"><div className="text-[10px] font-black text-ink-500">محركات الإشارة</div>{signal.drivers.map((driver, index) => <div key={driver.dimension + ':' + driver.value + ':' + index} className="rounded-lg border border-ink-100 bg-ink-50/50 p-3"><p className="text-xs font-black text-ink-800">{driver.dimension}: {driver.value}</p><p className="mt-1 text-xs leading-5 text-ink-700">{driver.why}</p><EvidenceList items={driver.proof}/></div>)}</div> : null}
               <div className="mt-3"><div className="mb-1 text-[10px] font-black text-ink-500">كل الأدلة المصدرية ({signal.evidence?.length ?? 0})</div><EvidenceList items={signal.evidence ?? []}/></div>
             </article>

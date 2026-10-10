@@ -36,6 +36,7 @@ if (!smartReportPage.includes("GenericFileIntelligenceCard")) throw new Error('S
 if (!smartReportPage.includes('data-testid="smart-report-generic-intelligence"')) throw new Error('Smart Report generic intelligence test marker missing');
 if (!smartReportPage.includes('intelligence={report.genericIntelligence ?? report.intelligence}')) throw new Error('Smart Report must render the independent general intelligence layer');
 if (!smartReportPage.includes('sourceHash={report.sourceHash}') || !smartReportPage.includes('reportJobId={report.jobId}')) throw new Error('Generic intelligence card must retain report source lineage');
+if (!smartReportPage.includes('generalIntelligence: report.genericIntelligence ?? undefined')) throw new Error('Persisted universal evidence chain must include the same report general layer');
 if (smartReportPage.includes('{!report.specialty && (')) throw new Error('General intelligence must render even when a specialty is detected');
 
 const uploadPage = fs.readFileSync(new URL('../src/pages/ExternalFileAnalysisPage.tsx', import.meta.url), 'utf8');

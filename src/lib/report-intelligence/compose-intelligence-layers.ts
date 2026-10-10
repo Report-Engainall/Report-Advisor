@@ -79,7 +79,6 @@ export function composeIntelligenceLayers(
   specialist?: ReportIntelligence | null,
 ): ReportIntelligence {
   if (!specialist) return general;
-  if (!general) return specialist;
 
   const summaryParts = uniqueStrings([
     specialist.summary,
