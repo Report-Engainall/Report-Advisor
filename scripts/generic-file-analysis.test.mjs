@@ -4,7 +4,22 @@ import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
 import { buildUniversalReportIntelligence } from '../src/lib/universal-report-intelligence.ts';
 import { composeIntelligenceLayers } from '../src/lib/report-intelligence/compose-intelligence-layers.ts';
+import { inferReportSpecialty, normalizeReportHeader } from '../src/lib/file-engine/specialty-inference.ts';
 import * as XLSX from 'xlsx';
+
+function specialtyDataset(headers) {
+  return {
+    columns: headers.map((name) => ({ name, mappedField: null })),
+  };
+}
+
+assert.equal(normalizeReportHeader('Current Stock'), 'currentstock', 'English whitespace must normalize instead of deleting literal s characters');
+assert.equal(normalizeReportHeader('الرصيد المستحق'), 'الرصيدالمستحق', 'Arabic whitespace must normalize');
+assert.equal(inferReportSpecialty(specialtyDataset(['Current Stock', 'Sales Qty', 'SKU'])), 'inventory', 'spaced English stock headers must retain inventory specialization');
+assert.equal(inferReportSpecialty(specialtyDataset(['الرصيد المستحق', 'المدفوع'])), 'receivables', 'spaced Arabic receivables headers must retain receivables specialization');
+assert.equal(inferReportSpecialty(specialtyDataset(['اسم المورد', 'total'])), 'purchases', 'raw supplier identity + total should infer purchases');
+assert.equal(inferReportSpecialty(specialtyDataset(['اسم العميل', 'total'])), 'sales', 'raw customer identity + total should infer sales');
+assert.equal(inferReportSpecialty(specialtyDataset(['name', 'status', 'total'])), undefined, 'generic entity/status/total columns must not invent a specialty');
 
 function buffer(value) {
   return new TextEncoder().encode(value).buffer;
