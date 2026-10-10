@@ -22,7 +22,7 @@ permissions:
 
 # Keep retries of this workflow serialized without canceling another gate's pending run.
 concurrency:
-  group: device-independent-browser-${{ github.event.pull_request.number || github.ref_name }}
+  group: device-independent-smoke-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: false
 
 env:
