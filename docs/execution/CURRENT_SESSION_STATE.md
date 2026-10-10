@@ -1,4 +1,29 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f
+CURRENT_BRANCH_HEAD_OBSERVED = d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f (current code/test head before this docs-only checkpoint; read live PR ref on resume)
+CURRENT_CODE_TEST_HEAD = d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T23:56:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Re-read live Phase-F and verify PostgREST staging recovery after the schema-reload notification. Then run the source-resolved authenticated browser journey; require one non-fixture report to keep the same reportJobId and SHA-256 through full display, save/readback, navigation and refresh.
+
+## Verified checkpoint
+- Code/test head: d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f; PR #912 remains open.
+- Smart Report + File Lab now render `UniversalIntelligenceChain` expanded by default while still collapsible; generic and eligible specialty intelligence are composed, not substituted.
+- E2E no longer pins the browser route to `تقارير ادارية.xlsx`. The resolver checks a source-bound completed report, file-record security/status, analyzed source snapshot, row/column count, rendered hash and synthetic-fixture exclusions. Browser/business/48-archetype paths consume the resolved ID/hash/path/counts.
+- Quality [38085246442], Product Build [38085246488], Data Quality [38085246448] PASS on this exact head. Device-independent smoke [38085246495] PASS; authenticated E2E is SKIPPED.
+- Cohort index/passport code contract PASS on [38085246415], but the RPC failed with HTTP 503/PGRST002 after retries. Full Product Browser [38085246315] also failed at source resolution with HTTP 503/PGRST002; no source-bound authenticated browser result was produced.
+- Phase-F [38085246320] last observed in live resilience probes, 12/16 steps complete. Vercel returned a build-rate-limit failure; Netlify preview status was success.
+- Staging-only index migration version `20261010202632` is recorded and its index was read back. Sent a staging-only `pg_notify('pgrst','reload schema')`; follow-up probe is not confirmed because the Supabase tool blocked the subsequent call.
+- PRODUCT_COMPLETE = NO. No merge or production promotion.
+
+---
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = 1ae6fb43b113e18576477deb90eaa6ba7cfbd900
 CURRENT_BRANCH_HEAD_OBSERVED = 1ae6fb43b113e18576477deb90eaa6ba7cfbd900 (checked before this documentation-only checkpoint)
 CURRENT_CODE_TEST_HEAD = 1ae6fb43b113e18576477deb90eaa6ba7cfbd900

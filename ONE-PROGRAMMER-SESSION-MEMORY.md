@@ -1,3 +1,38 @@
+# LIVE RESUME — 2026-10-10T23:56:00+03:00 / DYNAMIC E2E SOURCE RESOLVER COMMITTED; POSTGREST 503 STILL BLOCKS LIVE PROOF
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Current code/test head: `d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. Do not merge or promote production.
+- Latest report: [REPORT-20261010-D00556B-DYNAMIC-SOURCE-E2E-PGRST002.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-D00556B-DYNAMIC-SOURCE-E2E-PGRST002.md).
+
+## Code changes in this launch
+- `dedd9ac`: CI topology parser now stops before sibling workflow triggers, so `pull_request.paths` cannot masquerade as a `push` filter.
+- `108a881`: Quality concurrency uses a unique `github.run_id` group and never cancels an in-flight proof.
+- `5aeea95` + `24b3e10`: Unified intelligence chain visible/expanded by default on Smart Report and File Lab; regression assertions guard both routes.
+- `312e672` + migration file `20261010202632_report_value_cohort_candidates_source_index.sql`: partial-index predicate matches the cohort RPC predicate; executable contract checks exact regex parity.
+- `41205d8`: dynamic report context resolver added and fixed hard-coded report identity removed from the full-product browser workflow; browser/business/48-archetype tests consume env-propagated job ID, source hash/path, row/column counts and entity type.
+- `d00556b`: browser page-evaluate source-name check now reads the passed `smartReportSourcePath` argument, with regression coverage.
+
+## Exact-head check results (`d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`)
+- Quality [38085246442](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246442): PASS.
+- Product Build [38085246488](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246488): PASS.
+- Data Quality Runtime [38085246448](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246448): PASS.
+- Device-Independent Browser [38085246495](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246495): browser smoke PASS; authenticated E2E SKIPPED.
+- Report Value Cohort [38085246415](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246415): FAIL at RPC, HTTP 503/PGRST002 after five attempts. Both source/passport/index contracts passed before the DB call.
+- Full Product Browser E2E [38085246315](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246315): FAIL at dynamic source resolver, HTTP 503/PGRST002. No result JSON; gate correctly failed closed rather than claiming browser proof.
+- Session Handoff [38085246399](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246399): failed stale-report coverage because six code files were missing from the previous checkpoint; this report now enumerates them and pins `REPORT_FOR_HEAD=d00556b4d7522f73e2f5e1e7e6d0f4e4b4a9a77f`.
+- Phase-F [38085246320](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38085246320): last observed in live resilience probes, 12/16 steps complete; terminal status not verified.
+- Netlify preview check: success. Vercel failed due build-rate-limit; do not claim Vercel deployment success.
+
+## Staging/runtime finding
+The corrected partial index is present in `pg_indexes` and migration ledger `20261010202632` is recorded in Report-Advisor-P0-2-Staging. Both the cohort RPC and E2E resolver then returned PGRST002 “Could not query the database for the schema cache. Retrying.” Sent `pg_notify('pgrst','reload schema')` to staging only; a subsequent probe was blocked, so no service-recovery claim is made.
+
+## Single next action
+Re-check PR HEAD and Phase-F. Confirm PostgREST recovery via the cohort RPC. If healthy, rerun Full Product Browser with the dynamic non-fixture source resolver and require same report job ID/hash across visible intelligence, save/readback and refresh. If still 503, fix staging API/schema-cache availability before further heavy retries. PRODUCT_COMPLETE remains NO.
+---
 # LIVE RESUME — 2026-10-10T23:35:00+03:00 / INDEX MIGRATION ALIGNED; NEW COHORT RUN ACTIVE
 
 - Repository: `Report-Engainall/Report-Advisor`
