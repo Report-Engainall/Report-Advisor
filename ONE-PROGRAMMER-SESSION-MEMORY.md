@@ -1,3 +1,23 @@
+# LIVE RESUME — 2026-10-10 / CURRENT APPLICATION CODE AND EXECUTION STATE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Application code SHA covered by the latest current-state report: `85f69f2ab10fee85293b99e902cfe15eab8f4f91`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- Documentation-only commits now keep the official live files current: `8d23ff1f63887ed0dfc9d84c85276ce2ce048ee5` refreshed `docs/execution/CURRENT_SESSION_STATE.md`; `22b260d8c7cd87c669509b3bfc0b5e075527eb9e` refreshed `docs/execution/PROGRAMMER_CURRENT_REPORT.md`, the append-only report archive/index and new archive `REPORT-20261010-031000-85f69f2.md`. Branch head may be a docs-only child; always read live PR info before further work.
+- PRODUCT IMPLEMENTATION: the generic source-derived intelligence layer is composed with the specialist layer, not substituted; upload File Lab computes the general layer regardless of inferred specialty; saved Smart Report exposes and returns the same general layer irrespective of specialty; result card shows all evidence/list items given to it, with source path/job ID/source hash. Decision/evidence gates remain fail-closed.
+- CANONICAL SOURCE RECOVERY: `canonical-import-execute.mts` now selects existing `evidence` before updating recovered rendered output and preserves `sourceHash`, `sourcePath`, and `importId`; regression assertions added.
+- BUILD REPAIR: ancestor `7c0411b67f366a36fda9ff2c0a29c1f173ed6434` had a verified parse failure in `report-smart.ts:985:39`. Code repair `dee505dc045d577b9015ca7cb2ba06adb00a6f76` replaced the malformed region; Vercel build log says `✓ built in 20.37s`; Vercel and Netlify app deployment for the repaired source are READY.
+- LATEST DEPLOYMENT STATUS on application code SHA `85f69f2...`: Vercel, Vercel Deployments – Injaz, Netlify deploy-preview status, CodeRabbit all success; Vercel deployment `dpl_43GeHixA1kSFvuwrwQkeh6SFKN8X` READY. A docs-only Netlify retry was canceled as “no content change”; do not mistake that cancellation for an app build failure.
+- CURRENT EXACT-HEAD ACTIONS snapshot when this state was written: 56 total; 3 completed (2 skipped, desktop-windows success but not product proof), 49 queued, 4 pending, zero in progress. Product Build Gate #38012001245 QUEUED; Full Product Browser E2E #38012001488 QUEUED; Quality #38012001386 QUEUED; File Intelligence Security #38012001065 QUEUED; Data Quality Runtime #38012001327 QUEUED; Device-Independent Browser E2E #38012001097 QUEUED; Phase-F Live Resilience #38012001221 QUEUED; Session Handoff Contract #38012001369 PENDING.
+- OVERLAPPING OPEN PRS #906/#909 share report/card/page/test paths; their checked branch heads lack this line’s current composition helper and regression assertions. Do not merge/cherry-pick blindly.
+- SEPARATE RELEASE BLOCKER: a prior Phase-F restore found missing relation `public.intelligence_causal_hypotheses`; a schema-parity migration/preflight was added, but exact-head Phase-F run is still queued.
+- NOT PROVEN: authenticated upload→analysis→Smart Report→navigation/reload→saved-report readback for varied file types; re-login/sourceHash persistence; full file-format matrix; production current-SHA proof. Deployment success alone is not product completion.
+- ONE NEXT ACTION: consume a terminal exact-head Product Build Gate / Quality / Full Product Browser E2E result, inspect its full job log, repair the first confirmed failure, and then verify the same report job ID/source hash across user-facing navigation/reload and database readback. Do not merge or mark product complete.
+
+---
+
 # LIVE VERIFICATION — 2026-10-10 / REPAIRED CODE DEPLOYMENT READY; NEW DOC HEAD PENDING
 
 - Code repair commit `dee505dc045d577b9015ca7cb2ba06adb00a6f76` is verified deployed on both hosts: Vercel deployment `dpl_A324rGB56uAugR32zA2ZHAgcPgC5` state `READY`; Netlify deploy `6ac98fa3e1c3c9000891b1e6` state `ready`. The exact-code-head combined statuses were Vercel success, Vercel Deployments – Injaz success, Netlify deploy-preview success, CodeRabbit success. [Vercel deployment](https://vercel.com/injaz2/report-advisor/A324rGB56uAugR32zA2ZHAgcPgC5) · [Netlify preview](https://deploy-preview-912--aghbari-report-advisor.netlify.app).
