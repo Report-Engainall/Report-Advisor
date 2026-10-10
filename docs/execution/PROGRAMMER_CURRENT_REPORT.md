@@ -1,3 +1,28 @@
+## CURRENT EXECUTION REPORT — 2026-10-10 — verified generic-analysis head and specialty-normalization fix
+
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
+UPDATED_AT = 2026-10-10
+REPOSITORY = Report-Engainall/Report-Advisor
+APPLICATION_CODE_HEAD = 350d0c69596a3eaffa8e3982c0cf71e31d08a266
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+
+WHAT WAS READ BACK:
+- Quality exact-head run `38057224871` / job `114228066670`: successful; log explicitly shows `GENERIC FILE ANALYSIS PASS` and `STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation`.
+- Report Value Cohort run `38057224832` / job `114228066563`: failed on truthful passport closure, 18 accepted of 42 candidate reports; 24 still `PASSPORT_NOT_CLOSED`, `UNVERIFIED`, `REVIEW`, or `PARTIAL`.
+- Full Product Browser E2E, Device-Independent Browser E2E and Phase-F live resilience were in progress; no authenticated upload-to-persisted-readback pass is asserted.
+- Preview is fixture-backed publicly; `/reports` returned the unauthenticated entry/marketing surface in this browser context, so it cannot prove customer business flow.
+
+ROOT CAUSE AND NEXT CODE CHANGE:
+- `src/pages/ExternalFileAnalysisPage.tsx` duplicates a malformed regex character-class normalizer for specialty detection. Spaced English/Arabic headers can fail detection, resulting in the general layer showing without a matching specialty layer.
+- Next action: create a shared tested specialty inference helper, wire File Lab to it, and add regression fixtures for headers like `Current Stock`, `Sales Qty`, `الرصيد المستحق`, and `المدفوع`, without widening the specialization rules beyond explicit source evidence.
+- Keep PR #912 open; do not claim product complete until varied-format authenticated upload, rendered complete results, same `reportJobId + sourceHash` across navigation/reload, durable readback, and required passport cohort closure are proven.
+
+---
+
 ## CURRENT EXECUTION REPORT — 2026-10-10 — universal evidence and Arabic CSV header correction
 
 SESSION HANDOFF = READY
