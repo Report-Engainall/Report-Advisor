@@ -551,7 +551,8 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes(REAL_SMART_REPORT_SOURCE_PATH), 'Smart Report certified source path missing from DOM');
   assert.equal(await page.locator('[data-testid="smart-report-job-id"]').count(), 1, 'Smart Report job id DOM proof missing or duplicated');
   assert.equal(await page.locator('[data-testid="smart-report-source-hash"]').count(), 1, 'Smart Report source hash DOM proof missing or duplicated');
-  assert.ok(before.includes('التقرير موثق') || before.includes('الدليل موثق') || before.includes('موثّق') || before.includes('TRUSTED'), 'Smart Report trust state missing');
+  assert.ok(before.includes('موثوق') || before.includes('TRUSTED'), 'Smart Report source trust state missing');
+  assert.ok(before.includes('لا توجد لقطة دليل مثبتة') || before.includes('الدليل النهائي غير مثبت') || before.includes('AWAITING_EVIDENCE_SNAPSHOT'), 'Smart Report must show the separate pending evidence-snapshot state when it is not yet proven');
   assert.ok(before.includes('WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF'), 'Smart Report decision chain missing');
   assert.ok(await page.locator('[data-testid="smart-report-decision-chain"]').count() === 1, 'Smart Report decision chain DOM surface missing');
   assert.ok(before.includes('ماذا يقول هذا التقرير فعليًا؟') || before.includes('ماذا يحدث في هذا التقرير؟'), 'Smart Report executive summary missing');
@@ -563,6 +564,8 @@ async function proveCurrentSmartReport(page, report) {
   await waitForSmartReportEvidenceSurface(page);
   const after = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(after, 'current smart report refresh');
+  assert.ok(after.includes('موثوق') || after.includes('TRUSTED'), 'Smart Report source trust state missing after refresh');
+  assert.ok(after.includes('لا توجد لقطة دليل مثبتة') || after.includes('الدليل النهائي غير مثبت') || after.includes('AWAITING_EVIDENCE_SNAPSHOT'), 'Pending evidence snapshot state must survive report refresh');
   assert.ok(after.includes('EVIDENCE PASSPORT'));
   assert.ok(after.includes(String(Number(report.rendered.qualityScore)) + '%'));
   assert.ok(
