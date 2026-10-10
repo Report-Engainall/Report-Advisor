@@ -1,16 +1,27 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = 84c881eae999ae218b2cf6b448394cbdc73d0775
+CURRENT_EXACT_HEAD = 2055600a895c05ef8239b6be4014b121d5cea775
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912 OPEN / NOT MERGED
 ACTION_STATUS = ACTIVE_EXECUTION
-APPLICATION_CODE_HEAD = 84c881eae999ae218b2cf6b448394cbdc73d0775
-REPORT_BASE_HEAD = 84c881eae999ae218b2cf6b448394cbdc73d0775
+APPLICATION_CODE_HEAD = 2055600a895c05ef8239b6be4014b121d5cea775
+REPORT_BASE_HEAD = 2055600a895c05ef8239b6be4014b121d5cea775
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-UPDATED_AT = 2026-10-10T18:05:00+03:00
+UPDATED_AT = 2026-10-10T18:20:00+03:00
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Consume terminal exact-head Quality, Product Build Gate, Report Value Cohort, Full Product Browser E2E, Session Handoff Contract and Phase-F runs; fix the first confirmed failure without relaxing evidence gates, then prove same reportJobId + sourceHash across upload, navigation, reload and saved readback.
+NEXT_EXACT_ACTION = Consume terminal exact-head Quality/Product Build/Full Browser/Value Cohort/Session Handoff/Phase-F runs for 2055600a895c05ef8239b6be4014b121d5cea775; verify the current preview SHA and restore probe, then prove persisted source-bound user flow without relaxing evidence gates.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10T18:20:00+03:00 — legacy row-count repair and governance-only runtime provenance allowed
+
+- Code candidate: 2055600a895c05ef8239b6be4014b121d5cea775; PR #912 open/not merged.
+- Live database repair: 49 imports reconciled from exact source evidence, 49 related passports VERIFIED / READY / FULL, unresolved reconciled reports 0.
+- Migration history versions 20261010144953 and 20261010145143 are both checked in with idempotent SQL.
+- Report Value Cohort, Quality and Product Build Gate were PASS on predecessor e017b865...; current exact-head actions are queued, so current-head success is not yet proven.
+- Phase-F runtime code equivalence now allows only governance-delta files in docs/execution/* and ONE-PROGRAMMER-SESSION-MEMORY.md; app-code differences are still rejected.
+- Netlify last reported app SHA 84c881e... before commit 2055600a895c05ef8239b6be4014b121d5cea775 deployment. Phase-F should be judged only after metadata catches up or governance-only equivalence validates successfully.
+- Product completion remains NO.
+
 
 ## LIVE EXECUTION CHECKPOINT — 2026-10-10T18:05:00+03:00 — legacy import row-count repair verified on staging and synchronized to GitHub
 

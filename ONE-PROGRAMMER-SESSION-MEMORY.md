@@ -1,3 +1,34 @@
+# LIVE RESUME — 2026-10-10T18:20:00+03:00 / 49 LEGACY PASSPORTS CLOSED; PHASE-F PROVENANCE RULE CORRECTED
+
+- Repository: Report-Engainall/Report-Advisor
+- PR: https://github.com/Report-Engainall/Report-Advisor/pull/912 OPEN / NOT MERGED.
+- Branch: fix/source-bound-generic-intelligence-20261009; main base fa1ab4cbade9b01685507aa966c10f700a03f576.
+- Current application/code candidate: 2055600a895c05ef8239b6be4014b121d5cea775; current execution report is a governance-only child.
+- Product completion: NO.
+
+## Verified staging correction
+- 49 unique imports had all four row counters zero but independent source-bound row proofs all matched.
+- Applied guarded migration reconcile_legacy_import_rowcount_from_source_proof; only strict hash/file-security/status/rendered-row/analysis-quality/commit/canonical-count matches were eligible.
+- Every changed import stores result_summary.legacyRowCountReconciliation with rule version, source hash, file record id, report job ids and detailed proof. Existing result summary is preserved.
+- Readback: reconciled imports = 49; associated passports = 49 VERIFIED / READY / FULL; unresolved reconciled passports = 0.
+- Supabase migration history has versions 20261010144953 and 20261010145143; both source files are tracked in GitHub.
+
+## Proven predecessor CI
+- Report Value Cohort 38061102673: PASS after reconciliation.
+- Quality 38061102377: PASS.
+- Product Build Gate 38061102647: PASS.
+- These passes were on a predecessor commit, not on the current application candidate.
+
+## New provenance correction
+- Phase-F runtime equivalence allows a differing deployment SHA only when the diff to the workflow head contains docs/execution/* and ONE-PROGRAMMER-SESSION-MEMORY.md; other source changes remain fail-closed.
+- Current candidate workflows are queued/pending; current-head build/browser/Phase-F remain unproven.
+- Last inspected Netlify app SHA was 84c881e...; candidate 2055600a895c05ef8239b6be4014b121d5cea775 is deploying. Wait for an exact or governance-only-equivalent app SHA before interpreting Phase-F.
+
+## Next exact action
+Consume terminal CI for 2055600a895c05ef8239b6be4014b121d5cea775; verify preview provenance and Phase-F restore. Then prove the same reportJobId + sourceHash through varied-format upload, complete general + applicable specialty analysis, navigation/reload and durable readback.
+
+---
+
 # LIVE RESUME — 2026-10-10T18:05:00+03:00 / 49 SOURCE-PROVEN IMPORT COUNTERS RECONCILED; PASSPORTS CLOSED
 
 - Repository: `Report-Engainall/Report-Advisor`
