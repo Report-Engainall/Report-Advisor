@@ -1,4 +1,28 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
+CURRENT_BRANCH_HEAD_OBSERVED = 24b3e10201a07fc971bafc4de09db2df491d529c (verified before atomic documentation checkpoint writeback; re-read live PR ref on resume)
+CURRENT_CODE_TEST_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T23:20:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume current-head Quality, Product Build, Full Product Browser, Value Cohort, Phase-F, Device Browser, Data Quality and Session Handoff results for 24b3e10201a07fc971bafc4de09db2df491d529c; repair first reproduced failure and verify the same report ID/source hash across refresh and readback.
+
+## This checkpoint
+- [5aeea95](https://github.com/Report-Engainall/Report-Advisor/commit/5aeea95db8f5c2c41cece263c464cb27f082dfed): opened the unified intelligence chain by default on Smart Report and File Lab; summary now accurately describes the visible/collapsible state.
+- [24b3e10](https://github.com/Report-Engainall/Report-Advisor/commit/24b3e10201a07fc971bafc4de09db2df491d529c): corrected the static contract's `/\bopen\b/` assertion so it tests the open attribute instead of the literal escape characters.
+- Added source-contract coverage requiring both screens' `UniversalIntelligenceChain` disclosure to start open.
+- Exact-head workflows queued/pending: Data Quality [38082931758], Phase-F [38082931908], Build [38082931812], Full Product Browser [38082931895], Value Cohort [38082931955], Quality [38082931665], Device Browser [38082931628], Handoff [38082931644].
+- Previous proof: Build Gate [38082440345] and Data Quality [38082440151] passed on dedd9ac; Device browser smoke [38082440390] passed, but authenticated E2E was skipped/manual-only. Those results do not certify this newer code head.
+- Value cohort timed out with PostgreSQL `57014` on an earlier head; current outcome pending. Smart Report source-bound persistence/readback and clean restore are still not proven.
+- PRODUCT_COMPLETE = NO. PR stays open; no production promotion.
+
+---
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = 108a881a12b8982a4f31458c7eb044de0d8e2a78
 CURRENT_BRANCH_HEAD_OBSERVED = 108a881a12b8982a4f31458c7eb044de0d8e2a78 (verified before the atomic documentation checkpoint commit; refresh the live PR ref on resume)
 CURRENT_CODE_TEST_HEAD = 108a881a12b8982a4f31458c7eb044de0d8e2a78

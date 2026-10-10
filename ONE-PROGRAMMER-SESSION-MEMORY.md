@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-10T23:20:00+03:00 / UNIVERSAL INTELLIGENCE CHAIN NOW EXPANDED BY DEFAULT
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Code/test head: `24b3e10201a07fc971bafc4de09db2df491d529c`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO; don't merge or promote production.
+- Latest archived report: [REPORT-20261010-24B3E10-UI-CHAIN-EXPANDED.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-24B3E10-UI-CHAIN-EXPANDED.md).
+
+## Product change in this launch
+- [5aeea95](https://github.com/Report-Engainall/Report-Advisor/commit/5aeea95db8f5c2c41cece263c464cb27f082dfed) now sets the universal-intelligence disclosure `open` by default on both `SmartReportPage.tsx` and `ExternalFileAnalysisPage.tsx`. This directly removes the hidden-by-default brain/decision chain from both user journeys, while retaining the ability to collapse it manually.
+- Updated summary wording to say the chain is visible now, and added a regression test requiring both routes' `UniversalIntelligenceChain` details to be expanded on initial render.
+- [24b3e10](https://github.com/Report-Engainall/Report-Advisor/commit/24b3e10201a07fc971bafc4de09db2df491d529c) fixes the new test's regular-expression word-boundary syntax. The exact current test result is still awaiting GitHub Actions.
+- Existing source-bound generic card still receives `sourceHash` + `reportJobId`; general and eligible specialty content are composed into the chain, so showing it expanded does not replace either layer.
+
+## Exact-head checks as last read
+- Runs at `24b3e10201a07fc971bafc4de09db2df491d529c`: Data Quality [38082931758], Phase-F [38082931908], Product Build [38082931812], Full Product Browser [38082931895], Value Cohort [38082931955], Quality [38082931665], Device Browser [38082931628], Handoff [38082931644] were queued/pending. Re-fetch them; do not infer PASS from creation.
+- Previously proven on older dedd9ac head: Product Build Gate PASS, Data Quality PASS, Device browser smoke PASS. Authenticated E2E was skipped/manual-only, and the Full Product Browser/Phase-F/Cohort runs were subsequently cancelled after a docs-only PR update.
+- CI fixes since dedd9ac: topology parser now stops at sibling YAML triggers; Quality concurrency includes `github.run_id` and `cancel-in-progress: false`. New current-head checks must prove both.
+- Known independent blocker: the prior value cohort RPC `get_report_value_cohort_candidates` timed out twice (PostgreSQL `57014`). Inspect SQL/index plan if repeated.
+- The current production alias has not been promoted, and the latest Netlify preview deployment was not yet confirmed at this exact code head.
+
+## Single next action
+Consume all current-head checks and inspect the first reproduced failure. Ensure the browser visibly shows the expanded universal chain on both screens, then prove upload → complete results → save/readback → refresh/re-entry with the same report job ID/source hash. Keep PR open and PRODUCT_COMPLETE=NO until proof passes.
+---
 # LIVE RESUME — 2026-10-10T23:12:00+03:00 / QUALITY CONCURRENCY FIX COMMITTED; CURRENT-HEAD PROOFS PENDING
 
 - Repository: `Report-Engainall/Report-Advisor`
