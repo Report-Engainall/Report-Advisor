@@ -9,6 +9,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
+import { inferReportSpecialty, normalizeReportHeader } from '@/lib/file-engine/specialty-inference';
 import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence, type ReportRecommendation, type ReportSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 import { buildGenericFileIntelligence } from '@/lib/file-engine/generic-intelligence';
@@ -22,24 +23,8 @@ function fileIcon(format: FileFormat) {
   return <FileText size={18}/>;
 }
 
-function inferSpecialty(dataset: Dataset): 'inventory' | 'sales' | 'purchases' | 'receivables' | 'payments' | undefined {
-  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\\s_./-]+/g, '');
-  const fields = new Set([
-    ...dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
-    ...dataset.columns.map((column) => normalize(column.name)),
-  ]);
-  const has = (...aliases: string[]) => aliases.some((alias) => fields.has(alias) || [...fields].some((field) => field.includes(alias)));
-  if (has('current_stock', 'currentstock', 'stockout_days', 'stockoutdays', 'daily_sales_rate', 'dailysalesrate', 'salesqty') || (has('currentstock', 'الرصيدالحالي', 'المخزونالحالي') && has('productcode', 'salesqty', 'warehouse'))) return 'inventory';
-  if (has('supplier_name', 'suppliername', 'المورد') && has('total', 'net_amount', 'netamount')) return 'purchases';
-  if (has('balance', 'الرصيدالمستحق', 'المتبقي') && (has('paid_amount', 'paidamount', 'paid', 'المدفوع') || has('credit', 'دائن'))) return 'receivables';
-  if (has('paid_amount', 'paidamount', 'paid', 'المدفوع') && !has('total', 'net_amount', 'netamount')) return 'payments';
-  if (has('customer_name', 'customername', 'customer', 'client', 'العميل') && has('total', 'net_amount', 'netamount', 'salesqty')) return 'sales';
-  if (has('sales_qty', 'salesqty', 'كميةالمبيعات') && (has('product_name', 'productname', 'product', 'item', 'productcode', 'sku') || has('warehouse', 'المستودع'))) return 'inventory';
-  return undefined;
-}
-
 function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
-  const specialty = inferSpecialty(dataset);
+  const specialty = inferReportSpecialty(dataset);
   const base = deriveReportIntelligence({
     specialty,
     rowCount: dataset.rowCount,
@@ -47,7 +32,7 @@ function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
     canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
   });
 
-  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\\s_./-]+/g, '');
+  const normalize = normalizeReportHeader;
   const normalizedHeaders = new Set(dataset.columns.map((column) => normalize(column.name)));
   const inventoryShape = normalizedHeaders.has('currentstock') && normalizedHeaders.has('salesqty');
   const findColumn = (...aliases: string[]) => dataset.columns.find((column) => {
