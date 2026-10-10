@@ -10,18 +10,70 @@ if (!url || !serviceRole) {
 
 const RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+function safeRequestPath(input) {
+  try {
+    const raw = typeof input === 'string' ? input : input?.url ?? String(input);
+    return new URL(raw).pathname;
+  } catch {
+    return 'unknown';
+  }
+}
+function logStage(stage, status, extra = {}) {
+  console.log(JSON.stringify({ event: 'REPORT_VALUE_COHORT_STAGE', stage, status, ...extra }));
+}
 const resilientFetch = async (input, init = {}) => {
   let last;
+  const path = safeRequestPath(input);
+  const method = String(init.method ?? input?.method ?? 'GET').toUpperCase();
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
       const response = await fetch(input, init);
-      if (!RETRYABLE_HTTP.has(response.status) || attempt === 5) return response;
-      last = new Error('SUPABASE_RETRYABLE_HTTP_' + response.status);
+      if (!RETRYABLE_HTTP.has(response.status)) return response;
+      const body = await response.clone().text().catch(() => '');
+      let databaseCode = '';
+      try {
+        const parsed = JSON.parse(body);
+        databaseCode = String(parsed?.code ?? parsed?.error?.code ?? parsed?.error?.details?.code ?? '');
+      } catch {
+        // A non-JSON error body still gets the bounded generic retry path.
+      }
+      const statementTimeout =
+        databaseCode === '57014' ||
+        /statement timeout|canceling statement due to statement timeout/i.test(body);
+      const maxAttempts = statementTimeout ? 2 : 5;
+      if (attempt >= maxAttempts) {
+        console.error(JSON.stringify({
+          event: 'SUPABASE_RETRY_EXHAUSTED',
+          method,
+          path,
+          status: response.status,
+          databaseCode: databaseCode || null,
+          statementTimeout,
+          attempts: attempt,
+        }));
+        return response;
+      }
+      console.warn(JSON.stringify({
+        event: 'SUPABASE_RETRY',
+        method,
+        path,
+        status: response.status,
+        databaseCode: databaseCode || null,
+        statementTimeout,
+        attempt,
+        maxAttempts,
+      }));
+      last = new Error('SUPABASE_RETRYABLE_HTTP_' + response.status + (databaseCode ? ':' + databaseCode : ''));
+      await wait(statementTimeout ? 500 : 1000 * 2 ** (attempt - 1));
     } catch (error) {
       last = error;
-      if (attempt === 5) throw error;
+      if (attempt === 5) {
+        console.error(JSON.stringify({ event: 'SUPABASE_FETCH_FAILED', method, path, attempts: attempt, message: String(error?.message ?? error) }));
+        throw error;
+      }
+      console.warn(JSON.stringify({ event: 'SUPABASE_FETCH_RETRY', method, path, attempt, message: String(error?.message ?? error) }));
+      await wait(1000 * 2 ** (attempt - 1));
     }
-    await wait(1000 * 2 ** (attempt - 1));
   }
   throw last ?? new Error('SUPABASE_RETRY_EXHAUSTED');
 };
@@ -70,24 +122,30 @@ async function selectCohortCandidates() {
   }));
 }
 
+logStage('candidate_rpc', 'START');
 const candidateJobs = await selectCohortCandidates();
+logStage('candidate_rpc', 'PASS', { candidatePool: candidateJobs.length });
 if (candidateJobs.length < TARGET_COHORT_SIZE) throw new Error('REPORT_VALUE_COHORT_CANDIDATES_INCOMPLETE:' + candidateJobs.length + '/' + TARGET_COHORT_SIZE);
 console.log(JSON.stringify({ candidatePool: candidateJobs.length, targetCohort: TARGET_COHORT_SIZE }));
 
 const candidateIds = candidateJobs.map((job) => String(job.id));
+logStage('existing_passports_read', 'START', { candidateIds: candidateIds.length });
 const { data: existingPassports, error: existingPassportError } = await supabase
   .from('report_evidence_passports')
   .select('id,company_id,report_execution_job_id,evidence_snapshot_id,verification_status,decision_readiness')
   .in('report_execution_job_id', candidateIds);
 if (existingPassportError) throw existingPassportError;
+logStage('existing_passports_read', 'PASS', { passports: (existingPassports ?? []).length });
 
 const existingSnapshotIds = [...new Set((existingPassports ?? []).map((row) => row.evidence_snapshot_id).filter(Boolean).map(String))];
+logStage('existing_snapshots_read', 'START', { snapshotIds: existingSnapshotIds.length });
 const { data: existingSnapshots, error: existingSnapshotError } = existingSnapshotIds.length
   ? await supabase.from('report_evidence_snapshots')
       .select('id,canonical_coverage_status,verification_status')
       .in('id', existingSnapshotIds)
   : { data: [], error: null };
 if (existingSnapshotError) throw existingSnapshotError;
+logStage('existing_snapshots_read', 'PASS', { snapshots: (existingSnapshots ?? []).length });
 
 const snapshotById = new Map((existingSnapshots ?? []).map((row) => [String(row.id), row]));
 const existingPassportByJobId = new Map((existingPassports ?? []).map((row) => [String(row.report_execution_job_id), row]));
@@ -110,6 +168,7 @@ const provenJobs = [];
 const refreshResults = [];
 for (let offset = 0; offset < candidateJobs.length && provenJobs.length < TARGET_COHORT_SIZE; offset += 4) {
   const batch = candidateJobs.slice(offset, offset + 4);
+  logStage('refresh_passport_batch', 'START', { batch: Math.floor(offset / 4) + 1, rows: batch.length, acceptedBefore: provenJobs.length });
   const batchResults = await Promise.all(batch.map(async (job) => {
     const existing = alreadyProven.get(String(job.id));
     if (existing) {
@@ -132,6 +191,7 @@ for (let offset = 0; offset < candidateJobs.length && provenJobs.length < TARGET
   }));
   for (const row of batchResults) { refreshResults.push(row); if (row.cohortAccepted && provenJobs.length < TARGET_COHORT_SIZE) { const job = candidateJobs.find((item) => String(item.id) === row.jobId); if (job) provenJobs.push(job); } }
   console.log(JSON.stringify({ refreshBatch: Math.floor(offset / 4) + 1, accepted: provenJobs.length, results: batchResults }));
+  logStage('refresh_passport_batch', 'PASS', { batch: Math.floor(offset / 4) + 1, accepted: provenJobs.length });
 }
 const sourceJobs = provenJobs.slice(0, TARGET_COHORT_SIZE);
 
@@ -151,13 +211,16 @@ if (refreshSummary.accepted !== TARGET_COHORT_SIZE) {
 
 const jobIds = sourceJobs.map((job) => String(job.id));
 
+logStage('cohort_passports_read', 'START', { reportJobs: jobIds.length });
 const { data: passports, error: passportError } = await supabase
   .from('report_evidence_passports')
   .select('id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash,acceptance_status,verification_status,decision_readiness,evidence')
   .in('report_execution_job_id', jobIds);
 if (passportError) throw passportError;
+logStage('cohort_passports_read', 'PASS', { passports: (passports ?? []).length });
 
 const snapshotIds = [...new Set((passports ?? []).map((row) => row.evidence_snapshot_id).filter(Boolean).map(String))];
+logStage('recommendations_read', 'START', { evidenceSnapshots: snapshotIds.length });
 const { data: recommendations, error: recommendationError } = snapshotIds.length
   ? await supabase
       .from('recommendations')
@@ -165,8 +228,10 @@ const { data: recommendations, error: recommendationError } = snapshotIds.length
       .in('evidence_snapshot_id', snapshotIds)
   : { data: [], error: null };
 if (recommendationError) throw recommendationError;
+logStage('recommendations_read', 'PASS', { recommendations: (recommendations ?? []).length });
 
 const recommendationIds = [...new Set((recommendations ?? []).map((row) => row.id).filter(Boolean).map(String))];
+logStage('decisions_read', 'START', { recommendations: recommendationIds.length });
 const { data: decisions, error: decisionError } = recommendationIds.length
   ? await supabase
       .from('business_intelligence_decisions')
@@ -174,22 +239,29 @@ const { data: decisions, error: decisionError } = recommendationIds.length
       .in('recommendation_id', recommendationIds)
   : { data: [], error: null };
 if (decisionError) throw decisionError;
+logStage('decisions_read', 'PASS', { decisions: (decisions ?? []).length });
 
 const decisionIds = [...new Set((decisions ?? []).map((row) => String(row.id)))];
+logStage('approvals_read', 'START', { decisions: decisionIds.length });
 const { data: approvals, error: approvalError } = decisionIds.length
   ? await supabase.from('decision_approvals').select('id,company_id,decision_id,status').in('decision_id', decisionIds)
   : { data: [], error: null };
 if (approvalError) throw approvalError;
+logStage('approvals_read', 'PASS', { approvals: (approvals ?? []).length });
 
+logStage('work_items_read', 'START', { decisions: decisionIds.length });
 const { data: workItems, error: workError } = decisionIds.length
   ? await supabase.from('decision_work_items').select('id,company_id,decision_id,status,evidence_refs').in('decision_id', decisionIds)
   : { data: [], error: null };
 if (workError) throw workError;
+logStage('work_items_read', 'PASS', { workItems: (workItems ?? []).length });
 
+logStage('outcomes_read', 'START', { decisions: decisionIds.length });
 const { data: outcomes, error: outcomeError } = decisionIds.length
   ? await supabase.from('recommendation_outcomes').select('id,company_id,decision_id,status,expected_impact,actual_impact,evidence').in('decision_id', decisionIds)
   : { data: [], error: null };
 if (outcomeError) throw outcomeError;
+logStage('outcomes_read', 'PASS', { outcomes: (outcomes ?? []).length });
 
 const passportByJobId = new Map((passports ?? []).map((row) => [String(row.report_execution_job_id), row]));
 const recommendationsBySnapshot = new Map();

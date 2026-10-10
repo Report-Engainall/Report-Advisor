@@ -1,16 +1,26 @@
 SESSION HANDOFF = READY
-CURRENT_EXACT_HEAD = ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5
+CURRENT_EXACT_HEAD = 242c072a1293346109edd3a67cd45a438f53d359
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = #912 OPEN / NOT MERGED
 ACTION_STATUS = ACTIVE_EXECUTION
-APPLICATION_CODE_HEAD = ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5
-REPORT_BASE_HEAD = ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5
+APPLICATION_CODE_HEAD = 242c072a1293346109edd3a67cd45a438f53d359
+REPORT_BASE_HEAD = 242c072a1293346109edd3a67cd45a438f53d359
 MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-UPDATED_AT = 2026-10-10T18:35:00+03:00
+UPDATED_AT = 2026-10-10T18:45:00+03:00
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Consume terminal exact-head Quality, Product Build Gate, Full Product Browser E2E, Device-Independent Browser E2E, Session Handoff and Phase-F logs for ce10536ae4eefcc3858a7fe407b9d5cd6a2390f5; validate deployment SHA and saved readback without relaxing source/evidence boundaries.
+NEXT_EXACT_ACTION = Consume terminal exact-head Quality, Product Build Gate, Phase-F restore, Report Value Cohort, Full Product Browser E2E and Device-Independent Browser E2E results. Confirm the restored report_cell_lineage table, close the 40-report proof-based cohort, and remove the observed statement-timeout failures without relaxing evidence gates.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10T18:45:00+03:00 — 49 source-proven passports closed and next restore gap fixed
+
+- Code/test candidate: `242c072a1293346109edd3a67cd45a438f53d359`; PR #912 open/not merged.
+- Source-bound legacy import repair applied to staging; readback confirms 49 imports recorded with audited row-count provenance and 49 passports `VERIFIED / READY / FULL`, zero unresolved repaired reports.
+- Staging logical backup restore failed on `public.report_cell_lineage` absent from the restore schema. Its columns/FKs/unique/indexes/RLS/policy/grants were read from staging. The matching migration was applied in staging at `20261010153717`; this commit tracks the migration and makes the migration audit enforce it.
+- Quality / Product Build Gate / Session Handoff PASS on the prior code candidate. Browser, value-cohort, and Phase-F still need exact-head rerun.
+- The last browser run had several SQL `57014` statement-timeout responses when multiple workloads overlapped. A representative canonical source row query is ~4.6ms in a quiet EXPLAIN; cohort candidate RPC ~139ms/42 candidates in a quiet window. The script now bounds timeout retry to one and logs sanitized path/stage outcomes.
+- Do not call the product complete from code or build status alone.
+
 
 ## LIVE EXECUTION CHECKPOINT — 2026-10-10T18:35:00+03:00 — 49 source-proven imports repaired; Phase-F provenance guard corrected in both layers
 

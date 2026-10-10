@@ -1,3 +1,26 @@
+# LIVE RESUME — 2026-10-10T18:45:00+03:00 / 49 PASSPORTS FIXED; LINEAGE RESTORE + COHORT TIMEOUT DIAGNOSTICS
+
+- Repo: `Report-Engainall/Report-Advisor`; PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) OPEN / NOT MERGED.
+- Branch: `fix/source-bound-generic-intelligence-20261009`; main: `fa1ab4cbade9b01685507aa966c10f700a03f576`; tested code candidate: `242c072a1293346109edd3a67cd45a438f53d359`.
+- Product complete = NO.
+
+## Verified staging mutation
+- A source-proof-gated idempotent migration repaired 49 legacy imports where the counter fields were zero even though source hash/file security/rendered row count/analyzed row count/canonical commit rows/canonical dataset rows matched exactly.
+- Persisted audit evidence is in `import_jobs.result_summary.legacyRowCountReconciliation`.
+- Readback: 49 reconciled import records; 49 related passports are `VERIFIED / READY / FULL`; zero unresolved repaired reports.
+
+## Restore / runtime
+- Added VOI restore schema parity previously. Staging logical restore then revealed `public.report_cell_lineage` was also absent from the clean restored schema while existing in live staging.
+- Applied `restore_report_cell_lineage_schema_parity` to staging; migration history version is `20261010153717`. Current checkpoint adds matching repository migration and a static audit contract.
+- Quality / Product Build Gate / Session Handoff were PASS on `242c072a1293346109edd3a67cd45a438f53d359`.
+- Full browser and device-independent browser are not closed; they showed business-flow FAIL and HTTP 500/Postgres `57014` timeouts under concurrent heavy workflows. Report Value Cohort also timed out before candidate logging. A quiet-window candidate RPC returns 42 candidates in ~139ms.
+- Cohort fetch now logs endpoint path/stage and caps statement-timeout retry to one retry to avoid blind ~97-second exponential retry. This is diagnostic and does not suppress failure.
+
+## Next exact action
+Consume exact-head Quality, Product Build, Phase-F, Report Value Cohort, Full Browser and Device-Independent Browser results. Verify restore relation exists after restore; cohort should close 40 proof-bound reports without loosening its gate. Keep PR #912 open until the same reportJobId/sourceHash is proven through upload, rendering, navigation/reload and persisted readback.
+
+---
+
 # LIVE RESUME — 2026-10-10T18:35:00+03:00 / 49 IMPORTS RECONCILED; PHASE-F GOVERNANCE-PROVENANCE GATE SYNCED
 
 - Repo Report-Engainall/Report-Advisor, PR https://github.com/Report-Engainall/Report-Advisor/pull/912 OPEN / NOT MERGED.
