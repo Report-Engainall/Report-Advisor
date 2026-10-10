@@ -1,5 +1,49 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
+REPOSITORY = Report-Engainall/Report-Advisor
+PR = #912 (OPEN / NOT MERGED)
+BRANCH = fix/source-bound-generic-intelligence-20261009
+CURRENT_CODE_HEAD = 85f69f2ab10fee85293b99e902cfe15eab8f4f91
+REPORT_FOR_HEAD = 85f69f2ab10fee85293b99e902cfe15eab8f4f91
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T03:00:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+## LIVE CHECKPOINT — 2026-10-10 03:00 — GENERAL INTELLIGENCE COMPOSITION
+
+The report covers application code at 85f69f2ab10fee85293b99e902cfe15eab8f4f91. A docs-only child commit is being created to save this state; its own hash cannot be embedded inside itself. Read PR metadata for the current branch ref after the commit, but do not infer code changes from a documentation-only head.
+
+### Product changes present
+- Shared composer src/lib/report-intelligence/compose-intelligence-layers.ts retains source-general and specialist intelligence by stable IDs, unions overlapping evidence, and preserves records unique to either layer. The more cautious health state wins. Specialist quality/evidence/decision gates are not relaxed.
+- ExternalFileAnalysisPage computes general file intelligence regardless of inferred specialty, carries it into the universal chain, and shows source path/hash.
+- report-smart builds and returns genericIntelligence independently; specialist eligibility failure stays REVIEW_REQUIRED while source-derived general analysis can remain visible. SmartReportPage always renders the general layer with the same report job ID/source hash.
+- GenericFileIntelligenceCard displays all result/evidence collections passed to the view without the former list truncation.
+- Added general/specialist composition runtime assertions and complete/source-bound smart-report surface contract checks.
+- Canonical import recovery now selects existing evidence before patching renderedOutput and preserves sourceHash/sourcePath/importId. Regression assertions were added.
+- The prior syntax regression at ancestor 7c0411b was fixed in dee505dc045d577b9015ca7cb2ba06adb00a6f76; Vercel build logs say “built in 20.37s” and that code SHA is READY on Vercel and Netlify.
+
+### Current-head deployment and CI
+- At code/report HEAD 85f69f2ab10fee85293b99e902cfe15eab8f4f91, GitHub shows Vercel success, Vercel Deployments – Injaz success, Netlify deploy-preview status success, CodeRabbit success. Vercel deployment dpl_43GeHixA1kSFvuwrwQkeh6SFKN8X is READY. A docs-only Netlify retry was cancelled because no build content changed; do not interpret it as a source build failure.
+- Exact-head Actions: 56 runs; 3 completed (2 skipped, desktop-windows success unrelated to product proof), 49 queued, 4 pending, none in progress.
+- Product Build Gate #38012001245 queued; Full Product Browser E2E #38012001488 queued; Quality #38012001386 queued; File Intelligence Security #38012001065 queued; Data Quality Runtime #38012001327 queued; Device-Independent Browser E2E #38012001097 queued; Phase-F Live Resilience #38012001221 queued; Session Handoff Contract #38012001369 pending.
+- Older state pointed at 102959e and is retained below as history; it must not be treated as live head.
+
+### Open issues and proof boundary
+- PRs #906/#909 overlap the same report/card/page/test paths, but their checked branch heads lack the current composer and newest general+specialist regression assertions. Do not merge blindly.
+- Prior Phase-F backup/restore found missing relation public.intelligence_causal_hypotheses; schema parity/preflight was added but the exact-head Phase-F run remains queued.
+- No authenticated upload→report→navigation/reload→persisted readback run has passed at this head. A varied-format end-to-end matrix and production proof are NOT PROVEN.
+- Staging row reported historically (job 16709d80-e012-40ef-9c12-6fd8255897f8, 332 canonical rows, quality 98) is not current-head browser proof.
+
+CURRENT_FIRST_FAILURE = No new terminal product-test failure on 85f69f2 is available yet; the focused workflow jobs remain queued/pending.
+NEXT_EXACT_ACTION = Consume the first terminal exact-head Product Build Gate / Quality / Full Product Browser E2E result, inspect its job log and fix only the first confirmed failure, then prove same jobId/sourceHash through user-visible navigation and saved readback.
+
+---
+
+## HISTORICAL STATE BELOW — preserved verbatim
+
+SESSION HANDOFF = READY
+ACTION_STATUS = ACTIVE_EXECUTION
 CURRENT_EXACT_HEAD = 102959e897b5cc12c5e2d392831e07d6eaed2c0b
 CURRENT_CODE_HEAD = 102959e897b5cc12c5e2d392831e07d6eaed2c0b
 CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
