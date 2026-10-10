@@ -922,3 +922,16 @@ No new parallel truth engine, importer, runner, or billing/entitlement model was
 Runtime/deployment proof remains OPEN. No current-head browser/deployment PASS is claimed.
 
 NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts where execution infrastructure is available, inspect the latest code for regressions, then move to collaboration/API integrations and commercial packaging only after the product wave is regression-clean.
+
+## LIVE CHECKPOINT — 2026-10-10 / UNIVERSAL FILE INTELLIGENCE RESUME
+
+- Repository: `Report-Engainall/Report-Advisor` (verified; default branch `main`).
+- Live state before this checkpoint write: `main` = `fa1ab4cbade9b01685507aa966c10f700a03f576`; PR #912 is OPEN, not merged, mergeable=true; head branch = `fix/source-bound-generic-intelligence-20261009`; exact PR head before this documentation commit = `b077da2705c6ed01dc2a5235ade59f34bae95c9f`; PR base SHA = `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Historical checkpoint SHA `ab292d6cfd9ca948b362c0a975cc38cb489ada24` is NOT the current PR head and must not be used as current proof.
+- PR #910 is already MERGED to `main` at `fa1ab4cbade9b01685507aa966c10f700a03f576`. It reports that universal file-analysis lifecycle/UI exposure and generic fallback contracts were implemented, but those reported tests are historical to #910 and do not prove #912 or production.
+- PR #912 remains the active candidate. Its description says source-bound generic numeric signals and recommendations, Arabic semantic mapping and jobId+sourceHash linkage are included. Verify actual diff, current-head workflow statuses, visible UI details, and test coverage before extending it.
+- Current reference files `CURRENT_SESSION_STATE.md` and `PROGRAMMER_CURRENT_REPORT.md` were not found on this PR branch at the time of inspection; do not claim they exist. Keep this memory file and add a dated report under `PROGRAMMER_REPORTS/` after the next verified milestone.
+- Constraints: do not rebuild or replace `universal-report-intelligence.ts`, `generic-intelligence.ts`, `report-smart.ts`, or `UniversalIntelligenceChain.tsx`; preserve source hash/report job context and tenant/security/evidence gates; no fabricated causes/impact/confidence; green build or preview alone is not product proof.
+- Objective: generic analysis must remain a common layer for every readable source while specialty intelligence augments it only when supported. The UI must expose all available facts, metrics, signals, explanations, recommendations, evidence references, confidence/limits and measurement needs, linked to the same original source across report surfaces.
+- NEXT EXACT ACTION: inspect PR #912 changed-file list and exact-head checks, identify the generic intelligence result model and its UI renderer, then make the smallest source-bound change that surfaces all returned generic signals/recommendations/evidence instead of a summary-only card; add/extend regression contracts and record exact outcomes.
+- No claim in this checkpoint that code tests, browser E2E, persistence/readback, or production are currently passing.
