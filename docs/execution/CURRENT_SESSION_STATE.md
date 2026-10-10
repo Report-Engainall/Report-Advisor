@@ -1,4 +1,29 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = 87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+APPLICATION_CODE_HEAD = 87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489
+REPORT_BASE_HEAD = 2495372e2b7bfc89042f435274c1cde4e4511bec
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T16:50:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume the terminal current-code Product Build Gate and browser results, establish an actual passing generic multi-format runtime matrix, then prove upload-to-persisted-readback with the identical reportJobId and sourceHash.
+
+## LIVE EXECUTION CHECKPOINT — 2026-10-10 — CSV heading regression and current test boundary
+
+Application code SHA is `87fe4f3f28d0c81be5f2547fe56c87ec0c5d3489`; the current branch has a documentation-only checkpoint commit `2495372e2b7bfc89042f435274c1cde4e4511bec`. Historical state is preserved below unchanged.
+- Implemented and read back: universal text-document detection no longer lets synthetic `line_number/text` fields suppress original TXT/Markdown evidence; generic tables profile every numeric column (count, missing/non-numeric count, sum, mean, min/max and row ordinal); evidence lists in table signals/findings/recommendations and UniversalIntelligenceChain are no longer silently truncated at 3/6/8 items; text examples are bounded at 100 with explicit full match counts and truncation notices.
+- Exact-head Quality before the latest fix proved the TXT assertion progressed, then failed CSV row count because `اسم الصنف` was mistakenly penalized as a merged multi-field header. The new header fix exempts valid Arabic/English compound business labels while preserving the merged-header guard; `scripts/check-header-detection.mjs` now has a regression for that real CSV case.
+- Current-code header contract run #8635 (`38057053199`) is still in progress at the time of the last poll; prior exact-code header contract #8634 succeeded. Product Build Gate #995 (`38057052776`) is in progress; Full Product Browser E2E #9601 (`38057050078`) is in progress, #9602 (`38057053312`) is pending; Device-Independent Browser E2E #5115 (`38057053229`) is in progress.
+- Quality run #11940 (`38057053143`) failed BEFORE behavioral tests: Diagnostics returned exit 1 at the `test -f package-lock.json` step; subsequent `eslint: not found`, missing `node_modules/vite/bin/vite.js`, and missing `dist/index.html` are downstream of the failed preflight/install. GitHub API readback confirms `package-lock.json` exists both at the branch SHA and merge SHA, so this run does not establish a code regression or a passing generic-format test; investigate the exact CI workspace/log before claiming either.
+- Netlify deploy preview status for code SHA `87fe4f3...` returned ready at `https://deploy-preview-912--aghbari-report-advisor.netlify.app`; Vercel and a duplicate Netlify deployment event were pending when queried. This preview is not authenticated browser or persistence evidence.
+- The Session Handoff Contract failures #2324/#2325 on earlier code head were due to the old report not covering newly changed files. This checkpoint refreshes state/report/archive based on checkpoint SHA `2495372...`; the report-only commit that follows must be tested by Session Handoff Contract again.
+- Still not proven: upload + extraction + full UI presentation across multiple source formats, report navigation/reload, or persisted sourceHash/reportJobId readback on the current code. `PRODUCT_COMPLETE = NO`.
+
+SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
 REPOSITORY = Report-Engainall/Report-Advisor
 PR = #912 OPEN / NOT MERGED
