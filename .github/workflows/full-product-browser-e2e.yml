@@ -4,7 +4,9 @@
 name: Full Product Browser E2E
 
 on:
+  # PR branches use pull_request below; don't run a second staging browser pass on the same feature-branch push.
   push:
+    branches: [main]
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/provision-e2e-actors.mjs'
