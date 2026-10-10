@@ -2,18 +2,6 @@ name: phase-f-live-resilience
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/phase-f-live-resilience.yml'
-      - 'scripts/phase-f-live-resilience-probes.mjs'
-      - 'scripts/resilience-runtime.test.mjs'
-      - 'scripts/check-operational-resilience-contract.mjs'
-      - 'scripts/check-backup-restore-evidence-integrity.mjs'
-      - 'scripts/check-release-resilience-manifest.mjs'
-      - 'src/server/**'
-      - 'api/**'
-      - 'supabase/migrations/**'
-      - 'package.json'
-      - 'package-lock.json'
   pull_request:
     branches: [main]
     paths:
@@ -31,7 +19,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-# Serialize duplicate Phase-F restores without evicting the report-cohort gate.
+# Keep the newest same-workflow Phase-F proof for a PR; do not retain stale-head restores.
 concurrency:
   group: phase-f-live-resilience-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: true
