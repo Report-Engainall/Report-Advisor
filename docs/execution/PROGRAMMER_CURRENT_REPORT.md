@@ -1,3 +1,15 @@
+## CURRENT EXECUTION REPORT — 2026-10-10T21:40:00+03:00 — staging concurrency and current proof status
+
+SESSION HANDOFF = READY
+REPORT_FOR_HEAD = 2d77663a8fea44cfbc98e367cca48107a63d3ec2
+UPDATED_AT = 2026-10-10T21:40:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue existing Report-Advisor work, expose the general intelligence layer with exact source identity, prove varied-file user journeys and persistence, and do not rebuild the existing engine.
+WHAT_I_ACTUALLY_DID = Committed a single atomic CI change serializing authenticated browser runs together and heavy staging restore/cohort runs together; consumed current run logs and verified the 40-report cohort succeeded with an artifact.
+WHAT_IS_PROVEN = CI workflow update committed at 2d77663a8fea44cfbc98e367cca48107a63d3ec2; Report Value Cohort 38076567370 passed on this exact head with 40-report artifact; staging saved_views parity was applied and read back with RLS and owner isolation; generic file-analysis regression had previously logged GENERIC FILE ANALYSIS PASS.
+FIRST_ACTIVE_FAILURE = Full Product Browser 38076567127 and Phase-F 38076567468 were still in progress; Device-Independent Browser 38076567296 pending. Handoff 38076567285 failed because the report did not cover the four workflow changes, which are now included in the documented exact-head baseline.
+ROOT_CAUSE = Staging workloads competed for Supabase Auth/Postgres/pooler resources; prior logs recorded Auth HTTP 504, PostgreSQL 57014 and pooler ECHECKOUTTIMEOUT. The handoff gate correctly rejected a stale report baseline.
+NEXT_EXACT_ACTION = Consume final browser/restore/build/quality logs at 2d77663a8fea44cfbc98e367cca48107a63d3ec2; correct the first reproducible blocker and prove the authenticated varied-file journey with exact source-hash persistence. Do not merge or mark complete.
+
 ## CURRENT EXECUTION REPORT — 2026-10-10 — session handoff contract alignment
 
 SESSION HANDOFF = READY

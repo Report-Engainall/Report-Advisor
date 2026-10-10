@@ -1,3 +1,33 @@
+# LIVE RESUME — 2026-10-10T21:40:00+03:00 / CI CONCURRENCY COMMITTED; COHORT PASS; BROWSER/RESTORE OPEN
+
+- Repo: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/CI head: `2d77663a8fea44cfbc98e367cca48107a63d3ec2`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+- Latest dated report: [REPORT-20261010-2D77663-CI-STAGING-CONCURRENCY.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-2D77663-CI-STAGING-CONCURRENCY.md)
+
+## Proof at this checkpoint
+- [2d77663](https://github.com/Report-Engainall/Report-Advisor/commit/2d77663a8fea44cfbc98e367cca48107a63d3ec2) serializes browser E2Es together and heavy restore/cohort jobs together without cancelling active proofs.
+- Report Value Cohort [38076567370](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567370) passed on exact head: 40-report artifact uploaded (11679650509). REVIEW / INSUFFICIENT SAMPLE were kept explicit.
+- Full Product Browser [38076567127](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567127) IN_PROGRESS; UI/card/source lineage still awaiting live proof.
+- Phase-F [38076567468](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567468) IN_PROGRESS; clean restore not certified.
+- Device-Independent Browser [38076567296](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567296) PENDING behind browser lane.
+- Build [38076567171], Quality [38076567159], Data Quality [38076567488] IN_PROGRESS.
+- Handoff [38076567285](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567285) FAILED because the prior report omitted changed workflow paths. The current report now pins `REPORT_FOR_HEAD=2d77663a8fea44cfbc98e367cca48107a63d3ec2`; all later edits should be docs-only. The rerun must pass.
+
+## Product facts already checked
+- Reports Center source identity fix: [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974).
+- Visible generic-card browser assertions: [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8).
+- Generic engine/file format tests passed in Quality previously (`GENERIC FILE ANALYSIS PASS`).
+- Staging-only `saved_views` parity applied and readback verified; production DB untouched.
+- Latest deployment links still known-ready: [Netlify preview](https://deploy-preview-912--aghbari-report-advisor.netlify.app/) and [Vercel code preview ae756](https://report-advisor-or4bj18m7-injaz2.vercel.app/). Production alias has not been promoted.
+
+## Current root causes / next action
+Prior errors were Supabase Auth 504, PostgreSQL 57014 and pooler ECHECKOUTTIMEOUT under staging load, not a demonstrated failure of generic engine logic. Continue polling exact-head browser/Phase-F; fix first replicated cause, then prove upload → visible results → save/readback → refresh/re-entry with matching source SHA. Keep PR open and product-complete NO.
+---
+
 # LIVE RESUME — 2026-10-10 / SESSION HANDOFF REPORT CORRECTED; CURRENT-HEAD PROOFS QUEUED
 
 - Repository: `Report-Engainall/Report-Advisor`

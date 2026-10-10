@@ -1,4 +1,28 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = 2d77663a8fea44cfbc98e367cca48107a63d3ec2
+CURRENT_BRANCH_HEAD_OBSERVED = 2d77663a8fea44cfbc98e367cca48107a63d3ec2
+CURRENT_CODE_TEST_HEAD = 2d77663a8fea44cfbc98e367cca48107a63d3ec2
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T21:40:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume Full Product Browser, Device-Independent Browser, Phase-F, Build and Quality results for 2d77663a8fea44cfbc98e367cca48107a63d3ec2; fix the first proven failure and persist exact results without weakening source/evidence guards.
+
+## LIVE CHECKPOINT — staging concurrency update
+- Workflow concurrency code commit: 2d77663a8fea44cfbc98e367cca48107a63d3ec2.
+- Report Value Cohort [38076567370](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567370): PASS, 40-report artifact uploaded, REVIEW/INSUFFICIENT SAMPLE preserved.
+- Full Product Browser [38076567127](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567127): IN_PROGRESS at checkpoint.
+- Phase-F [38076567468](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567468): IN_PROGRESS; restore remains unproven.
+- Device-Independent Browser [38076567296](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38076567296): PENDING.
+- Product Build [38076567171], Quality [38076567159], Data Quality [38076567488]: IN_PROGRESS.
+- Session Handoff [38076567285] failed due to stale report coverage; current report baseline is now 2d77663a8fea44cfbc98e367cca48107a63d3ec2 and the rerun must verify docs-only changes afterward.
+---
+
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = c10429178ba4f414b27c254b1675b8daf0f6ddc1
 CURRENT_BRANCH_HEAD_OBSERVED = 93a9d823f80d4d36a2196976167b5a731c5648f7
 CURRENT_CODE_TEST_HEAD = ae75608296a7bdff7d271e87439dace0f3817eb8
