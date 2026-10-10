@@ -57,3 +57,5 @@ Archive is append-only. Never overwrite a historical report. The latest live rep
 - docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-12B710-LATEST-HEAD-CI-LOAD.md
 
 - docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-A1D365-PHASEF-CURRENT-HEAD.md
+
+- docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-DEDD9AC-CI-PARSER-FIX.md
