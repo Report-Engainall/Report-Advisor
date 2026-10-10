@@ -1,3 +1,36 @@
+# LIVE RESUME — 2026-10-10 / SOURCE CONTEXT + GENERIC-CARD BROWSER PROOF ADDED; SAVED_VIEWS PARITY APPLIED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Code/test head consumed at this checkpoint: `ae75608296a7bdff7d271e87439dace0f3817eb8`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+
+## Current code changes
+- [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974): `src/pages/ReportsPage.tsx` reads optional URL `reportJobId` + `sourceHash`, fetches that exact same-tenant report, and fails visibly on missing/mismatched hash instead of silently using catalog[0].
+- [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4): Full Product E2E now navigates to the Reports Center with the exact report context.
+- [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c): source-context contract regression added.
+- [ae75608](https://github.com/Report-Engainall/Report-Advisor/commit/ae75608296a7bdff7d271e87439dace0f3817eb8): live browser E2E now requires the generic layer to be visible on Smart Report even when specialty exists, including matching job id, source path/hash, and visible signal/recommendation regions.
+- General intelligence functions/card were already present on the original PR head; no reimplementation/rebuild was performed.
+
+## Staging restore migration — performed and verified
+- Migration file tracked on branch: `supabase/migrations/20261010165742_restore_saved_views_schema_parity.sql`.
+- Applied only to Supabase staging project ref `fnqbvfuwbdpwvhcgzksl` using migration `restore_saved_views_schema_parity`; database migration ledger readback recorded exact version `20261010165742`.
+- Staging readback after apply: `saved_views` exists, 9 columns, 4 constraints, 3 indexes, RLS enabled, policy `saved_views_owner` for authenticated with `company_id = current_company_id() AND user_id = auth.uid()`, authenticated SELECT/INSERT/UPDATE/DELETE, 0 anon grants.
+- A clean restore had been failing because the table was absent from tracked migrations ([Phase-F predecessor run](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312)); the current run must prove the restore fix. Production schema was not changed.
+
+## Deployment and verification state
+- Current Netlify PR-preview deploy is READY at commit `ae75608296a7bdff7d271e87439dace0f3817eb8`: [https://deploy-preview-912--aghbari-report-advisor.netlify.app/](https://deploy-preview-912--aghbari-report-advisor.netlify.app/).
+- Current Vercel preview deploy is READY at the same commit: [https://report-advisor-or4bj18m7-injaz2.vercel.app/](https://report-advisor-or4bj18m7-injaz2.vercel.app/).
+- Production Netlify alias remains old main commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b`; do not call production updated.
+- On exact commit ae756, [Session Handoff Contract](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065336) was IN_PROGRESS when checked. Product Build Gate [38070065379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065379), Quality [38070065244](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065244), Device-Independent Browser E2E [38070065231](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065231), Full Product Browser E2E [38070065123](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065123), Phase-F [38070065187](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065187), and Report Value Cohort [38070065255](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38070065255) were QUEUED/PENDING when checked. No current-head browser/restore pass is claimed.
+- Prior confirmed predecessor evidence on d974: build/quality/certification/cohort/handoff passed, but Full Product E2E failed at Reports Center context readback, Device-Independent E2E reported `57014 statement timeout` on `/reports/sales`, and Phase-F failed due to missing `saved_views`.
+
+## Next exact action
+Consume the current-head browser/build/quality/Phase-F runs and read failure logs. Confirm the generic-card identity assertions, explicit Reports Center source context, and clean restore succeed. If the sales query timeout repeats, use a real execution-plan/log observation before changing row limits or financial semantics; keep `UNKNOWN` distinct from zero and do not add unmeasured schema indexes. Then update CURRENT_SESSION_STATE, PROGRAMMER_CURRENT_REPORT, and a new dated report with exact run outcomes. Do not merge or declare product complete yet.
+---
+
 # LIVE RESUME — 2026-10-10 / REPORT-CENTER CONTEXT FIX COMMITTED; RESTORE SCHEMA GAP INSPECTED
 
 - Repository: `Report-Engainall/Report-Advisor`
