@@ -18,10 +18,14 @@ async function main() {
   assert.ok(detectedUnknown.warnings.some((warning) => warning.includes('مسار النص العام')), 'generic fallback warning');
 
   const cases = [
-    { format: 'txt', name: 'risk.txt', source: 'توجد مشكلة في المخزون\nيجب مراجعة الكميات المتأخرة\nالإجمالي 1200 ريال', expectedRows: 3 },
-    { format: 'xml', name: 'sales.xml', source: '<root><row><product>صنف 1</product><total>100</total></row><row><product>صنف 2</product><total>200</total></row></root>', expectedRows: 2 },
-    { format: 'yaml', name: 'sales.yaml', source: '- product: صنف 1\n  total: 100\n- product: صنف 2\n  total: 200', expectedRows: 2 },
-    { format: 'rtf', name: 'note.rtf', source: '{\\rtf1\\ansi خطر تأخير\\par يجب المراجعة\\par}', expectedRows: 2 },
+    { format: 'txt', name: 'risk.txt', source: 'توجد مشكلة في المخزون\nيجب مراجعة الكميات المتأخرة\nالإجمالي 1200 ريال', expectedRows: 3, expectedEvidence: 'مشكلة في المخزون' },
+    { format: 'csv', name: 'risk.csv', source: 'اسم الصنف,الحالة,الإجمالي\nصنف متأخر,تأخير,100\nصنف سليم,مكتمل,200', expectedRows: 2, expectedEvidence: 'تأخير' },
+    { format: 'json', name: 'risk.json', source: '[{"name":"صنف متأخر","status":"تأخير","total":100},{"name":"صنف سليم","status":"مكتمل","total":200}]', expectedRows: 2, expectedEvidence: 'تأخير' },
+    { format: 'jsonl', name: 'risk.jsonl', source: '{"name":"صنف متأخر","status":"تأخير","total":100}\n{"name":"صنف سليم","status":"مكتمل","total":200}', expectedRows: 2, expectedEvidence: 'تأخير' },
+    { format: 'xml', name: 'sales.xml', source: '<root><row><product>صنف 1</product><status>تأخير</status><total>100</total></row><row><product>صنف 2</product><status>مكتمل</status><total>200</total></row></root>', expectedRows: 2, expectedEvidence: 'تأخير' },
+    { format: 'yaml', name: 'sales.yaml', source: '- product: صنف 1\n  status: تأخير\n  total: 100\n- product: صنف 2\n  status: مكتمل\n  total: 200', expectedRows: 2, expectedEvidence: 'تأخير' },
+    { format: 'markdown', name: 'notes.md', source: '# متابعة\nتوجد مشكلة في المخزون\nيجب مراجعة الكميات المتأخرة\nالإجمالي 1200 ريال', expectedRows: 4, expectedEvidence: 'مشكلة في المخزون' },
+    { format: 'rtf', name: 'note.rtf', source: '{\\rtf1\\ansi خطر تأخير\\par يجب المراجعة\\par}', expectedRows: 2, expectedEvidence: 'تأخير' },
   ];
   for (const item of cases) {
     const datasets = await parseFile(buffer(item.source), item.name, item.format);
@@ -29,7 +33,11 @@ async function main() {
     assert.equal(datasets[0].rowCount, item.expectedRows, item.format + ' row count');
     const intelligence = buildGenericFileIntelligence(datasets[0], item.format);
     assert.ok(intelligence.summary.length > 20, item.format + ' summary');
+    assert.ok(intelligence.findings.length > 0, item.format + ' must expose source-derived findings');
     assert.ok(intelligence.guidance.boundary.includes('لا يحول'), item.format + ' evidence boundary');
+    if (item.expectedEvidence) {
+      assert.ok(JSON.stringify(intelligence).includes(item.expectedEvidence), item.format + ' output must retain evidence from the uploaded content');
+    }
   }
   // Real XLSX regression: customer portfolio + eight monthly measures.
   // The report should map the observed semantics, summarize the table and expose
