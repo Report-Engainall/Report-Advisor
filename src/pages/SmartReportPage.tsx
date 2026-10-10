@@ -876,6 +876,7 @@ export function SmartReportPage() {
     sourcePath: report.sourcePath,
     sourceHash: report.sourceHash,
     reportJobId: report.jobId,
+    generalIntelligence: report.genericIntelligence ?? undefined,
     archetypeId: report.archetypeId,
     evidenceSnapshotId: typeof report.renderedOutput.evidenceSnapshotId === 'string' ? report.renderedOutput.evidenceSnapshotId : null,
     evidencePassportId: typeof report.renderedOutput.evidencePassportId === 'string' ? report.renderedOutput.evidencePassportId : null,
