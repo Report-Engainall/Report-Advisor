@@ -29,7 +29,6 @@ as $function$
       and j.source_hash ~ '^sha256:[0-9a-fA-F]{64}$'
       and j.source_path ~* '\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|xml|yaml|yml|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$'
       and j.source_path !~* '^canonical-import:'
-      and j.source_path !~* '^(customer|product|invoice)-'
       and j.job_key ~ '^canonical-import:generic:'
       and (j.evidence->'renderedOutput'->>'importId') ~* '^[0-9a-fA-F]{8}-[0-9a-fA-F-]{27,35}$'
       and (p_company_id is null or j.company_id = p_company_id)
@@ -52,6 +51,8 @@ as $function$
         and fr.file_hash = j.source_hash
         and fr.security_status = 'passed'
         and fr.status in ('ready','processed','verified')
+        and coalesce(fr.metadata->>'fixture_type','') <> 'synthetic-realistic'
+        and coalesce(fr.metadata->>'catalog_id','') <> 'report-intelligence.48'
       limit 1
     ) fr on true
     join lateral (
@@ -87,6 +88,5 @@ CREATE INDEX IF NOT EXISTS idx_report_value_cohort_candidates_source
     AND source_hash ~ '^sha256:[0-9a-fA-F]{64}$'
     AND source_path ~* '\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|xml|yaml|yml|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$'
     AND source_path !~* '^canonical-import:'
-    AND source_path !~* '^(customer|product|invoice)-'
     AND job_key ~ '^canonical-import:generic:'
     AND (evidence -> 'renderedOutput' ->> 'importId') ~* '^[0-9a-fA-F]{8}-[0-9a-fA-F-]{27,35}$';

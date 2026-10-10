@@ -92,7 +92,6 @@ const candidates = rpcRows
       sha256Pattern.test(sourceHash) &&
       supportedPath.test(sourcePath) &&
       !/^canonical-import:/i.test(sourcePath) &&
-      !/^(customer|product|invoice)-/i.test(sourcePath) &&
       /^canonical-import:generic:/.test(jobKey) &&
       /^[0-9a-f-]{36}$/i.test(String(rendered.importId || ''));
   })

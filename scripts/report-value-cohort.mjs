@@ -85,7 +85,6 @@ const supabase = createClient(url, serviceRole, {
 
 const TARGET_COHORT_SIZE = 40;
 const eligiblePath = /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|xml|yaml|yml|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i;
-const syntheticPath = /^(customer|product|invoice)-\d+/i;
 const syntheticCanonicalPath = /^canonical-import:/i;
 const supportedGenericJob = /^canonical-import:generic:/i;
 
@@ -98,7 +97,6 @@ function isRealReportJob(row) {
     sourceHash &&
     /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash) &&
     eligiblePath.test(sourcePath) &&
-    !syntheticPath.test(sourcePath) &&
     !syntheticCanonicalPath.test(sourcePath) &&
     supportedGenericJob.test(jobKey),
   );

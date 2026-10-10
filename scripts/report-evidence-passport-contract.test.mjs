@@ -13,6 +13,8 @@ const cohortCandidateExpandedFormats = fs.readFileSync(
   'supabase/migrations/20261010211000_expand_report_value_cohort_xml_yaml_support.sql',
   'utf8',
 );
+const resolverScript = fs.readFileSync('scripts/resolve-e2e-report-context.mjs', 'utf8');
+const cohortScript = fs.readFileSync('scripts/report-value-cohort.mjs', 'utf8');
 const extractCohortSourcePathRegex = (source, label) => {
   const line = source.split('\n').find((candidate) => candidate.includes('source_path ~*'));
   assert.ok(line, label + ' must declare source-path eligibility');
@@ -29,6 +31,22 @@ assert.equal(
 );
 assert.ok(cohortCandidateIndex.includes('idx_report_value_cohort_candidates_source'));
 assert.ok(cohortCandidateIndex.includes('(source_hash, lower(source_path), company_id, id)'));
+
+assert.ok(
+  cohortCandidateExpandedFormats.includes("coalesce(fr.metadata->>'fixture_type','') <> 'synthetic-realistic'"),
+  'Cohort RPC must exclude known synthetic fixture records by authoritative file metadata',
+);
+assert.ok(
+  cohortCandidateExpandedFormats.includes("coalesce(fr.metadata->>'catalog_id','') <> 'report-intelligence.48'"),
+  'Cohort RPC must exclude governed archetype fixtures by source metadata',
+);
+assert.ok(
+  !cohortCandidateExpandedFormats.includes("source_path !~* '^(customer|product|invoice)-'"),
+  'Cohort eligibility must not reject genuine uploads based only on their filenames',
+);
+assert.doesNotMatch(resolverScript, /customer\|product\|invoice\)-/);
+assert.doesNotMatch(cohortScript, /syntheticPath/);
+
 console.log('REPORT_VALUE_COHORT_INDEX_CONTRACT_PASS');
 
 const expandedSourcePathRegexes = cohortCandidateExpandedFormats
