@@ -160,6 +160,47 @@ if (!metricParityFile) {
   }
 }
 
+// The report-value candidate RPC filters/sorts completed generic report jobs by source hash,
+// source path, tenant and job ID. Keep its partial index in the migration chain so candidate
+// selection does not scan the whole report_execution_jobs table before every lateral evidence lookup.
+const cohortCandidateIndexFile = files.find((file) => file.includes('report_value_cohort_candidates_source_index'));
+if (!cohortCandidateIndexFile) {
+  findings.push('missing performance migration: report value cohort candidate index');
+} else {
+  const cohortSql = fs.readFileSync(path.join(dir, cohortCandidateIndexFile), 'utf8');
+  const cohortRequirements = [
+    ['candidate index', /CREATE\\s+INDEX\\s+IF\\s+NOT\\s+EXISTS\\s+idx_report_value_cohort_candidates_source/i],
+    ['ordering keys', /ON\\s+public\\.report_execution_jobs\\s+USING\\s+btree\\s*\\(source_hash,\\s*lower\\(source_path\\),\\s*company_id,\\s*id\\)/i],
+    ['completed rendered source filter', /status\\s*=\\s*'completed'[\\s\\S]*?checkpoint\\s*->>\\s*'stage'\\s*=\\s*'rendered'/i],
+    ['source hash validation', /source_hash\\s+~\\s*'\\^sha256:\\[0-9a-fA-F\\]\\{64\\}\\
+
+for (const file of files) {
+  if (!/^\d{14}_[a-z0-9_ -]+\.sql$/i.test(file)) {
+    findings.push(`non-canonical migration filename: ${file}`);
+  }
+}
+
+const summary = {
+  migrationCount: files.length,
+  tables: [...seenObjects.entries()].filter(([k]) => k.startsWith('table:')).length,
+  indexes: [...seenObjects.entries()].filter(([k]) => k.startsWith('index:')).length,
+  policies: [...seenObjects.entries()].filter(([k]) => k.startsWith('policy:')).length,
+  triggers: [...seenObjects.entries()].filter(([k]) => k.startsWith('trigger:')).length,
+  findings,
+};
+
+console.log(JSON.stringify(summary, null, 2));
+if (findings.length) process.exit(1);
+console.log(`Migration schema audit passed: ${files.length} migration(s)`);
+/i],
+    ['generic source guard', /job_key\\s+~\\s*'\\^canonical-import:generic:'/i],
+    ['rendered import identity guard', /evidence\\s*->\\s*'renderedOutput'\\s*->>\\s*'importId'/i],
+  ];
+  for (const [label, pattern] of cohortRequirements) {
+    if (!pattern.test(cohortSql)) findings.push(cohortCandidateIndexFile + ': cohort candidate index missing ' + label);
+  }
+}
+
 if (duplicateObjects.length) {
   for (const d of duplicateObjects) findings.push(`unsafe duplicate ${d.kind} ${d.name}: ${d.previous} -> ${d.file}`);
 }
