@@ -1061,14 +1061,15 @@ export function SmartReportPage() {
       </details>
     )}
 
-    {!report.specialty && (
-      <section aria-label="ذكاء الملف العام" data-testid="smart-report-generic-intelligence">
-        <GenericFileIntelligenceCard
-          intelligence={report.intelligence}
-          format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
-        />
-      </section>
-    )}
+    <section aria-label="التحليل العام للمصدر" data-testid="smart-report-generic-intelligence">
+      <GenericFileIntelligenceCard
+        intelligence={report.genericIntelligence ?? report.intelligence}
+        format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
+        sourcePath={report.sourcePath}
+        sourceHash={report.sourceHash}
+        reportJobId={report.jobId}
+      />
+    </section>
 
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
