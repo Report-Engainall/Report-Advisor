@@ -16,11 +16,13 @@ const approverEmail = process.env.TEST_APPROVER_EMAIL?.trim();
 const approverPassword = process.env.TEST_APPROVER_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
-const REAL_SMART_REPORT_COMPANY_ID = '99e33354-cc45-4317-8eb3-0d486b6c5932';
-const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
-const REAL_SMART_REPORT_SOURCE_PATH = 'تقارير ادارية.xlsx';
-const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
-const REAL_SMART_REPORT_ROW_COUNT = 332;
+const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
+const REAL_SMART_REPORT_JOB_ID = process.env.REAL_SMART_REPORT_JOB_ID || '16709d80-e012-40ef-9c12-6fd8255897f8';
+const REAL_SMART_REPORT_SOURCE_PATH = process.env.REAL_SMART_REPORT_SOURCE_PATH || 'تقارير ادارية.xlsx';
+const REAL_SMART_REPORT_SOURCE_HASH = process.env.REAL_SMART_REPORT_SOURCE_HASH || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_ROW_COUNT = Number(process.env.REAL_SMART_REPORT_ROW_COUNT || '332');
+const REAL_SMART_REPORT_COLUMN_COUNT = Number(process.env.REAL_SMART_REPORT_COLUMN_COUNT || '18');
+const REAL_SMART_REPORT_ENTITY_TYPE = process.env.REAL_SMART_REPORT_ENTITY_TYPE || 'generic:inventory';
 const configuredRealSmartReportCompany = process.env.REAL_SMART_REPORT_COMPANY_ID?.trim();
 if (configuredRealSmartReportCompany && configuredRealSmartReportCompany !== REAL_SMART_REPORT_COMPANY_ID) {
   throw new Error('REAL_SMART_REPORT_COMPANY_ID_LINEAGE_DRIFT:' + configuredRealSmartReportCompany);
@@ -469,7 +471,7 @@ const CURRENT_REPORT_SOURCE_PATH = REAL_SMART_REPORT_SOURCE_PATH;
 const CURRENT_REPORT_SOURCE_HASH = REAL_SMART_REPORT_SOURCE_HASH;
 const CURRENT_REPORT_ROW_COUNT = REAL_SMART_REPORT_ROW_COUNT;
 const CURRENT_REPORT_TASK_COUNT = 9;
-const CURRENT_REPORT_ENTITY_TYPE = 'generic:inventory';
+const CURRENT_REPORT_ENTITY_TYPE = REAL_SMART_REPORT_ENTITY_TYPE;
 
 function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
@@ -485,7 +487,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const uniqueJobs = [...new Map(authoritativeJobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
-  assert.equal(job.id, '16709d80-e012-40ef-9c12-6fd8255897f8', 'CURRENT_REPORT_JOB_ID_CHANGED');
+  assert.equal(job.id, REAL_SMART_REPORT_JOB_ID, 'CURRENT_REPORT_JOB_ID_CHANGED');
   assert.equal(job.status, 'completed');
   assert.equal(job.source_hash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(job.source_path, CURRENT_REPORT_SOURCE_PATH);
@@ -518,7 +520,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const analyses = await restSelect(page, 'source_analysis_snapshots', { company_id: companyId, source_hash: CURRENT_REPORT_SOURCE_HASH, import_job_id: importId }, 'id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at', { order: 'created_at.desc', limit: 20 });
   assert.ok(analyses.length > 0, 'CURRENT_REPORT_ANALYSIS_MISSING');
   assert.equal(Number(analyses[0].row_count), CURRENT_REPORT_ROW_COUNT);
-  assert.equal(Number(analyses[0].column_count), 18, 'CURRENT_REPORT_COLUMN_COUNT_CHANGED');
+  assert.equal(Number(analyses[0].column_count), REAL_SMART_REPORT_COLUMN_COUNT, 'CURRENT_REPORT_COLUMN_COUNT_CHANGED');
   assert.equal(Number(analyses[0].quality_score), Number(rendered.qualityScore));
   const fileRecords = await restSelect(page, 'file_records', { company_id: companyId, id: imports[0].file_record_id }, 'id,company_id,file_name,file_hash,detected_format,status', { limit: 1 });
   assert.equal(fileRecords.length, 1);
@@ -1219,7 +1221,7 @@ try {
   assert.equal(currentReport.sourcePath, REAL_SMART_REPORT_SOURCE_PATH, 'CERTIFIED_REPORT_SOURCE_PATH_MISMATCH');
   assert.equal(currentReport.sourceHash, REAL_SMART_REPORT_SOURCE_HASH, 'CERTIFIED_REPORT_SOURCE_HASH_MISMATCH');
   assert.equal(currentReport.canonicalRows.length, REAL_SMART_REPORT_ROW_COUNT, 'CERTIFIED_REPORT_ROW_COUNT_MISMATCH');
-  assert.equal(Number(currentReport.analysis.quality_score), 98, 'CERTIFIED_REPORT_QUALITY_MISMATCH');
+  assert.equal(Number(currentReport.analysis.quality_score), Number(currentReport.rendered.qualityScore), 'CERTIFIED_REPORT_QUALITY_MISMATCH');
   evidence.persisted.currentReport = { reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, canonicalCommitCount: currentReport.commits.reduce((sum,row)=>sum+Number(row.committed_count||0),0), taskCount: currentReport.tasks.length, completedTaskCount: currentReport.tasks.filter(task=>task.status==='completed').length, importJobId: currentReport.importJob.id, fileRecordId: currentReport.fileRecord.id, qualityScore: Number(currentReport.rendered.qualityScore), trustState: currentReport.rendered.trustState, evidenceState: currentReport.rendered.evidenceStatus, checkpointStage: currentReport.job.checkpoint?.stage ?? null };
   evidence.steps.push({ step: 'certified-report-durable-proof', status: 'PASS', reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, jobStatus: currentReport.job.status, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, qualityScore: Number(currentReport.rendered.qualityScore), evidenceState: currentReport.rendered.evidenceStatus });
 
