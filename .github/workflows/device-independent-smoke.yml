@@ -85,7 +85,10 @@ jobs:
           await browser.close();
           NODE
 
+  # Full Product Browser E2E is the PR's authenticated end-to-end gate.
+  # Keep this duplicate Auth/Product/Import journey manual-only; parallel actor provisioning overloads Staging Auth.
   authenticated-e2e:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     needs: browser-smoke
     runs-on: ubuntu-22.04
     timeout-minutes: 60
