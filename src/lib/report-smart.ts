@@ -982,7 +982,15 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     })
     .map((column) => String(column.name ?? column.mappedField ?? 'غير مسمى'));
 
-  if (nonBlockingQualityWarnings.  let genericIntelligence: ReportIntelligence | null = null;
+  if (nonBlockingQualityWarnings.length > 0) {
+    runtimeWarnings.push(
+      'ملاحظات غير مانعة في حقول مساندة: ' + nonBlockingQualityWarnings.slice(0, 8).join('، '),
+    );
+  }
+
+  // General analysis is descriptive and source-derived. Keep it available for
+  // every source even when the stronger specialist decision gate is not met.
+  let genericIntelligence: ReportIntelligence | null = null;
   try {
     const genericDataset = buildGenericDatasetForReport({
       sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
@@ -1022,10 +1030,6 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     });
   } catch (error) {
     runtimeWarnings.push('تعذر اشتقاق الذكاء التنفيذي من هذا المصدر؛ تم إظهار حالة مراجعة بدل تجميد التقرير.');
-    console.error('[SmartReport] deriveReportIntelligence failed', error);
-    baseIntelligence = emptyReportIntelligence(specialty);
-  }
-تقرير.');
     console.error('[SmartReport] deriveReportIntelligence failed', error);
     baseIntelligence = emptyReportIntelligence(specialty);
   }

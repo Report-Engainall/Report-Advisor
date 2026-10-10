@@ -1,3 +1,15 @@
+# LIVE FAILURE + REPAIR — 2026-10-10 / REPORT-SMART PARSE BREAK
+
+- Failing code SHA: `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`; PR #912 open, branch `fix/source-bound-generic-intelligence-20261009`.
+- Vercel deployment `dpl_AWB56DhZXAZMCPeTafQ4m5x91KPG` is `ERROR`; `npm run build` exited 1. [Build](https://vercel.com/injaz2/report-advisor/AWB56DhZXAZMCPeTafQ4m5x91KPG).
+- Netlify deploy `6ac98f18d2e77d0008483c23` is `error`; build returned non-zero. [Deploy](https://app.netlify.com/projects/aghbari-report-advisor/deploys/6ac98f18d2e77d0008483c23).
+- Exact Vercel error: `src/lib/report-smart.ts:985:39: Expected ")" but found "genericIntelligence"`. Prior range replacement used stale offsets after imports/type edits, splitting the `nonBlockingQualityWarnings` condition and leaving an orphan duplicate tail.
+- Repair is prepared from fresh source blob `11b7ff70a3911930277537326e5bb49fd36e94b0`: replace from `if (nonBlockingQualityWarnings.` through just before `const catalogItem = mapCatalogItem(`. The replacement region itself passed text-boundary validation; build/test proof is pending.
+- Parent: `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`.
+- Do not claim deployment/tests are passing until the new head's checks and logs prove it. After this fix, inspect build errors, focused tests and Full Product Browser E2E/readback for the same job+sourceHash.
+
+---
+
 # LIVE CHECKPOINT — 2026-10-10 / GENERAL INTELLIGENCE COMPOSITION + CURRENT CI FRONTIER
 
 - REPOSITORY: `Report-Engainall/Report-Advisor`.

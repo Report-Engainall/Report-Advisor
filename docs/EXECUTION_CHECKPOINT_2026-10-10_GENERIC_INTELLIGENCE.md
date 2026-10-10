@@ -74,3 +74,12 @@ Refresh PR #912 head and CI at that exact SHA; resolve compilation or focused-te
 - Readback verified the general/specialist composition code, the report runtime composition, the source-bound generic card, and the added runtime/static tests. Tests have not yet been executed; the GitHub connector is the available execution surface in this task.
 - One code-quality correction included in the next atomic commit: use an explicit optional-list guard before comparing signal priority-reason length. The surface contract also now verifies that the persisted report's general layer feeds the Universal Intelligence chain.
 - Exact next step after this commit: query its own current status/workflow runs; then inspect the first terminal failure from Product Build/Focused/Full Product Browser E2E and correct that failure before considering any release claim.
+
+
+## Verified build failure and exact source repair — 2026-10-10
+
+- Vercel deployment `dpl_AWB56DhZXAZMCPeTafQ4m5x91KPG` failed on SHA `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`: `src/lib/report-smart.ts:985:39`, `Expected ")" but found "genericIntelligence"`.
+- Netlify deploy `6ac98f18d2e77d0008483c23` failed on the same SHA, build script exit code 2. This is a source parse problem, not merely a provider failure.
+- The complete damaged region is being replaced from the current file offsets; this restores the warning condition and keeps generic descriptive analysis separate from the specialty eligibility/decision gate. Replacement-region text assertions passed; a successful build is not yet proven.
+- Pre-repair source blob `11b7ff70a3911930277537326e5bb49fd36e94b0`; parent SHA `7c0411b67f366a36fda9ff2c0a29c1f173ed6434`.
+- Next action: read the new commit and its deploy/build results. If parsing/build succeeds, inspect TypeScript/focused tests and then source-bound Full Product Browser E2E. No PASS is pre-claimed.
