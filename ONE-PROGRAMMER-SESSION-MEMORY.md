@@ -1,3 +1,41 @@
+# LIVE RESUME — 2026-10-10T23:35:00+03:00 / INDEX MIGRATION ALIGNED; NEW COHORT RUN ACTIVE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact code/test head: `1ae6fb43b113e18576477deb90eaa6ba7cfbd900`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. Do not merge or promote production.
+- Latest report: [REPORT-20261010-1AE6FB4-COHORT-INDEX-RECONCILIATION.md](https://github.com/Report-Engainall/Report-Advisor/blob/fix/source-bound-generic-intelligence-20261009/docs/execution/PROGRAMMER_REPORTS/2026-10-10/REPORT-20261010-1AE6FB4-COHORT-INDEX-RECONCILIATION.md).
+
+## Product/UI fixes kept in place
+- `5aeea95`: expanded-by-default universal chain on Smart Report and File Lab, with regression coverage.
+- `24b3e10`: fixed the open-state contract regex.
+- Direct source-contract execution earlier: 14/14 assertions PASS; this is not authenticated/browser proof.
+- Existing generic analyzer + specialty composition and full evidence lists are preserved.
+
+## CI fixes kept in place
+- `dedd9ac`: fixed the YAML trigger parser so sibling pull_request paths no longer get mistaken for push filters.
+- `108a881`: Quality run concurrency now uses a unique `github.run_id` group and `cancel-in-progress: false`.
+- Exact head `312e672`: Quality/Build/Data Quality/Device Browser passed; cohort timed out while the fixed index was not yet confirmed ready.
+
+## Supabase cohort-index fix
+- The partial index predicate in code used two backslashes before the file-extension dot while the RPC source predicate used one. Fixed it and added `REPORT_VALUE_COHORT_INDEX_CONTRACT_PASS` to `scripts/report-evidence-passport-contract.test.mjs`.
+- Applied to Report-Advisor-P0-2-Staging only. Verified index `idx_report_value_cohort_candidates_source` in `pg_indexes` and migration ledger version `20261010202632` name `report_value_cohort_candidates_source_index`.
+- Renamed the repo migration file to `supabase/migrations/20261010202632_report_value_cohort_candidates_source_index.sql` and changed the contract test path in one atomic commit (`1ae6fb43b113e18576477deb90eaa6ba7cfbd900`) so repo and staging history use the same migration identifier.
+- Current 40-report run [38084184347](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38084184347) is in the candidate RPC stage at last read. Need terminal conclusion; don't claim it passed yet.
+- Prior candidate query failed with PostgreSQL `57014`. If it still fails while the index exists, diagnose query planner and duration rather than retrying.
+
+## Current-head run frontier
+- Phase-F [38084184470] is in live probes. Previous Phase-F failed backup/restore because the source snapshot connection hit a PostgreSQL SSL authentication timeout (3/4 probes passed).
+- Quality [38084184260], Product Build [38084184406], Data Quality [38084184493], Device Browser [38084184466] are in progress.
+- Full Product Browser [38084184533] pending/no job available at last read.
+- Session Handoff [38084184492] failed because old report had not yet included the two changed code files. This checkpoint updates the baseline to `1ae6fb43b113e18576477deb90eaa6ba7cfbd900`; its next run should validate docs-only changes.
+- Current preview check for `1ae6fb43b113e18576477deb90eaa6ba7cfbd900` was pending and Vercel reported a rate-limit failure at last read. Prior green preview on `312e672` is not proof for newer head.
+
+## Single next action
+Consume the exact-head cohort + Phase-F + Quality + Build + Data Quality + Device Browser + Full Product Browser outcomes; then prove actual authenticated upload of a varied non-fixture file through complete visible intelligence, save/readback, refresh/re-entry, all preserving the same `reportJobId + SHA-256 sourceHash`. Keep PRODUCT_COMPLETE=NO until this passes.
+---
 # LIVE RESUME — 2026-10-10T23:25:00+03:00 / 14 SOURCE-CONTRACT ASSERTIONS PASS; BROWSER AND CURRENT-HEAD GATES PENDING
 
 - Repository: `Report-Engainall/Report-Advisor`

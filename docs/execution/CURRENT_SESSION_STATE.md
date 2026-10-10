@@ -1,4 +1,31 @@
 SESSION HANDOFF = READY
+CURRENT_EXACT_HEAD = 1ae6fb43b113e18576477deb90eaa6ba7cfbd900
+CURRENT_BRANCH_HEAD_OBSERVED = 1ae6fb43b113e18576477deb90eaa6ba7cfbd900 (checked before this documentation-only checkpoint)
+CURRENT_CODE_TEST_HEAD = 1ae6fb43b113e18576477deb90eaa6ba7cfbd900
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = #912 OPEN / NOT MERGED
+ACTION_STATUS = ACTIVE_EXECUTION
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10T23:35:00+03:00
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Consume the current-head 40-report cohort, Phase-F, Quality, Build, Data Quality, Device Browser and Full Product Browser runs. Diagnose any remaining timeout against the corrected staging index, then prove real authenticated upload → result → save/readback → refresh with unchanged report ID/source hash.
+
+## Checkpoint evidence
+- Current code/test head: 1ae6fb43b113e18576477deb90eaa6ba7cfbd900. PR #912 stays open.
+- UI commits are preserved: `5aeea95` expands `UniversalIntelligenceChain` by default in both Smart Report and File Lab; regression contract verifies the open state.
+- CI fixes are preserved: `dedd9ac` fixes sibling-trigger parsing; `108a881` satisfies Quality concurrency contract.
+- DB/index fix: `312e672` aligns the source-path regex used by the cohort partial index with the RPC query and adds a test in `test:report-evidence-passport-contract`. The source file is now named `20261010202632_report_value_cohort_candidates_source_index.sql` to match staging's migration ledger.
+- Supabase staging `fnqbvfuwbdpwvhcgzksl` confirmed the index in `pg_indexes`, and migration ledger version `20261010202632` / name `report_value_cohort_candidates_source_index`.
+- On previous code head 312, Quality, Product Build, Data Quality and Device Browser smoke passed. Cohort failed during RPC timeout while the index fix was being applied; contract tests passed. This is not the result of current-head cohort run.
+- Current-head runs (as last read): cohort [38084184347] in progress; Phase-F [38084184470] in progress; Quality [38084184260] in progress; Build [38084184406] in progress; Data Quality [38084184493] in progress; Device Browser [38084184466] in progress; Full Product Browser [38084184533] pending/no jobs yet; Session Handoff [38084184492] failed on stale old report and is expected to rerun against this checkpoint.
+- Prior Phase-F backup/restore failed because Postgres SSL auth did not complete within 15 sec; do not report it as a source-code or product UI failure.
+- The 14 direct source assertions were readback checks, not full npm or browser proof. Arbitrary-file authenticated persistence/re-entry remains unproven. The preview uses a fixture-bound home demo.
+- PRODUCT_COMPLETE = NO. No merge/production promotion.
+
+---
+SESSION HANDOFF = READY
 CURRENT_EXACT_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
 CURRENT_BRANCH_HEAD_OBSERVED = ce2004024bf53c03a1a63ff138db9b35d93d727c (verified before atomic documentation writeback; re-read live PR ref on resume)
 CURRENT_CODE_TEST_HEAD = 24b3e10201a07fc971bafc4de09db2df491d529c
