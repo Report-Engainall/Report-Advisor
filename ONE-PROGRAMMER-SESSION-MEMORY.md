@@ -1,3 +1,20 @@
+# LIVE RESUME — 2026-10-10 / VERIFIED HEAD + SPECIALTY NORMALIZATION ROOT CAUSE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Application candidate inspected: `350d0c69596a3eaffa8e3982c0cf71e31d08a266`
+- Main base at inspection: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- Product complete: NO. Do not merge based only on build or deployment status.
+- Exact-head proof read: Quality job `114228066670` PASS, including TypeScript, lint, build/performance, file-engine regressions, and `test:generic-file-analysis`; observed log markers: `GENERIC FILE ANALYSIS PASS` and `STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17`.
+- Open gates: report-value cohort job `114228066563` FAILED with `candidatePool=42, attempted=42, accepted=18, unverified=24`; the 24 records remain `UNVERIFIED/REVIEW/PARTIAL` due to `PASSPORT_NOT_CLOSED`. Full Product Browser E2E, Device-Independent Browser E2E, and Phase-F live resilience were still in progress at read time.
+- Preview inspection: Netlify preview renders a fixture-backed public demo at the root and an unauthenticated/marketing surface at `/reports`; this is not authenticated customer-upload/readback proof. Preview meta source SHA was a docs checkpoint, not the inspected application SHA.
+- Confirmed code defect to fix next: `ExternalFileAnalysisPage.tsx` has duplicated header normalizers using `/[\\\\s_./-]+/g` in the regex character class, which treats `s`/other characters literally rather than matching whitespace as intended. That can break specialty detection for source headings such as `Current Stock` and `الرصيد المستحق`. Keep general intelligence intact; fix normalization and add a direct behavioral regression.
+- Next one action: extract a shared, tested source-header normalizer/specialty inference helper, use it in File Lab, and add behavior tests for spaced Arabic/English columns without weakening specialization evidence rules.
+- No claim is made for authenticated varied-format browser flow, persisted readback/relogin, closed 40-report value cohort, or production completion.
+
+---
+
 # LIVE RESUME — 2026-10-10 / GENERIC CSV FIXTURE ESCAPING REPAIRED
 
 - Repository `Report-Engainall/Report-Advisor`; PR #912 OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`.
