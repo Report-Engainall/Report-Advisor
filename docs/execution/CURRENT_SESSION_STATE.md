@@ -1,3 +1,45 @@
+SESSION HANDOFF = READY
+ACTION_STATUS = ACTIVE_EXECUTION
+REPOSITORY = Report-Engainall/Report-Advisor
+PR = #912 OPEN / NOT MERGED
+BRANCH = fix/source-bound-generic-intelligence-20261009
+APPLICATION_CODE_HEAD = 0e2fc9b2e7e55a01255cafc1286d4ab0bb506671
+CODE_PARENT_HEAD = 17556d7af347502e8fe549c99ed6bb191b1df392
+MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+UPDATED_AT = 2026-10-10
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+## CURRENT LIVE CHECKPOINT — 2026-10-10 — generic test repaired and raw-source classification guarded
+
+This checkpoint describes exact application-code SHA `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`. The state/report files are committed in a documentation-only child, so re-read live PR metadata for the current branch ref SHA. Use the exact application SHA above when interpreting code/test results.
+
+### Code changes confirmed by same-head readback
+- General source-derived intelligence remains integrated in File Lab, the Universal Intelligence Chain, and saved Smart Report; specialist analysis is composed on top and cannot replace general findings/signals/recommendations.
+- Generic card renders the complete lists provided by intelligence (including evidence and limitations), with source path, job ID, and SHA-256 provenance. Canonical recovery selects existing persisted evidence and preserves sourceHash/sourcePath/importId.
+- Customer portfolio inference now checks raw source headers. A guessed mappedField such as `name -> customer_name` cannot independently trigger customer/churn specialization.
+- At parent `17556d7...`, the runtime test file was malformed by an orphan duplicate fragment following a cut assertion. The whole composition-test section is now restored in `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`; the orphan fragment is absent in same-head readback.
+- The test matrix covers TXT, CSV, JSON, JSONL, XML, YAML, Markdown, RTF and the source-bound 17-column XLSX portfolio. A new case forces generic raw header `name` to mappedField `customer_name` and checks that specialization remains blocked.
+- The test file and modified generic intelligence module were both read back from the exact code SHA. This is source proof, not a successful runtime test.
+
+### Build, deployment and CI boundary
+- At `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`, CodeRabbit returned success. Vercel check failed with the account target `build-rate-limit`; this is a provider/account build limit, not a reported source parse error. Netlify deploy-preview check was pending at last read for deploy `6ac99580847b8c0009f4f614`. Do not claim the latest code SHA is deployed until that deploy is confirmed ready.
+- Last observed exact-code-head Actions inventory for 0e2fc9b2e7e55a01255cafc1286d4ab0bb506671: 57 runs; 2 completed (both skipped), 48 queued, 6 pending, 1 in progress at first poll. Focus: Product Build Gate #38013524659 QUEUED; Quality #38013525077 QUEUED; Data Quality Runtime #38013524702 QUEUED; File Intelligence Security #38013524449 QUEUED; Full Product Browser E2E #38013524550 PENDING and #38013520555 QUEUED; Session Handoff Contract #38013524498 PENDING. No focused runtime test has a terminal result.
+- Public content retrieval of `/import/analyze` confirms the Arabic File Lab landing/entry screen is served. It does not test upload interaction or authenticated pages.
+- Historical database readback: job `16709d80-e012-40ef-9c12-6fd8255897f8`, `تقارير ادارية.xlsx`; source_hash and renderedOutput.sourceHash match exactly, sourcePath matches, canonical row count is 332. This is one historical XLSX report only, not a current-head browser pass.
+
+### Still open
+- Authenticated upload → complete report → navigate/reload → persisted readback for varied formats is NOT PROVEN.
+- Phase-F restore/schema blocker from an earlier head (`public.intelligence_causal_hypotheses`) is still pending.
+- Adjacent PRs #906/#909 overlap the affected report/card files but do not contain this branch's current composer/guard test; do not merge blindly.
+- PRODUCT_COMPLETE = NO.
+
+NEXT_EXACT_ACTION = Consume the first terminal Quality/Product Build Gate result for `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`, inspect its full log, and fix the first confirmed failure. Then prove the same report jobId/sourceHash through authenticated upload, Smart Report navigation, reload and persisted readback.
+
+---
+
+## HISTORICAL STATE BELOW — preserved verbatim
+
 # LIVE CHECKPOINT — 2026-10-10 / KEEP GENERIC TABLES DOMAIN-NEUTRAL
 
 - Repository `Report-Engainall/Report-Advisor`, PR #912 OPEN / NOT MERGED, branch `fix/source-bound-generic-intelligence-20261009`.

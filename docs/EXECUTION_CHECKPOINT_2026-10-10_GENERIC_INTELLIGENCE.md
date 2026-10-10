@@ -132,3 +132,13 @@ Inspect the first terminal new-head build/quality result, repair the first actua
 
 
 Next: consume exact-head build and runtime test results for the new fix SHA. Do not claim test PASS until the matrix actually ran.
+
+
+## Test syntax repair and raw-source header safety — 2026-10-10
+
+- Exact application SHA: `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`; PR #912 open/not merged, branch `fix/source-bound-generic-intelligence-20261009`.
+- Repaired the malformed composition-test tail and added a regression that prevents a generic raw `name` column from becoming a customer portfolio solely because mappedField guesses `customer_name`.
+- This code/test commit is verified by same-head file readback. Runtime test PASS is not yet proven.
+- Latest observed status: CodeRabbit success; Vercel build-rate-limit check; Netlify deploy-preview pending; Product Build Gate #38013524659 queued; Quality #38013525077 queued; Full Product Browser E2E #38013524550 pending.
+- Historical XLSX source-hash readback exists for one job, but varied-format authenticated browser persistence/readback remains unproven. Product complete = NO.
+- Next: consume a terminal focused workflow log and correct the first confirmed failure before source-bound browser proof.

@@ -1,3 +1,17 @@
+# LIVE RESUME — 2026-10-10 / TEST FILE REPAIRED; SOURCE HEADER REQUIRED FOR SPECIALTY
+
+- Repo `Report-Engainall/Report-Advisor`; PR #912 open/not merged; branch `fix/source-bound-generic-intelligence-20261009`.
+- Exact application SHA: `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`; parent `17556d7af347502e8fe549c99ed6bb191b1df392`; main `fa1ab4cbade9b01685507aa966c10f700a03f576`. The state/report updates are a documentation-only child; read live PR metadata for current branch ref SHA.
+- Generic source-derived intelligence remains composed across File Lab and saved Smart Report with applicable specialist analysis added; source path/jobId/sourceHash lineage is rendered. Decision/approval gates remain fail-closed.
+- Customer specialization now requires an explicit customer identity in the raw source header, not a guessed `mappedField=customer_name`. Test fixture guards the generic raw `name` case.
+- The broken orphan test tail at parent `17556d7...` has been removed at `0e2fc9b2e7e55a01255cafc1286d4ab0bb506671`; the general/specialist composition assertions and footer now form one well-bounded block. Source readback succeeded, but test execution is not proven.
+- Latest observed CI: CodeRabbit success; Vercel check points to `build-rate-limit`; Netlify deploy-preview pending; Product Build Gate #38013524659 queued; Quality #38013525077 queued; Full Product Browser E2E #38013524550 pending. No terminal focused runtime test yet.
+- Historical XLSX DB job `16709d80-e012-40ef-9c12-6fd8255897f8` source_hash matches renderedOutput.sourceHash; sourcePath matches; 332 canonical rows. This is not current-head varied-format/browser proof.
+- Separate Phase-F restore-schema issue `public.intelligence_causal_hypotheses` remains unresolved by current passing evidence. Product and production completion not proven.
+- NEXT ONE ACTION: consume the first terminal exact-head Quality/Product Build Gate job; inspect log and fix the first confirmed failure, then prove the same report job/hash through upload→report→navigation/reload→saved readback.
+
+---
+
 # LIVE RESUME — 2026-10-10 / DOMAIN-NEUTRAL GENERIC TABLE INFERENCE FIX
 
 - Repository `Report-Engainall/Report-Advisor`; PR #912 OPEN / NOT MERGED; branch `fix/source-bound-generic-intelligence-20261009`.
