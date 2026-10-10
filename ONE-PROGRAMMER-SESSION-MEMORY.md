@@ -1,3 +1,40 @@
+# LIVE RESUME — 2026-10-10 / REPORT-CENTER CONTEXT FIX COMMITTED; RESTORE SCHEMA GAP INSPECTED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED
+- Exact code/test head at checkpoint: `639f5d92ed3b9768dd1d48e9a732cdd92561e07c`
+- Base SHA: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO
+
+## Latest executed source changes
+- Commit [d51bb6f](https://github.com/Report-Engainall/Report-Advisor/commit/d51bb6fe22a55da9f2533708983d6c05e08a5974) updates `src/pages/ReportsPage.tsx`: if `reportJobId` and `sourceHash` are present in the URL, the Reports Center fetches exactly that tenant-owned report; it validates the same source hash and fails visibly rather than silently replacing it with a different/latest report.
+- Commit [943102b](https://github.com/Report-Engainall/Report-Advisor/commit/943102bafef58cb84feba9df56fc65efe31614c4) updates `scripts/real-business-e2e.mjs` to navigate into the Reports Center with the exact current report ID + hash.
+- Commit [639f5d9](https://github.com/Report-Engainall/Report-Advisor/commit/639f5d92ed3b9768dd1d48e9a732cdd92561e07c) adds a source contract regression to `scripts/smart-report-complete-intelligence-surface.test.mjs`.
+- GitHub readback confirms those files contain the new context checks. Exact-head workflows were queued/in progress when last queried; the fix is not yet proven by a completed browser run.
+
+## Staging saved_views schema — read-only evidence
+Project `Report-Advisor-P0-2-Staging` / ref `fnqbvfuwbdpwvhcgzksl`. The live table exists, but Phase-F clean restore fails because it is absent from the restore schema: [Phase-F run 38065584312](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584312). Observed schema:
+- Columns: `id uuid PK default gen_random_uuid()`, `company_id uuid NOT NULL`, `user_id uuid NOT NULL`, `view_key text NOT NULL`, `name text NOT NULL`, `route text NOT NULL`, `state jsonb NOT NULL DEFAULT '{}'`, `created_at timestamptz NOT NULL DEFAULT now()`, `updated_at timestamptz NOT NULL DEFAULT now()`.
+- FKs: company_id → companies(id) ON DELETE CASCADE; user_id → auth.users(id) ON DELETE CASCADE; unique key (company_id,user_id,view_key), primary key id.
+- Index: (company_id,user_id,route,updated_at DESC) plus PK and unique index.
+- RLS is enabled (not forced); policy `saved_views_owner` for authenticated ALL, using/check `company_id = current_company_id() AND user_id = auth.uid()`.
+- Grants read from staging: authenticated SELECT/INSERT/UPDATE/DELETE; service_role full table privileges; no anon grants observed; no user triggers/dependent FKs observed.
+- No schema writes performed yet for saved_views. Do not modify production schema.
+
+## Exact-head proof status before schema migration
+- Quality + Product Build + Final Certification + Report Value Cohort + Session Handoff were PASS on predecessor d974:
+  [Quality](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584285),
+  [Build](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584294),
+  [Certification](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584259),
+  [Cohort](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584089),
+  [Handoff](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38065584323).
+- Full Product Browser E2E failed on `REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING` (root cause: Reports Center selected only catalog[0], while test required the exact current report). This is the source-context defect now patched; wait for exact-head browser run.
+- Device-independent E2E also exposed a distinct `sales_invoices` statement timeout at `/reports/sales`.
+- Phase-F failed because `public.saved_views` is not restored into the clean target. The table’s staging schema has been read-only inspected above; next action is to add a guarded migration in the PR, apply it only to staging, and verify table/RLS/policy/index/constraint readback.
+- Netlify deploy-preview run for docs-only d974 was canceled due no content change (not an app failure). Check the latest preview/deployment after a code commit; production alias still refers to old main.
+---
+
 # LIVE RESUME — 2026-10-10T20:00:00+03:00 / EXACT-HEAD GATES CONSUMED
 
 - Repository: `Report-Engainall/Report-Advisor`
