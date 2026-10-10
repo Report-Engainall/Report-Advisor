@@ -1,6 +1,32 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
+const cohortCandidateQuery = fs.readFileSync(
+  'supabase/migrations/20261003202724_optimize_report_value_cohort_candidates_lookup.sql',
+  'utf8',
+);
+const cohortCandidateIndex = fs.readFileSync(
+  'supabase/migrations/20261010191500_report_value_cohort_candidates_source_index.sql',
+  'utf8',
+);
+const extractCohortSourcePathRegex = (source, label) => {
+  const line = source.split('\n').find((candidate) => candidate.includes('source_path ~*'));
+  assert.ok(line, label + ' must declare source-path eligibility');
+  const operator = line.indexOf('~*');
+  const start = line.indexOf("'", operator) + 1;
+  const end = line.indexOf("'", start);
+  assert.ok(operator >= 0 && start > operator && end > start, label + ' must use a quoted source-path regex');
+  return line.slice(start, end);
+};
+assert.equal(
+  extractCohortSourcePathRegex(cohortCandidateIndex, 'Cohort partial index'),
+  extractCohortSourcePathRegex(cohortCandidateQuery, 'Cohort candidate RPC'),
+  'Partial index and candidate RPC must use the exact same source-path regex or PostgreSQL may not consider the index usable',
+);
+assert.ok(cohortCandidateIndex.includes('idx_report_value_cohort_candidates_source'));
+assert.ok(cohortCandidateIndex.includes('(source_hash, lower(source_path), company_id, id)'));
+console.log('REPORT_VALUE_COHORT_INDEX_CONTRACT_PASS');
+
 const passportSchema = fs.readFileSync(
   'supabase/migrations/20261002143000_create_report_evidence_passport.sql',
   'utf8',
