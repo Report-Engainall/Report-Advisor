@@ -1,3 +1,35 @@
+# LIVE RESUME — 2026-10-10T17:30:00+03:00 / TRUST ASSERTION CORRECTED; EXACT-HEAD PROOF RECORDED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) — OPEN / NOT MERGED
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- Current application/test candidate: `eb95f709a8ebead63e556380e18394c02c17726` (fresh E2E assertion patch; rerun results pending at checkpoint creation)
+- Last fully proven code head: `8f064944f5f3b42c25ce1d3e687426abafd4b080`
+- Product completion: NO. Keep evidence/decision gates fail-closed.
+
+## Latest proved evidence
+- Quality run [38058146785](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146785): PASS on `8f064944...`. The log explicitly reports `GENERIC FILE ANALYSIS PASS` and `STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation`; typecheck/lint/build/performance and file-engine checks passed.
+- Product Build Gate [38058146826](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146826): PASS on `8f064944...`.
+- Device-Independent Browser E2E [38058146520](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146520): PASS; browser-smoke and authenticated E2E passed.
+- Full Product Browser E2E [38058146828](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146828): FAIL at the report trust assertion, while route/auth/tenant/source-lineage checks passed. Stored source report `16709d80-e012-40ef-9c12-6fd8255897f8` matched `تقارير ادارية.xlsx`, SHA `sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313`, 332 source/canonical/committed rows, quality 98; its evidence state was `AWAITING_EVIDENCE_SNAPSHOT`.
+- Root cause of that browser assertion: test accepted Arabic wording `موثّق` / `التقرير موثق` but omitted the actual UI’s source-trust label `موثوق`. The report correctly distinguishes trusted extraction from not-yet-verified evidence passport; do not fake a verified passport.
+- Fixed the E2E check in `scripts/real-business-e2e.mjs` through candidate `eb95f709a8ebead63e556380e18394c02c17726`: accept the visible source trust state (`موثوق`/TRUSTED) and separately assert that the evidence snapshot is still pending/review where applicable. Exact-head CI for this newest commit was not terminal at checkpoint creation.
+- Report Value Cohort [38058146878](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146878): FAIL, 18/42 reports closed as verified; 24 remain `PASSPORT_NOT_CLOSED`, `UNVERIFIED`, and `PARTIAL`. Do not weaken the passport gate.
+- Phase-F live resilience [38058146545](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146545): FAIL, 3/4 probes passed; backup restore stops because `public.intelligence_voi_requests` is missing in the restored schema.
+- Session Handoff Contract [38058146969](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38058146969): FAIL because the prior report omitted changed files `ONE-PROGRAMMER-SESSION-MEMORY.md`, `scripts/generic-file-analysis.test.mjs`, `src/lib/file-engine/specialty-inference.ts`, and `src/pages/ExternalFileAnalysisPage.tsx`. This update resets report coverage at the new application candidate and preserves archived prior reports.
+
+## Implemented since initial checkpoint
+- Shared source-heading normalizer/specialty inference in `src/lib/file-engine/specialty-inference.ts`.
+- File Lab uses the shared helper in both preview inference and memoized specialty selection; the old `inferSpecialty` references are gone.
+- `scripts/generic-file-analysis.test.mjs` covers spaced English and Arabic headings, explicit customer/supplier header evidence, and domain-neutral generic columns.
+- Source-bound general intelligence remains composed with applicable specialist intelligence, and the general card continues to show all available signals, recommendations, findings, evidence and limitations without silent list truncation.
+
+## Next exact action
+Consume terminal Quality/Product Build Gate/Full Product Browser E2E results for `eb95f709a8ebead63e556380e18394c02c17726`; fix the first verified failure without promoting `AWAITING_EVIDENCE_SNAPSHOT` to verified. Then address the independent passport-closure cohort and restore-schema blocker. Re-prove the same `reportJobId + sourceHash` across upload, Smart Report, navigation and reload before calling the product complete.
+
+---
+
 # LIVE RESUME — 2026-10-10 / VERIFIED HEAD + SPECIALTY NORMALIZATION ROOT CAUSE
 
 - Repository: `Report-Engainall/Report-Advisor`
