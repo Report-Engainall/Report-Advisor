@@ -93,3 +93,12 @@ Refresh PR #912 head and CI at that exact SHA; resolve compilation or focused-te
 - Netlify deploy `6ac98fa3e1c3c9000891b1e6` is `ready`; GitHub deploy-preview status for the exact repair SHA is `success`.
 - Product Build Gate and Full Product Browser E2E are still queued/pending. No runtime/readback/browser success yet.
 - Next: inspect exact current-head CI and source-bound browser run; fix first real gate error and verify displayed evidence through reload and source-hash readback.
+
+
+## Repaired-code deployment proof and post-checkpoint head — 2026-10-10
+
+- Code repair SHA `dee505dc045d577b9015ca7cb2ba06adb00a6f76`: Vercel deployment `dpl_A324rGB56uAugR32zA2ZHAgcPgC5` state `READY`; Netlify deploy `6ac98fa3e1c3c9000891b1e6` state `ready`. Combined commit statuses on that exact SHA were success for Vercel, Vercel Deployments – Injaz, Netlify deploy preview and CodeRabbit.
+- The branch advanced to docs-only checkpoint SHA `aff08b7819ee50f6ce2aabb07be3d33b8663e82c`. At this newer exact SHA, Netlify preview status is success and Vercel is still pending; the deployment lifecycle for the docs head is separate from the proven code-sha deployment above.
+- Current-head Product Build Gate run `38011967171` and Full Product Browser E2E run `38011967276` were queued; quality run `38011967189` queued. These do not establish a pass.
+- This proves syntax/build/deploy recovery for the repaired code candidate, not end-to-end user journey, report persistence/readback, or production completion.
+- Next: consume current-head Product Build Gate then Full Product Browser E2E, keeping source identity/hash evidence in the final proof.

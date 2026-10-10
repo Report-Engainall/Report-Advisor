@@ -1,3 +1,15 @@
+# LIVE VERIFICATION — 2026-10-10 / REPAIRED CODE DEPLOYMENT READY; NEW DOC HEAD PENDING
+
+- Code repair commit `dee505dc045d577b9015ca7cb2ba06adb00a6f76` is verified deployed on both hosts: Vercel deployment `dpl_A324rGB56uAugR32zA2ZHAgcPgC5` state `READY`; Netlify deploy `6ac98fa3e1c3c9000891b1e6` state `ready`. The exact-code-head combined statuses were Vercel success, Vercel Deployments – Injaz success, Netlify deploy-preview success, CodeRabbit success. [Vercel deployment](https://vercel.com/injaz2/report-advisor/A324rGB56uAugR32zA2ZHAgcPgC5) · [Netlify preview](https://deploy-preview-912--aghbari-report-advisor.netlify.app).
+- The code repair is now backed by a successful build/deploy, but that does **not** establish product completion or browser/database correctness.
+- The documentation-only checkpoint commit `aff08b7819ee50f6ce2aabb07be3d33b8663e82c` moved the branch head again. For this latest head, current combined statuses: Netlify deploy-preview success; Vercel pending; the exact-head Vercel deployment is `https://vercel.com/injaz2/report-advisor/5VMhxVWprRZY8eDoHazjZTCD5agE`.
+- Current-head Product Build Gate run `38011967171` was queued; Full Product Browser E2E run `38011967276` was queued; quality run `38011967189` queued. Do not transfer passes from the prior code SHA to the new docs SHA.
+- PR #912 remains open / not merged, branch `fix/source-bound-generic-intelligence-20261009`. Source analysis/general+specialist composition is in code; actual source-bound user journey and persisted readback are still unproven.
+
+## One next action
+Read the terminal result for the current-head Product Build Gate, then the current-head Full Product Browser E2E. Fix only the first concrete failure and preserve a verified report-job/source-hash pair through reload/navigation.
+---
+
 # LIVE UPDATE — 2026-10-10 / FIXED PARSE ERROR; NETLIFY READY; OTHER GATES OPEN
 
 - PR #912 remains OPEN / NOT MERGED. Branch `fix/source-bound-generic-intelligence-20261009`, exact current code SHA at checkpoint: `dee505dc045d577b9015ca7cb2ba06adb00a6f76`.
