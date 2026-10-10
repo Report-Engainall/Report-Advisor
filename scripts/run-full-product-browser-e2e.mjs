@@ -306,7 +306,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
         smartSourceHashPresent: text.includes(smartReportSourceHash) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes(smartReportSourceHash)),
         realReportJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
-        realReportSourcePresent: text.includes(REAL_SMART_REPORT_SOURCE_PATH),
+        realReportSourcePresent: text.includes(smartReportSourcePath),
       };
     }, {
       expected,
