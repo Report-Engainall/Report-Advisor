@@ -108,7 +108,6 @@ async function main() {
 
   const sharedId = portfolioIntelligence.signals[0]?.id;
   assert.ok(sharedId, 'general layer should have at least one source-derived signal');
-  const generalSignal = portfolioIntelligence.signals.find(signal => signal.id === sharedId);
   const specialistEvidence = 'specialist-proof=customer-activity';
   const generalEvidence = 'general-proof=raw-source-content';
   const specialistLayer = {
