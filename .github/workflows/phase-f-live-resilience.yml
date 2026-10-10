@@ -221,7 +221,7 @@ jobs:
             fi
             if [[ -n "$source" && "$source" == "$build" && "$build" == "$deployment" && "$deployment" != "$expected" ]]; then
               mapfile -t changed_files < <(git diff --name-only "$deployment..$expected")
-              if (( ${#changed_files[@]} > 0 )) && printf "%s\n" "${changed_files[@]}" | grep -vqv "^docs/execution/"; then
+              if (( ${#changed_files[@]} > 0 )) && printf "%s\n" "${changed_files[@]}" | grep -vqE "^(docs/execution/|ONE-PROGRAMMER-SESSION-MEMORY\\.md$)"; then
                 echo "RUNTIME_PROVENANCE_CODE_DRIFT=true"
               elif (( ${#changed_files[@]} > 0 )); then
                 echo "RUNTIME_PROVENANCE_CODE_EQUIVALENT=true"
