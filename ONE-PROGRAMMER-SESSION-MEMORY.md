@@ -1,3 +1,30 @@
+# LIVE RESUME — 2026-10-12T02:30+03:00 / EXACT HEAD 02b9099; PRODUCT PROOF STILL OPEN
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact current head: 02b909915a11b47cd50141dbc2d98b392ce5fb58
+Base main: fa1ab4cbade9b01685507aa966c10f700a03f576
+Code checkpoint parent: 5465692b6626166ce0df858ab562b206707349cc
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+Verified on this exact head:
+- Session Handoff Contract PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038344
+- Product Build PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038395
+- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038218
+- Data Quality Runtime PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038258
+- Phase-F Live Resilience PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038326
+- Final Certification Gate PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038345
+- Device-Independent Browser E2E PASS (smoke only): https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038221
+- UI Route Completeness PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038295
+- Full Product Browser E2E: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038418 is still PENDING at last read, with no jobs/artifacts available. No full authenticated journey or 48/48 matrix PASS is claimed.
+
+Historical Session Handoff failure on 9bd1902902a01422590123a0d13f2a78e5658e35: run 38160613659 reported exactly ".github/workflows/phase-f-live-resilience.yml" as an unreported changed path. The defect was stale report coverage, not a reason to remove the workflow or alter the contract. Current exact-head handoff now passes, and the live report/state pointers are being reconciled. Keep historical logs and reports; use only docs/execution/PROGRAMMER_REPORTS/ for new archived reports.
+
+Next exact action: consume run 38184038418 only after it has job output; inspect its first runtime failure/artifact and governed real-source matrix; repair the demonstrated defect; rerun affected gates on the resulting exact head. Do not merge or deploy until authenticated Chromium upload + extraction + generic-intelligence render + persisted readback/reload/re-login, source-bound cross-screen identity, 48/48 real-source proof and published-head equality all pass.
+
+---
+
 # LIVE RESUME — 2026-10-12 / FRESH XLSX DISCOVERY FIXED; REVALIDATE FROM 5465692b6626166ce0df858ab562b206707349cc
 
 Repository: Report-Engainall/Report-Advisor

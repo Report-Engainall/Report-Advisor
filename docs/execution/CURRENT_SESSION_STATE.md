@@ -1,4 +1,46 @@
+## LIVE RESUME — 2026-10-12T02:30+03:00 / EXACT-HEAD RECONCILIATION
+
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PR_STATE = OPEN / NOT MERGED
+CURRENT_EXACT_HEAD = 02b909915a11b47cd50141dbc2d98b392ce5fb58
+CURRENT_CODE_CHECKPOINT = 5465692b6626166ce0df858ab562b206707349cc (parent; XLSX import-discovery correction)
+CURRENT_BASE_MAIN = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12T02:30:00+03:00
+
+LIVE GATE READBACK ON 02b909915a11b47cd50141dbc2d98b392ce5fb58:
+- Session Handoff Contract [38184038344](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038344) = PASS.
+- Product Build Gate [38184038395](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038395) = PASS.
+- Quality [38184038218](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038218) = PASS.
+- Data Quality Runtime [38184038258](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038258) = PASS.
+- Phase-F Live Resilience [38184038326](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038326) = PASS.
+- Final Certification Gate [38184038345](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038345) = PASS.
+- Device-Independent Browser E2E [38184038221](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038221) = PASS (smoke only; not the authenticated full business journey).
+- UI Route Completeness [38184038295](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038295) = PASS.
+- Full Product Browser E2E [38184038418](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038418) = PENDING at last read; its run had no jobs or artifacts yet. Do not claim browser/business success or infer a failure reason.
+
+HANDOFF FAILURE RECONCILIATION:
+- Historical failing run [38160613659](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38160613659) on predecessor 9bd1902902a01422590123a0d13f2a78e5658e35 logged exactly: "stale report; unreported files: .github/workflows/phase-f-live-resilience.yml".
+- Root cause: the report baseline used by the session-handoff checker did not cover the already-changed Phase-F workflow file. The checker allowlist/validation must remain intact; do not delete the workflow or weaken the contract.
+- The handoff check passes on current observed head 02b909915a11b47cd50141dbc2d98b392ce5fb58. This checkpoint updates the first/current report references to the live branch head and keeps the new archive beneath the permitted docs/execution/PROGRAMMER_REPORTS/ tree.
+
+NOT YET PROVEN:
+- Full authenticated Chromium business journey on current/final head.
+- Exact-head fresh CSV and XLSX upload, authoritative extraction, generic-intelligence rendering, durable readback after refresh/re-login.
+- Governed multi-tenant real-source matrix with supported=48/48 and matching exact-head artifact.
+- A customer-facing browser proof across the report, evidence, decision, work, outcome and learning surfaces.
+- Current deployed SHA equal to the approved application SHA and production browser proof.
+- No new UI restyling is claimed in this checkpoint; visual changes must be validated against the actual rendered surfaces.
+
+ACTION_STATUS = GOVERNANCE CHECKPOINT RECONCILED; FULL PRODUCT BROWSER RUN PENDING
+NEXT_EXACT_ACTION = Re-read run 38184038418 until it reaches a terminal state; inspect its job logs/artifacts and fix the first evidenced business-journey or 48-source-matrix failure without relaxing acceptance criteria; then rerun exact-head gates and verify production only after all product proof passes.
+SESSION HANDOFF = READY
+
 # CURRENT SESSION STATE
+
 
 ## LIVE RESUME — 2026-10-12 / XLSX IMPORT COMPLETION FORMAT FIX
 
