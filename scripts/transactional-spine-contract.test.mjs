@@ -31,6 +31,14 @@ assert.match(page, /FULFILLMENT \/ WAREHOUSE/);
 assert.match(page, /AUDIT \/ TRACE/);
 assert.match(page, /READBACK CONTRACT/);
 assert.match(page, /READ-ONLY/);
+
+const loadImplementation = page.match(/const load = useCallback\(async \(options: \{ preserveFeedback\?: boolean \} = \{\}\) => \{[\s\S]*?\n  \}, \[\]\);/);
+assert.ok(loadImplementation, 'operations load must expose explicit feedback-preservation semantics');
+assert.match(loadImplementation[0], /if \(!options\.preserveFeedback\) setFeedback\(null\)/,
+  'manual refresh may clear stale feedback, while post-mutation refresh must preserve its confirmation');
+assert.equal((page.match(/await load\(\{ preserveFeedback: true \}\);/g) ?? []).length, 3,
+  'order, invoice, and payment mutation refreshes must preserve success feedback after persisted readback');
+
 assert.match(page, /NOT IMPLEMENTED/);
 assert.match(page, /PERMISSION_DENIED/);
 for (const marker of ['drop policy if exists tenant_update','drop policy if exists tenant_delete','revoke update, delete, truncate on table public.audit_logs from authenticated']) {

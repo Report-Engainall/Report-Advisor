@@ -98,9 +98,9 @@ export function OperationsPage() {
   const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (options: { preserveFeedback?: boolean } = {}) => {
     setLoading(true);
-    setFeedback(null);
+    if (!options.preserveFeedback) setFeedback(null);
     const results = await Promise.allSettled([
       fetchOperationalOrders(),
       fetchOperationalInvoices(),
@@ -171,7 +171,7 @@ export function OperationsPage() {
     try {
       await transitionOperationalOrder(order.id, next);
       setFeedback('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.');
-      await load();
+      await load({ preserveFeedback: true });
       setSelectedOrderId(order.id);
       await refreshOrderHistory(order.id);
     } catch (cause) {
@@ -188,7 +188,7 @@ export function OperationsPage() {
       const createdInvoice = await createInvoiceFromOperationalOrder(order.id);
       setSelectedInvoiceId(createdInvoice.id);
       setFeedback('تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.');
-      await load();
+      await load({ preserveFeedback: true });
     } catch (cause) {
       setFeedback(operationalErrorMessage(cause, 'تعذر تثبيت الفاتورة'));
     } finally {
@@ -213,7 +213,7 @@ export function OperationsPage() {
       setPaymentAmount('');
       setPaymentReference('');
       setFeedback('تم تسجيل الدفعة وإعادة قراءة الفاتورة والرصيد من المصدر.');
-      await load();
+      await load({ preserveFeedback: true });
     } catch (cause) {
       setFeedback(operationalErrorMessage(cause, 'تعذر تسجيل الدفعة'));
     } finally {
