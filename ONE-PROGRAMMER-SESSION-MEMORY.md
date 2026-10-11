@@ -1896,3 +1896,35 @@ NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts w
 
 ## Exact next action
 Read exact-head checks for `c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc`. First verify that the inventory route now visibly exposes the full hash; then resolve the first remaining terminal E2E failure. Re-run Phase-F, handoff and certification on the exact head. Do not claim new-head browser/readback/restore/production PASS until the corresponding run proves it.
+
+
+# LIVE RESUME — 2026-10-11T20:25:00+03:00 / CORRECT DOMAIN SURFACE FIX + REGRESSION CONTRACT
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR #912: OPEN / NOT MERGED.
+- Product-code/test head at this checkpoint: `eb56d92f8e13dd926be0c3980fdddcaa9cf97043`; the next commits are report/state-only checkpoints unless otherwise stated.
+- Product complete: NO.
+
+## Root-cause correction
+The failing Chromium route `/reports/inventory` is composed as `ReportsPage.tsx → SourceBoundDomainSurface → CustomerReportSurface`. The previous commit `c7c774a6...` exposed the hash in `SourceBoundReportSurface.tsx`, which is not the component rendered on the inventory domain route. That was incomplete, not a proven repair.
+
+## Code and test changes committed
+- `3e06dd96517782acad9cf2aeab22e86d51380fd3`: `src/components/CustomerReportSurface.tsx` now visibly renders the full `report.sourceHash` with `data-testid="customer-report-source-hash"`.
+- `eb56d92f8e13dd926be0c3980fdddcaa9cf97043`: `scripts/smart-report-complete-intelligence-surface.test.mjs` now fails unless CustomerReportSurface explicitly renders the source hash.
+- Prior linked surfaces still display the source hash in `src/components/SourceBoundReportSurface.tsx`; the end-to-end assertion remains strict.
+
+## Verified exact-head evidence
+- Previous Product Build Gate and Quality passed at `ae203723...` (runs [38158554251](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554251), [38158554494](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554494)); these do not certify code later than that commit.
+- Phase-F live resilience passed at `ae203723...` [38158554444](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554444). It did not prove the newer domain-surface change.
+- Full Product Browser E2E at `ae203723...` was cancelled while running. Older browser run [38157202976](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202976) proved auth/tenant/source setup and the 48-archetype runtime step but failed with `inventory: source hash missing`.
+- Session Handoff and Final Certification at `ae203723...` failed because the checkpoint omitted `PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md` and `scripts/smart-report-complete-intelligence-surface.test.mjs`.
+- A Commercial Product Creation E2E on that previous head failed with `current_company_id HTTP 401`, JWT error `issued at future`. Track as an Auth/time boundary issue, separate from intelligence rendering.
+- Exact-head gates were created for `eb56d92...`: Product Build Gate [38159039145](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159039145), Quality [38159039134](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159039134), Browser [38159039083](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159039083), Handoff [38159039238](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159039238), Final Certification [38159039140](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159039140), Phase-F [38159039334](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159039334), and Report Value Cohort [38159039272](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159039272). Their first attempts were queued/in-progress/cancelled as newer commits arrived; no browser PASS is inferred.
+- The corrected UI/test change was committed after `eb56d92...` and requires exact-head validation at the newest PR HEAD.
+
+## Required handoff coverage
+The latest report must enumerate: `src/components/CustomerReportSurface.tsx`; `src/components/SourceBoundReportSurface.tsx`; `scripts/smart-report-complete-intelligence-surface.test.mjs`; `PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md`; `PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md`.
+
+## NEXT EXACT ACTION
+Finish the persistent state/report update for these exact changed files, then read new exact-HEAD Build/Quality/Browser/Handoff/Certification/Phase-F results. First prove that `/reports/inventory` visibly renders the exact source hash, then resolve the next actual terminal failure. Do not merge or claim product completion/production readiness until upload → generic + applicable specialty intelligence → evidence → save/readback → linked screens → refresh/re-entry passes on the same source identity.
