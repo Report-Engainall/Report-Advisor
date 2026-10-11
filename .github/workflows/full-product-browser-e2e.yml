@@ -410,9 +410,10 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/real-business-e2e.mjs
 
-      - name: Report real-source 48 archetype coverage (non-blocking)
-        # This diagnostic is optional after the blocking business journey; do not delay failure artifacts or the next exact-head retry.
-        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' && steps.business-e2e.outcome == 'success' }}
+      - name: Prove governed real-source 48 archetype matrix
+        id: real-source-matrix
+        # Run independently of the browser journey outcome so real-source coverage evidence is never skipped by an unrelated UI failure.
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
@@ -424,14 +425,11 @@ jobs:
           E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
         shell: bash
         run: |
-          set +e
-          test -n "${TEST_USER_B_EMAIL}" && test -n "${TEST_USER_B_PASSWORD}"
+          set -euo pipefail
+          test -n "${TEST_USER_B_EMAIL}"
+          test -n "${TEST_USER_B_PASSWORD}"
+          test -n "${SUPABASE_SERVICE_ROLE_KEY}"
           node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
-          rc=$?
-          echo "REAL_SOURCE_48_COVERAGE_IS_NON_BLOCKING=true" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_EXIT_CODE=$rc" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_GATE=DIAGNOSTIC_ONLY" >> "$GITHUB_STEP_SUMMARY"
-          exit 0
 
       - name: Fail closed on browser evidence
         if: ${{ always() }}
@@ -440,7 +438,11 @@ jobs:
           set -euo pipefail
           node <<'NODE'
           const fs = require('node:fs');
-          const files = ['artifacts/e2e-browser/result.json', 'artifacts/e2e-business/result.json'];
+          const files = [
+            'artifacts/e2e-browser/result.json',
+            'artifacts/e2e-business/result.json',
+            'artifacts/e2e-business/real-48-source-matrix-preflight.json',
+          ];
           const failures = [];
           for (const file of files) {
             if (!fs.existsSync(file)) {
@@ -450,6 +452,9 @@ jobs:
             const result = JSON.parse(fs.readFileSync(file, 'utf8'));
             if (result.exactHead !== process.env.EXACT_HEAD) failures.push(file + ': EXACT_HEAD_MISMATCH');
             if (result.status !== 'PASS') failures.push(file + ': STATUS=' + (result.status || 'UNKNOWN'));
+            if (file.endsWith('real-48-source-matrix-preflight.json') && (result.summary?.totalArchetypes !== 48 || result.summary?.supported !== 48)) {
+              failures.push(file + ': REAL_SOURCE_ARCHETYPE_COVERAGE=' + String(result.summary?.supported ?? 'UNKNOWN') + '/' + String(result.summary?.totalArchetypes ?? 'UNKNOWN'));
+            }
             const items = [
               ...(Array.isArray(result.findings) ? result.findings : []),
               ...(Array.isArray(result.steps) ? result.steps : []),

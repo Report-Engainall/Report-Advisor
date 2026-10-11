@@ -6,6 +6,7 @@ const surface = fs.readFileSync('src/components/CustomerReportSurface.tsx', 'utf
 const smart = fs.readFileSync('src/pages/SmartReportPage.tsx', 'utf8');
 const app = fs.readFileSync('src/App.tsx', 'utf8');
 const reportSourceContext = fs.readFileSync('src/components/ReportSourceContext.tsx', 'utf8');
+const fullProductBrowserWorkflow = fs.readFileSync('.github/workflows/full-product-browser-e2e.yml', 'utf8');
 
 assert.ok(reports.includes("import { CustomerReportSurface } from '@/components/CustomerReportSurface';"));
 assert.ok(reports.includes("import { SourceContextNavigation } from '@/components/ReportSourceContext';"), 'Reports center must render the source-bound navigation on its actual report surface');
@@ -83,6 +84,15 @@ assert.ok(realBusinessE2E.includes("locator('[data-testid=\"smart-report-decisio
 assert.ok(realBusinessE2E.includes(".filter({ hasText: 'التفاصيل الكاملة للتقرير' })"), 'Real business E2E must scope Evidence Passport to the visible details summary');
 assert.ok(!realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor"), 'Real business E2E must not select a hidden duplicate Evidence Passport label');
 assert.ok(!realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: false }).waitFor"), 'Real business E2E must not retain a non-unique Evidence Passport locator');
+assert.ok(realBusinessE2E.includes('function xlsxBuffer(input)'), 'Browser journey must generate a genuinely new XLSX fixture for parser/persistence proof');
+assert.ok(realBusinessE2E.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 'Fresh XLSX upload must use the correct MIME type');
+assert.ok(realBusinessE2E.includes('fresh-generic-xlsx-upload'), 'Browser journey must save/read back a newly uploaded XLSX report');
+assert.ok(realBusinessE2E.includes('fresh-xlsx-upload-to-generic-intelligence-save-readback-refresh'), 'Fresh XLSX must prove generic intelligence survives persisted readback and refresh');
+assert.ok(!realBusinessE2E.includes("scripts/real-48-archetype-proof.mjs"), 'Single-tenant 48-archetype diagnostic must not fail an otherwise completed customer journey');
+assert.ok(fullProductBrowserWorkflow.includes('name: Prove governed real-source 48 archetype matrix'), 'The governed multi-tenant source matrix must run as its own gate');
+assert.ok(fullProductBrowserWorkflow.includes("scripts/real-48-source-matrix-preflight.mjs"), 'Real-source matrix must execute the governed source preflight');
+assert.ok(fullProductBrowserWorkflow.includes("'artifacts/e2e-business/real-48-source-matrix-preflight.json'"), 'Fail-closed browser gate must read the real-source matrix evidence artifact');
+assert.ok(fullProductBrowserWorkflow.includes('result.summary?.supported !== 48'), 'The real-source matrix gate must fail closed unless all 48 real source archetypes are supported');
 assert.ok(reports.includes('export function SalesReportPage'), 'Sales report surface must remain present');
 assert.ok(reports.includes('export function PurchasesReportPage'), 'Purchases report surface must remain present');
 const salesBlock = reports.slice(reports.indexOf('export function SalesReportPage'), reports.indexOf('export function PurchasesReportPage'));

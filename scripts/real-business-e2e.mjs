@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import { spawnSync } from 'node:child_process';
+import * as XLSX from 'xlsx';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
@@ -133,6 +133,15 @@ function csvBuffer(input) {
   };
   const body = rows.map(row => headers.map(header => csvCell(row[header])).join(',')).join('\n');
   return Buffer.from(`\ufeff${headers.map(csvCell).join(',')}\n${body}\n`, 'utf8');
+}
+
+function xlsxBuffer(input) {
+  const rows = Array.isArray(input) ? input : [input];
+  if (!rows.length) throw new Error('E2E_XLSX_SOURCE_ROWS_REQUIRED');
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Source');
+  return XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
 }
 async function tagSyntheticE2EFileRecord(companyId, fileRecordId, label) {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -281,20 +290,22 @@ async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
     ':progress=' + (lastImport?.progress ?? 'NOT_OBSERVED')
   );
 }
-async function importOne(page, label, fields, marker) {
+async function importOne(page, label, fields, marker, format = 'csv') {
   const sourceRows = Array.isArray(fields) ? fields : [fields];
   if (!sourceRows.length) throw new Error('UNIFIED_IMPORT_EXPECTED_SOURCE_ROWS:' + label);
+  if (format !== 'csv' && format !== 'xlsx') throw new Error('UNSUPPORTED_E2E_SOURCE_FORMAT:' + format);
+  const fileName = `${marker}.${format}`;
+  const mimeType = format === 'xlsx'
+    ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    : 'text/csv';
+  const buffer = format === 'xlsx' ? xlsxBuffer(sourceRows) : csvBuffer(sourceRows);
   await openImportSource(page);
-  await page.locator('input[type=file]').first().setInputFiles({
-    name: `${marker}.csv`,
-    mimeType: 'text/csv',
-    buffer: csvBuffer(fields),
-  });
+  await page.locator('input[type=file]').first().setInputFiles({ name: fileName, mimeType, buffer });
 
   // The current import UX intentionally queues a chosen file before analyzing it.
   // The stage label "المراجعة" is always rendered in the stepper, so waiting for
   // that text alone is not proof that the parser reached the preview stage.
-  const queuedSource = page.getByText(`${marker}.csv`, { exact: true }).locator('xpath=../..');
+  const queuedSource = page.getByText(fileName, { exact: true }).locator('xpath=../..');
   await queuedSource.getByRole('button', { name: 'تحليل هذا المصدر', exact: true }).click();
 
   const reviewStage = page.locator('[role="listitem"][aria-current="step"][aria-label^="3. المراجعة"]');
@@ -353,7 +364,7 @@ async function importOne(page, label, fields, marker) {
   assert.deepEqual(canonicalRows.map(row => Number(row.row_number)).sort((a, b) => a - b), sourceRows.map((_, index) => index + 1), 'canonical row lineage must retain all input row numbers');
   assert.ok(canonicalRows.every(row => row.provenance?.tenantId === companyId), 'every source row must retain tenant provenance');
   assert.ok(canonicalRows.every(row => row.provenance?.sourceDocumentId === job.id), 'every source row must retain source-document provenance');
-  evidence.persisted[label] = { job, canonical: canonicalRows[0], canonicalRowCount: canonicalRows.length, sourcePath: marker + '.csv' };
+  evidence.persisted[label] = { job, canonical: canonicalRows[0], canonicalRowCount: canonicalRows.length, sourcePath: fileName };
   evidence.steps.push({
     step: `unified-import-canonical-persistence:${label}`,
     status: 'PASS',
@@ -369,7 +380,7 @@ async function importOne(page, label, fields, marker) {
     { limit: 1 },
   );
   assert.equal(historySource.length, 1, 'import history readback must resolve the persisted source record');
-  assert.equal(historySource[0].file_name, marker + '.csv');
+  assert.equal(historySource[0].file_name, fileName);
   assert.equal(historySource[0].company_id, companyId);
   evidence.steps.push({
     step: 'unified-import-history-readback:' + label,
@@ -377,7 +388,7 @@ async function importOne(page, label, fields, marker) {
     sourceRecordId: historySource[0].id,
   });
 
-  return { job, canonical: canonicalRows[0], canonicalRows, sourcePath: marker + '.csv', rowCount: sourceRows.length };
+  return { job, canonical: canonicalRows[0], canonicalRows, sourcePath: fileName, rowCount: sourceRows.length };
 }
 
 
@@ -1611,16 +1622,73 @@ try {
     rowCount: freshUploadRows.length,
   });
 
+  // Exercise a new workbook through the same customer upload UI, canonical persistence,
+  // rendered generic-intelligence surface, and post-refresh durable readback.
+  const freshXlsxMarker = freshUploadMarker + '-xlsx';
+  const freshXlsxRows = [
+    {
+      'معرّف الحالة': freshXlsxMarker + '-01',
+      'وصف الحالة': 'تأخر توريد يحتاج متابعة عاجلة',
+      'الأولوية': 'مرتفعة',
+      'الموقع': 'المستودع الشمالي',
+      'قيمة قيد المراجعة': 12850,
+      'أيام التأخير': 4,
+      'حالة المعالجة': 'مفتوحة',
+    },
+    {
+      'معرّف الحالة': freshXlsxMarker + '-02',
+      'وصف الحالة': 'فرق جرد يحتاج مراجعة قبل الاعتماد',
+      'الأولوية': 'متوسطة',
+      'الموقع': 'المستودع الجنوبي',
+      'قيمة قيد المراجعة': 4375,
+      'أيام التأخير': 1,
+      'حالة المعالجة': 'قيد المراجعة',
+    },
+    {
+      'معرّف الحالة': freshXlsxMarker + '-03',
+      'وصف الحالة': 'نقص مواد التعبئة يرفع مخاطر التأخير',
+      'الأولوية': 'عالية',
+      'الموقع': 'خط الإنتاج',
+      'قيمة قيد المراجعة': 9820,
+      'أيام التأخير': 6,
+      'حالة المعالجة': 'مفتوحة',
+    },
+  ];
+  const freshXlsxImport = await importOne(
+    pageA,
+    'fresh-generic-xlsx-upload',
+    freshXlsxRows,
+    freshXlsxMarker,
+    'xlsx',
+  );
+  const freshXlsxReport = await proveSmartReportAndEvidence(
+    pageA,
+    evidence.tenantA,
+    freshXlsxImport,
+    'fresh-generic-xlsx-upload',
+  );
+  evidence.persisted.freshGenericXlsxUpload = {
+    tenantId: evidence.tenantA,
+    reportJobId: freshXlsxReport.id,
+    sourcePath: freshXlsxReport.source_path,
+    sourceHash: freshXlsxReport.source_hash,
+    uploadedRows: freshXlsxRows.length,
+    genericSignalCount: freshXlsxReport.evidence?.renderedOutput?.genericIntelligence?.signals?.length ?? null,
+    genericRecommendationCount: freshXlsxReport.evidence?.renderedOutput?.genericIntelligence?.recommendations?.length ?? null,
+    evidenceState: freshXlsxReport.evidence?.renderedOutput?.evidenceStatus ?? null,
+  };
+  evidence.steps.push({
+    step: 'fresh-xlsx-upload-to-generic-intelligence-save-readback-refresh',
+    status: 'PASS',
+    tenantId: evidence.tenantA,
+    reportJobId: freshXlsxReport.id,
+    sourcePath: freshXlsxImport.sourcePath,
+    sourceHash: freshXlsxImport.canonical.source_hash,
+    rowCount: freshXlsxRows.length,
+  });
+
   await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' }); assert.equal(await logoutA.count(), 1, 'TENANT_A_LOGOUT_CONTROL_MISSING'); await logoutA.click(); await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-A-logout', status: 'PASS' });
   if (evidence.failures.length) throw new Error('BROWSER_RUNTIME_ERRORS:' + evidence.failures.join(' | '));
-  const real48 = spawnSync(process.execPath, ['--experimental-strip-types', '--experimental-loader', './scripts/node-ts-extension-loader.mjs', 'scripts/real-48-archetype-proof.mjs'], { env: process.env, stdio: 'pipe', encoding: 'utf8' });
-  evidence.steps.push({
-    step: 'real-source-48-archetype-proof',
-    status: real48.status === 0 ? 'PASS' : 'FAIL',
-    outputTail: String(real48.stdout || '').slice(-6000),
-    errorTail: String(real48.stderr || '').slice(-6000),
-  });
-  if (real48.status !== 0) throw new Error('REAL_48_ARCHETYPE_PROOF_FAILED');
   evidence.status = evidence.steps.some(step=>step.status!=='PASS') ? 'NOT_PROVEN' : 'PASS';
 } catch (error) { evidence.status = error instanceof Error && /_MISSING$|NOT_PROVEN/.test(error.message) ? 'NOT_PROVEN' : 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: reportDir + '/failure.png', fullPage: true }).catch(() => {}); }
 finally {
