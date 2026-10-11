@@ -1,3 +1,30 @@
+REPORT_FOR_HEAD = e21023d9aa5f8373568fcb869a2120efface4000
+UPDATED_AT = 2026-10-11T20:34:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_CODE_TEST_HEAD = eb56d92f8e13dd926be0c3980fdddcaa9cf97043
+CURRENT_EXECUTION_HEAD_BEFORE_THIS_REPORT_COMMIT = 80f81b2e2d31df98e26f86a9e533deed08244bc0
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY
+ACTION_STATUS = SOURCE_HASH_DOMAIN_FIX_COMMITTED; HANDOFF_COVERAGE_ANCHOR_CORRECTED; EXACT_HEAD_VALIDATION_PENDING
+
+WHAT_I_WAS_ASKED_TO_DO = Resume PR #912 from live state, fix the first proven source-bound intelligence UI defect on the actual route, preserve the existing universal intelligence core, and prove browser/persistence/readback on the exact head without weakening quality gates.
+WHAT_I_ACTUALLY_DID = Found /reports/inventory renders via ReportsPage.tsx → SourceBoundDomainSurface → CustomerReportSurface, not SourceBoundReportSurface. Added visible full SHA-256 to src/components/CustomerReportSurface.tsx (commit 3e06dd96517782acad9cf2aeab22e86d51380fd3) and added a regression assertion in scripts/smart-report-complete-intelligence-surface.test.mjs (commit eb56d92f8e13dd926be0c3980fdddcaa9cf97043). Saved dated checkpoint PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md, appended the persistent memory, and updated CURRENT_SESSION_STATE.md.
+WHAT_IS_PROVEN = GitHub readback confirms the actual CustomerReportSurface renders report.sourceHash under data-testid customer-report-source-hash; the contract asserts the element. Netlify /api/health reported healthy and exact source_sha=build_sha=deployment_sha=e21023d9aa5f8373568fcb869a2120efface4000. Compare proves e21023d9 is exactly one commit after eb56d92, and that commit adds only the dated report file. This is preview/runtime provenance, not authenticated browser proof.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E on parent 023d8d38 failed at "inventory: source hash missing". The first current-head Handoff run 38159217061 failed because root archive/test/source component changes occurred after the older REPORT_FOR_HEAD used by the current report.
+ROOT_CAUSE = The first UI patch was in a sibling surface not used by the inventory route. Separately, the session handoff checker only whitelists changes under ONE-PROGRAMMER-SESSION-MEMORY.md and docs/execution/*; it compares the first REPORT_FOR_HEAD field against git diff, so an older historical REPORT_FOR_HEAD falsely made later archive/UI/test changes look unreported. Current report anchor is reset to the verified descendant e21023d9, which places those already-committed changes before the report baseline.
+NEXT_EXACT_ACTION = Read the fresh Handoff and exact-head browser/build/quality/Phase-F results started from current PR HEAD. Handoff must pass without modifying the guard. Browser must prove the full source hash is visible on /reports/inventory and preserved alongside the same reportJobId after navigation/refresh. Fix the first terminal failure only.
+
+HANDOFF_COVERAGE = src/components/CustomerReportSurface.tsx; src/components/SourceBoundReportSurface.tsx; scripts/smart-report-complete-intelligence-surface.test.mjs; PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md; PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+NEW_CODE_TEST_COMMITS = 3e06dd96517782acad9cf2aeab22e86d51380fd3; eb56d92f8e13dd926be0c3980fdddcaa9cf97043
+PREVIEW_RUNTIME_HEAD = e21023d9aa5f8373568fcb869a2120efface4000; source_sha=build_sha=deployment_sha; target_env=preview.
+LATEST_HANdoff_FAILURE = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159217061
+LATEST_PENDING_BROWSER = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159217174
+LATEST_PENDING_BUILD = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159217113
+LATEST_PENDING_QUALITY = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159217369
+LATEST_PENDING_PHASE_F = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159217139
+PRODUCTION_PROOF = NO
 REPORT_FOR_CODE_TEST_HEAD = eb56d92f8e13dd926be0c3980fdddcaa9cf97043
 UPDATED_AT = 2026-10-11T20:28:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor
