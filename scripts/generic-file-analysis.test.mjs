@@ -217,7 +217,7 @@ async function main() {
   assert.equal(composed.businessQuestion, 'السؤال المتخصص يجب أن يبقى ظاهرًا', 'specialist business question remains primary');
 
   const canonicalSelection = selectGenericSourceRows({
-    canonicalRows: [{ row_number: 1, data: { value: 'canonical' } }],
+    canonicalRows: [{ value: 'canonical' }],
     sourceDataset: { rowCount: 1, rows: [{ value: 'snapshot' }] },
     sourceDatasetCount: 1,
     sourceAnalysisRowCount: 1,
