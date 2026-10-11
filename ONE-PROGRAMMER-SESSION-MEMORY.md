@@ -1783,3 +1783,21 @@ NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts w
 - Files to reconcile after code change: `docs/execution/CURRENT_SESSION_STATE.md`, `docs/execution/PROGRAMMER_CURRENT_REPORT.md`, plus this append-only memory and a dated report under `PROGRAMMER_REPORTS/` if that directory exists in this branch.
 - First execution action after checkpoint: compare the full current PR source and result-card composition against main; fix only the shared generic+specialty integration/full-detail display defect, extend the existing focused contract, then check exact-head CI and preserve all evidence. Keep source identity bound to report job ID + SHA-256 hash; never infer unknown values or financial impacts.
 - Required status vocabulary: IMPLEMENTED / INTEGRATED / PERSISTED / UI-EXPOSED / READBACK-PROVEN / BROWSER-PROVEN / PRODUCTION-PROVEN / PRODUCT COMPLETE. Only claim a status when exact evidence supports it.
+
+
+# LIVE RESUME — 2026-10-11T19:00:00+03:00 / SOURCE-BOUND GENERAL ANALYSIS + VISIBLE REPORT-CENTER LINEAGE
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+- Exact code/test HEAD before this documentation-only checkpoint: `c953c62872f545b112bc2bd81d31c4016a5b2be4`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- Current implementation commits include source-row selector (`66bdd6e`), report mapping integration (`0dd58a0`), unavailable/partial generic-card states (`5d1ac03`), Smart Report general-only wiring (`2cea5f4`), row-selector tests (`d752c7a`), and visible Reports Center identity + refreshed DOM assertions (`c953c62`).
+- Main fix: keep general intelligence independent from specialty intelligence; never label specialty-only results as generic. The generic layer selects canonical rows first, or a complete, source-bound extraction snapshot only if actual row count equals declared row count. Incomplete previews/count conflicts return unavailable and surface a warning rather than fabricating whole-source analysis.
+- UI fix: Reports Center exposes full job ID, SHA-256 and source path as visible text; the browser assertion reads the body after search filters have been reset.
+- At capture, exact-head Product Build Gate run 38153490187 was in progress, quality run 38153490266 queued, and Full Product Browser E2E run 38153490082 pending. Session Handoff run 38153486804 failed on the pre-update stale report (eight unreported files). Do not conflate queued/pending with pass.
+- Developer PC01 remains offline; no local build/browser result is claimed.
+- Deploy status: Vercel and Netlify PR preview pending. Do not claim production.
+- Product completion remains NO. Readback/browser/production proof remains to be established on the exact current code.
+- First next action: poll exact-head build, quality and browser; diagnose the first failure; prove a fresh uploaded file produces visible generic signals/recommendations with matching reportJobId + sourceHash across persistence, readback and refresh.
+

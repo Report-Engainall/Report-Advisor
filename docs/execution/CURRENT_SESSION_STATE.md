@@ -1,3 +1,50 @@
+# LIVE RESUME — 2026-10-11T19:00:00+03:00 / GENERIC INTELLIGENCE RESTORE + REPORT CENTER SOURCE-LINEAGE FIX
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Exact code/test head covered by this report: `c953c62872f545b112bc2bd81d31c4016a5b2be4` ([commit](https://github.com/Report-Engainall/Report-Advisor/commit/c953c62872f545b112bc2bd81d31c4016a5b2be4)).
+- Main base at the live PR check: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- `PRODUCT_COMPLETE = NO`. Do not claim production, authenticated-browser, or end-to-end completion until its exact-head proof passes.
+
+CURRENT_EXACT_HEAD = c953c62872f545b112bc2bd81d31c4016a5b2be4
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = ACTIVE_EXECUTION
+NEXT_EXACT_ACTION = Poll exact-head Product Build Gate, quality, and Full Product Browser E2E for c953c62872f545b112bc2bd81d31c4016a5b2be4; diagnose the first red test and prove fresh-upload → complete generic signals/recommendations/evidence → persistence/readback/refresh using the same reportJobId + sourceHash before considering merge.
+
+## Changes saved to the live PR branch before this checkpoint
+
+- `2cde803` and `0dd58a0` — `src/lib/report-smart.ts`: general intelligence can recover from a complete source-analysis extraction snapshot when canonical rows are unavailable, but only if the snapshot is already bound to tenant + sourceHash + importJobId and its actual row count equals the declared row count. Canonical rows stay first priority. Incomplete previews and conflicting counts return unavailable, not invented or falsely complete results.
+- `66bdd6e` — added `src/lib/file-engine/generic-source-rows.ts` with an isolated selector for canonical/source-snapshot/unavailable origins.
+- `d752c7a` — added focused selector regression tests: canonical priority, full bound snapshot fallback, partial preview rejection, and mismatched count rejection.
+- `5d1ac03` — `src/components/GenericFileIntelligenceCard.tsx`: explicit no-data state rather than displaying specialist intelligence as the generic layer; visible warnings distinguish extraction-snapshot results and partial canonical coverage.
+- `2cea5f4` — `src/pages/SmartReportPage.tsx`: removed the `report.genericIntelligence ?? report.intelligence` fallback for the section explicitly labelled general intelligence; pass source coverage/origin state into the card.
+- `5dae0b6` / `b751ac4` — expanded `scripts/smart-report-complete-intelligence-surface.test.mjs` to prevent regression and check safe fallback contracts.
+- `c953c62` — `src/pages/ReportsPage.tsx` now visibly shows report job ID, full source SHA-256, and source path in the report-center source-bound card. `scripts/real-business-e2e.mjs` refreshes its DOM text after clearing the row filter before checking that the same identity remains visible. Surface contract checks were added.
+
+## Evidence as of this checkpoint (exact code head `c953c62872f545b112bc2bd81d31c4016a5b2be4`)
+
+- GitHub check-runs fetched from `/commits/c953c62872f545b112bc2bd81d31c4016a5b2be4/check-runs`: 60 total at time of capture; 10 successes, 3 skipped, 16 in progress, 30 queued, and 1 failure.
+- The only surfaced failure was `Session Handoff Contract` on run [38153486804](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153486804), because the previous resume report did not cover eight changed source/test files. This governance commit prepends the current state/report, appends memory, and adds a dated report to address that known stale-report failure.
+- Product Build Gate [38153490187](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153490187) was `in_progress`; quality [38153490266](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153490266) was `queued`; Full Product Browser E2E [38153490082](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153490082) was `pending` with no job details yet. These are not PASS claims.
+- The previous authenticated browser run on ancestor `83c2f6fe50673bdc5d558aa829cd4485b6bba973` failed at `REPORTS_CENTER_JOB_ID_NOT_VISIBLE` after loading the existing 254-row PDF; this UI assertion has now been directly addressed but remains NOT PROVEN until a new browser run passes.
+- The previous handoff gate identified eight unreported changed files; no product completion claim is permitted until updated governance checks prove the handoff.
+- Development PC01 is offline. No local shell, typecheck, or browser test was claimed to run in this session. GitHub Actions is the current executable validation source.
+- Latest deploy statuses: Vercel pending at [deployment](https://vercel.com/injaz2/report-advisor/EoYNWUcCqnaH6UTeP49MX2UzNGBv); Netlify deploy preview pending at [deployment](https://app.netlify.com/projects/aghbari-report-advisor/deploys/6acbb212f394f7000889fd8d). Neither proves production.
+
+## Required distinctions
+
+`IMPLEMENTED`: code is committed on PR branch.  
+`INTEGRATED`: shared generic layer participates in saved Smart Report mapping, and UI contract checks are present.  
+`UI-EXPOSED`: source identity and generic unavailable/partial states are now explicitly rendered in source-controlled UI.  
+`READBACK-PROVEN`: not newly proven by this patch.  
+`BROWSER-PROVEN`: not yet proven for `c953c62872f545b112bc2bd81d31c4016a5b2be4`.  
+`PRODUCTION-PROVEN`: not proven.  
+`PRODUCT COMPLETE`: NO.
+
+---
+
 # LIVE RESUME — 2026-10-11T18:16:00+03:00 / GENERIC INTELLIGENCE CARD + SOURCE-ROW SEARCH FIX SAVED; FRESH-UPLOAD E2E PENDING
 
 - Repository: `Report-Engainall/Report-Advisor`

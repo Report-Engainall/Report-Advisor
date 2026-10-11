@@ -1,3 +1,15 @@
+REPORT_FOR_HEAD = c953c62872f545b112bc2bd81d31c4016a5b2be4
+UPDATED_AT = 2026-10-11T19:00:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor on the live PR head, preserve the existing intelligence engine, make generic intelligence source-bound and additive to specialty analysis, expose all available signals/recommendations/evidence and source identity in the UI, and prove upload, persistence, readback and refresh.
+WHAT_I_ACTUALLY_DID = Added a source-row selector that prioritizes canonical rows and permits a complete, identity-bound extraction snapshot only when row counts agree; rejected partial/mismatched snapshots; added UI states for missing/partial general intelligence and removed the specialty-as-generic fallback; expanded focused tests; rendered report job ID + SHA-256 + source path visibly in Reports Center; and changed browser proof to read the DOM after row-filter reset. Committed all code/test changes through c953c62872f545b112bc2bd81d31c4016a5b2be4.
+WHAT_IS_PROVEN = GitHub confirmed PR head c953c62872f545b112bc2bd81d31c4016a5b2be4 and the branch contains these commits. At capture, 10 check-runs were successful and 3 skipped, while 16 were in progress and 30 queued. Prior exact-head browser proof identified the Reports Center lineage assertion; the UI and test repair is implemented but its new browser result is not yet known. No local build or authenticated browser result has been fabricated.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38153486804 failed because the previous handoff report omitted eight changed source/test files. This governance checkpoint is being saved as files limited to memory/current state/current report/new dated report; Product Build Gate run 38153490187 remained in progress, quality run 38153490266 queued, and Full Product Browser E2E run 38153490082 pending at capture.
+ROOT_CAUSE = Saved-report generic analysis used to disappear when canonical rows were unavailable even if an identity-bound full extraction snapshot existed; the UI also mislabeled specialist intelligence as general when the general layer was null. Separately, Reports Center had no visible text for reportJobId/sourceHash although the browser proof required those values, and the E2E post-reset assertions read a pre-filter DOM snapshot.
+NEXT_EXACT_ACTION = Poll the code-head build, quality, and browser workflows; fix the first reproducible failure, then prove a fresh multi-row upload produces non-empty general signals/recommendations, with the same report job, source path and SHA-256 through persistence, readback and browser refresh.
+SESSION HANDOFF = READY
+
+---
+
 REPORT_FOR_HEAD = a644ab51e06b37f75bb498851d36e970ed993144
 UPDATED_AT = 2026-10-11T18:17:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Finish generic intelligence visibility on all eligible files and prove authenticated upload to displayed insights, source-bound persistence, readback and refresh without rebuilding the intelligence core.
