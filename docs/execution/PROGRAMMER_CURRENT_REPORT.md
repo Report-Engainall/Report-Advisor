@@ -1,5 +1,59 @@
 # CURRENT EXECUTION REPORT
 
+REPORT_FOR_HEAD = 9d756cf1409b0e29eb1bc08d9a22ade0090088ac
+UPDATED_AT = 2026-10-11T23:55:00+03:00
+SESSION HANDOFF = new exact-head browser retest is pending.
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+# LIVE RESUME — 2026-10-11 23:55 +03 / CANONICAL REPAIR RPC ISOLATED; NEW-HEAD E2E VALIDATION REQUIRED
+
+Repository: `Report-Engainall/Report-Advisor`
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Source/code-test baseline: `9d756cf1409b0e29eb1bc08d9a22ade0090088ac`.
+Main/base last verified: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+Staging migration: `20261011205000_disambiguate_import_commit_batch_repair_rpc`.
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2355-IMPORT-COMMIT-REPAIR-RPC-ISOLATION.md`.
+`PRODUCT_COMPLETE = NO`; `DO_NOT_MERGE = true`.
+
+## Proven failure and root cause
+
+Full Product Browser E2E [38172444159](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159) failed on predecessor `242d5462e3febc1fa615e3db9e583b79ecd6c8c9`; [artifact 11714956740](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159/artifacts/11714956740). Authenticated route/session checks passed. A new three-row `marker.csv` import reached canonical commit and failed with `PGRST203`: PostgREST could not choose between six-argument ordinary `import_commit_batch` and a seven-argument repair overload under the same name. Failed job: `098a8fa0-cb75-4330-95b5-9a5a8426170a`. This was a different downstream overload from the earlier `enqueue_report_execution_job` defect; enqueue had already succeeded.
+
+## Repair committed and Staging-readback verified
+
+Commit [`9d756cf`](https://github.com/Report-Engainall/Report-Advisor/commit/9d756cf1409b0e29eb1bc08d9a22ade0090088ac) changes:
+- `src/lib/import/canonical-commit.ts`: repair requests use `import_repair_commit_batch`; ordinary commits remain on `import_commit_batch`.
+- `supabase/migrations/20261011205000_disambiguate_import_commit_batch_repair_rpc.sql`: renames the existing repair function in place, revokes privileges from PUBLIC/anon/authenticated, grants EXECUTE only to `service_role`, and asks PostgREST to reload its schema.
+- `scripts/check-report-execution-e2e-contract.mjs`: asserts distinct repair routing and the least-privilege boundary; final PASS remains after the assertions.
+
+The migration was applied to Staging project `fnqbvfuwbdpwvhcgzksl`. Database readback shows:
+- `import_commit_batch(uuid,text,jsonb,text,text,uuid)`: defaults 0; anon=false; authenticated=true; service_role=true.
+- `import_commit_batch(uuid,text,jsonb,text,text)`: defaults 2; anon=false; authenticated=false; service_role=true.
+- `import_repair_commit_batch(uuid,text,jsonb,text,text,uuid,boolean)`: defaults 0; anon=false; authenticated=false; service_role=true.
+
+No end-user permission was widened. The rename preserves the function body/OID while isolating the privileged route by name.
+
+## Exact-head CI scope
+
+The source commit used `[skip ci]` so this normal documentation checkpoint triggers a fresh batch. There is no post-fix authenticated browser PASS yet. The prior run and its PASS gates on `242d5462...` do not certify `9d756cf`. An earlier predecessor batch had Session Handoff and Final Certification failures and Phase-F cancellations; check fresh results by exact `head_sha`, not workflow names alone.
+
+## Not yet proven
+
+No browser run after `9d756cf` has proved marker.csv through canonical commit, rendered intelligence, database readback and stable `reportJobId + sourceHash` across Smart Report, Evidence, Decision and Work Center after refresh/re-entry. Netlify production was last observed on commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b` (Oct 5), so production does not yet prove this code. Keep PR #912 open and `PRODUCT_COMPLETE = NO`.
+
+## NEXT EXACT ACTION
+
+Commit/read back this checkpoint, then inspect the newly triggered exact-head Full Product Browser E2E and artifact/result JSON first. Fix the next evidence-backed failure without weakening tenant/RPC security. Require marker.csv to reach commit, render, DB readback and matching source identity across navigation, refresh and re-entry. Then verify quality, build, handoff, data quality, tenant isolation, Phase-F/recovery, certification and authenticated browser on the exact same source head, followed by a deployment-head match and production browser proof.
+
+---
+
+# HISTORICAL EXECUTION REPORT — PREVIOUS CHECKPOINT
+
 REPORT_FOR_HEAD = 7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7
 UPDATED_AT = 2026-10-11T23:45:00+03:00
 SESSION HANDOFF = READY — governance checkpoint references the exact code/test head; browser proof is still pending.
