@@ -1,3 +1,40 @@
+# LIVE RESUME — 2026-10-12 00:18 +03 / SMART REPORT PENDING-EVIDENCE LABEL FIX; EXACT-HEAD E2E RETEST REQUIRED
+
+Repository: Report-Engainall/Report-Advisor
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Current code/test head: `0bca7cd91a2840f1764d972a43c797fe39d4fbaa`
+Previous full-browser test head: `6a745dde6971d2751b3177a1428bd8226923bcca`
+UI fix commit: https://github.com/Report-Engainall/Report-Advisor/commit/0bca7cd91a2840f1764d972a43c797fe39d4fbaa
+Failed E2E run: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174769899
+Artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174769899/artifacts/11715636824
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0018-SMART-REPORT-PENDING-EVIDENCE-LABEL-FIX.md`
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Proven browser failure and diagnosis
+The full browser run on predecessor `6a745dde...` completed but failed at the fresh generic upload's Smart Report UI assertion: `Smart Report must expose the canonical pending-evidence state label`. Screenshot `artifacts/e2e-business/failure.png` and the captured DOM failure show the visible phrase was `الدليل النهائي غير مثبت`, while the E2E journey specifically requires explicit `بانتظار لقطة الدليل` / `بانتظار الدليل` / `Pending Evidence`. This was a UI-label defect, not an upload/DB-persistence failure.
+
+## Persistence and safety that passed before the label assertion
+- Existing resolved report: `reportJobId=8dbafdf8-f769-4c4f-97a5-22eac8b47d41`; source `تقارير ارصدة المخزون.pdf`; `sourceHash=sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839`; 254 canonical rows and 254 canonical commit rows; 9/9 tasks completed; quality 98; trust `TRUSTED`; evidence `AWAITING_EVIDENCE_SNAPSHOT`; stage `rendered`.
+- The same report remained source-bound across Smart Report, reports center, executive, trust/evidence, decision, work center, inventory, advisor cases, decision inbox, and final refresh/readback.
+- A fresh generic upload `report-advisor-e2e-6a745dde69-1791753100784.csv` was imported to tenant `f68a7e91-3c7e-46fb-97a8-e339bec04e13`: 3/3 rows valid, zero invalid, completed job, canonical persistence and history readback PASS. Hash `sha256:d292104e653f24eae4ffc15aba3350fa50c32f15e902248add8becb6b5d7da3c`. The rendered-output contract correctly remained `EVIDENCE_REQUIRED` / `AWAITING_EVIDENCE_SNAPSHOT`; no final evidence was fabricated.
+- The full run passed tenant isolation, authenticated Chromium route proof, transactional order→invoice→payment persistence/readback, and all prior setup/heart-regression steps before the pending-evidence label assertion.
+- Failure guard correctly failed closed because the business journey produced `status=FAIL`; do not weaken that guard.
+
+## Change implemented
+Source commit [0bca7cd91a2840f1764d972a43c797fe39d4fbaa](https://github.com/Report-Engainall/Report-Advisor/commit/0bca7cd91a2840f1764d972a43c797fe39d4fbaa) updates `src/pages/SmartReportPage.tsx` so `AWAITING_EVIDENCE_SNAPSHOT` renders as `بانتظار لقطة الدليل` and `PENDING_EVIDENCE` renders as `بانتظار الدليل`. `scripts/report-smart-evidence-boundary.test.ts` now asserts both visible label mappings. State semantics and evidence gate remain unchanged; no promotion to `VERIFIED` and no ACL/RLS changes.
+The patch is based on the actual failed run and screenshot. Exact-head checks after this change are not yet available; prior PASS results are not transferred.
+
+## Other prior evidence (historical heads)
+- On `6a745...`, Phase-F Live Resilience, Storage Tenant Runtime E2E, authenticated route Chromium proof, quality, Session Handoff, Phase 2 Security, Data Quality Runtime and Final Certification each passed their own runs. These are useful but do not validate the new source commit.
+- Staging enqueue RPC six-argument wrapper was directly read back with `auth.uid()`, current-tenant equality and fixed `pg_catalog` search path; anon EXECUTE=false. Seven-arg force-reprocess remains service_role-only.
+- Current Netlify production deploy was still old commit `858ef8e...` (October 5), not this branch; production is not proven to contain the fix.
+
+## NEXT EXACT ACTION
+Check the new code commit's exact-head Quality, Build, Session Handoff, Security/Resilience and Full Product Browser E2E run. Read the resulting `result.json` and screenshot; fix only the first newly proven failure. Keep PR #912 open until fresh upload → rendered state → persistence/readback → same reportJobId/sourceHash after refresh/navigation/re-entry all pass on one exact head and the deployment is separately verified.
+
+---
+
 # LIVE RESUME — 2026-10-12 00:02 +03 / RPC TENANT FIX AND EVIDENCE-BOUND GENERIC IMPORT ON LATEST CODE HEAD
 
 Repository: Report-Engainall/Report-Advisor

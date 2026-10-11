@@ -1,5 +1,41 @@
 # CURRENT SESSION STATE
 
+# LIVE RESUME — 2026-10-12 00:18 +03 / SMART REPORT LABEL PATCH; FULL PRODUCT E2E PENDING
+
+CURRENT_EXACT_HEAD = 0bca7cd91a2840f1764d972a43c797fe39d4fbaa
+CURRENT_CODE_TEST_HEAD = 0bca7cd91a2840f1764d972a43c797fe39d4fbaa
+CURRENT_EXECUTION_PARENT_HEAD = 0bca7cd91a2840f1764d972a43c797fe39d4fbaa
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PREVIOUS_FULL_E2E_HEAD = 6a745dde6971d2751b3177a1428bd8226923bcca
+FAILED_FULL_E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174769899
+ARTIFACT = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174769899/artifacts/11715636824
+ACTION_STATUS = PENDING_EVIDENCE_LABEL_FIX_COMMITTED; EXACT_HEAD_RETEST_REQUIRED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12 00:18 +03
+ARCHIVE = docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0018-SMART-REPORT-PENDING-EVIDENCE-LABEL-FIX.md
+
+## First proven browser failure
+Full Product Browser E2E failed after the fresh generic import was durably persisted. Failure screenshot/DOM showed the Smart Report UI label `الدليل النهائي غير مثبت`, but the user journey's required explicit waiting label is `بانتظار لقطة الدليل` / `بانتظار الدليل`. Error: `Smart Report must expose the canonical pending-evidence state label`. Upload was not the failure: import job completed with 3 valid rows, 0 invalid; canonical write and history readback PASS.
+
+## Fix persisted
+Commit `0bca7cd91a2840f1764d972a43c797fe39d4fbaa`: SmartReportPage maps `AWAITING_EVIDENCE_SNAPSHOT` to `بانتظار لقطة الدليل` and `PENDING_EVIDENCE` to `بانتظار الدليل`; static boundary regression asserts both mappings. Evidence/trust semantics are unchanged; no promotion to VERIFIED and no security boundary changes.
+
+## Existing behavior proven on predecessor 6a745 (not current-head certification)
+- 254-row PDF source context, full hash, 254 authoritative canonical rows, 254 commit rows, 9/9 completed tasks, quality 98, source TRUSTED, evidence AWAITING_EVIDENCE_SNAPSHOT, rendered stage.
+- Same reportJobId/sourceHash passed report refresh/readback and cross-screen identity for Smart Report, reports center, executive, trust, decision, work, inventory, advisor cases and decision inbox.
+- Fresh CSV upload produced 3/3 valid rows, 0 invalid, canonical persistence/history readback PASS; output remained EVIDENCE_REQUIRED.
+- Authenticated Chromium route, tenant isolation, transactional mutation and storage resilience passed before the explicit pending-label assertion failed.
+- Phase-F Live Resilience and Storage Tenant Runtime E2E passed on predecessor 6a745. No result from old head is proof for 0bca7cd91a2840f1764d972a43c797fe39d4fbaa.
+
+NEXT_EXACT_ACTION = Check the new code-head exact-run results and inspect full-product E2E result.json/screenshot. Repair the next demonstrated issue, then prove the complete fresh-upload → Smart Report render → durable DB readback → stable reportJobId/sourceHash across refresh/navigation/re-entry chain. Keep PR open and PRODUCT_COMPLETE=NO.
+SESSION HANDOFF = READY — exact code/test head 0bca7cd91a2840f1764d972a43c797fe39d4fbaa; full browser retest pending.
+
+---
+
+# CURRENT SESSION STATE
+
 # LIVE RESUME — 2026-10-12 00:02 +03 / LATEST CODE HEAD CHECKPOINT
 
 CURRENT_EXACT_HEAD = ace004140bb97eb7830a906bf287cc525ae3644b
