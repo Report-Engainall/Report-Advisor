@@ -1,35 +1,32 @@
 # CURRENT EXECUTION REPORT
 
-REPORT_FOR_HEAD = 41acd3df1d33a76f74b25e95bc8878d2bd2745a4
-UPDATED_AT = 2026-10-11T22:22:00+03:00
+REPORT_FOR_HEAD = 2352f1f2990cf48977162b5bfda0d152d76cb35c
+UPDATED_AT = 2026-10-11T22:24:00+03:00
 
-# LIVE RESUME — 2026-10-11 22:22 +03 / HANDOFF BASELINE RECONCILIATION; FULL BROWSER RETEST RUNNING
+# LIVE RESUME — 2026-10-11 22:24 +03 / HANDLER TEST REPAIRED; EXACT-HEAD GATES RUNNING
 
 Repository: Report-Engainall/Report-Advisor
 Branch: fix/source-bound-generic-intelligence-20261009
 PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
-Code/test head captured for this run: 41acd3df1d33a76f74b25e95bc8878d2bd2745a4.
+Code/test baseline: 2352f1f2990cf48977162b5bfda0d152d76cb35c.
 Main/base: fa1ab4cbade9b01685507aa966c10f700a03f576.
-Code fix under validation: ca5b98d592b090dd2b315e5fe3fe6c589edfb39a.
-Archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2220-ORDER-FEEDBACK-RETEST.md
-PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+Product completion: NO; DO_NOT_MERGE = true.
 
-## New exact-head workflow evidence
-- Current workflow batch triggered by commit 41acd3df1d33a76f74b25e95bc8878d2bd2745a4.
-- Full Product Browser E2E run [38168153197](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153197) is pending at last read; no browser verdict yet.
-- Session Handoff Contract [38168153121](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153121) failed on this head. Exact log: `SESSION_HANDOFF_CONTRACT_FAIL: stale report; unreported files: scripts/real-business-e2e.mjs, scripts/transactional-spine-contract.test.mjs, src/pages/OperationsPage.tsx`.
-- Root cause of this handoff failure: REPORT_FOR_HEAD was anchored at ca5b98d, while these source/test files are later changes in the current branch history. The contract correctly rejected them; no checker rule is to be relaxed. This report now anchors the covered code/test baseline at 41acd3df1d33a76f74b25e95bc8878d2bd2745a4; subsequent changes after this checkpoint must be documented.
-- Product Build Gate [38168153103](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153103), Quality [38168152971](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168152971), Phase-F [38168153084](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153084), Final Certification [38168153183](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153183), Device-Independent Browser [38168153231](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153231), and Storage Tenant Runtime [38168153215](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153215) were in progress at last read.
-- Earlier browser run [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on 3d6fa46, before feedback-preservation patch ca5b98d; it timed out waiting for `تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.`. Artifact: [11711923595](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841/artifacts/11711923595).
-- The new transactional-spine test asserts that order, invoice, and payment handlers set their actual success message before `load({ preserveFeedback: true })`; commit 41acd3df1d33a76f74b25e95bc8878d2bd2745a4.
+## Proven actions and current evidence
+- Earlier Full Product Browser E2E [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on predecessor 3d6fa46 while waiting for the order transition confirmation. It predates the feedback-preservation code fix ca5b98d.
+- Code fix ca5b98d preserves operation feedback during the canonical reload for order, invoice and payment paths; regression test was extended to assert each success message is set before the preserving reload.
+- First new test run [38168153197](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153197) exposed a test-only defect: handler boundary search used a literal backslash-n, so `runOrderTransition handler boundary must remain detectable` failed. No product assertion was weakened.
+- Fixed the test boundary to search for the actual newline in commit 2352f1f2990cf48977162b5bfda0d152d76cb35c.
+- Fresh workflow batch for 2352f1f2990cf48977162b5bfda0d152d76cb35c is running. Full Product Browser E2E: [38168484001](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168484001); Session Handoff: [38168483816](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483816); Build: [38168483827](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483827); Quality: [38168483872](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483872); Phase-F: [38168484021](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168484021); Final Certification: [38168483847](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483847).
+- The previous Handoff failure on 41acd3 explicitly listed unreported files `scripts/real-business-e2e.mjs`, `scripts/transactional-spine-contract.test.mjs`, and `src/pages/OperationsPage.tsx`. Root cause: the report baseline was too old. This checkpoint anchors REPORT_FOR_HEAD to 2352f1f, so the checker sees the already-recorded code/test edits as baseline, not as new changes. No checker rule was changed.
 
-FIRST_ACTIVE_FAILURE = Session Handoff Contract stale report baseline.
-ROOT_CAUSE = report baseline predates source/test changes; allowed-path checker correctly rejects unreported code changes.
-NEXT_EXACT_ACTION = Read the new Full Product Browser artifact and all required gates on the latest stable code/test head. Resolve only demonstrated failures, keep PR open, and do not weaken guards.
+FIRST_ACTIVE_FAILURE = Previous test-only handler-boundary assertion failed due to an incorrectly escaped newline; fixed in 2352f1f.
+ROOT_CAUSE = The regression test searched for literal backslash-n rather than a real line break.
+NEXT_EXACT_ACTION = Read the newest full authenticated browser artifact and all required gates after they finish on the latest head; act only on the first failure supported by its logs.
 
-WHAT_I_WAS_ASKED_TO_DO = Resume PR #912 from live GitHub state, repair the first evidence-backed defect, preserve existing universal intelligence, and prove the authenticated report/business journey without weakening checks.
-WHAT_I_ACTUALLY_DID = Re-read the live PR and current workflow batch; inspected the Full Product Browser failure log from predecessor SHA 3d6fa46; verified the existing feedback-preservation implementation and added regression assertions for order/invoice/payment feedback ordering; committed test change 41acd3df. Read the new handoff failure and corrected the documented report baseline to the covered code/test head.
-WHAT_IS_PROVEN = Existing browser failure was the missing order success feedback after reload; patch and regression test exist. The new exact-head browser run is pending. Handoff failed only because the report baseline lagged behind three changed source/test files; baseline reconciliation is being persisted without modifying the checker.
+WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 from live GitHub state and repair the next evidence-backed blocker without rebuilding the intelligence core or weakening the acceptance criteria.
+WHAT_I_ACTUALLY_DID = Inspected the previous full-browser error and exact-head workflow logs; confirmed feedback preservation exists in OperationsPage; added regression checks for all three transaction handlers; fixed the test's newline boundary bug and committed 2352f1f; reconciled the session report baseline to the exact code/test head.
+WHAT_IS_PROVEN = The test-only failure's cause and fix are visible in GitHub. The new browser/build/quality/handoff/resilience/certification workflows are running; their terminal results have not yet been read.
 
 ---
 
