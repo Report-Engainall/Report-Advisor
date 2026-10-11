@@ -8,6 +8,9 @@ const app = fs.readFileSync('src/App.tsx', 'utf8');
 const reportSourceContext = fs.readFileSync('src/components/ReportSourceContext.tsx', 'utf8');
 const fullProductBrowserWorkflow = fs.readFileSync('.github/workflows/full-product-browser-e2e.yml', 'utf8');
 
+const generic = fs.readFileSync('src/components/GenericFileIntelligenceCard.tsx', 'utf8');
+const chain = fs.readFileSync('src/components/UniversalIntelligenceChain.tsx', 'utf8');
+
 assert.ok(reports.includes("import { CustomerReportSurface } from '@/components/CustomerReportSurface';"));
 assert.ok(reports.includes("import { SourceContextNavigation } from '@/components/ReportSourceContext';"), 'Reports center must render the source-bound navigation on its actual report surface');
 assert.ok(reports.includes('<div data-testid="reports-center-source-navigation"'), 'Reports center must expose a visible navigation container within the current report card');
@@ -104,3 +107,12 @@ assert.ok(!purchasesBlock.includes('fetchDashboardSnapshot(6)'), 'Purchases repo
 console.log('DOMAIN_REPORT_DIRECT_DATA_CONTRACT_PASS');
 
 console.log('CUSTOMER_FACING_REPORT_SURFACE_CONTRACT_PASS');
+
+// Visual direction contract: dark ink + restrained indigo/brass, with readable elevation.
+assert.ok(surface.includes('bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,.24),transparent_34%),linear-gradient(135deg,#090f1e_0%,#111a2e_56%,#1d2140_100%)]'), 'Customer report hero must retain the dark-indigo executive visual system');
+assert.ok(surface.includes('shadow-[0_12px_35px_-28px_rgba(15,23,42,.45)]'), 'Primary report surfaces need restrained layered elevation');
+assert.ok(generic.includes('shadow-[0_18px_52px_-42px_rgba(15,23,42,.55)]'), 'Generic intelligence must read as a primary analysis surface');
+assert.ok(generic.includes('hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md'), 'Signal cards need deliberate hover affordance');
+assert.ok(chain.includes('bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,.26),transparent_40%),linear-gradient(135deg,#090f1e_0%,#141c32_64%,#212348_100%)]'), 'Universal intelligence executive signal must use the shared dark-indigo treatment');
+assert.ok(chain.includes('border-primary-200 bg-primary-50 text-primary-900'), 'Verified source states should use restrained indigo instead of green-heavy accents');
+assert.ok(!chain.includes('border-emerald-200 bg-emerald-50 text-emerald-900'), 'Remove green-heavy verified status styling from the intelligence chain');
