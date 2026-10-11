@@ -1801,3 +1801,13 @@ NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts w
 - Product completion remains NO. Readback/browser/production proof remains to be established on the exact current code.
 - First next action: poll exact-head build, quality and browser; diagnose the first failure; prove a fresh uploaded file produces visible generic signals/recommendations with matching reportJobId + sourceHash across persistence, readback and refresh.
 
+
+
+# LIVE RESUME — 2026-10-11T19:05:00+03:00 / CODE HEAD 732e71ee4a929ad97485d92ce8f98cfa2ee79838
+
+- Repo: `Report-Engainall/Report-Advisor`; branch: `fix/source-bound-generic-intelligence-20261009`; PR #912 remains OPEN / NOT MERGED.
+- Last product code/test commit: `732e71ee4a929ad97485d92ce8f98cfa2ee79838`. The preceding checkpoint commit `c3c0b7b` was stale for the two follow-up test files; this current report explicitly covers the updated code head.
+- Generic engine is preserved. Generic rows prioritize canonical payloads and permit only a full, same-source extraction snapshot fallback with matching declared/actual row counts. Partial/mismatched snapshots do not generate whole-source intelligence. Smart Report never labels specialty-only output as generic. Missing/partial state and source identity are visible.
+- Exact-head Build Gate `38153881907` PASS, quality `38153881804` PASS, data-quality runtime `38153881601` PASS. Full Product Browser E2E `38153881729` pending; readback/browser/production proof is not yet verified. Previous certification/handoff failures were caused by stale report coverage of two test files and must be rechecked after this governance-only commit.
+- PC01 offline; no local shell/browser claims. Product complete = NO.
+- First next action: complete the real browser E2E for a fresh multi-row uploaded file; verify generic signals/recommendations/evidence and the same reportJobId + sourceHash after saved readback and refresh. Fix first failing assertion if any.

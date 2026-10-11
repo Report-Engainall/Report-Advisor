@@ -1,3 +1,51 @@
+# LIVE RESUME — 2026-10-11T19:05:00+03:00 / CURRENT CODE HEAD 732E71E — GENERAL ANALYSIS FIXED, BROWSER PROOF OPEN
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- Pull request: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912) — OPEN / NOT MERGED.
+- Product code/test head covered by this checkpoint: `732e71ee4a929ad97485d92ce8f98cfa2ee79838` ([commit](https://github.com/Report-Engainall/Report-Advisor/commit/732e71ee4a929ad97485d92ce8f98cfa2ee79838)).
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- A following governance-only commit is permitted to change only the persistent handoff files; it must not be mistaken for a product code commit.
+- `PRODUCT_COMPLETE = NO`. Source-bound authenticated browser/persistence/readback/refresh proof remains unproven.
+
+CURRENT_EXACT_HEAD = 732e71ee4a929ad97485d92ce8f98cfa2ee79838
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = CODE_AND_QUALITY_PASS_BROWSER_NOT_PROVEN
+NEXT_EXACT_ACTION = Complete Full Product Browser E2E with a fresh non-fixture upload, then verify general signals/recommendations/evidence are visible and persisted on the same reportJobId + sourceHash after readback and refresh; resolve any first failed assertion without weakening evidence requirements.
+
+## Implemented code changes covered by this head
+
+- `src/lib/file-engine/generic-source-rows.ts`: shared selector picks canonical row payloads first, allows fallback only to a complete source-analysis snapshot after the source query has matched tenant + source hash + import job ID, and rejects incomplete previews/count conflicts.
+- `src/lib/report-smart.ts`: uses the shared selector to retain the generic layer when a full bound snapshot is available and marks that origin for review. Canonical rows keep priority. It does not present a partial preview as full-source facts.
+- `src/components/GenericFileIntelligenceCard.tsx`: explicit unavailable state replaces the former specialty-as-general fallback; source path/job ID/SHA-256 are shown; partial coverage or snapshot use carries visible limitations.
+- `src/pages/SmartReportPage.tsx`: the “general intelligence” section now receives `report.genericIntelligence` only, not `report.genericIntelligence ?? report.intelligence`; specialty is no longer mislabeled as the general layer.
+- `src/pages/ReportsPage.tsx`: Reports Center shows the report job ID, source SHA-256, and source path visibly.
+- Tests: source-row selector cases cover canonical precedence, full snapshot fallback, incomplete preview rejection, and inconsistent counts; the surface test asserts non-truncating generic content/source lineage and the E2E reads the post-filter-reset DOM. The row-selector fixture now matches the row-payload contract, and the surface contract avoids duplicate ESM declarations.
+
+## Exact-head verification observed
+
+- [Product Build Gate run 38153881907](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881907): SUCCESS.
+- [Quality run 38153881804](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881804): SUCCESS.
+- [Data-quality runtime run 38153881601](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881601): SUCCESS.
+- [Full Product Browser E2E run 38153881729](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881729): PENDING at capture, no job result available. Do not claim browser, persistence, or refresh proof.
+- [Final Certification Gate run 38153881876](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881876): FAILED on the stale handoff check; the logged remaining paths were the two test files changed after the prior `REPORT_FOR_HEAD=c953c628...` checkpoint. This report refreshes the checkpoint to `732e71ee4a929ad97485d92ce8f98cfa2ee79838`.
+- [Session Handoff Contract run 38153881674](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881674): FAILED for the same stale report, with precisely `scripts/generic-file-analysis.test.mjs` and `scripts/smart-report-complete-intelligence-surface.test.mjs` unreported. Following this checkpoint, only memory/current-state/current-report/new-archive files are to be committed.
+- [Full Product Browser E2E on ancestor e3554c0](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153724487) was still processing the real Chromium step when last inspected. It is NOT evidence for `732e71ee4a929ad97485d92ce8f98cfa2ee79838`.
+- Developer PC01 is offline, so no local shell/test/browser result is claimed. The latest executable validation evidence is from exact-head GitHub Actions.
+
+## Status distinctions
+
+`IMPLEMENTED` — changes committed in the PR branch.  
+`INTEGRATED` — saved report builder and Smart Report UI use the generic layer independently from specialist output.  
+`UI-EXPOSED` — general-analysis unavailable/partial state and Reports Center source identity are explicitly rendered.  
+`READBACK-PROVEN` — not newly proven by this change set.  
+`BROWSER-PROVEN` — NOT PROVEN for current head.  
+`PRODUCTION-PROVEN` — NOT PROVEN.  
+`PRODUCT COMPLETE` — NO.
+
+---
+
 # LIVE RESUME — 2026-10-11T19:00:00+03:00 / GENERIC INTELLIGENCE RESTORE + REPORT CENTER SOURCE-LINEAGE FIX
 
 - Repository: `Report-Engainall/Report-Advisor`

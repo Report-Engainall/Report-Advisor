@@ -1,3 +1,15 @@
+REPORT_FOR_HEAD = 732e71ee4a929ad97485d92ce8f98cfa2ee79838
+UPDATED_AT = 2026-10-11T19:05:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Resume the actual existing Report-Advisor code and fix the shared general intelligence layer, full result rendering, source identity across screens, regression tests, and persisted session handoff; do not rebuild the engine or call build success product completion.
+WHAT_I_ACTUALLY_DID = Added a guarded generic row-source selector (canonical first, complete same-source extraction snapshot as fallback, partial/conflicting previews fail closed); integrated it into saved Smart Report generation; removed specialty intelligence as a fallback under the general-analysis label; added explicit unavailable/partial UI states and visible job ID/SHA-256/path in Reports Center; corrected post-reset DOM evidence; corrected duplicate contract-test declarations and the row-selector fixture; and committed a checkpoint covering this code head.
+WHAT_IS_PROVEN = At exact code head 732e71ee4a929ad97485d92ce8f98cfa2ee79838, GitHub Product Build Gate run 38153881907 is SUCCESS, Quality run 38153881804 is SUCCESS, and data-quality runtime run 38153881601 is SUCCESS. The test failures previously reported on ancestors were specifically fixed: duplicate ESM declarations in e3554c0 and selector fixture shape in 732e71e. Full Product Browser E2E run 38153881729 was PENDING with no job result; therefore real user upload/persistence/readback/refresh is not yet proven.
+FIRST_ACTIVE_FAILURE = Authenticated source-bound browser flow is still pending; the prior final-certification/session-handoff failures were stale-report coverage gaps from the two test files changed after the prior report head c953c628. This checkpoint updates REPORT_FOR_HEAD to 732e71ee4a929ad97485d92ce8f98cfa2ee79838; a new handoff run must confirm that repair.
+ROOT_CAUSE = General analysis was omitted in some saved reports when canonical rows were absent even where a complete, source-bound extraction snapshot could be used. In parallel, null generic intelligence could cause specialist results to be mislabeled as general, and Reports Center did not visibly render job ID/source hash/path even though the E2E required those values. Two successive tests also revealed test-contract mistakes that have now been corrected.
+NEXT_EXACT_ACTION = Await a completed Full Product Browser E2E for the current code, examine its first failure if any, and prove a fresh upload emits visible source-bound general signals/recommendations/evidence that persist and remain identical by reportJobId + SHA-256 across readback and refresh.
+SESSION HANDOFF = READY
+
+---
+
 REPORT_FOR_HEAD = c953c62872f545b112bc2bd81d31c4016a5b2be4
 UPDATED_AT = 2026-10-11T19:00:00+03:00
 WHAT_I_WAS_ASKED_TO_DO = Resume Report-Advisor on the live PR head, preserve the existing intelligence engine, make generic intelligence source-bound and additive to specialty analysis, expose all available signals/recommendations/evidence and source identity in the UI, and prove upload, persistence, readback and refresh.
