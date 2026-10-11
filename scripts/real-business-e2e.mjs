@@ -814,6 +814,8 @@ async function proveSourceBoundSurface(page, report, surface) {
   assert.ok(body.includes('ماذا استنتج النظام من هذا التقرير؟'), surface.label + ': intelligence panel missing');
   assert.ok(body.includes('ما الذي ينصح به النظام؟'), surface.label + ': recommendations section missing');
   assert.ok(body.includes('GUIDANCE'), surface.label + ': guidance section missing');
+  const guidanceLabel = page.getByText('GUIDANCE', { exact: true });
+  assert.equal(await guidanceLabel.isVisible(), true, surface.label + ': guidance label must be visibly rendered');
   if (surface.label === 'inventory') assert.ok(body.includes('SOURCE-BOUND DOMAIN ANALYSIS') && body.includes('هذه الشاشة مربوطة مباشرة بنتيجة التقرير'));
   await page.screenshot({ path: reportDir + '/current-report-' + surface.label + '.png', fullPage: true });
   evidence.steps.push({ step: 'source-bound-surface:' + surface.label, status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
