@@ -181,4 +181,26 @@ for (const marker of ['snapshotRows.length === declaredRows', "origin: 'source-a
   if (!sourceRowsSelector.includes(marker)) throw new Error('Generic source fallback must fail closed on incomplete data: ' + marker);
 }
 
+const reportsCenterPage = fs.readFileSync(new URL('../src/pages/ReportsPage.tsx', import.meta.url), 'utf8');
+for (const marker of [
+  'data-testid="reports-center-source-lineage"',
+  'data-testid="reports-center-source-job-id"',
+  'data-testid="reports-center-source-hash"',
+  'data-testid="reports-center-source-path"',
+  '{primarySmartReport.jobId}',
+  '{primarySmartReport.sourceHash}',
+  '{primarySmartReport.sourcePath}',
+]) {
+  if (!reportsCenterPage.includes(marker)) throw new Error('Reports Center must visibly expose its exact source lineage: ' + marker);
+}
+const businessE2E = fs.readFileSync(new URL('../scripts/real-business-e2e.mjs', import.meta.url), 'utf8');
+if (!businessE2E.includes("const resetBody = (await page.locator('body').innerText()).trim();")) throw new Error('Reports Center source-lineage proof must read the post-reset DOM');
+for (const marker of [
+  "resetBody.includes(REAL_SMART_REPORT_JOB_ID)",
+  "resetBody.includes(REAL_SMART_REPORT_SOURCE_HASH)",
+  "resetBody.includes(REAL_SMART_REPORT_SOURCE_PATH)",
+]) {
+  if (!businessE2E.includes(marker)) throw new Error('Post-reset browser proof must assert visible source identity: ' + marker);
+}
+
 console.log('smart-report-catalog-navigation: PASS');

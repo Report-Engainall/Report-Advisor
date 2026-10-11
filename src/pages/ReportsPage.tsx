@@ -353,6 +353,20 @@ export function ReportsCenterPage() {
             </div>
             <h2 className="mt-2 text-2xl font-black tracking-tight lg:text-3xl">تقرير {specialty} قابل للقرار</h2>
             <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">المصدر: {primarySmartReport.sourcePath} · {rows.toLocaleString('ar-YE')} صفًا موثقًا · جودة المصدر {quality}</p>
+            <section data-testid="reports-center-source-lineage" aria-label="هوية المصدر المرتبط بالتقرير" className="mt-3 grid gap-2 rounded-xl border border-white/10 bg-white/[.04] p-3 text-[10px] leading-5 text-slate-200 sm:grid-cols-2">
+              <div className="min-w-0">
+                <div className="text-[9px] font-bold text-slate-400">معرّف التقرير</div>
+                <div data-testid="reports-center-source-job-id" className="break-all font-mono text-[10px]">{primarySmartReport.jobId}</div>
+              </div>
+              <div className="min-w-0">
+                <div className="text-[9px] font-bold text-slate-400">بصمة SHA-256 للمصدر</div>
+                <div data-testid="reports-center-source-hash" className="break-all font-mono text-[10px]">{primarySmartReport.sourceHash}</div>
+              </div>
+              <div className="min-w-0 sm:col-span-2">
+                <div className="text-[9px] font-bold text-slate-400">مسار المصدر</div>
+                <div data-testid="reports-center-source-path" className="break-words font-semibold">{primarySmartReport.sourcePath}</div>
+              </div>
+            </section>
             {signal ? <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.06] p-4">
               <div className="text-[9px] font-black tracking-[.08em] text-primary-200">أهم إشارة من المصدر</div>
               <div className="mt-1 text-sm font-black text-white">{signal.title}</div>

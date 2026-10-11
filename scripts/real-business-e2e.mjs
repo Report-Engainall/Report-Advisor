@@ -753,14 +753,16 @@ async function proveReportsCenterRealSurface(page, report) {
     selector: sourceRowsSelector,
     expected: originalVisibleRows,
   }, { timeout: 10000 });
-  assert.ok(body.includes('كل السجلات'), 'REPORTS_CENTER_ROW_SUMMARY_MISSING');
-  assert.ok(body.includes('انقر صفًا لفتح تفاصيله.'), 'REPORTS_CENTER_ROW_DETAIL_HANDOFF_MISSING');
-  assert.ok(body.includes(REAL_SMART_REPORT_JOB_ID), 'REPORTS_CENTER_JOB_ID_NOT_VISIBLE');
-  assert.ok(body.includes(REAL_SMART_REPORT_SOURCE_HASH), 'REPORTS_CENTER_SOURCE_HASH_NOT_VISIBLE');
-  assert.ok(body.includes(REAL_SMART_REPORT_SOURCE_PATH), 'REPORTS_CENTER_SOURCE_PATH_NOT_VISIBLE');
+  // Read the DOM again after reset; the pre-filter body snapshot is not valid proof.
+  const resetBody = (await page.locator('body').innerText()).trim();
+  assert.ok(resetBody.includes('كل السجلات'), 'REPORTS_CENTER_ROW_SUMMARY_MISSING');
+  assert.ok(resetBody.includes('انقر صفًا لفتح تفاصيله.'), 'REPORTS_CENTER_ROW_DETAIL_HANDOFF_MISSING');
+  assert.ok(resetBody.includes(REAL_SMART_REPORT_JOB_ID), 'REPORTS_CENTER_JOB_ID_NOT_VISIBLE');
+  assert.ok(resetBody.includes(REAL_SMART_REPORT_SOURCE_HASH), 'REPORTS_CENTER_SOURCE_HASH_NOT_VISIBLE');
+  assert.ok(resetBody.includes(REAL_SMART_REPORT_SOURCE_PATH), 'REPORTS_CENTER_SOURCE_PATH_NOT_VISIBLE');
   assert.ok(
-    body.includes('التوصية') &&
-    (body.includes('القرار') || body.includes('مراجعة مطلوبة')),
+    resetBody.includes('التوصية') &&
+    (resetBody.includes('القرار') || resetBody.includes('مراجعة مطلوبة')),
     'REPORTS_CENTER_DECISION_STATE_MISSING',
   );
 
