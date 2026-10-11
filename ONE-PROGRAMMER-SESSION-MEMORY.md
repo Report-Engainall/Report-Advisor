@@ -1,3 +1,36 @@
+# LIVE RESUME — 2026-10-12 00:02 +03 / RPC TENANT FIX AND EVIDENCE-BOUND GENERIC IMPORT ON LATEST CODE HEAD
+
+Repository: Report-Engainall/Report-Advisor
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Current code/test head: `ace004140bb97eb7830a906bf287cc525ae3644b`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Tenant-bound RPC fix: https://github.com/Report-Engainall/Report-Advisor/commit/5d983f95cb1db6d3b27210e2d7b82d41b03a54e7
+RPC contract binding correction: https://github.com/Report-Engainall/Report-Advisor/commit/0d93c5a54585e1def207d62b169e8ebf5b6c8ab7
+Latest generic-import evidence change: https://github.com/Report-Engainall/Report-Advisor/commit/ace004140bb97eb7830a906bf287cc525ae3644b
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0002-EXACT-HEAD-HANDOFF-UPDATE.md`
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Implemented and directly read back
+- Applied Staging migration `20261011205504_bind_enqueue_report_execution_job_wrapper_to_authenticated_tenant`.
+- SQL readback proved six-argument `enqueue_report_execution_job` uses SECURITY DEFINER with fixed `pg_catalog` search_path and direct `auth.uid()`, `public.current_company_id()`, tenant equality; defaults=2; anon EXECUTE=false; authenticated=true; service_role=true. The seven-argument force-reprocess overload has defaults=0 and remains service_role-only (anon=false, authenticated=false, service_role=true).
+- Commit `0d93c5a...` corrected the report-execution E2E contract's migration bindings after the prior head's lint failure due duplicate `importCommitRpcMigration` declaration. Commit `ace0041...` further keeps generic source evidence pending until evidence-passport verification, modifying `netlify/functions/canonical-import-execute.mts` and that contract script.
+- No anonymous grants or tenant/RLS policy relaxation.
+
+## Exact-head test status
+- Phase 2 Security Closure PASS on `ace004140bb97eb7830a906bf287cc525ae3644b`: [38174612447](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612447).
+- Data Quality Runtime PASS on `ace004140bb97eb7830a906bf287cc525ae3644b`: [38174612372](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612372).
+- Session Handoff Contract FAILED on `ace004140bb97eb7830a906bf287cc525ae3644b`: [38174612420](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612420). The exact log says the report is stale because it does not report two changed files: `netlify/functions/canonical-import-execute.mts` and `scripts/check-report-execution-e2e-contract.mjs`. This checkpoint aligns governance files to `ace004140bb97eb7830a906bf287cc525ae3644b`; the contract must rerun after this documentation-only commit.
+- Product Build [38174612350](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612350), Quality [38174612310](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612310) and Final Certification [38174612560](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612560) were in progress at last read. The previous head `619e978...` had a lint parse error from duplicate variable declarations; do not transfer that failure or presume the correction passed until current-head results finish.
+- Full Product Browser E2E [38174612457](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612457) is pending on `ace004140bb97eb7830a906bf287cc525ae3644b`. The earlier run [38174168164](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174168164) is still active at authenticated Chromium route proof on predecessor `4029661...`; it is supplementary and not exact-head certification.
+- Security Advisors currently list 46 authenticated SECURITY DEFINER warnings and 1 leaked-password-protection warning, plus performance advisories (15 unindexed foreign keys, 1 auth RLS initplan, 69 unused indexes and 3 multiple-permissive-policy findings). These remain open advisories.
+- Browser proof, final certification success and production proof are still unproven. PR #912 stays open.
+
+## NEXT EXACT ACTION
+Re-run Session Handoff and inspect exact-head Final Certification / Quality / Product Build and Full Product Browser E2E results after this state checkpoint. Fix the first new failure using its artifact/log. Do not merge until authenticated upload, durable commit, intelligence rendering, database readback and stable reportJobId/sourceHash across navigation, refresh and re-entry are proven.
+
+---
+
 # LIVE RESUME — 2026-10-11 23:56 +03 / ENQUEUE RPC TENANT-BOUNDARY FIX APPLIED; EXACT-HEAD GATES PENDING
 
 Repository: Report-Engainall/Report-Advisor

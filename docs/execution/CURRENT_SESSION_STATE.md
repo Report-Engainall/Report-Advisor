@@ -1,5 +1,37 @@
 # CURRENT SESSION STATE
 
+# LIVE RESUME — 2026-10-12 00:02 +03 / LATEST CODE HEAD CHECKPOINT
+
+CURRENT_EXACT_HEAD = ace004140bb97eb7830a906bf287cc525ae3644b
+CURRENT_CODE_TEST_HEAD = ace004140bb97eb7830a906bf287cc525ae3644b
+CURRENT_EXECUTION_PARENT_HEAD = ace004140bb97eb7830a906bf287cc525ae3644b
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = TENANT_WRAPPER_GUARD_READBACK_VERIFIED; PHASE_2_SECURITY_PASS; HANDOFF_REPORT_REFRESH_REQUIRED; FULL_BROWSER_E2E_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12 00:02 +03
+ARCHIVE = docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0002-EXACT-HEAD-HANDOFF-UPDATE.md
+SOURCE_FIX_COMMIT = ace004140bb97eb7830a906bf287cc525ae3644b
+
+## Current live evidence
+- Phase 2 security closure PASS: [38174612447](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612447), exact code head `ace004140bb97eb7830a906bf287cc525ae3644b`.
+- Data quality runtime PASS: [38174612372](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612372), exact code head `ace004140bb97eb7830a906bf287cc525ae3644b`.
+- Session Handoff FAILED: [38174612420](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174612420), due stale state/report: unreported files `netlify/functions/canonical-import-execute.mts` and `scripts/check-report-execution-e2e-contract.mjs`. This checkpoint updates the report references to the current code head.
+- Product Build [38174612350], Quality [38174612310], Final Certification [38174612560] still pending completion at the latest read.
+- Full Product Browser E2E [38174612457] pending on this head. Prior run [38174168164] is still active but belongs to predecessor `4029661...`; it is not exact-head proof.
+- The prior lint parse error on `619e978...` reported duplicate `importCommitRpcMigration`; commit `0d93c5a...` corrected the bindings. Current-head lint result is not yet known.
+- Staging RPC readback: six-arg normal enqueue defaults=2; anon=false, authenticated=true, service_role=true; direct auth.uid/current-company/tenant equality guard present and fixed `pg_catalog` search_path. Seven-arg force-reprocess defaults=0; anon=false, authenticated=false, service_role=true.
+- Current advisors disclose 46 SECURITY DEFINER warnings and 1 leaked-password-protection warning; performance advisories include 15 unindexed foreign keys, 1 auth RLS initplan, 69 unused indexes, and 3 multiple permissive policies.
+
+NEXT_EXACT_ACTION = Inspect the new documentation-head Session Handoff, Final Certification, Quality, Build and Full Product Browser E2E results. Extract first failure logs/artifacts, repair that root cause, and prove authenticated upload through persisted source-bound results across navigation/refresh/re-entry.
+SESSION HANDOFF = READY — current state/report will identify code-test head ace004140bb97eb7830a906bf287cc525ae3644b; exact-head runtime certification remains open.
+
+---
+
+# CURRENT SESSION STATE
+
 # LIVE RESUME — 2026-10-11 23:56 +03 / ENQUEUE RPC TENANT-BOUNDARY FIX APPLIED; EXACT-HEAD GATES PENDING
 
 CURRENT_EXACT_HEAD = 5d983f95cb1db6d3b27210e2d7b82d41b03a54e7
