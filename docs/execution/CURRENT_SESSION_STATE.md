@@ -1,3 +1,26 @@
+# LIVE RESUME — 2026-10-11 — role-governed operational workflow / ROLE-BASED ORDER LIFECYCLE CORRECTION READY FOR EXACT-HEAD TEST
+
+CURRENT_EXACT_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
+CURRENT_CODE_TEST_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
+CURRENT_EXECUTION_PARENT_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = ROLE_AWARE_ORDER_UI_AND_ADMIN_HANDOFF_COMMITTED; EXACT_HEAD_TESTS_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-11 — role-governed operational workflow
+
+The prior full browser run [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on `3d6fa46...` when a `sales` actor successfully changed pending→confirmed but then attempted the forbidden confirmed→preparing transition. The canonical RPC correctly returned 403/42501 `order transition not allowed`; the current RPC role matrix permits sales on pending→confirmed and ready→completed, while confirmed→preparing and preparing→ready require owner/admin/warehouse. Do not weaken this matrix.
+
+The code changes at `bc53828428900c7594a67b8cd4761bc73bb1f3fc` and `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee` gate UI actions by resolved tenant role, show an Arabic restriction note for unauthorized users, retain the post-mutation success toast across readback, and hand off the remainder of the E2E order lifecycle to an independently logged-in admin actor in the same tenant. The E2E explicitly proves the sales actor has no forbidden action, validates the admin membership, and re-reads each persisted status.
+
+Existing gate results apply to prior head `3d6fa46...` only. The latest code has not yet been tested; this next docs-only checkpoint updates `REPORT_FOR_HEAD` to `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee`.
+
+NEXT_EXACT_ACTION = Verify this checkpoint is committed/read back, then inspect the exact-head transactional-spine, Full Product Browser E2E, Quality, Session Handoff, Product Build, Data Quality, Phase-F and Final Certification runs. If the role boundary and admin handoff pass, continue with the first new failure only. PR stays open; PRODUCT_COMPLETE=NO.
+
+---
+
 # LIVE RESUME — 2026-10-11 22:08 +03 / OPERATIONS FEEDBACK ROOT CAUSE FIXED IN CODE; CI NOT YET PROVEN
 
 CURRENT_EXACT_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a

@@ -1,3 +1,24 @@
+REPORT_FOR_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
+UPDATED_AT = 2026-10-11 — role-governed operational workflow
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_PARENT_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
+CURRENT_CODE_TEST_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY — role-aware UI and the legitimate actor handoff are committed, but exact-head browser/CI verification is pending
+ACTION_STATUS = ROLE_GOVERNED_ORDER_TRANSITION_PATCH_COMMITTED; FULL_BROWSER_PROOF_PENDING
+
+WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 by fixing the first real business-journey failure without weakening database authorization, then save and read back the recovery state.
+WHAT_I_ACTUALLY_DID = Investigated Full Product Browser run 38166724841 and read-only order/history DB evidence. The sales actor persisted pending→confirmed then the canonical transition_order RPC rejected confirmed→preparing as intended. Updated OperationsPage so action visibility depends on the active tenant membership role; added an Arabic restriction note; updated the full E2E to verify the restriction for sales and switch to the existing admin/approver identity for fulfillment; added contract assertions for those boundaries. The patches are at bc53828 and e4f01c4.
+WHAT_IS_PROVEN = On old head 3d6fa46, build/quality/handoff/data quality/Phase-F/final certification all PASS; Full Product Browser FAIL because its sales actor tried an admin/warehouse-only stage. Canonical transition_order function enforces least privilege. The new role-aware UI and E2E changes are committed but have no exact-head validation yet.
+FIRST_ACTIVE_FAILURE = HTTP 403 / SQLSTATE 42501, `order transition not allowed`, at confirmed→preparing after sales had correctly persisted pending→confirmed.
+ROOT_CAUSE = UI exposed next-status action based on status only and E2E reused the sales actor for all lifecycle stages. The DB boundary was correct and must remain unchanged.
+NEXT_EXACT_ACTION = Advance REPORT_FOR_HEAD to e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee through this docs-only commit; then inspect the new exact-head test and full browser workflows. Require sales restriction proof, admin same-tenant handoff, full status history, invoice/payment/audit readback, then continue the report/decision/action chain.
+HANDOFF_COVERAGE = src/pages/OperationsPage.tsx; scripts/real-business-e2e.mjs; scripts/transactional-spine-contract.test.mjs; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-ROLE-GOVERNED-ORDER-LIFECYCLE.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+
+---
+
 REPORT_FOR_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
 UPDATED_AT = 2026-10-11 22:08 +03
 REPOSITORY = Report-Engainall/Report-Advisor

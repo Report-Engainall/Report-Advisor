@@ -1,3 +1,23 @@
+# LIVE RESUME — 2026-10-11 — role-governed operational workflow / SALES VS FULFILLMENT ROLE BOUNDARY FIXED IN CODE, TEST PENDING
+
+Repository: Report-Engainall/Report-Advisor  
+Branch: `fix/source-bound-generic-intelligence-20261009`  
+PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.  
+Code head: `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee`.
+
+Previous run [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) proved sales could persist pending→confirmed; its subsequent confirmed→preparing RPC call was correctly denied with 403/42501 because the actor was `sales`, not owner/admin/warehouse. The DB permission matrix must not be relaxed.
+
+Code changes committed at `bc53828...` and `e4f01c4...`:
+- role-aware transition affordance in OperationsPage; restricted transitions show an Arabic explanation and no button;
+- E2E asserts the sales actor cannot see the fulfillment button, then signs in with the existing admin actor in the same tenant and proves role/context, state transitions, invoice/payment persistence and audit readback;
+- transactional-spine static contract extended for role policy and handoff.
+
+All old PASS outcomes belong to `3d6fa46...`, not the new code head. A docs-only checkpoint is advancing `REPORT_FOR_HEAD` to `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee`; inspect every new exact-head workflow before considering this repaired.
+
+NEXT EXACT ACTION = Read back new checkpoint; consume test:transactional-spine and Full Product Browser first, then the other gates. Keep PR #912 open; PRODUCT_COMPLETE=NO.
+
+---
+
 # LIVE RESUME — 2026-10-11 22:08 +03 / FIXED UI STATE ERASURE AFTER PERSISTED ORDER TRANSITION
 
 Repository: Report-Engainall/Report-Advisor  
