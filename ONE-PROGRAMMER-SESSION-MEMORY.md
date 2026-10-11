@@ -1,3 +1,40 @@
+# LIVE RESUME — 2026-10-12 / REAL-SOURCE 48 GATE + XLSX BROWSER PROOF
+
+Repository = Report-Engainall/Report-Advisor
+Branch = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact code commit = 219288d1f26a350b526f96466d7bb677247021fd
+Code commit URL = https://github.com/Report-Engainall/Report-Advisor/commit/219288d1f26a350b526f96466d7bb677247021fd
+Previous validation head = 9d8b6738fa5a48a1343211933dfa6b46adda448e
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+Production deployment is stale and remains unchanged; do not deploy or merge before exact-head checks pass.
+
+CODE_CHECKPOINT = 219288d1f26a350b526f96466d7bb677247021fd
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/219288d1f26a350b526f96466d7bb677247021fd
+CODE_STATUS = IMPLEMENTED / PUSHED; NEW-HEAD PROOF PENDING
+
+## Why the previous E2E failed
+Run https://github.com/Report-Engainall/Report-Advisor/actions/runs/38182451467 on head 9d8b6738fa5a48a1343211933dfa6b46adda448e had 32/32 authenticated browser routes passing. The user journey checked persisted report source hash/ID, seven navigation links on the actual ReportsPage, smart-report refresh/readback, cross-screen source continuity, tenant isolation, and fresh CSV generic report. It then failed at the last in-process real-48-archetype-proof.mjs call: supported=4, missing=38, review=6. The separate multi-tenant matrix was skipped by a dependency on business E2E success.
+
+## Committed fix
+- Workflow: real-48-source-matrix-preflight.mjs now runs independently on always() when the dynamic real-report context is available, with all five corpus tenant IDs; it is a required failure gate (set -euo pipefail). Fail-closed verifies the artifact's exact head and summary.totalArchetypes === 48 and summary.supported === 48.
+- Business browser flow: removed the single-tenant 48-archetype subprocess from the customer journey so actual upload/readback result is recorded independently, without downgrading the real-source coverage requirement.
+- XLSX: added xlsxBuffer, generalized the shared import helper to CSV/XLSX, and added a freshly generated XLSX upload/readback/reload scenario while preserving fresh CSV flow.
+- Regression contract extended for fresh XLSX + independent required source matrix.
+
+## Proof ledger
+- Code commit: 219288d1f26a350b526f96466d7bb677247021fd
+- Previous exact head: 9d8b6738fa5a48a1343211933dfa6b46adda448e
+- Previous run: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38182451467
+- Previous artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38182451467/artifacts/11718463277
+- New head verification: PENDING.
+- PRODUCT_COMPLETE = NO, DO_NOT_MERGE = true.
+
+NEXT EXACT ACTION = Read all workflows for 219288d1f26a350b526f96466d7bb677247021fd; require the Chromium business result PASS plus separate 48/48 real-source matrix artifact PASS on the identical head; if the matrix fails, use candidateDiagnostics/selection diagnostics to address the genuine source or specialty mapping gap, never synthetic fixture substitution.
+
+---
+
 # LIVE RESUME — 2026-10-12 01:52 +03 / SOURCE NAVIGATION MOUNTED ON REPORTS CENTER; EXACT-HEAD BROWSER PROOF PENDING
 
 Repository: Report-Engainall/Report-Advisor

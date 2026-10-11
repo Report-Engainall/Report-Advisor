@@ -1,5 +1,33 @@
 # CURRENT SESSION STATE
 
+## LIVE RESUME — 2026-10-12 / REAL-SOURCE MATRIX BLOCKING GATE + FRESH XLSX JOURNEY
+
+Repository = Report-Engainall/Report-Advisor
+Branch = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact code commit = 219288d1f26a350b526f96466d7bb677247021fd
+Code commit URL = https://github.com/Report-Engainall/Report-Advisor/commit/219288d1f26a350b526f96466d7bb677247021fd
+Previous validation head = 9d8b6738fa5a48a1343211933dfa6b46adda448e
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+Production deployment is stale and remains unchanged; do not deploy or merge before exact-head checks pass.
+
+ACTION = CODE CHECKPOINT PERSISTED; NEW-HEAD VALIDATION PENDING
+CHANGED_FILES = .github/workflows/full-product-browser-e2e.yml; scripts/real-business-e2e.mjs; scripts/customer-facing-report-surface-contract.test.mjs
+IMPLEMENTED = Moved the governed multi-tenant 48-real-source matrix out of the browser journey and made it an independent fail-closed workflow gate that runs even if Chromium fails; removed the incorrect single-tenant proof subprocess from the customer journey; added fresh XLSX creation/upload through the actual browser UI followed by canonical source row validation, intelligence result persistence/readback, and reload verification.
+
+PREVIOUS EXACT-HEAD EVIDENCE = Run 38182451467 on 9d8b6738fa5a48a1343211933dfa6b46adda448e: Chromium authenticated route checks 32/32 passed; the business journey proved persisted report identity/hash/row count, seven source-bound destination links on ReportsPage, smart-report refresh, related surfaces, tenant isolation, and fresh CSV upload+readback. It then failed only in the old in-process single-tenant archetype call: supported=4, missing=38, review=6. This is not a success for the 48 real-source gate; the proper multi-tenant matrix was skipped because its condition depended on business E2E success.
+
+ROOT CAUSE FIX = scripts/real-business-e2e.mjs no longer invokes scripts/real-48-archetype-proof.mjs as a sub-step that mis-scopes evidence to one test tenant. .github/workflows/full-product-browser-e2e.yml now runs scripts/real-48-source-matrix-preflight.mjs as its own required gate with the five configured governed tenants and service-role evidence reads; it runs after either browser success or failure. Fail-closed checks the JSON artifact's exact head, PASS state, and 48/48 total coverage. This does not weaken the acceptance bar; it assigns the proof to the appropriate multi-tenant verifier.
+
+FRESH FORMAT COVERAGE = A fresh .xlsx workbook is now generated in the browser E2E and passed through the real import UI, canonical persistence, source-history readback, generic-intelligence rendered report, durable readback and reload assertions. Existing fresh CSV flow remains in place. Result is not proven until the new exact-head run completes.
+
+LAST RUN = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38182451467 (FAILED at old in-process archetype proof). Artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38182451467/artifacts/11718463277.
+NEXT EXACT ACTION = Read the workflow run for code head 219288d1f26a350b526f96466d7bb677247021fd; prove both browser journey and governed 48/48 matrix on that exact head; fix the first runtime failure with evidence, then rerun exact-head product gates. Keep PR #912 open.
+SESSION HANDOFF = Code checkpoint present; no claim of new-head validation until workflow runs complete.
+
+---
+
 ## LIVE RESUME — 2026-10-12 01:52 +03 / REPORTS-CENTER SOURCE NAVIGATION FIX; EXACT-HEAD RETEST PENDING
 
 CURRENT_EXACT_HEAD = 7bdeef87b0a6948998e58bd230b2ac9043ac852f

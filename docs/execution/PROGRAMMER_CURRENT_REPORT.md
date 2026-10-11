@@ -1,3 +1,40 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / REAL-SOURCE MATRIX GATE AND FRESH XLSX
+
+REPORT_FOR_HEAD = 219288d1f26a350b526f96466d7bb677247021fd
+UPDATED_AT = 2026-10-12
+Repository = Report-Engainall/Report-Advisor
+Branch = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact code commit = 219288d1f26a350b526f96466d7bb677247021fd
+Code commit URL = https://github.com/Report-Engainall/Report-Advisor/commit/219288d1f26a350b526f96466d7bb677247021fd
+Previous validation head = 9d8b6738fa5a48a1343211933dfa6b46adda448e
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+Production deployment is stale and remains unchanged; do not deploy or merge before exact-head checks pass.
+
+IMPLEMENTED = Separated the governed 48-source runtime matrix from the customer browser journey; made the matrix required and independent of Chromium outcome; expanded fail-closed to validate its exact-head proof artifact and exactly 48 supported real-source archetypes; added a fresh XLSX workbook upload through the real UI and durable generic-intelligence/readback/reload proof.
+
+FILES = 
+- .github/workflows/full-product-browser-e2e.yml
+- scripts/real-business-e2e.mjs
+- scripts/customer-facing-report-surface-contract.test.mjs
+
+COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/219288d1f26a350b526f96466d7bb677247021fd
+
+PREVIOUS FIRST FAILURE = Run 38182451467 at 9d8b6738fa5a48a1343211933dfa6b46adda448e: Real Chromium business journey and smart report proof ended with REAL_48_ARCHETYPE_PROOF_FAILED, supported=4:missing=38:review=6. Before that, authenticated route proof passed 32/32, and the customer journey reached report, source-linked navigation, refresh/persistence, tenant isolation, and fresh CSV readback. The later multi-tenant matrix job was skipped because its condition incorrectly required business E2E success.
+
+CORRECTIVE ACTION = The wrong single-tenant subprocess is removed from the user journey. The proper real-48-source-matrix-preflight.mjs now runs independently even when the browser flow fails and is a blocking exact-head gate. It retains tenant-bound filters, report_corpus markers, verified evidence snapshots/passports, runtime claims and source hashes; synthetic fixture sources remain excluded. Fail-closed checks the generated matrix artifact and 48/48 coverage.
+
+XLSX CHANGE = The same Playwright journey now builds a new XLSX workbook with xlsx, uploads it through the import UI, checks every canonical row and tenant-bound provenance, reads back the persisted smart report and validates source hash, generic intelligence and refresh state. The existing CSV exercise remains.
+
+PREVIOUS EXACT-HEAD CHECKS (not transferable to this new commit) = On 9d8b673, Build, Quality, Session Handoff, Data Quality Runtime, UI Route Completeness, Phase-F Live Resilience, and Final Certification all passed. A new exact-head pass is required.
+
+NOT YET PROVEN = New-head browser results; actual 48/48 governed source matrix; newly-uploaded XLSX success; post-change build/quality/security/resilience/certification; merge; production publish and published-head equality. Netlify production was observed pointing to old commit 858ef8e3e5bc5bf74430555eadfb9e6767be348b (deployment ID 6ac3d608e2e37d0008cc0222), so production is intentionally not claimed current.
+
+NEXT ACTION = Inspect the exact-head workflow result for 219288d1f26a350b526f96466d7bb677247021fd; read browser JSON and matrix JSON/artifacts, fix the first demonstrated failure, and rerun all required gates on the new source head.
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 01:52 +03 / SOURCE-BOUND NAVIGATION ON THE ACTUAL REPORTS CENTER
 
 REPORT_FOR_HEAD = 7bdeef87b0a6948998e58bd230b2ac9043ac852f
