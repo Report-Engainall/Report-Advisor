@@ -872,6 +872,22 @@ async function proveTransactionalMutationAndAudit(page) {
     // Sales may confirm a pending order, but fulfillment stages require an owner/admin/warehouse actor.
     // Switch actor only after the confirmed state is read back from the database.
     if (orderStatus === 'confirmed' && transactionPage === page) {
+      assert.equal(
+        await page.locator('[data-testid="advance-order-' + orderId + '"]').count(),
+        0,
+        'TRANSACTIONAL_SALES_FULFILLMENT_ACTION_MUST_BE_HIDDEN',
+      );
+      const restrictedAction = page.locator('[data-testid="order-transition-restricted-' + orderId + '"]');
+      await restrictedAction.waitFor({ state: 'visible', timeout: 30000 });
+      evidence.steps.push({
+        step: 'transactional-sales-role-boundary',
+        status: 'PASS',
+        tenantId: evidence.tenantA,
+        requesterActorId: requesterId,
+        requesterRole,
+        statusReadback: orderStatus,
+        forbiddenFulfillmentActionHidden: true,
+      });
       fulfillmentContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
       transactionPage = await fulfillmentContext.newPage();
       attachRuntimeCapture(transactionPage);

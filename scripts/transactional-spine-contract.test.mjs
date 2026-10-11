@@ -49,6 +49,7 @@ assert.match(page, /currentStatus === 'ready'.*\['owner', 'admin', 'warehouse', 
 assert.match(page, /order-transition-restricted-/,
   'a user without the transition role must see an explanation, not a forbidden action');
 assert.match(businessE2E, /TRANSACTIONAL_INITIAL_ACTOR_MUST_BE_SALES/);
+assert.match(businessE2E, /TRANSACTIONAL_SALES_FULFILLMENT_ACTION_MUST_BE_HIDDEN/);
 assert.match(businessE2E, /TRANSACTIONAL_FULFILLMENT_ACTOR_ADMIN_ROLE_MISSING/);
 assert.match(businessE2E, /transactional-order-role-handoff/);
 
