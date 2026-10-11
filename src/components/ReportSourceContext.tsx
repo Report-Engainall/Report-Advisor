@@ -54,6 +54,10 @@ function needsContextContinuity(pathname: string): boolean {
   return CONTEXT_CONTINUITY_PATHS.some((path) => pathname === path || pathname.startsWith(path + '/'));
 }
 
+function requestSignal(controller: AbortController): AbortSignal {
+  return AbortSignal.any([controller.signal, AbortSignal.timeout(12000)]);
+}
+
 function stateLabel(value: string | null): string {
   if (!value) return 'غير متاح';
   const labels: Record<string, string> = {
@@ -90,20 +94,21 @@ export function ReportSourceContext() {
   const [recentReportsLoading, setRecentReportsLoading] = useState(false);
 
   useEffect(() => {
-    if (location.pathname === '/reports' || location.pathname.startsWith('/reports/smart/')) {
+    if (!needsContextContinuity(location.pathname) || location.pathname === '/reports' || location.pathname.startsWith('/reports/smart/')) {
       setRecentReports([]);
       setRecentReportsLoading(false);
       return;
     }
     let active = true;
+    const controller = new AbortController();
     setRecentReportsLoading(true);
-    void fetchSmartReportCatalogPage(6, 0, { signal: AbortSignal.timeout(12000) })
+    void fetchSmartReportCatalogPage(6, 0, { signal: requestSignal(controller) })
       .then((page) => { if (active) setRecentReports(page.reports); })
       .catch((cause) => {
-        if (active) console.warn('[ReportSourceContext] recent smart report navigation unavailable', cause);
+        if (active && !controller.signal.aborted) console.warn('[ReportSourceContext] recent smart report navigation unavailable', cause);
       })
       .finally(() => { if (active) setRecentReportsLoading(false); });
-    return () => { active = false; };
+    return () => { active = false; controller.abort(); };
   }, [location.pathname]);
 
   // Normalize the browser URL to the active report context. This closes the
@@ -123,24 +128,34 @@ export function ReportSourceContext() {
   }, [contextResolving, jobId, location.pathname, location.search, navigate, sourceHash, validSourceHash]);
 
   useEffect(() => {
+    if (!needsContextContinuity(location.pathname)) {
+      setContextResolving(false);
+      return;
+    }
     if (urlJobId && urlValidSourceHash) return;
     if (storedJobId && validSourceHash) return;
     let active = true;
+    const controller = new AbortController();
     setContextResolving(true);
     setError(null);
-    void fetchSmartReportCatalog(1, { signal: AbortSignal.timeout(12000) })
+    void fetchSmartReportCatalog(1, { signal: requestSignal(controller) })
       .then((catalog) => {
         if (!active) return;
         const latest = catalog[0];
         if (latest?.jobId && latest.sourceHash) setReportContext(latest.jobId, latest.sourceHash);
         else setError('لا يوجد تقرير مكتمل صالح للربط بالسياق الحالي.');
       })
-      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : String(cause)); })
+      .catch((cause) => { if (active && !controller.signal.aborted) setError(cause instanceof Error ? cause.message : String(cause)); })
       .finally(() => { if (active) setContextResolving(false); });
-    return () => { active = false; };
-  }, [urlJobId, urlValidSourceHash, storedJobId, validSourceHash, setReportContext]);
+    return () => { active = false; controller.abort(); };
+  }, [location.pathname, urlJobId, urlValidSourceHash, storedJobId, validSourceHash, setReportContext]);
 
   useEffect(() => {
+    if (!needsContextContinuity(location.pathname)) {
+      setReport(null);
+      setError(null);
+      return;
+    }
     if (contextResolving) return;
     if (!jobId || !validSourceHash) {
       setReport(null);
@@ -148,16 +163,17 @@ export function ReportSourceContext() {
       return;
     }
     let active = true;
+    const controller = new AbortController();
     const key = jobId + ':' + sourceHash;
     const cached = REPORT_CONTEXT_CACHE.get(key);
     if (cached) {
       setReport(cached);
       setError(null);
-      return () => { active = false; };
+      return () => { active = false; controller.abort(); };
     }
     setReport(null);
     setError(null);
-    void fetchSmartReport(jobId, sourceHash).then((value) => {
+    void fetchSmartReport(jobId, sourceHash, { signal: requestSignal(controller) }).then((value) => {
       if (!active) return;
       if (value && sourceHash && value.sourceHash !== sourceHash) {
         setReport(null);
@@ -167,10 +183,10 @@ export function ReportSourceContext() {
       if (value) REPORT_CONTEXT_CACHE.set(key, value);
       setReport(value);
     }).catch((cause) => {
-      if (active) setError(cause instanceof Error ? cause.message : String(cause));
+      if (active && !controller.signal.aborted) setError(cause instanceof Error ? cause.message : String(cause));
     });
-    return () => { active = false; };
-  }, [jobId, sourceHash, validSourceHash]);
+    return () => { active = false; controller.abort(); };
+  }, [location.pathname, contextResolving, jobId, sourceHash, validSourceHash]);
 
   if (contextResolving && !report) {
     return <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite"><div className="text-[11px] font-black text-primary-950">جارٍ ربط أحدث تقرير ذكي بالسياق الحالي…</div><p className="mt-1 text-[10px] leading-5 text-primary-900/80">لن نعرض أرقامًا أو توصيات عامة؛ سيتم تحميل النتيجة من آخر تقرير مكتمل في نفس مساحة العمل.</p></section>;
