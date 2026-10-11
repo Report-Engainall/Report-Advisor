@@ -598,7 +598,7 @@ async function readCurrentPersistedReport(page, companyId) {
   assert.equal(Number(imports[0].total_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(imports[0].processed_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(imports[0].source_fingerprint, CURRENT_REPORT_SOURCE_HASH);
-  const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key', { order: 'row_number.asc', limit: 1000 });
+  const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key,data', { order: 'row_number.asc', limit: 1000 });
   assert.equal(canonicalRows.length, CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(canonicalRows[0].row_number), 1);
   assert.equal(Number(canonicalRows[canonicalRows.length - 1].row_number), CURRENT_REPORT_ROW_COUNT);
@@ -718,18 +718,22 @@ async function proveReportsCenterRealSurface(page, report) {
   assert.ok(originalVisibleRows > 1, 'REPORTS_CENTER_SOURCE_ROWS_NOT_VISIBLE');
 
   // Select a value known to occur in exactly one canonical source row.
-  const valueCounts = new Map();
+  const valueOccurrences = new Map();
   for (const sourceRow of report.canonicalRows ?? []) {
     const rowData = sourceRow?.data && typeof sourceRow.data === 'object' ? sourceRow.data : {};
     for (const rawValue of Object.values(rowData)) {
       if (rawValue == null || typeof rawValue === 'object') continue;
       const value = String(rawValue).trim();
       if (value.length < 4) continue;
-      valueCounts.set(value, (valueCounts.get(value) ?? 0) + 1);
+      const prior = valueOccurrences.get(value);
+      valueOccurrences.set(value, prior
+        ? { count: prior.count + 1, rowNumber: prior.rowNumber }
+        : { count: 1, rowNumber: Number(sourceRow.row_number) });
     }
   }
-  const uniqueSourceValue = [...valueCounts.entries()].find(([, count]) => count === 1)?.[0];
-  assert.ok(uniqueSourceValue, 'REPORTS_CENTER_NO_UNIQUE_SOURCE_VALUE_FOR_SEARCH_PROOF');
+  const uniqueSourceEntry = [...valueOccurrences.entries()].find(([, item]) => item.count === 1 && Number.isFinite(item.rowNumber));
+  assert.ok(uniqueSourceEntry, 'REPORTS_CENTER_NO_UNIQUE_SOURCE_VALUE_FOR_SEARCH_PROOF');
+  const [uniqueSourceValue, uniqueSourceRow] = uniqueSourceEntry;
   await rowSearch.fill(uniqueSourceValue);
   await page.waitForFunction(({ selector, maxRows }) => document.querySelectorAll(selector).length < maxRows, {
     selector: sourceRowsSelector,
@@ -738,7 +742,7 @@ async function proveReportsCenterRealSurface(page, report) {
   const filteredRows = await sourceRowsLocator.count();
   assert.ok(filteredRows > 0 && filteredRows < originalVisibleRows, 'REPORTS_CENTER_SEARCH_DID_NOT_FILTER_SOURCE_ROWS');
   const filteredText = (await sourceRowsLocator.allInnerTexts()).join(' ');
-  assert.ok(filteredText.includes(uniqueSourceValue), 'REPORTS_CENTER_SEARCH_RESULT_NOT_BOUND_TO_SOURCE_VALUE');
+  assert.ok(filteredText.includes('#' + String(uniqueSourceRow.rowNumber)), 'REPORTS_CENTER_SEARCH_RESULT_NOT_BOUND_TO_SOURCE_ROW');
 
   await page.getByRole('button', { name: 'تصفير الفلاتر', exact: true }).click();
   await page.waitForFunction(({ selector, expected }) => document.querySelectorAll(selector).length === expected, {
