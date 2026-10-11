@@ -1,3 +1,22 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 01:06 +03 / SOURCE-CONTEXT REQUEST CANCELLATION FIX; RUNTIME RETEST PENDING
+
+REPORT_FOR_HEAD = c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2
+UPDATED_AT = 2026-10-12T01:06:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+SESSION HANDOFF = READY — report/state are being aligned to the fix head; browser result is still pending.
+
+WHAT_I_WAS_ASKED_TO_DO = Repair the exact-head authenticated business-journey failure without weakening source tenant security, preserve the existing intelligence engine, and checkpoint all changes before runtime retest.
+WHAT_I_ACTUALLY_DID = Committed the ReportSourceContext lifecycle fix at c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2: catalog/resolver/detail reads are limited to designated context-continuity routes, requests use abortable signals with the existing 12-second timeout, cleanup aborts in-flight work, and stale report context is hidden on off-context routes. Added source-scope/abort regression assertions to scripts/customer-facing-report-surface-contract.test.mjs and added its existing npm test command to the Full Product Browser E2E preflight. Read all three changed files back from GitHub after commit.
+WHAT_IS_PROVEN = On the parent head, run 38176651182 directly recorded the source_analysis_snapshots GET 401 / PostgREST 42501 and the fresh upload context; the migration revokes anon privileges and grants tenant-scoped authenticated reads. On the fix head, GitHub source/test/workflow readback proves the intended code and regression wiring are persisted. This is implementation/readback proof only; no runtime PASS is claimed for c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38176651182 on pre-fix head 47bcc617f1823ea6a50ef09bfa23cc3c585035d4, browser job 114582010996: source_analysis_snapshots GET 401 / 42501 after logout.
+ROOT_CAUSE = ReportSourceContext data-loading effects ran on /import even though it is not in CONTEXT_CONTINUITY_PATHS. Effect cleanup only set active=false, leaving in-flight requests alive through route/auth transition. The RLS/anon privilege boundary was correct and remains unchanged.
+NEXT_EXACT_ACTION = Inspect exact-head Actions for c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2, verify focused customer-facing contract and Full Product Browser E2E, capture the result.json/screenshot, and repair only the first new evidenced failure. Do not merge or declare PRODUCT_COMPLETE until authenticated upload/render/persistence/readback and cross-screen source lineage pass on one exact code head and production is separately proven.
+
+
 # CURRENT EXECUTION REPORT — 2026-10-12 01:00 +03 / SOURCE-CONTEXT AUTH-LIFECYCLE FAILURE
 
 REPORT_FOR_HEAD = 47bcc617f1823ea6a50ef09bfa23cc3c585035d4

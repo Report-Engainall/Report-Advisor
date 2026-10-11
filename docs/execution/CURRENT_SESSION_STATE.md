@@ -1,5 +1,29 @@
 # CURRENT SESSION STATE
 
+## LIVE RESUME — 2026-10-12 01:06 +03 / SOURCE-CONTEXT LIFECYCLE FIX COMMITTED
+
+CURRENT_EXACT_HEAD = c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2
+CURRENT_CODE_TEST_HEAD = c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2
+CURRENT_EXECUTION_PARENT_HEAD = 93caf5713f47df981eeb5e60fc58c3b327969763
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = SOURCE_CONTEXT_ROUTE_SCOPE_AND_ABORT_FIX_COMMITTED; EXACT_HEAD_RUNTIME_RETEST_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12 01:06 +03
+PRE_FIX_FAILED_E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182
+PRE_FIX_ARTIFACT = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182/artifacts/11716501331
+SOURCE_FIX_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2
+FIRST_ACTIVE_FAILURE = Pre-fix exact-head E2E failed on source_analysis_snapshots GET 401 / PostgREST 42501 after tenant logout.
+ROOT_CAUSE = ReportSourceContext launched catalog/detail requests on /import even though that route is outside CONTEXT_CONTINUITY_PATHS; useEffect cleanup did not abort HTTP requests. The source_analysis_snapshots anon revoke is intentional.
+WHAT_CHANGED = All three source-context read effects are route-scoped and abort outstanding work on cleanup; stale source context is not rendered outside continuity routes; focused regression assertions are in the existing customer-facing surface contract and are scheduled in the full-browser preflight.
+NEXT_EXACT_ACTION = Refresh exact-head gates for c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2, prove the focused regression command passes, and rerun Full Product Browser E2E on the exact fix head; inspect result.json/artifact and repair the first next failure.
+SESSION HANDOFF = READY — current report baseline is this code-fix head; exact-head product/browser results pending.
+
+---
+
+
 # LIVE RESUME — 2026-10-12 00:27 +03 / TRUTH-STATE VISIBILITY FIX ON NEW CODE HEAD
 
 CURRENT_EXACT_HEAD = bdfb7d3e4f5db3894d5b441e64c62ebefc708217
@@ -2200,24 +2224,3 @@ DO_NOT_MERGE = true
 - Exact current-head checks: Data Quality Runtime [38159931324](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931324) PASS; Report Value Cohort [38159931256](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931256) PASS; File Intelligence Security [38159931185](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931185) PASS. Product Build [38159931439](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931439) and Quality [38159931331](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931331) remained in progress at the latest read. Full Product Browser [38159931158](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931158) remained pending; Device-Independent Browser [38159931392](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931392) was in progress; Phase-F [38159931257](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931257) was in progress. No browser/readback/restore/production PASS is claimed.
 - Product completion remains NO.
 - NEXT EXACT ACTION: set the latest programmer report baseline to this verified parent, rerun Session Handoff on the descendant, then inspect the Full Product Browser E2E's first terminal result and repair only a confirmed failure.
-## LIVE RESUME — 2026-10-12 01:00 +03 / CURRENT-HEAD E2E ROOT CAUSE RECORDED
-
-CURRENT_EXACT_HEAD = 47bcc617f1823ea6a50ef09bfa23cc3c585035d4
-CURRENT_CODE_TEST_HEAD = 47bcc617f1823ea6a50ef09bfa23cc3c585035d4
-CURRENT_EXECUTION_PARENT_HEAD = bdfb7d3e4f5db3894d5b441e64c62ebefc708217
-BRANCH = fix/source-bound-generic-intelligence-20261009
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
-MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
-ACTION_STATUS = BUILD_QUALITY_HANDOFF_PHASE_F_RESILIENCE_FINAL_CERTIFICATION_PASS; FULL_PRODUCT_BROWSER_E2E_FAILED_WITH_SOURCE_SNAPSHOT_401
-PRODUCT_COMPLETE = NO
-DO_NOT_MERGE = true
-UPDATED_AT = 2026-10-12 01:00 +03
-FAILED_E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182
-ARTIFACT = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182/artifacts/11716501331
-FIRST_ACTIVE_FAILURE = Authenticated full-product browser run hit PostgREST 42501 / HTTP 401 reading source_analysis_snapshots from the client after logout.
-ROOT_CAUSE = ReportSourceContext starts catalog/detail reads on /import, an out-of-scope route, and cleanup does not abort requests. The source_analysis_snapshots anon privilege revoke is intentional; do not change it.
-NEXT_EXACT_ACTION = Guard ReportSourceContext reads to context-continuity routes, abort in-flight requests on cleanup/unmount, add regression assertions, commit the fix, and rerun targeted contract + full authenticated browser E2E on that exact SHA.
-SESSION HANDOFF = NOT READY — this checkpoint captures the live exact-head failure; repair and refresh the exact-head browser result next.
-
----
-

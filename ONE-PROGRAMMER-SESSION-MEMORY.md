@@ -1,3 +1,30 @@
+# LIVE RESUME — 2026-10-12 01:06 +03 / SOURCE-CONTEXT REQUEST LIFECYCLE FIX COMMITTED; EXACT-HEAD RETEST PENDING
+
+Repository: `Report-Engainall/Report-Advisor`
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact code-fix head: `c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Pre-fix Full Product Browser E2E: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182
+Pre-fix artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182/artifacts/11716501331
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Implemented and read back
+
+- `ReportSourceContext` now scopes catalog and report-detail data reads to `CONTEXT_CONTINUITY_PATHS`; `/import` and other unrelated routes do not trigger prior-report reads or display stale report context.
+- Three asynchronous effects now use per-effect `AbortController` signals combined with the existing 12-second timeout. Route change/unmount aborts outstanding HTTP work; aborts are not logged as operational failures.
+- Added regressions in `scripts/customer-facing-report-surface-contract.test.mjs` for route scope, controllers, cleanup cancellation, timeout, and non-context rendering.
+- Added `npm run test:customer-facing-report-surface` to the Full Product Browser E2E preflight regression sequence.
+- Code fix committed and source/test/workflow read back from GitHub at `c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2`. Exact-head runtime tests have not yet been read back, so the fix is implemented but not yet runtime-proven.
+
+## Failure that prompted the repair
+
+Pre-fix run `38176651182` reached the authenticated fresh CSV upload, then emitted HTTP 401 / PostgREST 42501 against `source_analysis_snapshots` around a tenant logout. The table intentionally revokes SELECT from `anon` and allows tenant-scoped authenticated SELECT. The root cause was out-of-scope `ReportSourceContext` reads on `/import`; previous cleanup merely prevented stale React state updates and did not cancel network requests. The RLS boundary was not changed.
+
+NEXT_EXACT_ACTION = Read exact-head workflows for `c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2`, ensure Session Handoff is refreshed after documentation alignment, run the focused contract and Full Product Browser E2E, then fix only the first demonstrated failure. Keep PR #912 open and PRODUCT_COMPLETE=NO.
+
+---
+
 # LIVE RESUME — 2026-10-12 01:00 +03 / EXACT-HEAD BROWSER FAILURE: SOURCE-CONTEXT REQUEST SURVIVES AUTH CHANGE
 
 Repository: `Report-Engainall/Report-Advisor`
