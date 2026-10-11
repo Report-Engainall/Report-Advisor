@@ -30,6 +30,8 @@ if (signalBlock.includes('signals.slice(')) throw new Error('Signals must not be
 if (recommendationBlock.includes('recommendations.slice(')) throw new Error('Recommendations must not be artificially truncated');
 
 const reportIntelligencePanel = fs.readFileSync(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url), 'utf8');
+const customerReportSurface = fs.readFileSync(new URL('../src/components/CustomerReportSurface.tsx', import.meta.url), 'utf8');
+if (!customerReportSurface.includes('data-testid="customer-report-source-hash"') || !customerReportSurface.includes('{report.sourceHash}')) throw new Error('Domain report surfaces must visibly expose the complete source SHA-256 fingerprint');
 if (!reportIntelligencePanel.includes('>GUIDANCE</span>')) throw new Error('Guidance contract must be visible text in the intelligence panel, not only a data attribute');
 if (!reportIntelligencePanel.includes('ذكاء المصدر')) throw new Error('Arabic source-intelligence heading must remain visible beside the guidance label');
 if (!reportIntelligencePanel.includes('>EVIDENCE PASSPORT</span>')) throw new Error('Evidence passport must be visibly labelled on every source-bound intelligence surface');
