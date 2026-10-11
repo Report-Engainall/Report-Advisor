@@ -1,37 +1,43 @@
 # ONE PROGRAMMER SESSION MEMORY — LIVE RESUME
 
-# LIVE RESUME — 2026-10-11 22:45 +03 / SOURCE-BOUND AUDIT TRACE CONTRACT REPAIRED; EXACT-HEAD RETEST PENDING
+# LIVE RESUME — 2026-10-11 23:05 +03 / IMPORT E2E QUEUE FLOW ALIGNED; EXACT-HEAD RETEST REQUIRED
 
 Repository: Report-Engainall/Report-Advisor
 Branch: fix/source-bound-generic-intelligence-20261009
 PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
-Code/test head: a70aa83c1a4698c741b3a76332f8a8b16cc3a663.
+Current code/test head: d0926e659f62fa42688ca4650f32d6f5792adbd4.
+Previous code head: a70aa83c1a4698c741b3a76332f8a8b16cc3a663.
 Main/base: fa1ab4cbade9b01685507aa966c10f700a03f576.
-Archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2245-AUDIT-TRACE-ASSERTION-FIX.md
+Archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2305-IMPORT-QUEUE-E2E-FIX.md
 PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
 
-## Verified Quality / resilience history
-On the previous exact source head 5d983bc8edd0a21c09d0b579b6bc7c6aabb043b6, these gates passed:
-- Product Build Gate [38168570478](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570478) — PASS.
-- Quality [38168570498](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570498) — PASS.
-- Phase-F Live Resilience [38168570530](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570530) — PASS.
-- Session Handoff [38168570511](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570511) — PASS.
-- Final Certification Gate [38168570382](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570382) — PASS.
-These are not transferred to code head a70aa; its own checks are running.
+## Exact previous browser failure, from artifact
+Full Product Browser E2E [38169565885](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169565885) tested source code head a70aa83 and failed only after all certified smart-report/source lineage checks and the complete order→invoice→payment mutation/audit readbacks passed. The failure was:
+`locator.isEnabled: Timeout 30000ms exceeded. waiting for getByRole('button', { name: /تأكيد الاستيراد/ })`.
+Artifact [11714007138](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169565885/artifacts/11714007138) includes `artifacts/e2e-business/failure.png` and `result.json`. The screenshot proves the chosen file was still in the new UI's queued-source list with an explicit `تحليل هذا المصدر` button. The old E2E set a file then waited for the always-visible Stepper text `المراجعة`; it never clicked the queued-source analysis action, so it searched for a confirmation button while the UI was still in the upload step.
 
-## First failed runtime proof and proven root cause
-Full Product Browser E2E [38168570376](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570376) failed on exact head 5d983bc8edd0a21c09d0b579b6bc7c6aabb043b6 with `TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING`; uploaded artifact [11713696199](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570376/artifacts/11713696199).
-The certified report checks passed first: reportJobId `8dbafdf8-f769-4c4f-97a5-22eac8b47d41`, source `تقارير ارصدة المخزون.pdf`, sourceHash `sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839`, 254 rows and quality 98 were read back. Source-bound executive/trust/decision/work/inventory, advisor-case and inbox context assertions also passed. The transactional sales-role and role-handoff checks passed, including persisted status readback to `confirmed`.
-The failure was a UI/E2E vocabulary mismatch, not missing persisted audit rows: the page queried `source='operations-runtime'`, but rendered only translated generic badges/entity labels and not the actual `entry.action`. The E2E instead expected `order_status_changed` / `order_created`, which belongs to a different audit event source. Read-only staging SQL showed real rows for `orders:update`, `sales_invoices:insert`, `sales_invoices:update`, and `payments:insert` under `operations-runtime`, with matching entity IDs.
+## Implemented E2E alignment
+Commit [d0926e6](https://github.com/Report-Engainall/Report-Advisor/commit/d0926e659f62fa42688ca4650f32d6f5792adbd4), file `scripts/real-business-e2e.mjs`:
+- After file upload, target the queued row by its unique `marker.csv` name and click that row's `تحليل هذا المصدر` action.
+- Wait for the actual active stepper item `3. المراجعة — المرحلة الحالية`, not the static text of an inactive stage.
+- If parsing does not reach review, report the current stage, visible error messages and a bounded body excerpt as `UNIFIED_IMPORT_REVIEW_NOT_REACHED`.
+- Require the confirmation button to become visible before testing readiness/clicking. Authentication, tenant, import persistence, evidence, and browser failure checks remain in force.
 
-## Implemented fix
-Commit [a70aa83](https://github.com/Report-Engainall/Report-Advisor/commit/a70aa83c1a4698c741b3a76332f8a8b16cc3a663):
-- `src/pages/OperationsPage.tsx`: audit trace now visibly exposes the persisted action code beside the Arabic action/entity label.
-- `scripts/real-business-e2e.mjs`: browser check asserts visible source-bound operational action codes; DB readback separately asserts action + entity type + source for order, invoice and payment.
-- `scripts/transactional-spine-contract.test.mjs`: contract now protects action-code visibility and the E2E evidence assertions.
-GitHub readback verified the commit contains exactly these three files and that the UI/test markers are present. The change is IMPLEMENTED/INTEGRATED/PERSISTED; new browser proof is pending.
+## Outstanding observation, not yet classified as a root cause
+The old browser result also captured two HTTP 401 / SQLSTATE 42501 responses from `report_execution_jobs` with no authenticated JWT role, associated with the synthetic tenant-B company after the tenant-B logout path. This correctly remains denied; no `anon` SELECT grant has been applied and no telemetry check has been disabled. Recheck this on the new run. If it recurs, identify whether it is a stale in-flight read after deliberate logout or a request initiated by the authenticated journey without a session, then fix the actual caller/lifecycle rather than allowing anonymous table access.
 
-Continue from the GitHub PR head, not historic prose. The latest first runtime failure was an audit trace E2E/UI contract mismatch, not a missing DB event. The action-code disclosure + stronger source-scoped database assertions are committed as a70aa83. Keep PR #912 open. PRODUCT_COMPLETE = NO. Never merge until the authenticated full business journey and persisted report/source linkage pass on the current head and production provenance is verified.
+## Gate status history, precisely scoped
+On source head `383c1e7cc8f120f71ba8f437bb6ea36d2326bba0`:
+- Product Build Gate [38169658338](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658338) PASS.
+- Quality [38169658373](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658373) PASS.
+- Phase-F Live Resilience [38169658146](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658146) PASS (4/4 probes; RPO 101.61s, RTO 13.04s; artifact [11713377768](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658146/artifacts/11713377768)).
+- Session Handoff [38169658407](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658407) PASS.
+- Final Certification Gate [38169658436](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658436) PASS.
+- Device-Independent Browser [38169658364](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658364) PASS.
+- Storage Tenant Runtime [38169658339](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38169658339) PASS.
+These successes apply to 383c1e7's code lineage only. The import E2E fix at d0926 now requires its own exact-head regression and browser proof; don't transfer old PASS labels to a code change without checking the new workflow batch.
+
+Treat `d0926e659f62fa42688ca4650f32d6f5792adbd4` as the current code/test baseline. The actual source-bound report and transactional/audit checks now passed on predecessor a70aa83 through the prior failed test. The newest failure was the E2E helper not following the queue-first import UI; the helper now clicks Analyze This Source and waits for the real review stage. Do not merge PR #912 or claim product complete before current-head Chromium proves fresh upload → extraction → canonical persistence → generic intelligence render → source-hash persistence and refresh, including audit and tenant isolation. Keep anon privilege denied.
 
 ---
 
