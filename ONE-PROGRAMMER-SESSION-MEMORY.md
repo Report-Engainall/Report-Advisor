@@ -1,20 +1,29 @@
-# LIVE RESUME — 2026-10-11 — role-governed operational workflow / SALES VS FULFILLMENT ROLE BOUNDARY FIXED IN CODE, TEST PENDING
+# ONE PROGRAMMER SESSION MEMORY — LIVE RESUME
 
-Repository: Report-Engainall/Report-Advisor  
-Branch: `fix/source-bound-generic-intelligence-20261009`  
-PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.  
-Code head: `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee`.
+# LIVE RESUME — 2026-10-11 22:20 +03 / EXACT-HEAD ORDER FEEDBACK RETEST REQUIRED
 
-Previous run [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) proved sales could persist pending→confirmed; its subsequent confirmed→preparing RPC call was correctly denied with 403/42501 because the actor was `sales`, not owner/admin/warehouse. The DB permission matrix must not be relaxed.
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Latest observed PR head before this governance checkpoint: bc53828428900c7594a67b8cd4761bc73bb1f3fc.
+Main/base: fa1ab4cbade9b01685507aa966c10f700a03f576.
+Code fix to verify: ca5b98d592b090dd2b315e5fe3fe6c589edfb39a.
+Checkpoint archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2220-ORDER-FEEDBACK-RETEST.md
+Checkpoint commit: 59e6ee8f88ca7179cc5fed4254ec5801a003945a.
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
 
-Code changes committed at `bc53828...` and `e4f01c4...`:
-- role-aware transition affordance in OperationsPage; restricted transitions show an Arabic explanation and no button;
-- E2E asserts the sales actor cannot see the fulfillment button, then signs in with the existing admin actor in the same tenant and proves role/context, state transitions, invoice/payment persistence and audit readback;
-- transactional-spine static contract extended for role policy and handoff.
+## Fresh live evidence
+- Full Product Browser E2E [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on tested SHA 3d6fa46f159540ff5c510c87b062baf70a1996b2. Route/auth proof passed; business journey timed out waiting for `تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.`. Artifact: [11711923595](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841/artifacts/11711923595).
+- Session Handoff Contract [38166724780](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724780) passed on 3d6fa46 only.
+- Build, Quality, Data Quality Runtime, Phase-F resilience, Final Certification, Device-Independent Browser and Storage Tenant Runtime passed on 3d6fa46 only. No transfer of these passes to the later branch head.
+- Existing code fix ca5b98d592b090dd2b315e5fe3fe6c589edfb39a preserves mutation feedback during reload and adds transactional-spine regression assertions. Exact-head browser proof for that patch is still missing.
+- An archive checkpoint has been persisted at 59e6ee8f88ca7179cc5fed4254ec5801a003945a. Fresh exact-head gates must be consumed after this governance commit.
 
-All old PASS outcomes belong to `3d6fa46...`, not the new code head. A docs-only checkpoint is advancing `REPORT_FOR_HEAD` to `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee`; inspect every new exact-head workflow before considering this repaired.
+FIRST_ACTIVE_FAILURE = Browser timeout waiting for order transition success feedback.
+ROOT_CAUSE = Existing staging readback showed order state persisted pending → confirmed, while OperationsPage load() cleared success feedback during the post-mutation reload. Patch adds preserveFeedback; browser proof still pending.
+NEXT_EXACT_ACTION = Read the newest Full Product Browser E2E and required gates after the current checkpoint; inspect the new result artifact, then fix the first demonstrated failure only.
 
-NEXT EXACT ACTION = Read back new checkpoint; consume test:transactional-spine and Full Product Browser first, then the other gates. Keep PR #912 open; PRODUCT_COMPLETE=NO.
+Use this as the active continuation point. Keep historical records intact. Do not merge PR #912 until exact-head full authenticated browser proof, source/report persistence proof, required quality/resilience/certification gates, and current deployment provenance are established.
 
 ---
 
