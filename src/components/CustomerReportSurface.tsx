@@ -302,6 +302,10 @@ export function CustomerReportSurface({
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3.5"><div className="text-[9px] text-slate-400">الثقة</div><div className="mt-1 text-xl font-black">{friendlyState(report.trustState ?? report.sourceTrustState)}</div></div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3.5"><div className="text-[9px] text-slate-400">حالة القرار</div><div className="mt-1 text-xl font-black">{friendlyState(report.renderedOutput.decisionStatus)}</div></div>
           </div>
+          <div className="mt-3 rounded-xl border border-amber-200/25 bg-white/[0.04] p-3">
+            <div className="text-[9px] font-bold text-slate-400">بصمة المصدر SHA-256</div>
+            <div data-testid="customer-report-source-hash" className="mt-1 break-all font-mono text-[10px] leading-5 text-amber-100">{report.sourceHash}</div>
+          </div>
         </div>
       </section>
 
