@@ -211,7 +211,7 @@ function buildAuthUserStubSql(userIds) {
     'ON CONFLICT (id) DO NOTHING;',
     'COMMIT;',
     '',
-  ].join('\\n');
+  ].join('\n');
 }
 
 function verifyRestoredRecommendationAuthority(databaseUrl) {
