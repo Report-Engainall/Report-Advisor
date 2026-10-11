@@ -87,6 +87,8 @@ assert.ok(!realBusinessE2E.includes("getByText('EVIDENCE PASSPORT', { exact: fal
 assert.ok(realBusinessE2E.includes('function xlsxBuffer(input)'), 'Browser journey must generate a genuinely new XLSX fixture for parser/persistence proof');
 assert.ok(realBusinessE2E.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 'Fresh XLSX upload must use the correct MIME type');
 assert.ok(realBusinessE2E.includes('fresh-generic-xlsx-upload'), 'Browser journey must save/read back a newly uploaded XLSX report');
+assert.ok(realBusinessE2E.includes("async function waitForAuthoritativeImportCompletion(page, companyId, marker, format = 'csv')"), 'Import completion lookup must resolve CSV and XLSX filenames consistently');
+assert.ok(realBusinessE2E.includes('waitForAuthoritativeImportCompletion(page, companyId, marker, format)'), 'Shared import flow must pass the actual extension to durable job discovery');
 assert.ok(realBusinessE2E.includes('fresh-xlsx-upload-to-generic-intelligence-save-readback-refresh'), 'Fresh XLSX must prove generic intelligence survives persisted readback and refresh');
 assert.ok(!realBusinessE2E.includes("scripts/real-48-archetype-proof.mjs"), 'Single-tenant 48-archetype diagnostic must not fail an otherwise completed customer journey');
 assert.ok(fullProductBrowserWorkflow.includes('name: Prove governed real-source 48 archetype matrix'), 'The governed multi-tenant source matrix must run as its own gate');

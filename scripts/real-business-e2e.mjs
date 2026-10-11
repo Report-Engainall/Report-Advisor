@@ -216,8 +216,9 @@ async function openImportSource(page) {
   }
   throw new Error('UNIFIED_IMPORT_ROUTE_NOT_READY:exhausted');
 }
-async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
-  const fileName = marker + '.csv';
+async function waitForAuthoritativeImportCompletion(page, companyId, marker, format = 'csv') {
+  if (format !== 'csv' && format !== 'xlsx') throw new Error('UNSUPPORTED_AUTHORITATIVE_IMPORT_FORMAT:' + format);
+  const fileName = `${marker}.${format}`;
   const deadline = Date.now() + 120000;
   let lastImport = null;
   let candidateJobId = null;
@@ -346,7 +347,7 @@ async function importOne(page, label, fields, marker, format = 'csv') {
   }
 
   const companyId = evidence.tenantA ?? await currentTenant(page);
-  const job = await waitForAuthoritativeImportCompletion(page, companyId, marker);
+  const job = await waitForAuthoritativeImportCompletion(page, companyId, marker, format);
 
   // Mark this test-only upload before the workflow's real-source cohort gate can inspect it.
   await tagSyntheticE2EFileRecord(companyId, job.file_record_id, label);
