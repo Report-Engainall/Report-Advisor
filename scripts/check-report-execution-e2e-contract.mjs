@@ -15,6 +15,7 @@ const files = [
   'supabase/migrations/20261011203457_restore_tenant_bound_legacy_enqueue_report_execution_job_overload.sql',
   'supabase/migrations/20261011204019_disambiguate_import_commit_batch_rpc_overloads.sql',
   'src/lib/import/canonical-commit.ts',
+  'supabase/migrations/20261011205000_disambiguate_import_commit_batch_repair_rpc.sql'
 ];
 
 for (const file of files) if (!existsSync(file)) throw new Error(`Missing report execution component: ${file}`);
@@ -29,6 +30,8 @@ const durable = read(files[6]);
 const ledger = read(files[7]);
 const canonicalImport = read(files[8]);
 const enqueueRpcMigration = read(files[9]);
+const importCommitRpcMigration = read(files[10]);
+const canonicalCommit = read(files[11]);
 const removeLegacyEnqueueRpcMigration = read(files[10]);
 const restoreLegacyEnqueueRpcMigration = read(files[11]);
 const importCommitRpcMigration = read(files[12]);
@@ -145,6 +148,25 @@ const repairCommitSignature = importCommitRpcMigration.match(
 if (!repairCommitSignature) throw new Error('Seven-argument import_commit_batch signature missing');
 if (/\bDEFAULT\b/i.test(repairCommitSignature)) {
   throw new Error('Seven-argument import_commit_batch repair overload must not accept omitted arguments');
+}
+
+
+required(canonicalCommit, [
+  "activeClient.rpc(repairExistingSource ? 'import_repair_commit_batch' : 'import_commit_batch', rpcArgs)",
+], 'Canonical import must route repair work to a separately named RPC');
+
+required(importCommitRpcMigration, [
+  'ALTER FUNCTION public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean)',
+  'RENAME TO import_repair_commit_batch',
+  'REVOKE ALL ON FUNCTION public.import_repair_commit_batch(uuid,text,jsonb,text,text,uuid,boolean)',
+  'FROM PUBLIC, anon, authenticated',
+  'GRANT EXECUTE ON FUNCTION public.import_repair_commit_batch(uuid,text,jsonb,text,text,uuid,boolean)',
+  'TO service_role',
+  "NOTIFY pgrst, 'reload schema'",
+], 'Repair RPC migration must preserve its service-only permission boundary');
+
+if (/GRANT EXECUTE ON FUNCTION public\\.import_repair_commit_batch\\([^)]*\\)\\s+TO (?:PUBLIC|anon|authenticated)\\b/i.test(importCommitRpcMigration)) {
+  throw new Error('Repair RPC must not grant execution to public, anon, or authenticated');
 }
 
 console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');
