@@ -14,6 +14,7 @@ const files = [
   'supabase/migrations/20261011203323_remove_ambiguous_legacy_enqueue_report_execution_job_overload.sql',
   'supabase/migrations/20261011203457_restore_tenant_bound_legacy_enqueue_report_execution_job_overload.sql',
   'supabase/migrations/20261011204019_disambiguate_import_commit_batch_rpc_overloads.sql',
+  'supabase/migrations/20261011205504_bind_enqueue_report_execution_job_wrapper_to_authenticated_tenant.sql',
   'src/lib/import/canonical-commit.ts',
   'supabase/migrations/20261011205000_disambiguate_import_commit_batch_repair_rpc.sql'
 ];
@@ -35,7 +36,8 @@ const canonicalCommit = read(files[11]);
 const removeLegacyEnqueueRpcMigration = read(files[10]);
 const restoreLegacyEnqueueRpcMigration = read(files[11]);
 const importCommitRpcMigration = read(files[12]);
-const canonicalCommit = read(files[13]);
+const tenantBoundEnqueueWrapperMigration = read(files[13]);
+const canonicalCommit = read(files[14]);
 
 const required = (source, tokens, label) => {
   for (const token of tokens) if (!source.includes(token)) throw new Error(`${label} missing ${token}`);
@@ -124,6 +126,25 @@ for (const marker of [
   'grant execute on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer) to authenticated, service_role;',
 ]) {
   if (!normalizedRestoreLegacyEnqueueRpcMigration.includes(marker)) throw new Error('Tenant-bound normal enqueue wrapper missing: ' + marker);
+}
+
+const normalizedTenantBoundEnqueueWrapperMigration = tenantBoundEnqueueWrapperMigration.toLowerCase().replace(/\s+/g, ' ');
+for (const marker of [
+  'create or replace function public.enqueue_report_execution_job(',
+  'security definer',
+  "set search_path to 'pg_catalog'",
+  'if auth.uid() is null then',
+  'v_company_id := public.current_company_id()',
+  'p_company_id is distinct from v_company_id',
+  'revoke all on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer) from public, anon, authenticated;',
+  'grant execute on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer) to authenticated, service_role;',
+]) {
+  if (!normalizedTenantBoundEnqueueWrapperMigration.includes(marker)) {
+    throw new Error('Authenticated enqueue wrapper missing direct tenant-binding invariant: ' + marker);
+  }
+}
+if (/grant execute on function public\.enqueue_report_execution_job\([^)]*\) to (?:public|anon)\b/i.test(tenantBoundEnqueueWrapperMigration)) {
+  throw new Error('Tenant-bound normal enqueue wrapper must not grant execute to public or anon');
 }
 
 required(canonicalCommit, [
