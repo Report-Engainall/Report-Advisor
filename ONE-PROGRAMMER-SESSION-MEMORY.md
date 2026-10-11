@@ -1,3 +1,24 @@
+# LIVE RESUME — 2026-10-11T21:16:00+03:00 / FULL-BROWSER FAILURE EVIDENCE UNBLOCK
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Current code/workflow head before this docs checkpoint: `431e0c9e3752ce9f756495d0fe1ead92cc4d27a1`.
+- Product complete: **NO**.
+
+## Current execution delta
+- Inventory general intelligence was mounted on the actual `CustomerReportSurface` in [`08a1ac3`](https://github.com/Report-Engainall/Report-Advisor/commit/08a1ac3464cd7ba818cf09287e3a83a852291681).
+- The stale `sourcePath` contract was repaired in [`167ebdc`](https://github.com/Report-Engainall/Report-Advisor/commit/167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6).
+- On product/test head `2ed9da0829f9ae3c00521b412cb425eaa121bec3`, Build, Quality, Handoff, Final Certification, Device-Independent Browser, Storage Tenant Runtime, and Phase-F resilience passed. Those checks are not transferred to the new workflow head.
+- Full Product Browser run [38162258379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379) on `2b5f9b4…` confirms the blocking step `Real Chromium business journey and smart report proof` failed, then remained in progress at diagnostic-only `Report real-source 48 archetype coverage (non-blocking)`. Log fetch returned `BlobNotFound`; no artifact had been published. The actual error in `result.json` is unavailable; do not infer its root cause.
+- Commit [`431e0c9`](https://github.com/Report-Engainall/Report-Advisor/commit/431e0c9e3752ce9f756495d0fe1ead92cc4d27a1) adds ID `business-e2e` and runs the optional 48-source diagnostic only if the blocking business journey passes. When the journey fails, fail-closed validation and artifact upload can execute without waiting for that optional matrix. No pass criterion, auth guard, tenant guard, or certification gate is relaxed.
+
+## NEXT EXACT ACTION
+Read exact-head runs for `431e0c9e3752ce9f756495d0fe1ead92cc4d27a1`. Consume the new Full Product Browser E2E artifact when uploaded, read `artifacts/e2e-business/result.json` and the step log, fix only the first actual failure, then prove upload, generic plus applicable specialist results, persistence/readback, and matching `reportJobId + sourceHash` after refresh. Keep PR #912 open.
+
+
+---
+
 # LIVE RESUME — 2026-10-11T21:08:00+03:00 / SOURCE-PATH CONTRACT REPAIR; EXACT-HEAD RETEST REQUIRED
 
 - Repository: `Report-Engainall/Report-Advisor`

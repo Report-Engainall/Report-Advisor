@@ -1,21 +1,24 @@
-REPORT_FOR_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
-UPDATED_AT = 2026-10-11T21:08:00+03:00
+REPORT_FOR_HEAD = 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1
+UPDATED_AT = 2026-10-11T21:16:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-CURRENT_EXECUTION_PARENT_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
-CURRENT_PRODUCT_TEST_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
+CURRENT_EXECUTION_PARENT_HEAD = 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1
+CURRENT_PRODUCT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+CURRENT_CODE_TEST_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
 PRODUCT_COMPLETE = NO
-SESSION HANDOFF = READY — governance checkpoint documents the exact product/test parent; product gates remain pending
-ACTION_STATUS = CUSTOMER_SURFACE_CONTRACT_CORRECTED; EXACT_HEAD_RETEST_PENDING
+SESSION HANDOFF = READY — this docs checkpoint anchors the workflow-only evidence fix; exact-head gates remain pending
+ACTION_STATUS = BROWSER_FAILURE_EVIDENCE_UNBLOCKED; EXACT_HEAD_RETEST_PENDING
 
-WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 from live GitHub state, close the handoff failure without weakening governance, repair the first proven current-head problem, and preserve the existing general-intelligence engine.
-WHAT_I_ACTUALLY_DID = Verified that on previous governance head 2b5f9b47c99b6208b4d1578135adc12659f242aa, Session Handoff run 38162258338 and Final Certification run 38162258407 passed, while Product Build Gate run 38162258148 failed at scripts/customer-facing-report-surface-contract.test.mjs. Read the exact job log and found that an obsolete blanket assertion rejected the sourcePath prop that the inventory domain surface must pass into GenericFileIntelligenceCard. Committed test-only correction 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6: require the intended sourcePath prop, strip only that prop expression, and still reject direct raw-path rendering. Created a new append-only dated archive and updated the state and memory before continuing.
-WHAT_IS_PROVEN = Handoff and final certification passed on 2b5f9b4 only; their results are not transferred to 167ebdc. On 2b5f9b4 the build/typecheck and first two surface contracts passed before the stale customer-facing contract failed. Code/test commit 167ebdc is live on the PR branch; its exact-head test/build/quality/browser/resilience results remain to be checked. Full Product Browser E2E 38162258379 was in progress on 2b5f9b4 at last read and was not cancelled.
-FIRST_ACTIVE_FAILURE = Product Build Gate 38162258148 on 2b5f9b47c99b6208b4d1578135adc12659f242aa failed at the customer-facing report surface contract with assert.ok(!surface.includes('{report.sourcePath}')).
-ROOT_CAUSE = The contract incorrectly equated the source-bound prop sourcePath={report.sourcePath} with raw customer-visible rendering and then forbade all sourcePath references. The general-intelligence card needs the prop to preserve source lineage. The corrected contract permits only the prop expression and still forbids remaining direct rendered {report.sourcePath} text. The separate older browser failure inventory: intelligence panel missing was addressed in CustomerReportSurface at 08a1ac3 but still needs exact-head browser proof.
-NEXT_EXACT_ACTION = Read all exact-head GitHub Actions for 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6, continue monitoring the already-running Full Product Browser E2E 38162258379 without cancelling it, and fix the first new terminal failure supported by logs.
-HANDOFF_COVERAGE = scripts/customer-facing-report-surface-contract.test.mjs; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-POST-167EBDC-SOURCEPATH-CONTRACT-REPAIR.md
+WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 without rebuilding the intelligence engine, fix the first proven failure, make browser failure evidence recoverable, and persist an exact-head handoff.
+WHAT_I_ACTUALLY_DID = Verified earlier exact-head passes on 2ed9da0 for Build, Quality, Handoff, Final Certification, Device-Independent Browser, Storage Tenant Runtime and Phase-F. The Full Product Browser run 38162258379 on 2b5f9b4 failed its blocking step Real Chromium business journey and smart report proof, then remained in progress at the optional non-blocking 48-archetype diagnostic. Logs returned BlobNotFound and no artifacts were available. Committed 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1 to condition that diagnostic on the successful blocking step, letting fail-closed verification and artifact upload proceed after a browser failure. Updated memory/state and archived the checkpoint.
+WHAT_IS_PROVEN = 431e0c9 adds step ID business-e2e and conditions only the diagnostic 48-source step on its outcome being success. Exact error from the older business journey is not yet retrievable. New-head browser, build, quality and resilience evidence remain pending.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E [38162258379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379) on 2b5f9b47c99b6208b4d1578135adc12659f242aa: step 18 Real Chromium business journey and smart report proof = FAIL. Exact message unavailable.
+ROOT_CAUSE = Application-level root cause remains unknown until result.json is recovered. The independently proven evidence-pipeline problem is that the optional 48-source diagnostic held the workflow before fail-closed result inspection and artifact upload. Commit 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1 fixes that recovery path without relaxing product gates.
+NEXT_EXACT_ACTION = Read the exact-head Full Product Browser E2E artifact and result.json; fix the first logged product failure, then prove upload, generic and applicable specialty analysis, persistence/readback, and source identity after refresh.
+HANDOFF_COVERAGE = .github/workflows/full-product-browser-e2e.yml; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-431E0C9-BROWSER-FAILURE-EVIDENCE-UNBLOCK.md
+
+---
 
 ---
 
