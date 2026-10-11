@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const page = fs.readFileSync('src/pages/OperationsPage.tsx', 'utf8');
+const businessE2E = fs.readFileSync('scripts/real-business-e2e.mjs', 'utf8');
 const lib = fs.readFileSync('src/lib/transactional-spine.ts', 'utf8');
 const migration = fs.readFileSync('supabase/migrations/20261002010000_transactional_spine_staff_read_boundary.sql', 'utf8');
 const auditBoundary = fs.readFileSync('supabase/migrations/20261002014500_restore_audit_logs_append_only_policy_boundary.sql', 'utf8');
@@ -38,6 +39,18 @@ assert.match(loadImplementation[0], /if \(!options\.preserveFeedback\) setFeedba
   'manual refresh may clear stale feedback, while post-mutation refresh must preserve its confirmation');
 assert.equal((page.match(/await load\(\{ preserveFeedback: true \}\);/g) ?? []).length, 3,
   'order, invoice, and payment mutation refreshes must preserve success feedback after persisted readback');
+
+
+assert.match(page, /resolveTenantContext/);
+assert.match(page, /function canTransitionOrderForRole/);
+assert.match(page, /currentStatus === 'pending'.*\['owner', 'admin', 'sales'\]/);
+assert.match(page, /currentStatus === 'confirmed' \|\| currentStatus === 'preparing'.*\['owner', 'admin', 'warehouse'\]/);
+assert.match(page, /currentStatus === 'ready'.*\['owner', 'admin', 'warehouse', 'sales'\]/);
+assert.match(page, /order-transition-restricted-/,
+  'a user without the transition role must see an explanation, not a forbidden action');
+assert.match(businessE2E, /TRANSACTIONAL_INITIAL_ACTOR_MUST_BE_SALES/);
+assert.match(businessE2E, /TRANSACTIONAL_FULFILLMENT_ACTOR_ADMIN_ROLE_MISSING/);
+assert.match(businessE2E, /transactional-order-role-handoff/);
 
 assert.match(page, /NOT IMPLEMENTED/);
 assert.match(page, /PERMISSION_DENIED/);

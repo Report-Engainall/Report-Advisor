@@ -23,6 +23,7 @@ import {
   type OperationalSupplier,
   type OperationalWarehouse,
 } from '@/lib/transactional-spine';
+import { resolveTenantContext } from '@/lib/tenantContext';
 
 function nextStatusFor(order: OperationalOrder): string | null {
   if (order.status === 'pending') return 'confirmed';
@@ -30,6 +31,21 @@ function nextStatusFor(order: OperationalOrder): string | null {
   if (order.status === 'preparing') return 'ready';
   if (order.status === 'ready') return 'completed';
   return null;
+}
+
+function canTransitionOrderForRole(roleValue: string | null, currentStatus: string): boolean {
+  const role = roleValue?.toLowerCase() ?? '';
+  if (currentStatus === 'pending') return ['owner', 'admin', 'sales'].includes(role);
+  if (currentStatus === 'confirmed' || currentStatus === 'preparing') return ['owner', 'admin', 'warehouse'].includes(role);
+  if (currentStatus === 'ready') return ['owner', 'admin', 'warehouse', 'sales'].includes(role);
+  return false;
+}
+
+function requiredTransitionRoleLabel(currentStatus: string): string {
+  if (currentStatus === 'pending') return 'المالك أو المدير أو المبيعات';
+  if (currentStatus === 'confirmed' || currentStatus === 'preparing') return 'المالك أو المدير أو المستودع';
+  if (currentStatus === 'ready') return 'المالك أو المدير أو المستودع أو المبيعات';
+  return 'صاحب الصلاحية';
 }
 
 function statusLabel(status: string): string {
@@ -97,6 +113,8 @@ export function OperationsPage() {
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [activeRole, setActiveRole] = useState<string | null>(null);
+  const [roleResolved, setRoleResolved] = useState(false);
 
   const load = useCallback(async (options: { preserveFeedback?: boolean } = {}) => {
     setLoading(true);
@@ -121,6 +139,22 @@ export function OperationsPage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void resolveTenantContext()
+      .then((context) => {
+        if (cancelled) return;
+        setActiveRole(context.active?.role ?? null);
+        setRoleResolved(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setActiveRole(null);
+        setRoleResolved(true);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (!selectedOrderId) {
@@ -221,7 +255,7 @@ export function OperationsPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !roleResolved) {
     return <div dir="rtl"><PageHeader title="مركز العمليات" subtitle="تشغيل المعاملات الفعلية المرتبطة بالحقيقة الكانونية." /><div className="py-20 text-center text-sm text-ink-500">جارٍ قراءة الطلبات والفواتير والتسعير والموردين والمستودعات...</div></div>;
   }
 
@@ -260,6 +294,7 @@ export function OperationsPage() {
           {!errors.orders && orders.length > 0 && <div className="divide-y divide-ink-100">
             {orders.map(order => {
               const next = nextStatusFor(order);
+              const canAdvance = next !== null && canTransitionOrderForRole(activeRole, order.status);
               return <div key={order.id} className="p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
@@ -271,7 +306,8 @@ export function OperationsPage() {
                     <button type="button" onClick={() => setSelectedOrderId(order.id)} className={selectedOrderId === order.id ? 'btn-ghost text-[10px] ring-1 ring-primary-300' : 'btn-ghost text-[10px]'} aria-pressed={selectedOrderId === order.id}>
                       {selectedOrderId === order.id ? 'المسار مفتوح' : 'عرض المسار'}
                     </button>
-                    {next && <button type="button" onClick={() => void runOrderTransition(order)} disabled={busy !== null} className="btn-primary text-[11px]" data-testid={'advance-order-' + order.id}>{busy === 'order:' + order.id ? 'جارٍ الحفظ...' : 'تقدم إلى ' + statusLabel(next)} <ChevronLeft size={13}/></button>}
+                    {next && canAdvance && <button type="button" onClick={() => void runOrderTransition(order)} disabled={busy !== null} className="btn-primary text-[11px]" data-testid={'advance-order-' + order.id}>{busy === 'order:' + order.id ? 'جارٍ الحفظ...' : 'تقدم إلى ' + statusLabel(next)} <ChevronLeft size={13}/></button>}
+                    {next && roleResolved && !canAdvance && <span role="note" data-testid={'order-transition-restricted-' + order.id} className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] font-bold text-amber-900">تتطلب مرحلة {statusLabel(next)} صلاحية {requiredTransitionRoleLabel(order.status)}.</span>}
                     {order.status === 'completed' && <button type="button" onClick={() => void createInvoice(order)} disabled={busy !== null} className="btn-secondary text-[11px]" data-testid={'create-invoice-' + order.id}>{busy === 'invoice:' + order.id ? 'جارٍ التثبيت...' : 'تثبيت/قراءة الفاتورة'} <ReceiptText size={13}/></button>}
                   </div>
                 </div>
