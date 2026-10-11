@@ -1873,3 +1873,26 @@ NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts w
 - Previous code head 9a17dd0 Build Gate, Quality and data-quality runtime passed. Current head 844cfdc build/quality/certification were running, Full Product Browser E2E and Phase-F were pending. Handoff failed because the prior resume report omitted five changed files; this checkpoint should correct that and requires a fresh pass.
 - Full user E2E remains unproven; prior real-browser artifact passed auth, tenant isolation, source identity and persistence/readback/reload, but failed at guidance visibility. 48 archetype coverage explicitly NOT_PROVEN. PC01 offline; no local tests claimed. Production proof absent; `PRODUCT_COMPLETE = NO`.
 - Next step: inspect exact-head build, quality, handoff, browser and Phase-F, repair the first failure, then prove fresh generic upload → complete visible findings/signals/recommendations/evidence → persistent readback and refresh with identical reportJobId and SHA-256.
+
+
+# LIVE RESUME — 2026-10-11T20:10:00+03:00 / INVENTORY SURFACE SOURCE-HASH VISIBILITY FIX COMMITTED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR #912: OPEN / NOT MERGED.
+- Latest code commit at checkpoint: `c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc`.
+- Previous tested head: `023d8d38d0c05e6b62c872b234422f9d717e2727`.
+- Product complete: NO; do not merge.
+
+## Live failure evidence
+- Product Build Gate [38157202890](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202890) and Quality [38157202815](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202815) passed on the previous head.
+- Full Product Browser E2E [38157202976](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202976) failed in the authenticated business journey with exact message `inventory: source hash missing`. The browser route and 48-archetype runtime steps passed, but this is not an overall E2E pass.
+- Session Handoff [38157202962](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202962) and Final Certification [38157202927](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202927) failed because the checkpoint report omitted five changed files: `scripts/check-phase10-backup-restore-contract.mjs`, `scripts/phase-f-live-resilience-probes.mjs`, `scripts/resilience-runtime.test.mjs`, `scripts/smart-report-complete-intelligence-surface.test.mjs`, `src/components/ReportIntelligencePanel.tsx`. Phase-F [38157202966](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202966) was cancelled before live probes.
+- Netlify preview status and Vercel status were success for previous head `023d8d38...`; neither proves production or the new head.
+
+## Actual code change
+- Commit `c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc` updates `src/components/SourceBoundReportSurface.tsx`: SourceHeader now visibly displays the full source SHA-256, tagged `data-testid="source-bound-report-source-hash"`. This addresses the actual browser assertion on the inventory linked surface without weakening the test.
+- Dated report: `PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md`.
+
+## Exact next action
+Read exact-head checks for `c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc`. First verify that the inventory route now visibly exposes the full hash; then resolve the first remaining terminal E2E failure. Re-run Phase-F, handoff and certification on the exact head. Do not claim new-head browser/readback/restore/production PASS until the corresponding run proves it.
