@@ -1,3 +1,9 @@
+## Latest report — 2026-10-11
+
+- [PostgREST schema-cache reload and exact-head retest checkpoint](2026-10-11/REPORT-20261011-E32943B-POSTGREST-RELOADED-RETEST.md) — root-cause evidence, current PR SHA, live checks, and the next gated action.
+
+---
+
 # Programmer Report Archive
 
 Live files:

@@ -1,3 +1,26 @@
+# LIVE RESUME — 2026-10-11T17:36:49+03:00 / POSTGREST SCHEMA CACHE RELOADED; EXACT-HEAD RETEST NEXT
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED
+- Exact live PR code/test HEAD before this checkpoint: `e32943bc3bfa54ec60c791b7852ffe8f227fd604` (commit: [fix(report): use file metadata to exclude synthetic sources](https://github.com/Report-Engainall/Report-Advisor/commit/e32943bc3bfa54ec60c791b7852ffe8f227fd604))
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- PRODUCT_COMPLETE = NO. Do not merge or claim authenticated/browser/production completion.
+
+## Verified in this launch
+- Read the latest live PR metadata; the branch HEAD is `e32943bc3bfa54ec60c791b7852ffe8f227fd604`, newer than the saved `d00556b` checkpoint. Its latest code change removes filename-only rejection of sources such as customer/product/invoice and instead excludes synthetic data using authoritative `file_records.metadata` keys `fixture_type=synthetic-realistic` and `catalog_id=report-intelligence.48`; tests/contracts were updated accordingly.
+- On `e32943bc3bfa54ec60c791b7852ffe8f227fd604`: Quality [38086314388](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314388), Product Build [38086314341](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314341), Data Quality [38086314335](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314335), Device-Independent Browser smoke [38086314251](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314251) PASS. The latter does not prove authenticated upload/report E2E.
+- Before recovery, Full Product Browser [38086314147](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314147), Report Value Cohort [38086314337](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314337), Evidence Passport Gate [38086314205](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314205), and Phase-F [38086314164](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38086314164) failed. Their exact terminal causes must be checked before retrying.
+- Staging SQL readback on project `fnqbvfuwbdpwvhcgzksl`: cohort RPC exists (signature `get_report_value_cohort_candidates(integer,uuid)`), index `idx_report_value_cohort_candidates_source` exists, and `report_evidence_passports` is visible. Direct execution of the RPC returned a source-bound rendered record with a SHA-256 source hash and row lineage; no write was performed.
+- Root cause found in PostgREST logs: schema-cache queries had been cancelled by PostgreSQL with `57014 statement timeout`. A staging-only `pg_notify('pgrst','reload schema')` was sent. Logs confirm receipt at `2026-10-11T14:36:47Z`, then `Schema cache queried in 1703.5 milliseconds` and `Schema cache loaded in 8.1 milliseconds` at `2026-10-11T14:36:49Z`. A read-only DB check showed zero waiting locks and zero active queries older than ten seconds. This proves the schema cache reloaded, not yet that the full browser journey passes.
+- Netlify preview status on the live PR HEAD: success at [deploy-preview-912](https://deploy-preview-912--aghbari-report-advisor.netlify.app). Vercel remains blocked by the external build-rate-limit; no production deploy is claimed.
+- Existing UI/code work is retained: universal + generic + eligible specialist intelligence, the full signals/recommendations/evidence card, and open-by-default Universal Intelligence Chain on Smart Report and File Lab. No core rebuild.
+
+## Single next action
+Inspect the exact failed-step logs for the current-head Full Product Browser, Report Value Cohort and Evidence Passport Gate runs after the PostgREST reload. If failures were solely pre-reload `PGRST002`, rerun only those failed jobs on the same exact code HEAD; otherwise repair the first demonstrated blocker. Require same `reportJobId + sourceHash` through rendered full intelligence, persistence/readback, navigation and refresh. PRODUCT_COMPLETE remains NO.
+
+---
+
 # LIVE RESUME — 2026-10-10T23:56:00+03:00 / DYNAMIC E2E SOURCE RESOLVER COMMITTED; POSTGREST 503 STILL BLOCKS LIVE PROOF
 
 - Repository: `Report-Engainall/Report-Advisor`
