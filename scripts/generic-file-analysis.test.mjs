@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { parseFile } from '../src/lib/file-engine/adapters.ts';
 import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
+import { selectGenericSourceRows } from '../src/lib/file-engine/generic-source-rows.ts';
 import { buildUniversalReportIntelligence } from '../src/lib/universal-report-intelligence.ts';
 import { composeIntelligenceLayers } from '../src/lib/report-intelligence/compose-intelligence-layers.ts';
 import { inferReportSpecialty, normalizeReportHeader } from '../src/lib/file-engine/specialty-inference.ts';
@@ -215,7 +216,43 @@ async function main() {
   assert.ok(composed.recommendations.some(item => item.id === 'specialty:customer-activity:review'), 'specialist recommendations must be added, not substituted');
   assert.equal(composed.businessQuestion, 'السؤال المتخصص يجب أن يبقى ظاهرًا', 'specialist business question remains primary');
 
+  const canonicalSelection = selectGenericSourceRows({
+    canonicalRows: [{ row_number: 1, data: { value: 'canonical' } }],
+    sourceDataset: { rowCount: 1, rows: [{ value: 'snapshot' }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 1,
+  });
+  assert.equal(canonicalSelection.origin, 'canonical', 'canonical database rows always take precedence over snapshots');
+  assert.equal(canonicalSelection.rows[0].value, 'canonical', 'canonical source data cannot be replaced by snapshot preview');
+
+  const completeSnapshotSelection = selectGenericSourceRows({
+    canonicalRows: [],
+    sourceDataset: { rowCount: 2, rows: [{ value: 10 }, { value: 20 }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 2,
+  });
+  assert.equal(completeSnapshotSelection.origin, 'source-analysis-snapshot', 'a complete source-bound snapshot can keep general analysis available when canonical rows are missing');
+  assert.equal(completeSnapshotSelection.rows.length, 2, 'the snapshot fallback must retain every proven source row');
+
+  const incompleteSnapshotSelection = selectGenericSourceRows({
+    canonicalRows: [],
+    sourceDataset: { rowCount: 3, rows: [{ value: 10 }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 3,
+  });
+  assert.equal(incompleteSnapshotSelection.origin, 'unavailable', 'a small preview must never masquerade as a complete report');
+  assert.equal(incompleteSnapshotSelection.rows.length, 0, 'incomplete snapshots must not emit derived results');
+
+  const inconsistentSnapshotSelection = selectGenericSourceRows({
+    canonicalRows: [],
+    sourceDataset: { rowCount: 2, rows: [{ value: 10 }, { value: 20 }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 3,
+  });
+  assert.equal(inconsistentSnapshotSelection.origin, 'unavailable', 'conflicting snapshot and import row counts must fail closed');
+
   console.log('GENERIC FILE ANALYSIS PASS');
+  console.log('SOURCE-BOUND ROW SELECTOR PASS canonical-priority/complete-snapshot/partial-preview/count-mismatch');
   console.log('STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation');
 }
 
