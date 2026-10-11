@@ -1,4 +1,50 @@
-# ONE PROGRAMMER SESSION MEMORY — LIVE RESUME
+# LIVE RESUME — 2026-10-11 23:45 +03 / IMPORT_COMMIT_BATCH OVERLOAD FIX COMMITTED; EXACT-HEAD BROWSER PROOF PENDING
+
+Repository: Report-Engainall/Report-Advisor
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Current code/test head: `7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7`
+Previous docs checkpoint: `242d5462e3febc1fa615e3db9e583b79ecd6c8c9`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2345-IMPORT-COMMIT-RPC-OVERLOAD-FIX.md`
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## First failed runtime proof
+
+Full Product Browser E2E [38172444159](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159) on predecessor `242d5462e3febc1fa615e3db9e583b79ecd6c8c9` failed during the fresh three-row CSV canonical commit; artifact [11714956740](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159/artifacts/11714956740). The certified inventory report/source identity and transactional order-role handoff checks passed before this failure.
+
+New import job `098a8fa0-cb75-4330-95b5-9a5a8426170a` (tenant `f68a7e91-3c7e-46fb-97e4-ea...`) had three parsed/valid rows in its import summary but finished with zero processed rows. The structured failure was PostgREST `PGRST203`: ambiguity between six-argument normal `import_commit_batch` and seven-argument repair overload because `p_repair DEFAULT false` and preceding parameters had defaults.
+
+## Applied Staging fixes
+
+- The earlier enqueue collision was corrected in Staging with migration versions `20261011202515`, `20261011203323`, and `20261011203457`: the seven-argument force-reprocess overload has no defaults and service-role-only EXECUTE; the normal six-argument API is restored as a tenant-bound wrapper explicitly passing `false`.
+- Applied migration `20261011204019_disambiguate_import_commit_batch_rpc_overloads`. Readback: seven-argument repair signature defaults=0, EXECUTE service_role only; six-argument normal signature defaults=0, authenticated/service_role allowed, anon denied; five-argument legacy signature remains service-role only.
+- No anon grants or tenant/RLS policy relaxations were made.
+
+## Repository fix persisted
+
+Commit [7cb2ae7](https://github.com/Report-Engainall/Report-Advisor/commit/7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7) adds migrations `20261011203323_remove_ambiguous_legacy_enqueue_report_execution_job_overload.sql`, `20261011203457_restore_tenant_bound_legacy_enqueue_report_execution_job_overload.sql`, `20261011204019_disambiguate_import_commit_batch_rpc_overloads.sql`, and regression assertions in `scripts/check-report-execution-e2e-contract.mjs`. The contract also checks that normal canonical commit passes the repair flag only for explicit repair requests.
+
+## Exact-head workflow snapshot
+
+- phase-f-live-resilience: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421825
+- data-quality-runtime: COMPLETED/SUCCESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421898
+- Session Handoff Contract: COMPLETED/FAILURE — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421592
+- Full Product Browser E2E: PENDING — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421849
+- quality: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421576
+- Product Build Gate: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421888
+- Storage Tenant Runtime E2E: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421840
+- Device-Independent Browser E2E: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421833
+- Final Certification Gate: COMPLETED/FAILURE — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421763
+
+The new Full Product Browser E2E is [38173421849](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421849), on exact head `7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7`; it was pending at the last live read. Do not transfer the prior-head failure or earlier PASS statuses to this head.
+
+## NEXT EXACT ACTION
+
+Read run 38173421849 and its artifact after it becomes terminal. Require the fresh CSV to complete enqueue → canonical commit → source-analysis snapshot/render → persisted database readback with the same source hash; then check Smart Report, Evidence, Decision and Work Center source identity after refresh/re-entry. If it fails, fix only the first newly evidenced runtime error. Keep PR #912 open and PRODUCT_COMPLETE=NO.
+
+---
+
 
 # LIVE RESUME — 2026-10-11 23:28 +03 / ENQUEUE RPC OVERLOAD FIX APPLIED TO STAGING; EXACT-HEAD BROWSER PROOF PENDING
 

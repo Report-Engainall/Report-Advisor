@@ -1,5 +1,42 @@
 # CURRENT SESSION STATE
 
+# LIVE RESUME — 2026-10-11 23:45 +03 / IMPORT_COMMIT_BATCH OVERLOAD FIX COMMITTED; EXACT-HEAD BROWSER PROOF PENDING
+
+CURRENT_EXACT_HEAD = 7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7
+CURRENT_CODE_TEST_HEAD = 7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7
+CURRENT_EXECUTION_PARENT_HEAD = 7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = IMPORT_COMMIT_RPC_OVERLOAD_FIX_COMMITTED; STAGING_READBACK_VERIFIED; EXACT_HEAD_BROWSER_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-11 23:45 +03
+
+## Proven newest failure
+[Full Product Browser E2E 38172444159](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159) failed on predecessor `242d5462e3febc1fa615e3db9e583b79ecd6c8c9`; artifact [11714956740](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159/artifacts/11714956740). Structured failure identified `PGRST203` at `import_commit_batch` while importing the fresh three-row CSV, after source-bound report and transactional checks passed.
+
+Staging migration `20261011204019_disambiguate_import_commit_batch_rpc_overloads` removed default arguments from the seven-argument repair overload and restricted it to service_role. Readback: seven args defaults=0 / service_role only; six args defaults=0 / authenticated+service_role; five args remains service_role-only. Normal enqueue API is also restored via a tenant-bound six-argument wrapper after the earlier enqueue overload fix.
+
+## Source changes and exact-head runs
+Commit [7cb2ae7](https://github.com/Report-Engainall/Report-Advisor/commit/7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7) persists both enqueue overload migrations, the import-commit overload migration, and regression guards in `scripts/check-report-execution-e2e-contract.mjs`.
+
+- phase-f-live-resilience: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421825
+- data-quality-runtime: COMPLETED/SUCCESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421898
+- Session Handoff Contract: COMPLETED/FAILURE — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421592
+- Full Product Browser E2E: PENDING — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421849
+- quality: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421576
+- Product Build Gate: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421888
+- Storage Tenant Runtime E2E: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421840
+- Device-Independent Browser E2E: IN_PROGRESS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421833
+- Final Certification Gate: COMPLETED/FAILURE — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38173421763
+
+## NEXT_EXACT_ACTION
+Inspect Full Product Browser E2E run 38173421849 after completion. Confirm generic import reaches canonical rows, commit ledger, source-analysis snapshot, rendered output and persisted readback with matching reportJobId/sourceHash. Then prove cross-screen identity after navigation/refresh/re-entry. No product-complete or merge claim before that proof.
+
+---
+
+
 # LIVE RESUME — 2026-10-11 23:28 +03 / ENQUEUE RPC OVERLOAD FIX APPLIED TO STAGING; EXACT-HEAD BROWSER PROOF PENDING
 
 Repository: Report-Engainall/Report-Advisor

@@ -1,5 +1,26 @@
 # CURRENT EXECUTION REPORT
 
+REPORT_FOR_HEAD = 7cb2ae7f5ea10dc0765651bdd57d7f0cd1c232c7
+UPDATED_AT = 2026-10-11T23:45:00+03:00
+SESSION HANDOFF = READY — governance checkpoint references the exact code/test head; browser proof is still pending.
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+# LIVE EXECUTION REPORT — 2026-10-11 23:45 +03 — Import commit RPC overload repair
+
+WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 without rebuilding the existing intelligence core; inspect the latest authenticated browser failure, fix the proven source/persistence defect, preserve tenant security, and save an exact resumption checkpoint.
+WHAT_I_ACTUALLY_DID = Inspected Full Product Browser E2E 38172444159 and artifact 11714956740. Verified that the new three-row generic CSV failed at import_commit_batch with PGRST203 because the repair-only seven-argument overload had four defaulted parameters. Applied Staging migration 20261011204019_disambiguate_import_commit_batch_rpc_overloads, read back signature defaults/ACLs, and committed the matching migration plus both enqueue overload migrations and static contract checks in 7cb2ae7. Added a dated report and refreshed session memory/state to this code/test baseline.
+WHAT_IS_PROVEN = Staging readback on project fnqbvfuwbdpwvhcgzksl: seven-arg import_commit_batch defaults=0 and service_role-only EXECUTE; six-arg normal overload defaults=0 with authenticated/service_role EXECUTE and anon denied; five-arg legacy overload service_role-only. Branch commit 7cb2ae7 is persisted/readable in GitHub. Fresh Full Product Browser E2E 38173421849 was pending at the last run read.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E 38172444159 on head 242d5462e3febc1fa615e3db9e583b79ecd6c8c9 failed at the fresh CSV canonical commit with PGRST203.
+ROOT_CAUSE = Function overload ambiguity: public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) allowed omitted repair arguments and overlapped the normal six-argument signature. Earlier in the same journey, enqueue_report_execution_job had a similar overload collision; it now has a required-argument repair function and a tenant-bound normal wrapper.
+NEXT_EXACT_ACTION = Inspect the terminal result/artifact for Full Product Browser E2E 38173421849 on 7cb2ae7. Verify fresh-upload canonical rows/commit ledger/snapshot/render/readback and matching sourceHash after refresh; fix the first new failure if present, then read exact-head gate outcomes.
+
+---
+
+
 REPORT_FOR_HEAD = 39187072a37e20e2b1fe35551a734d38bd0ac484
 UPDATED_AT = 2026-10-11T23:28:00+03:00
 SESSION HANDOFF = awaiting fresh exact-head proof.
