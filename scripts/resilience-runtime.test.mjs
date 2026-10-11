@@ -25,6 +25,8 @@ assert.match(phaseFProbe, /governanceHead,/);
 assert.match(phaseFProbe, /const volatileExcludeArgs = \[\.\.\.VOLATILE_RESTORE_TABLES\]/);
 assert.match(phaseFProbe, /--exclude-table-data=\$\{tableName\}/);
 assert.match(phaseFProbe, /--data-only \$\{volatileExcludeArgs\}/, 'logical backup must exclude data from volatile tables that depend on auth.users');
+assert.match(phaseFProbe, /'public\.carts'/, 'logical restore must exclude auth-dependent cart rows');
+assert.match(phaseFProbe, /'public\.cart_items'/, 'logical restore must exclude child rows referencing excluded carts');
 assert.match(phaseFProbe, /retryTransientPostgresConnection/);
 assert.match(postgresRetrySource, /PHASE_F_TRANSIENT_POSTGRES_RETRY/);
 assert.equal(isTransientPostgresConnectionError(new Error('FATAL: Failed to connect to database: authentication did not complete within 15000ms')), true);

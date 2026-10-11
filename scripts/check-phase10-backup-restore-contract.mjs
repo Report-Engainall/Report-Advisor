@@ -34,6 +34,9 @@ if (!/const volatileExcludeArgs = \[\.\.\.VOLATILE_RESTORE_TABLES\]/.test(phaseF
   || !/--data-only \$\{volatileExcludeArgs\}/.test(phaseFProbe)) {
   throw new Error('Phase-F logical restore must exclude volatile public rows whose Supabase Auth parent rows are not present in the public-only dump');
 }
+if (!/const VOLATILE_RESTORE_TABLES = new Set\(\[[\s\S]*?'public\.carts'[\s\S]*?'public\.cart_items'[\s\S]*?\]\)/.test(phaseFProbe)) {
+  throw new Error('Phase-F logical restore must exclude both carts and dependent cart_items rows from the public-only data dump');
+}
 
 const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
