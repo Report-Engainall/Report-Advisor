@@ -1,3 +1,30 @@
+REPORT_FOR_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
+UPDATED_AT = 2026-10-11T20:41:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_PARENT_HEAD = f91189d44d99fd37cf44e028348d72747d0d9930
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY
+ACTION_STATUS = DOMAIN_SOURCE_HASH_AND_CONTEXT_UI_FIXES_COMMITTED; EXACT_HEAD_GATES_PENDING
+
+WHAT_I_WAS_ASKED_TO_DO = Resume the existing Report-Advisor source-bound generic intelligence branch, preserve the engine, fix first proven user-facing defects, and validate the complete uploaded-report journey on the actual code head without weakening tests or depending on the user's computer.
+WHAT_I_ACTUALLY_DID = Added visible complete report.sourceHash to CustomerReportSurface, the actual component used by /reports/inventory; added the missing visible SOURCE-BOUND DOMAIN ANALYSIS and Arabic source-binding explanation required by the actual Chromium script; extended scripts/smart-report-complete-intelligence-surface.test.mjs to enforce all three. Commits: 3e06dd96517782acad9cf2aeab22e86d51380fd3, eb56d92f8e13dd926be0c3980fdddcaa9cf97043, a49287cbb5271e52d0c196dcee8ba3a81a12b8fb, 7e99202909c88aec0630dd53c578d1350d4f9a74. Saved new dated archive reports and updated memory/state/current report.
+WHAT_IS_PROVEN = Exact GitHub readback shows CustomerReportSurface visibly renders the full source SHA-256, SOURCE-BOUND DOMAIN ANALYSIS, and the Arabic lineage note; the contract test requires those elements. Session Handoff passed on parent 465ae7d48a56b2aa5610aebe3ae4d7166ababa95 (run 38159499475), and Quality passed on that parent (run 38159499402). These do not certify the later UI/contract commits.
+FIRST_ACTIVE_FAILURE = Browser E2E on an older head failed at "inventory: source hash missing". Inspection then found that the inventory domain screen also lacked two explicit source-bound analysis labels checked by the same browser test; those are now implemented on CustomerReportSurface.
+ROOT_CAUSE = The route uses ReportsPage.tsx → SourceBoundDomainSurface → CustomerReportSurface rather than SourceBoundReportSurface, so the first hash fix was applied to the wrong component. Once hash display was added, static source inspection identified the next exact required UI assertions and those were corrected without modifying the E2E guard.
+NEXT_EXACT_ACTION = Consume new exact-head Product Build Gate, Quality, Session Handoff, Final Certification, Phase-F and Full Product Browser E2E results on this latest product/test head. Browser must prove the inventory source hash + lineage labels and the same reportJobId/sourceHash after refresh/re-entry. Fix the first terminal failure only.
+
+HANDOFF_COVERAGE = src/components/CustomerReportSurface.tsx; src/components/SourceBoundReportSurface.tsx; scripts/smart-report-complete-intelligence-surface.test.mjs; PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md; PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+LATEST_CODE_TEST_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
+LATEST_SOURCE_HASH_FIX = 3e06dd96517782acad9cf2aeab22e86d51380fd3
+LATEST_DOMAIN_LABEL_FIX = a49287cbb5271e52d0c196dcee8ba3a81a12b8fb
+LATEST_DOMAIN_CONTRACT = 7e99202909c88aec0630dd53c578d1350d4f9a74
+PARENT_HANDOFF_PASS = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159499475 (parent 465ae7d... only)
+PARENT_QUALITY_PASS = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159499402 (parent 465ae7d... only)
+OLD_BROWSER_FAILURE = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554523 — inventory: source hash missing; route/auth passed but stale head did not include domain fix.
+NETLIFY_RUNTIME = HEALTHY, source/build/deployment SHA e21023d9aa5f8373568fcb869a2120efface4000 (preview only; code is an ancestor of latest UI fix, so redeploy/preview proof of latest marker is still required).
+PRODUCTION_PROOF = NO
 REPORT_FOR_HEAD = e21023d9aa5f8373568fcb869a2120efface4000
 UPDATED_AT = 2026-10-11T20:34:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor
