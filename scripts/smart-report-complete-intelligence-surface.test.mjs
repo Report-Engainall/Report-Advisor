@@ -34,7 +34,13 @@ console.log('smart-report-complete-intelligence-surface: PASS');
 const smartReportPage = fs.readFileSync(new URL('../src/pages/SmartReportPage.tsx', import.meta.url), 'utf8');
 if (!smartReportPage.includes("GenericFileIntelligenceCard")) throw new Error('Smart Report page must expose source-agnostic intelligence');
 if (!smartReportPage.includes('data-testid="smart-report-generic-intelligence"')) throw new Error('Smart Report generic intelligence test marker missing');
-if (!smartReportPage.includes('intelligence={report.genericIntelligence ?? report.intelligence}')) throw new Error('Smart Report must render the independent general intelligence layer');
+if (!smartReportPage.includes('intelligence={report.genericIntelligence}')) throw new Error('Smart Report must render only the independent general intelligence layer, never label specialty results as generic');
+if (!smartReportPage.includes('analysisScope={report.canonicalAnalysisScope}')) throw new Error('Smart Report must expose canonical source coverage to the general intelligence surface');
+if (!smartReportPage.includes("analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}")) throw new Error('Smart Report must identify source-snapshot fallback separately from canonical analysis');
+const genericCard = fs.readFileSync(new URL('../src/components/GenericFileIntelligenceCard.tsx', import.meta.url), 'utf8');
+if (!genericCard.includes('data-testid="generic-intelligence-unavailable"')) throw new Error('Missing explicit unavailable state when source-bound general analysis cannot be derived');
+if (!genericCard.includes('data-testid="generic-intelligence-analysis-scope"')) throw new Error('Missing explicit warning for partial or extraction-snapshot analysis');
+
 if (!smartReportPage.includes('sourceHash={report.sourceHash}') || !smartReportPage.includes('reportJobId={report.jobId}')) throw new Error('Generic intelligence card must retain report source lineage');
 if (!smartReportPage.includes('generalIntelligence: report.genericIntelligence ?? undefined')) throw new Error('Persisted universal evidence chain must include the same report general layer');
 if (smartReportPage.includes('{!report.specialty && (')) throw new Error('General intelligence must render even when a specialty is detected');
