@@ -1,9 +1,9 @@
 # LIVE RESUME — 2026-10-11T20:40:00+03:00 / SOURCE-HASH + DOMAIN-LINEAGE LABELS COMMITTED; NEW EXACT-HEAD VALIDATION REQUIRED
 
-CURRENT_EXACT_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
+CURRENT_EXACT_HEAD = a298e522ebcf76b19d154026db4afc0a3cdf7327
 CURRENT_PRODUCT_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
 CURRENT_CODE_TEST_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
-CURRENT_EXECUTION_HEAD_BEFORE_THIS_STATE_COMMIT = 7e99202909c88aec0630dd53c578d1350d4f9a74
+CURRENT_EXECUTION_HEAD_BEFORE_THIS_STATE_COMMIT = a298e522ebcf76b19d154026db4afc0a3cdf7327
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
 ACTION_STATUS = DOMAIN_SOURCE_HASH_AND_CONTEXT_FIXES_COMMITTED; EXACT_HEAD_GATES_REQUIRED
@@ -1733,3 +1733,14 @@ DO_NOT_MERGE = true
 - Main engine and UI chain remain in place. General intelligence must still render alongside an applicable specialty; all displayed findings/signals/recommendations/evidence must remain grounded in the same reportJobId + sourceHash.
 - `PRODUCT_COMPLETE = NO`; production proof not established.
 - NEXT_EXACT_ACTION = read current-head authenticated browser + build/quality terminal results; prove actual inventory domain surface fingerprint; repair first confirmed failing assertion; then prove upload → complete rendered results → persistence/readback/reload and identical source identity across screens.
+
+
+## LIVE CHECKPOINT — 2026-10-11 20:33 — SESSION HANDOFF BASELINE RECONCILIATION
+
+- Repository: Report-Engainall/Report-Advisor; branch: fix/source-bound-generic-intelligence-20261009; PR #912 remains OPEN / NOT MERGED.
+- Branch head before this governance-only commit: `a298e522ebcf76b19d154026db4afc0a3cdf7327`; latest product/test commit remains `7e99202909c88aec0630dd53c578d1350d4f9a74`; main/base is `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- The Session Handoff Contract run [38159931441](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931441) failed with exactly: `stale report; unreported files: PROGRAMMER_REPORTS/2026-10-11-live-resume-current-head.md`.
+- Root cause: `scripts/check-session-handoff-contract.mjs` permits report archives under `docs/execution/PROGRAMMER_REPORTS/` but the added report was under root `PROGRAMMER_REPORTS/`. The checker must not be weakened; the correct baseline is to advance `REPORT_FOR_HEAD` to the verified parent where that already-committed root report is part of history, and keep this follow-up report in the allowed nested archive.
+- Exact current-head checks: Data Quality Runtime [38159931324](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931324) PASS; Report Value Cohort [38159931256](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931256) PASS; File Intelligence Security [38159931185](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931185) PASS. Product Build [38159931439](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931439) and Quality [38159931331](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931331) remained in progress at the latest read. Full Product Browser [38159931158](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931158) remained pending; Device-Independent Browser [38159931392](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931392) was in progress; Phase-F [38159931257](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931257) was in progress. No browser/readback/restore/production PASS is claimed.
+- Product completion remains NO.
+- NEXT EXACT ACTION: set the latest programmer report baseline to this verified parent, rerun Session Handoff on the descendant, then inspect the Full Product Browser E2E's first terminal result and repair only a confirmed failure.

@@ -1,5 +1,5 @@
-REPORT_FOR_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
-UPDATED_AT = 2026-10-11T20:41:00+03:00
+REPORT_FOR_HEAD = a298e522ebcf76b19d154026db4afc0a3cdf7327
+UPDATED_AT = 2026-10-11T20:33:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
@@ -1347,3 +1347,26 @@ REPORT_FOR_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
 - Product remains incomplete until the actual browser journey proves visible universal + relevant specialty analysis, evidence/recommendations, persistence and readback/reload, preserving reportJobId + sourceHash.
 - Changed files in this handoff checkpoint: `ONE-PROGRAMMER-SESSION-MEMORY.md`, `docs/execution/CURRENT_SESSION_STATE.md`, `docs/execution/PROGRAMMER_CURRENT_REPORT.md`, `PROGRAMMER_REPORTS/2026-10-11-live-resume-current-head.md`.
 - NEXT EXACT ACTION: read current-head browser/build/quality results; resolve the first actual failed assertion in the rendered inventory/report-detail journey and rerun focused proof.
+
+
+## LIVE CHECKPOINT — 2026-10-11 20:33 — HANDOFF FAILURE ROOT CAUSE
+
+REPORT_FOR_HEAD = a298e522ebcf76b19d154026db4afc0a3cdf7327
+UPDATED_AT = 2026-10-11T20:33:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_PARENT_HEAD = a298e522ebcf76b19d154026db4afc0a3cdf7327
+PRODUCT_CODE_TEST_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY
+ACTION_STATUS = HANDOFF_BASELINE_RECONCILIATION; PRODUCT_PROOF_PENDING
+
+WHAT_I_WAS_ASKED_TO_DO = Continue the saved Report-Advisor work on the current branch, preserve the universal intelligence core, correct the exact current-state contract failure, and proceed with live browser proof.
+WHAT_I_ACTUALLY_DID = Inspected current-head Session Handoff logs. The checker reported only one unreported file: PROGRAMMER_REPORTS/2026-10-11-live-resume-current-head.md. Confirmed the checker allowlist accepts docs/execution/PROGRAMMER_REPORTS/ but not the root PROGRAMMER_REPORTS/ path. No workflow guard was weakened.
+WHAT_IS_PROVEN = The handoff failure text and checker allowlist match this archive-path/baseline mismatch. Exact-head Data Quality Runtime, Report Value Cohort, and File Intelligence Security runs passed. Build, Quality, Full Product Browser E2E, Device-Independent Browser E2E, and Phase-F did not all reach a terminal pass at capture time.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract [38159931441](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159931441): stale report, unreported root archive report path.
+ROOT_CAUSE = REPORT_FOR_HEAD was left at the product test ancestor from before a new root-level archive report was committed. The contract explicitly recognizes only the nested docs execution archive as a permitted changed archive path. Fixing the report baseline to the current verified parent will prevent the already-recorded root report from being re-counted as a new unreported change.
+NEXT_EXACT_ACTION = After this governance commit lands, verify Session Handoff Contract on the new HEAD. Then consume the current-head Full Product Browser E2E and Phase-F restore result; fix the first confirmed functional failure and prove sourceHash/reportJobId persistence/readback before merge.
+
+HANDOFF_COVERAGE = ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-203300-HANDOFF-BASELINE-RECONCILIATION.md
