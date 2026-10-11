@@ -290,9 +290,31 @@ async function importOne(page, label, fields, marker) {
     mimeType: 'text/csv',
     buffer: csvBuffer(fields),
   });
-  await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  // The current import UX intentionally queues a chosen file before analyzing it.
+  // The stage label "المراجعة" is always rendered in the stepper, so waiting for
+  // that text alone is not proof that the parser reached the preview stage.
+  const queuedSource = page.getByText(`${marker}.csv`, { exact: true }).locator('xpath=../..');
+  await queuedSource.getByRole('button', { name: 'تحليل هذا المصدر', exact: true }).click();
+
+  const reviewStage = page.locator('[role="listitem"][aria-current="step"][aria-label^="3. المراجعة"]');
+  try {
+    await reviewStage.waitFor({ state: 'visible', timeout: 30000 });
+  } catch {
+    const diagnostics = await page.evaluate(() => ({
+      url: location.href,
+      activeStage: document.querySelector('[role="listitem"][aria-current="step"]')?.getAttribute('aria-label') ?? null,
+      visibleError: Array.from(document.querySelectorAll('p, [role="alert"], .text-danger-700, .text-danger-800'))
+        .map(node => (node.textContent ?? '').trim())
+        .filter(Boolean)
+        .slice(0, 12),
+      bodyText: document.body?.innerText?.slice(0, 1800) ?? '',
+    })).catch(() => ({ url: 'unavailable', activeStage: null, visibleError: [], bodyText: '' }));
+    throw new Error('UNIFIED_IMPORT_REVIEW_NOT_REACHED:' + JSON.stringify(diagnostics));
+  }
 
   const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
+  await commit.waitFor({ state: 'visible', timeout: 10000 });
   const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ });
 
   if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
