@@ -68,7 +68,7 @@ let quarantineTamperRejected = false;
 try { assertGateImplementation(tamperedWithoutQuarantine); } catch { quarantineTamperRejected = true; }
 if (!quarantineTamperRejected) throw new Error('Test-of-test failed: quarantine gate removal was not detected');
 
-console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');
+
 
 required(canonicalImport, [
   'function describeError(error: unknown): string',
@@ -92,3 +92,5 @@ if (/\bDEFAULT\b/i.test(sevenArgumentSignature)) {
 if (/grant execute on function public\.enqueue_report_execution_job\([^)]*\) to (?:public|anon|authenticated)\b/i.test(enqueueRpcMigration)) {
   throw new Error('Force-reprocess RPC must not broaden execute permissions');
 }
+
+console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');
