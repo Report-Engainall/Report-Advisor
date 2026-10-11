@@ -13,7 +13,7 @@ PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
 
 Full Product Browser E2E [38172444159](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159) on predecessor `242d5462e3febc1fa615e3db9e583b79ecd6c8c9` failed during the fresh three-row CSV canonical commit; artifact [11714956740](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159/artifacts/11714956740). The certified inventory report/source identity and transactional order-role handoff checks passed before this failure.
 
-New import job `098a8fa0-cb75-4330-95b5-9a5a8426170a` (tenant `f68a7e91-3c7e-46fb-97e4-ea...`) had three parsed/valid rows in its import summary but finished with zero processed rows. The structured failure was PostgREST `PGRST203`: ambiguity between six-argument normal `import_commit_batch` and seven-argument repair overload because `p_repair DEFAULT false` and preceding parameters had defaults.
+New import job `098a8fa0-cb75-4330-95b5-9a5a8426170a` (tenant `f68a7e91-3c7e-46fb-97a8-e339bec04e13`) had three parsed/valid rows in its import summary but finished with zero processed rows. The structured failure was PostgREST `PGRST203`: ambiguity between six-argument normal `import_commit_batch` and seven-argument repair overload because `p_repair DEFAULT false` and preceding parameters had defaults.
 
 ## Applied Staging fixes
 
