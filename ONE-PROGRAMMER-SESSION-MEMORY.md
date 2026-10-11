@@ -1811,3 +1811,14 @@ NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts w
 - Exact-head Build Gate `38153881907` PASS, quality `38153881804` PASS, data-quality runtime `38153881601` PASS. Full Product Browser E2E `38153881729` pending; readback/browser/production proof is not yet verified. Previous certification/handoff failures were caused by stale report coverage of two test files and must be rechecked after this governance-only commit.
 - PC01 offline; no local shell/browser claims. Product complete = NO.
 - First next action: complete the real browser E2E for a fresh multi-row uploaded file; verify generic signals/recommendations/evidence and the same reportJobId + sourceHash after saved readback and refresh. Fix first failing assertion if any.
+
+
+# LIVE RESUME — 2026-10-11T19:12:00+03:00 / GATE READBACK ON 6d87806659a7d87b4292a8926e395f898efbcc87
+
+- PR #912 remains OPEN / NOT MERGED, branch `fix/source-bound-generic-intelligence-20261009`; checkpoint HEAD `6d87806659a7d87b4292a8926e395f898efbcc87`, with product code unchanged from `732e71ee4a929ad97485d92ce8f98cfa2ee79838`.
+- Exact product code: Product Build Gate 38153881907 PASS; Quality 38153881804 PASS; data-quality runtime 38153881601 PASS.
+- Exact checkpoint gate readback: Session Handoff 38154194920 PASS; Final Certification 38154198507 PASS. At capture, 54 checks passed, 4 skipped, 3 neutral, and 1 remained pending; no failed check-runs were reported for the checkpoint head.
+- Current Full Product Browser E2E 38154198443 is PENDING behind old browser run 38153724487. Old run has a failed smart-report business proof step and still-running optional real-source diagnostic; no final log/artifact was yet available to recover the first assertion. Do not say browser/readback/production passed.
+- Product changes: generic layer restored for saved report when full same-source snapshot is usable, fails closed for partial/mismatched snapshots, specialist intelligence is not mislabeled as generic, and source identity is visible. Focused source-row and UI contracts passed via exact code-head Build/Quality.
+- PC01 is offline; no local browser or test run claimed. `PRODUCT_COMPLETE = NO`.
+- First next step: recover old browser result artifact, fix its first asserted failure, then re-prove fresh uploaded file → visible generic findings/signals/recommendations/evidence → saved readback → refresh with same job ID and source hash.

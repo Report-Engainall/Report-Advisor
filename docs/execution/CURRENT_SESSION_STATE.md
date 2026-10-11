@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-11T19:12:00+03:00 / READBACK AFTER GOVERNANCE REPAIR
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Exact checkpoint HEAD: `6d87806659a7d87b4292a8926e395f898efbcc87`.
+- Current GitHub check-run counts for this exact HEAD: `{"completed/skipped":4,"completed/success":54,"completed/failure":1,"completed/neutral":3}`; no failed check-runs in this capture.
+- Build/quality evidence for unchanged product code at ancestor `732e71ee4a929ad97485d92ce8f98cfa2ee79838`: Product Build Gate [38153881907](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881907) PASS; quality [38153881804](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881804) PASS; data-quality runtime [38153881601](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153881601) PASS.
+- The current-head Session Handoff Contract [38154194920](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154194920) PASS and Final Certification Gate [38154198507](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154198507) PASS.
+- Current Full Product Browser E2E [38154198443](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154198443) is pending behind older run [38153724487](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153724487). That older run’s “Real Chromium business journey and smart report proof” step failed, and the optional 48-source diagnostic was still running. Its failure reason/output artifact is not yet available because the job has not finished. No authenticated upload/readback/refresh claim may be made.
+- Product status: `PRODUCT_COMPLETE = NO`.
+
+CURRENT_EXACT_HEAD = 6d87806659a7d87b4292a8926e395f898efbcc87
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = BUILD_QUALITY_CERTIFICATION_HANDOFF_PASS_BROWSER_PENDING
+NEXT_EXACT_ACTION = Obtain the browser-business result artifact when the running old E2E job finishes; fix its first exact assertion, then prove fresh non-fixture upload → non-empty generic findings/signals/recommendations/evidence → saved readback → refresh with identical reportJobId + sourceHash.
+
+## Change/readback status
+
+Implemented and tested on code head `732e71e`: canonical-first row selection, complete source-bound extraction snapshot fallback, fail-closed handling for partial/mismatched snapshots, no specialist-as-general fallback in Smart Report, visible unavailable/partial warnings, and visible Reports Center job ID/hash/path. Regression fixture and ESM declarations have been repaired.
+The documentation-only commit after code head `732e71e` now passes session handoff and final certification. It adds no application code, so the passing build/quality tests on `732e71e` remain the latest code validation evidence.
+All other stages remain distinguished: `READBACK-PROVEN` not newly established for the revised generic layer; `BROWSER-PROVEN` not established; `PRODUCTION-PROVEN` not established.
+
+---
+
 # LIVE RESUME — 2026-10-11T19:05:00+03:00 / CURRENT CODE HEAD 732E71E — GENERAL ANALYSIS FIXED, BROWSER PROOF OPEN
 
 - Repository: `Report-Engainall/Report-Advisor`
