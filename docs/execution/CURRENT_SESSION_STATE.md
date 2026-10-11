@@ -1,3 +1,28 @@
+# LIVE RESUME — 2026-10-11 22:08 +03 / OPERATIONS FEEDBACK ROOT CAUSE FIXED IN CODE; CI NOT YET PROVEN
+
+CURRENT_EXACT_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+CURRENT_CODE_TEST_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+CURRENT_EXECUTION_PARENT_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = OPERATIONS_FEEDBACK_PRESERVATION_PATCH_COMMITTED; EXACT_HEAD_GATES_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-11 22:08 +03
+
+## Latest demonstrated browser defect
+Full Product Browser E2E [38165973454](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38165973454) failed on `e0fbc12728869b6005d30c66c1f4f1e8a92baf74`, with the exact timeout waiting for `تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.`. Artifact: [11712690989](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38165973454/artifacts/11712690989). Smart-report source/hash/row/quality checks passed; only the subsequent business transition's success-message wait failed.
+
+Root cause: `runOrderTransition` set success feedback then called `load()`; `load()` unconditionally cleared feedback before the updated order/history readback completed. A read-only staging SQL query proved the RPC actually persisted `pending → confirmed` for order `77000000-0000-4000-8000-000000000002` at `2026-10-11 19:03:43.854439+00`, matching the order row's updated_at. This is confirmed UI-state erasure, not the prior ACL failure.
+
+## Patch recorded at current head
+Commit `ca5b98d592b090dd2b315e5fe3fe6c589edfb39a` modifies `src/pages/OperationsPage.tsx` and `scripts/transactional-spine-contract.test.mjs`. The load method now supports `preserveFeedback`; all three mutation workflows (order/invoice/payment) preserve their success message through the data reload. The contract test asserts this behavior and mutation call coverage. Code commit is `[skip ci]` only so this exact baseline may be advanced by a docs-only commit before the full test fleet runs; no CI result is inferred from the commit.
+
+NEXT_EXACT_ACTION = Commit a docs-only checkpoint with REPORT_FOR_HEAD=`ca5b98d592b090dd2b315e5fe3fe6c589edfb39a`, read back from GitHub, then inspect exact-head Quality, transactional-spine regression, Handoff, certification, Phase-F, and Full Product Browser E2E. Product completion remains NO.
+
+---
+
 # LIVE RESUME — 2026-10-11 21:57 +03 / DATABASE GRANT AND REPOSITORY MIGRATION READBACK VERIFIED
 
 CURRENT_EXACT_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3

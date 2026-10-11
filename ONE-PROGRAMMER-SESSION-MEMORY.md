@@ -1,3 +1,22 @@
+# LIVE RESUME — 2026-10-11 22:08 +03 / FIXED UI STATE ERASURE AFTER PERSISTED ORDER TRANSITION
+
+Repository: Report-Engainall/Report-Advisor  
+Branch: `fix/source-bound-generic-intelligence-20261009`  
+PR #912: OPEN / NOT MERGED.  
+Code fix commit: `ca5b98d592b090dd2b315e5fe3fe6c589edfb39a`.
+
+The previous exact-head browser run [38165973454](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38165973454) failed waiting for the order-success confirmation. The uploaded artifact [11712690989](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38165973454/artifacts/11712690989) proves report identity/surface checks passed. Read-only staging DB evidence shows order `77000000-0000-4000-8000-000000000002` transitioned `pending → confirmed` at the order updated_at `2026-10-11 19:03:43.854439+00`. So the mutation persisted; UI code erased its success feedback because `load()` cleared it immediately after the mutation handler set it.
+
+Patch on `ca5b98d592b090dd2b315e5fe3fe6c589edfb39a`:
+- `load({preserveFeedback?})` allows callers to preserve a newly set confirmation across the refresh.
+- Order, invoice, and payment mutation paths pass `preserveFeedback: true`.
+- `scripts/transactional-spine-contract.test.mjs` has an explicit regression guard for the semantics and three call sites.
+- No browser assertion was weakened. Exact-head CI/browser proof is pending; the old Full Product Browser run remains FAIL on its own old head.
+
+NEXT EXACT ACTION = Create/read back the docs-only baseline on `ca5b98d592b090dd2b315e5fe3fe6c589edfb39a`, then verify CI and full authenticated E2E on that exact new head. PRODUCT_COMPLETE=NO.
+
+---
+
 # LIVE RESUME — 2026-10-11 21:57 +03 / SELECT GRANT VERIFIED; FULL JOURNEY RETEST REQUIRED
 
 Repository: Report-Engainall/Report-Advisor  

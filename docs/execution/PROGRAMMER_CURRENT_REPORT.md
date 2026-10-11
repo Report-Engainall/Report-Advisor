@@ -1,3 +1,24 @@
+REPORT_FOR_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+UPDATED_AT = 2026-10-11 22:08 +03
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_PARENT_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+CURRENT_CODE_TEST_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY — UI feedback preservation fix committed; exact-head transactional/browser proof pending
+ACTION_STATUS = SUCCESS_FEEDBACK_PRESERVED_DURING_MUTATION_READBACK; CI_NOT_YET_PROVEN
+
+WHAT_I_WAS_ASKED_TO_DO = Fix the first actual full-browser failure on PR #912, without changing browser assertions or weakening the handoff contract, and keep exact-head evidence.
+WHAT_I_ACTUALLY_DID = Inspected the uploaded artifact from run 38165973454. The failure was a 30s timeout waiting for the Arabic order-transition success message. Queried staging order and history read-only: status changed pending→confirmed at the same timestamp as the order updated_at. Read src/pages/OperationsPage.tsx: runOrderTransition set the confirmation, then load() cleared feedback before completing readback. Added explicit preserveFeedback semantics to load, used it from order/invoice/payment mutations, and added a transactional-spine regression contract for all three pathways. Committed as ca5b98d592b090dd2b315e5fe3fe6c589edfb39a.
+WHAT_IS_PROVEN = On e0fbc127..., Build, Quality, Session Handoff, Data Quality Runtime, Final Certification and Phase-F passed, but Full Product Browser failed at step 18 and uploaded artifact 11712690989. The smart report checks (job id/hash/path/254 rows/quality score 98) passed in the business result. Database readback confirms the order status/history mutation persisted, while the expected UI feedback was cleared on reload. These results do not validate ca5b98d592b090dd2b315e5fe3fe6c589edfb39a.
+FIRST_ACTIVE_FAILURE = Timeout waiting for getByText('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.', exact=true) after clicking the persisted order transition.
+ROOT_CAUSE = OperationsPage load() unconditionally cleared feedback after the mutation handler had set success, erasing the confirmation while loading the refreshed order/invoice/payment data.
+NEXT_EXACT_ACTION = Advance REPORT_FOR_HEAD to ca5b98d592b090dd2b315e5fe3fe6c589edfb39a via a docs-only commit and consume new exact-head test outcomes, especially test:transactional-spine and Full Product Browser. Confirm success feedback visibility and persisted order/history before continuing the invoice/payment and source-bound report checks.
+HANDOFF_COVERAGE = src/pages/OperationsPage.tsx; scripts/transactional-spine-contract.test.mjs; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2208-OPERATIONS-FEEDBACK-PERSISTENCE-E2E-ROOT.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+
+---
+
 REPORT_FOR_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
 UPDATED_AT = 2026-10-11 21:57 +03
 REPOSITORY = Report-Engainall/Report-Advisor
