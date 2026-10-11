@@ -40,6 +40,23 @@ assert.match(loadImplementation[0], /if \(!options\.preserveFeedback\) setFeedba
 assert.equal((page.match(/await load\(\{ preserveFeedback: true \}\);/g) ?? []).length, 3,
   'order, invoice, and payment mutation refreshes must preserve success feedback after persisted readback');
 
+for (const [handler, successMessage] of [
+  ['runOrderTransition', 'تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.'],
+  ['createInvoice', 'تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.'],
+  ['submitPayment', 'تم تسجيل الدفعة وإعادة قراءة الفاتورة والرصيد من المصدر.'],
+]) {
+  const start = page.indexOf(`const ${handler} = async`);
+  assert.notEqual(start, -1, handler + ' handler must remain present');
+  const end = page.indexOf('\\n  };', start);
+  assert.notEqual(end, -1, handler + ' handler boundary must remain detectable');
+  const body = page.slice(start, end);
+  const feedbackAt = body.indexOf(`setFeedback('${successMessage}')`);
+  const refreshAt = body.indexOf('await load({ preserveFeedback: true })');
+  assert.ok(feedbackAt >= 0 && refreshAt > feedbackAt,
+    handler + ' must set its real success feedback before preserving it across canonical reload');
+}
+
+
 
 assert.match(page, /resolveTenantContext/);
 assert.match(page, /function canTransitionOrderForRole/);
