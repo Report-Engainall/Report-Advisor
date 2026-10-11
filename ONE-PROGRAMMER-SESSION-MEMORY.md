@@ -1,3 +1,19 @@
+# LIVE RESUME — 2026-10-11T21:36:00+03:00 / SESSION HANDOFF FAILURE CAPTURED; BASELINE RECOVERY COMMITTED
+
+- Repository: Report-Engainall/Report-Advisor
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Code/test head under validation: `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`.
+- Latest exact-head handoff run [38163624486](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624486) failed with the exact message `SESSION_HANDOFF_CONTRACT_FAIL: stale report; unreported files: scripts/real-business-e2e.mjs`; failing job ID `114541517298`.
+- Root cause: the report baseline consumed by that workflow was older than the test edit at `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`. The checker correctly rejected the unreported source change. Do not change its allowed-path rule.
+- The exact-head Product Build [38163624291](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624291), Quality [38163624340](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624340), and Data Quality Runtime [38163624450](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624450) passed. Final Certification [38163624461](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624461) failed; Full Product Browser [38163624481](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624481), Phase-F [38163624231](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624231), and Device-Independent Browser [38163624274](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624274) were cancelled.
+- Recovery uses a fresh docs-only checkpoint anchored at `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`; the changed files since that anchor are limited to allowed governance paths.
+- Product complete: **NO**.
+
+NEXT EXACT ACTION = Verify the new checkpoint commit and read back the Session Handoff result; then run/consume Full Product Browser E2E on that new branch head, preserving the real Evidence Passport disclosure assertion and source identity proofs.
+
+---
+
 # LIVE RESUME — 2026-10-11T21:34:00+03:00 / SMART-REPORT EVIDENCE UI ASSERTION REPAIRED
 
 - Repository: `Report-Engainall/Report-Advisor`
