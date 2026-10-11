@@ -1,3 +1,38 @@
+# LIVE RESUME — 2026-10-11T20:27:00+03:00 / DOMAIN REPORT HASH NOW VISIBLE IN ACTUAL RENDERED COMPONENT
+
+CURRENT_PR_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+CURRENT_CODE_TEST_HEAD = eb56d92f8e13dd926be0c3980fdddcaa9cf97043
+CURRENT_EXECUTION_HEAD_AT_CAPTURE = fb3e6b2aff91f7bca6d56068976cb900fb958bdc
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = DOMAIN_HASH_FIX_AND_REGRESSION_COMMITTED; EXACT_HEAD_VALIDATION_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+## Root-cause correction
+The prior visible hash fix in `src/components/SourceBoundReportSurface.tsx` did not cover `/reports/inventory`, which is rendered by `src/components/CustomerReportSurface.tsx` through `ReportsPage.tsx → SourceBoundDomainSurface`. This route mismatch is now fixed directly: CustomerReportSurface renders the complete `report.sourceHash` with `data-testid="customer-report-source-hash"`. The contract in `scripts/smart-report-complete-intelligence-surface.test.mjs` now guards it.
+
+Commits:
+- `3e06dd96517782acad9cf2aeab22e86d51380fd3` — visible full hash in actual domain surface.
+- `eb56d92f8e13dd926be0c3980fdddcaa9cf97043` — regression contract.
+
+## Live test evidence (never inherit stale-head PASS)
+- Build and Quality passed on prior head `ae203723...` only: [Product Build Gate 38158554251](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554251), [Quality 38158554494](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554494).
+- Phase-F live resilience passed on `ae203723...` only: [38158554444](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554444).
+- Old browser run [38157202976](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202976) failed on source-hash visibility and is not accepted as current proof.
+- On `ae203723...`, Handoff [38158554400](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554400) and Final Certification [38158554191](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554191) failed because reports omitted `PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md` and `scripts/smart-report-complete-intelligence-surface.test.mjs`.
+- Browser / Build / Quality / Phase-F / handoff / final-certification gates created for the pre-correction code-test head `eb56d92...` were cancelled or queued as subsequent commits landed. They must not be inherited as PASS for the domain fix.
+- Commercial product creation had a separate previous-head Auth failure: `current_company_id HTTP 401`, JWT `issued at future`; track separately.
+
+## Required handoff coverage
+`src/components/CustomerReportSurface.tsx`; `src/components/SourceBoundReportSurface.tsx`; `scripts/smart-report-complete-intelligence-surface.test.mjs`; `PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md`; `PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md`.
+
+## NEXT EXACT ACTION
+Consume new exact-HEAD Build, Quality, Browser, Handoff, Final Certification and Phase-F results. Browser must prove that `/reports/inventory` renders the exact source SHA-256 and that reportJobId/sourceHash remain stable across linked surfaces and refresh. Fix the first actual terminal failure. Do not claim product or production completion until a fresh non-fixture upload is analyzed, saved, read back and re-opened on the same source identity.
+
+Dated checkpoint: `PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md`
+
+--- HISTORICAL STATE BELOW; PRESERVED ---
 # LIVE RESUME — 2026-10-11T20:10:00+03:00 / SOURCE-HASH VISIBILITY FIX COMMITTED; EXACT-HEAD CI REQUIRED
 
 CURRENT_EXACT_HEAD = c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc
