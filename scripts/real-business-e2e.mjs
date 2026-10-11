@@ -123,7 +123,67 @@ async function login(page, email, password) {
   }
   assert.equal(await page.getByText('حدث خطأ غير متوقع').count(), 0, 'application error boundary must not render');
 }
-function csvBuffer(fields) { const headers = Object.keys(fields); const values = Object.values(fields).map(value => String(value).replaceAll(',', ' ')); return Buffer.from(`\ufeff${headers.join(',')}\n${values.join(',')}\n`, 'utf8'); }
+function csvBuffer(input) {
+  const rows = Array.isArray(input) ? input : [input];
+  if (!rows.length) throw new Error('E2E_SOURCE_ROWS_REQUIRED');
+  const headers = [...new Set(rows.flatMap(row => Object.keys(row)))];
+  const csvCell = value => {
+    const text = String(value ?? '').replace(/\r\n?/g, '\n');
+    return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+  };
+  const body = rows.map(row => headers.map(header => csvCell(row[header])).join(',')).join('\n');
+  return Buffer.from(`\ufeff${headers.map(csvCell).join(',')}\n${body}\n`, 'utf8');
+}
+async function tagSyntheticE2EFileRecord(companyId, fileRecordId, label) {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!serviceRoleKey) throw new Error('E2E_SYNTHETIC_SOURCE_MARKER_SERVICE_ROLE_KEY_MISSING');
+  if (!fileRecordId) throw new Error('E2E_SYNTHETIC_SOURCE_FILE_RECORD_ID_MISSING:' + label);
+
+  const url = new URL(`${supabaseURL}/rest/v1/file_records`);
+  url.searchParams.set('select', 'id,company_id,metadata');
+  url.searchParams.set('id', 'eq.' + fileRecordId);
+  url.searchParams.set('company_id', 'eq.' + companyId);
+  const headers = { apikey: serviceRoleKey, Authorization: 'Bearer ' + serviceRoleKey };
+
+  const read = await fetch(url, { headers });
+  const readBody = await read.text();
+  assert.equal(read.ok, true, 'E2E synthetic source metadata read HTTP ' + read.status + ': ' + readBody);
+  const sourceRecords = readBody ? JSON.parse(readBody) : [];
+  assert.equal(sourceRecords.length, 1, 'E2E source record must be unique and tenant-bound');
+  assert.equal(sourceRecords[0].company_id, companyId, 'E2E fixture tenant mismatch');
+
+  const priorMetadata = sourceRecords[0].metadata && typeof sourceRecords[0].metadata === 'object'
+    ? sourceRecords[0].metadata
+    : {};
+  const metadata = {
+    ...priorMetadata,
+    fixture_type: 'synthetic-realistic',
+    catalog_id: 'report-advisor.e2e-upload',
+    report_corpus: false,
+    e2e_fixture: 'full-product-browser-e2e',
+    e2e_fixture_label: label,
+  };
+  const update = new URL(`${supabaseURL}/rest/v1/file_records`);
+  update.searchParams.set('id', 'eq.' + fileRecordId);
+  update.searchParams.set('company_id', 'eq.' + companyId);
+  const response = await fetch(update, {
+    method: 'PATCH',
+    headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    body: JSON.stringify({ metadata }),
+  });
+  const body = await response.text();
+  assert.equal(response.ok, true, 'E2E synthetic source metadata tag HTTP ' + response.status + ': ' + body);
+  const tagged = body ? JSON.parse(body) : [];
+  assert.equal(tagged.length, 1, 'E2E fixture metadata writeback missing');
+  assert.equal(tagged[0].metadata?.fixture_type, 'synthetic-realistic');
+  assert.equal(tagged[0].metadata?.catalog_id, 'report-advisor.e2e-upload');
+  evidence.steps.push({
+    step: 'e2e-upload-excluded-from-real-source-corpus:' + label,
+    status: 'PASS',
+    sourceRecordId: fileRecordId,
+    tenantId: companyId,
+  });
+}
 async function openImportSource(page) {
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     await page.goto(`${baseURL}/import`, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -222,6 +282,8 @@ async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
   );
 }
 async function importOne(page, label, fields, marker) {
+  const sourceRows = Array.isArray(fields) ? fields : [fields];
+  if (!sourceRows.length) throw new Error('UNIFIED_IMPORT_EXPECTED_SOURCE_ROWS:' + label);
   await openImportSource(page);
   await page.locator('input[type=file]').first().setInputFiles({
     name: `${marker}.csv`,
@@ -253,20 +315,23 @@ async function importOne(page, label, fields, marker) {
   const companyId = evidence.tenantA ?? await currentTenant(page);
   const job = await waitForAuthoritativeImportCompletion(page, companyId, marker);
 
+  // Mark this test-only upload before the workflow's real-source cohort gate can inspect it.
+  await tagSyntheticE2EFileRecord(companyId, job.file_record_id, label);
+
   const canonicalRows = await restSelect(
     page,
     'canonical_dataset_records',
     { company_id: companyId, import_job_id: job.id },
     'id,company_id,import_job_id,source_hash,semantic_domain,row_number,record_key,data,provenance',
   );
-  assert.equal(canonicalRows.length, 1, 'unified import must persist one canonical source row for the test file');
-  assert.equal(canonicalRows[0].company_id, companyId);
-  assert.equal(canonicalRows[0].import_job_id, job.id);
-  assert.equal(canonicalRows[0].semantic_domain, 'source-data');
-  assert.equal(canonicalRows[0].row_number, 1);
-  assert.equal(canonicalRows[0].provenance?.tenantId, companyId);
-  assert.equal(canonicalRows[0].provenance?.sourceDocumentId, job.id);
-  evidence.persisted[label] = { job, canonical: canonicalRows[0] };
+  assert.equal(canonicalRows.length, sourceRows.length, 'unified import must persist every canonical source row');
+  assert.ok(canonicalRows.every(row => row.company_id === companyId), 'all imported rows must remain tenant-bound');
+  assert.ok(canonicalRows.every(row => row.import_job_id === job.id), 'all imported rows must remain bound to the import job');
+  assert.ok(canonicalRows.every(row => row.semantic_domain === 'source-data'), 'generic uploads must not be forced into a specialist domain');
+  assert.deepEqual(canonicalRows.map(row => Number(row.row_number)).sort((a, b) => a - b), sourceRows.map((_, index) => index + 1), 'canonical row lineage must retain all input row numbers');
+  assert.ok(canonicalRows.every(row => row.provenance?.tenantId === companyId), 'every source row must retain tenant provenance');
+  assert.ok(canonicalRows.every(row => row.provenance?.sourceDocumentId === job.id), 'every source row must retain source-document provenance');
+  evidence.persisted[label] = { job, canonical: canonicalRows[0], canonicalRowCount: canonicalRows.length, sourcePath: marker + '.csv' };
   evidence.steps.push({
     step: `unified-import-canonical-persistence:${label}`,
     status: 'PASS',
@@ -290,7 +355,7 @@ async function importOne(page, label, fields, marker) {
     sourceRecordId: historySource[0].id,
   });
 
-  return { job, canonical: canonicalRows[0] };
+  return { job, canonical: canonicalRows[0], canonicalRows, sourcePath: marker + '.csv', rowCount: sourceRows.length };
 }
 
 
@@ -349,6 +414,11 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
 
   const reportJob = await waitForRenderedSmartReport(page, companyId, sourceHash);
   const rendered = reportJob?.evidence?.renderedOutput ?? {};
+  assert.equal(String(reportJob.source_hash ?? ''), sourceHash, 'SMART_REPORT_JOB_SOURCE_HASH_MISMATCH:' + label);
+  assert.equal(String(reportJob.source_path ?? ''), String(importResult.sourcePath ?? ''), 'SMART_REPORT_SOURCE_PATH_MISMATCH:' + label);
+  assert.equal(rendered.sourceHash, sourceHash, 'SMART_REPORT_RENDERED_SOURCE_HASH_MISMATCH:' + label);
+  assert.equal(rendered.sourceBound, true, 'SMART_REPORT_RENDERED_SOURCE_NOT_BOUND:' + label);
+  if (importResult.rowCount != null) assert.equal(Number(rendered.rowCount), Number(importResult.rowCount), 'SMART_REPORT_RENDERED_ROW_COUNT_MISMATCH:' + label);
 
   if (String(rendered.evidenceStatus ?? '') === 'VERIFIED') {
     throw new Error('SMART_REPORT_EVIDENCE_PROMOTED_UNEXPECTEDLY:' + label);
@@ -384,11 +454,29 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
   );
   await waitForSmartReportEvidenceSurface(page);
 
+  const genericCard = page.locator('[data-testid="smart-report-generic-intelligence"] [data-testid="generic-file-intelligence"]');
+  await genericCard.waitFor({ state: 'visible', timeout: 30000 });
+  const sourceLineage = genericCard.locator('[data-testid="generic-intelligence-source-lineage"]');
+  await sourceLineage.waitFor({ state: 'visible', timeout: 15000 });
+  const lineageText = await sourceLineage.innerText();
+  assert.ok(lineageText.includes(reportJob.id), 'GENERIC_INTELLIGENCE_REPORT_JOB_MISSING:' + label);
+  assert.ok(lineageText.includes(String(importResult.sourcePath ?? '')), 'GENERIC_INTELLIGENCE_SOURCE_PATH_MISMATCH:' + label);
+  assert.ok(lineageText.includes(sourceHash), 'GENERIC_INTELLIGENCE_SOURCE_HASH_MISMATCH:' + label);
+
+  const signalsRegion = genericCard.locator('[aria-label="كل إشارات التحليل العام"]');
+  const recommendationsRegion = genericCard.locator('[aria-label="كل توصيات التحليل العام"]');
+  await signalsRegion.waitFor({ state: 'visible', timeout: 15000 });
+  await recommendationsRegion.waitFor({ state: 'visible', timeout: 15000 });
+  const signalsHeading = await signalsRegion.innerText();
+  const recommendationHeading = await recommendationsRegion.innerText();
+  const signalCount = Number(signalsHeading.match(/كل الإشارات \((\d+)\)/)?.[1] ?? 0);
+  const recommendationCount = Number(recommendationHeading.match(/كل التوصيات \((\d+)\)/)?.[1] ?? 0);
+  assert.ok(signalCount > 0, 'GENERIC_INTELLIGENCE_SIGNALS_EMPTY:' + label);
+  assert.ok(recommendationCount > 0, 'GENERIC_INTELLIGENCE_RECOMMENDATIONS_EMPTY:' + label);
+
   const beforeRefreshText = (await page.locator('body').innerText()).trim();
-  assert.ok(
-    beforeRefreshText.includes(sourceHash.slice(0, 24)),
-    'Smart Report must display the persisted source fingerprint'
-  );
+  assert.ok(beforeRefreshText.includes(sourceHash), 'Smart Report must display the full persisted source fingerprint');
+  assert.ok(beforeRefreshText.includes(String(importResult.sourcePath ?? '')), 'Smart Report must display the uploaded source path');
   assert.ok(
     beforeRefreshText.includes('موثوق') || beforeRefreshText.includes('Trusted Source'),
     'Smart Report must expose source trust'
@@ -420,10 +508,11 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
   await waitForSmartReportEvidenceSurface(page);
 
   const afterRefreshText = (await page.locator('body').innerText()).trim();
-  assert.ok(
-    afterRefreshText.includes(sourceHash.slice(0, 24)),
-    'Smart Report fingerprint must survive browser refresh'
-  );
+  assert.ok(afterRefreshText.includes(sourceHash), 'Smart Report fingerprint must survive browser refresh');
+  assert.ok(afterRefreshText.includes(String(importResult.sourcePath ?? '')), 'Smart Report source path must survive browser refresh');
+  const lineageAfterRefresh = await genericCard.locator('[data-testid="generic-intelligence-source-lineage"]').innerText();
+  assert.ok(lineageAfterRefresh.includes(reportJob.id), 'Report job lineage must survive browser refresh');
+  assert.ok(lineageAfterRefresh.includes(sourceHash), 'Source hash lineage must survive browser refresh');
   assert.ok(
     afterRefreshText.includes('EVIDENCE PASSPORT'),
     'Smart Report evidence passport must survive browser refresh'
@@ -1311,6 +1400,64 @@ try {
     });
     await pageB.getByRole('button', { name: 'تسجيل الخروج' }).click(); await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-B-logout', status: 'PASS' });
   } finally { await pageB.close(); await contextB.close(); }
+
+  const freshUploadMarker = `report-advisor-e2e-${exactHead.slice(0, 10)}-${Date.now()}`;
+  const freshUploadRows = [
+    {
+      'مرجع الاختبار': freshUploadMarker + '-01',
+      'اسم العميل': 'عميل مستمر',
+      'يناير': 100, 'فبراير': 120, 'مارس': 110, 'أبريل': 130,
+      'مايو': 140, 'يونيو': 150, 'يوليو': 160, 'أغسطس': 180,
+      'الإجمالي الكلي': 1090, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'منتظم مستمر', 'عدد أشهر التعامل': 8,
+      'متوسط الشهر الفعلي': 136.25, 'الشهر الأعلى شراءً': 'أغسطس',
+      'نسبة النمو (يوليو-أغسطس)': 0.125,
+    },
+    {
+      'مرجع الاختبار': freshUploadMarker + '-02',
+      'اسم العميل': 'عميل منقطع مهم',
+      'يناير': 20, 'فبراير': 0, 'مارس': 0, 'أبريل': 30,
+      'مايو': 0, 'يونيو': 0, 'يوليو': 0, 'أغسطس': 0,
+      'الإجمالي الكلي': 65, 'حالة الزبون': 'منقطع',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'خطر انقطاع (VIP)', 'عدد أشهر التعامل': 2,
+      'متوسط الشهر الفعلي': 25, 'الشهر الأعلى شراءً': 'أبريل',
+      'نسبة النمو (يوليو-أغسطس)': -1,
+    },
+    {
+      'مرجع الاختبار': freshUploadMarker + '-03',
+      'اسم العميل': 'عميل آخر',
+      'يناير': 10, 'فبراير': 20, 'مارس': 30, 'أبريل': 40,
+      'مايو': 50, 'يونيو': 60, 'يوليو': 70, 'أغسطس': 80,
+      'الإجمالي الكلي': 360, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة ب', 'مؤشر المخاطر والفرص': 'نشاط معتاد',
+      'عدد أشهر التعامل': 8, 'متوسط الشهر الفعلي': 45,
+      'الشهر الأعلى شراءً': 'أغسطس', 'نسبة النمو (يوليو-أغسطس)': 0.1429,
+    },
+  ];
+  const freshImport = await importOne(pageA, 'fresh-generic-upload', freshUploadRows, freshUploadMarker);
+  const freshReport = await proveSmartReportAndEvidence(pageA, evidence.tenantA, freshImport, 'fresh-generic-upload');
+  evidence.persisted.freshGenericUpload = {
+    tenantId: evidence.tenantA,
+    reportJobId: freshReport.id,
+    sourcePath: freshReport.source_path,
+    sourceHash: freshReport.source_hash,
+    uploadedRows: freshUploadRows.length,
+    genericSignalCount: freshReport.evidence?.renderedOutput?.genericIntelligence?.signals?.length ?? null,
+    genericRecommendationCount: freshReport.evidence?.renderedOutput?.genericIntelligence?.recommendations?.length ?? null,
+    evidenceState: freshReport.evidence?.renderedOutput?.evidenceStatus ?? null,
+  };
+  evidence.steps.push({
+    step: 'fresh-user-upload-to-generic-intelligence-save-readback-refresh',
+    status: 'PASS',
+    tenantId: evidence.tenantA,
+    reportJobId: freshReport.id,
+    sourcePath: freshImport.sourcePath,
+    sourceHash: freshImport.canonical.source_hash,
+    rowCount: freshUploadRows.length,
+  });
+
   await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' }); assert.equal(await logoutA.count(), 1, 'TENANT_A_LOGOUT_CONTROL_MISSING'); await logoutA.click(); await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-A-logout', status: 'PASS' });
   if (evidence.failures.length) throw new Error('BROWSER_RUNTIME_ERRORS:' + evidence.failures.join(' | '));
   const real48 = spawnSync(process.execPath, ['--experimental-strip-types', '--experimental-loader', './scripts/node-ts-extension-loader.mjs', 'scripts/real-48-archetype-proof.mjs'], { env: process.env, stdio: 'pipe', encoding: 'utf8' });

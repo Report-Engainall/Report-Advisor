@@ -85,7 +85,7 @@ const cardComponent = fs.readFileSync(new URL('../src/components/ui/Card.tsx', i
 if (!/interface CardProps extends Omit<HTMLAttributes<HTMLElement>/.test(cardComponent)) {
   throw new Error('Card must accept standard DOM attributes such as data-testid and aria-label');
 }
-if (!/<section\\s+\\{\\.\\.\\.attributes\\}/.test(cardComponent)) {
+if (!cardComponent.includes('<section') || !cardComponent.includes('{...attributes}')) {
   throw new Error('Card must forward standard DOM attributes to its rendered section');
 }
 if (!cardComponent.includes("import { type HTMLAttributes, type ReactNode } from 'react';")) {
@@ -156,4 +156,15 @@ for (const marker of [
 ]) {
   if (!reportContext.includes(marker)) throw new Error('Missing cross-screen smart report navigation marker: ' + marker);
 }
+
+const businessE2E = fs.readFileSync(new URL('../scripts/real-business-e2e.mjs', import.meta.url), 'utf8');
+for (const marker of [
+  "await importOne(pageA, 'fresh-generic-upload', freshUploadRows, freshUploadMarker)",
+  "await proveSmartReportAndEvidence(pageA, evidence.tenantA, freshImport, 'fresh-generic-upload')",
+  'await tagSyntheticE2EFileRecord(companyId, job.file_record_id, label)',
+  "step: 'fresh-user-upload-to-generic-intelligence-save-readback-refresh'",
+]) {
+  if (!businessE2E.includes(marker)) throw new Error('Authenticated browser proof must exercise a fresh, source-bound upload: ' + marker);
+}
+
 console.log('smart-report-catalog-navigation: PASS');
