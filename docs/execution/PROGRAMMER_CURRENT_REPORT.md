@@ -1,3 +1,24 @@
+REPORT_FOR_HEAD = 2a128ab3621a426a26e855c4ce66c1dfe09724dc
+UPDATED_AT = 2026-10-11 21:55 +03
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_PARENT_HEAD = 2a128ab3621a426a26e855c4ce66c1dfe09724dc
+CURRENT_CODE_TEST_HEAD = d9884cb458d19da402a6b7f4d40ef3e8a9129794
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY — staged ACL fix is proven by DB readback; the source migration commit needs a docs-only baseline update before the exact-head handoff rerun
+ACTION_STATUS = ORDER_STATUS_HISTORY_AUTHENTICATED_SELECT_RESTORED_IN_STAGING; BROWSER_RERUN_PENDING
+
+WHAT_I_WAS_ASKED_TO_DO = Resume PR #912 from live evidence, fix the first real full-browser journey failure without weakening the test, persist the fix and report, and continue exact-head certification.
+WHAT_I_ACTUALLY_DID = Inspected Full Product Browser run 38164694687 and its uploaded artifact. The real Chromium route/auth step passed; the next business journey failed on a 403/42501 SELECT from public.order_status_history. Queried staging grants and pg_policies: authenticated lacked SELECT; anon lacked SELECT; RLS and the existing tenant-bound staff-read policy were present. Applied Supabase migration 20261011185449_restore_authenticated_order_status_history_select and verified the corrected effective privilege, anon restriction, RLS and policy readback. Added a repository migration matching that live change, plus this dated archive and updated persisted session context.
+WHAT_IS_PROVEN = Browser run 38164694687 is FAIL on tested SHA d9884cb458d19da402a6b7f4d40ef3e8a9129794; route/auth step 17 PASS; business step 18 failed because the authenticated SELECT grant was absent. Supabase post-fix readback: authenticated SELECT true, anon SELECT false, RLS enabled true, expected tenant SELECT policy present true. Handoff run 38164695511 and Final Certification Gate run 38164695553 passed on parent 2a128ab3621a426a26e855c4ce66c1dfe09724dc; Phase-F run 38164694601 and Data Quality Runtime run 38164694533 passed on d9884cb458d19da402a6b7f4d40ef3e8a9129794. Quality run 38164694658 is not a valid quality verdict because concurrent ref movement failed the exact-head setup before npm ci.
+FIRST_ACTIVE_FAILURE = GET /rest/v1/order_status_history ... HTTP 403 SQLSTATE 42501, followed by timeout waiting for the persisted order-status confirmation.
+ROOT_CAUSE = Live staging ACL drift: the authenticated role lacked table-level SELECT despite RLS being enabled and the correct tenant-scoped SELECT policy existing. The previous schema-parity migration describes the grant, but it was absent in the live ACL. This was repaired with a forward-only migration; no policies were weakened.
+NEXT_EXACT_ACTION = After the migration commit, set REPORT_FOR_HEAD to that migration commit in a docs-only follow-up, then consume Full Product Browser E2E, Quality, Session Handoff, Final Certification and Phase-F on the latest exact head. Fix only the first new logged failure.
+HANDOFF_COVERAGE = supabase/migrations/20261011185449_restore_authenticated_order_status_history_select.sql; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2155-ORDER-STATUS-PRIVILEGE-E2E-RECOVERY.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+
+---
+
 REPORT_FOR_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
 UPDATED_AT = 2026-10-11T21:36:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor

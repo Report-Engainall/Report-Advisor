@@ -1,3 +1,20 @@
+# LIVE RESUME — 2026-10-11 21:55 +03 / ORDER STATUS HISTORY ACL REPAIRED IN STAGING; FULL BROWSER RERUN REQUIRED
+
+- Repository: Report-Engainall/Report-Advisor
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Parent before this recovery: `2a128ab3621a426a26e855c4ce66c1dfe09724dc`.
+- Full browser failure: [run 38164694687](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694687), exact tested SHA `d9884cb458d19da402a6b7f4d40ef3e8a9129794`; route/auth proof passed, business flow then failed due to `permission denied for table order_status_history` (`42501`).
+- Root cause proven in staging: authenticated had no SELECT table privilege although RLS and `order_status_history_staff_read` tenant policy were present. Applied Supabase migration version `20261011185449`, name `restore_authenticated_order_status_history_select`; readback is `authenticated SELECT=true, anon SELECT=false, RLS=true, tenant policy present=true`.
+- Repository migration path: `supabase/migrations/20261011185449_restore_authenticated_order_status_history_select.sql`. Only SELECT for authenticated is added; no anon grants and no DML grants.
+- Existing E2E result remains FAIL on the old run/SHA; the fix is not browser-proven until the new exact-head run finishes.
+- Earlier exact/current gate links: Session Handoff [38164695511](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695511) and Final Certification [38164695553](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695553) PASS on `2a128ab3621a426a26e855c4ce66c1dfe09724dc`; Phase-F [38164694601](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694601) and Data Quality [38164694533](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694533) PASS on ancestor `d9884cb...`; Quality [38164694658](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694658) failed because a concurrent branch move caused the exact-head guard to stop before dependency installation.
+- Product complete: **NO**.
+
+NEXT EXACT ACTION = Set `REPORT_FOR_HEAD` to the new migration commit in a docs-only follow-up (so the handoff contract sees only governance paths after the baseline), then inspect the new exact-head Full Product Browser E2E and all gates; fix only the first proven new failure.
+
+---
+
 # LIVE RESUME — 2026-10-11T21:36:00+03:00 / SESSION HANDOFF FAILURE CAPTURED; BASELINE RECOVERY COMMITTED
 
 - Repository: Report-Engainall/Report-Advisor

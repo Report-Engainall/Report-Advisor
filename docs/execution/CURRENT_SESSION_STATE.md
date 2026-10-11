@@ -1,3 +1,27 @@
+# LIVE RESUME — 2026-10-11 21:55 +03 / VERIFIED STAGING ACL FIX; EXACT-HEAD USER JOURNEY STILL PENDING
+
+CURRENT_EXACT_HEAD = 2a128ab3621a426a26e855c4ce66c1dfe09724dc
+CURRENT_EXECUTION_PARENT_HEAD = 2a128ab3621a426a26e855c4ce66c1dfe09724dc
+CURRENT_CODE_TEST_HEAD = d9884cb458d19da402a6b7f4d40ef3e8a9129794
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = STAGING_ACL_FIX_READBACK_PASS; REPO_MIGRATION_COMMIT_PENDING; EXACT_HEAD_BROWSER_RERUN_REQUIRED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-11 21:55 +03
+
+## Verified live correction
+The Full Product Browser run [38164694687](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694687), exact tested SHA `d9884cb458d19da402a6b7f4d40ef3e8a9129794`, passed route/auth step 17 but failed business step 18: HTTP 403 / SQLSTATE 42501 on SELECT from `public.order_status_history`. This is a separate first runtime failure after the smart-report selector correction.
+
+Applied Supabase staging migration `20261011185449_restore_authenticated_order_status_history_select` with only `GRANT SELECT ON TABLE public.order_status_history TO authenticated;`. Database readback verified authenticated SELECT true, anon SELECT false, RLS enabled true, and tenant SELECT policy present true. The matching repository migration and dated archive are being persisted now.
+
+Session Handoff [38164695511](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695511) and Final Certification [38164695553](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695553) passed on parent `2a128ab3621a426a26e855c4ce66c1dfe09724dc`. Phase-F [38164694601](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694601) and Data Quality [38164694533](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694533) passed on tested ancestor `d9884cb...`. Quality [38164694658](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694658) is invalid as a product-quality verdict because an exact-head mismatch prevented `npm ci`, with downstream commands then missing dependencies.
+
+NEXT_EXACT_ACTION = Complete the migration commit, advance REPORT_FOR_HEAD to that commit with a docs-only follow-up, and verify new exact-head CI plus full authenticated browser proof. Keep PR open and do not declare product complete.
+
+---
+
 # LIVE RESUME — 2026-10-11T21:36:00+03:00 / SESSION HANDOFF BASELINE RECOVERY
 
 CURRENT_EXACT_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
