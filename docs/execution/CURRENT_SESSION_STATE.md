@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-11T21:36:00+03:00 / SESSION HANDOFF BASELINE RECOVERY
+
+CURRENT_EXACT_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
+CURRENT_PRODUCT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+CURRENT_CODE_TEST_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
+CURRENT_EXECUTION_PARENT_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = HANDOFF_FAIL_RECORDED; REPORT_BASELINE_ADVANCED_TO_CODE_HEAD; EXACT_HEAD_RETEST_REQUIRED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-11T21:36:00+03:00
+
+## Latest exact-head outcome
+
+The [Session Handoff Contract](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624486) failed on `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`: `SESSION_HANDOFF_CONTRACT_FAIL: stale report; unreported files: scripts/real-business-e2e.mjs` (job `114541517298`). The report snapshot in that run was older than the real E2E selector repair. This is a report-baseline/accounting failure; the checker must remain unchanged.
+
+The Product Build Gate [38163624291](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624291), Quality [38163624340](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624340), and Data Quality Runtime [38163624450](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624450) passed on `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`. Final Certification [38163624461](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624461) failed; Full Product Browser [38163624481](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624481), Phase-F [38163624231](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624231), and Device-Independent Browser [38163624274](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38163624274) were cancelled.
+
+The browser fix in `scripts/real-business-e2e.mjs` retains reportJobId/sourceHash/sourcePath checks and opens the real `التفاصيل الكاملة للتقرير` disclosure before asserting `سلسلة الثقة لهذا التقرير`. The fixed selector has not yet passed a fresh full browser run.
+
+NEXT_EXACT_ACTION = Commit/read back this governance baseline on the branch, verify Session Handoff on the resulting head, then obtain full-browser evidence on that head and fix the first actual user-journey failure. Keep PR #912 open.
+
+---
+
 # LIVE RESUME — 2026-10-11T21:34:00+03:00 / SMART-REPORT EVIDENCE UI ASSERTION REPAIRED
 
 CURRENT_EXACT_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
