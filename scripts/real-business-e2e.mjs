@@ -1373,10 +1373,18 @@ try {
   await pageC.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
   await pageC.reload({ waitUntil: 'networkidle', timeout: 30000 });
   assert.equal(await currentTenant(pageC), REAL_SMART_REPORT_COMPANY_ID, 'CERTIFIED_REPORT_TENANT_CHANGED_ACROSS_REFRESH');
-  await pageC.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(pageC);
+  const evidencePassportSummary = pageC
+    .locator('details > summary')
+    .filter({ hasText: 'التفاصيل الكاملة للتقرير' })
+    .first();
+  await evidencePassportSummary.waitFor({ state: 'visible', timeout: 30000 });
+  await evidencePassportSummary.click();
+  await pageC.getByRole('heading', { name: 'سلسلة الثقة لهذا التقرير', exact: true })
+    .waitFor({ state: 'visible', timeout: 30000 });
   const finalBody = (await pageC.locator('body').innerText()).trim();
   assertCurrentReportText(finalBody, 'certified report final readback');
-  assert.ok(finalBody.includes('EVIDENCE INSPECTOR'));
+  assert.ok(finalBody.includes('سلسلة الثقة لهذا التقرير'), 'CERTIFIED_REPORT_EVIDENCE_INSPECTOR_NOT_VISIBLE_AFTER_OPEN');
   assert.ok(finalBody.includes(REAL_SMART_REPORT_JOB_ID), 'CERTIFIED_REPORT_JOB_ID_NOT_VISIBLE_IN_BROWSER');
   assert.ok(finalBody.includes(REAL_SMART_REPORT_SOURCE_HASH), 'CERTIFIED_REPORT_SOURCE_HASH_NOT_VISIBLE_IN_BROWSER');
   assert.ok(finalBody.includes(REAL_SMART_REPORT_SOURCE_PATH), 'CERTIFIED_REPORT_SOURCE_PATH_NOT_VISIBLE_IN_BROWSER');
