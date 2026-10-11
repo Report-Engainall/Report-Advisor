@@ -1,3 +1,30 @@
+REPORT_FOR_CODE_TEST_HEAD = eb56d92f8e13dd926be0c3980fdddcaa9cf97043
+UPDATED_AT = 2026-10-11T20:28:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_HEAD_AT_REPORT_WRITE = 944e2c9dd4bf0e163d92a653c33426dd8bf32b99
+PRODUCT_COMPLETE = NO
+ACTION_STATUS = ACTUAL_DOMAIN_SURFACE_HASH_FIX_COMMITTED; EXACT_HEAD_VALIDATION_PENDING
+CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+
+WHAT_CHANGED_ACTUALLY = SourceHash rendering was added to src/components/CustomerReportSurface.tsx, which is the actual component used by /reports/inventory through ReportsPage.tsx → SourceBoundDomainSurface. The existing src/components/SourceBoundReportSurface.tsx was not sufficient for that route. Added an explicit regression assertion to scripts/smart-report-complete-intelligence-surface.test.mjs. Commits: 3e06dd96517782acad9cf2aeab22e86d51380fd3 and eb56d92f8e13dd926be0c3980fdddcaa9cf97043.
+LATEST_CODE_TEST_HEAD = eb56d92f8e13dd926be0c3980fdddcaa9cf97043
+LATEST_UI_FIX = 3e06dd96517782acad9cf2aeab22e86d51380fd3
+PARENT_BUILD_QUALITY = PASS only on ae203723bca759b07780acbc889a633a914d18d4; no exact-head pass promoted.
+PARENT_PHASE_F = PASS only on ae203723bca759b07780acbc889a633a914d18d4: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38158554444
+PARENT_BROWSER = FAIL on 023d8d38... with "inventory: source hash missing"; source-domain-specific patch and test are now committed but browser PASS has not been captured.
+PARENT_HANDOFF = FAIL on ae203723...; missing PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md and scripts/smart-report-complete-intelligence-surface.test.mjs.
+PARENT_FINAL_CERTIFICATION = FAIL due the stale handoff report.
+OTHER_PREVIOUS_FAILURE = Commercial Product Creation E2E returned current_company_id HTTP 401 / JWT issued at future on ae203723...; separate Auth/time boundary, not a generic intelligence result.
+NEW_HEAD_GATE_STATUS = Build / Quality / Browser / Phase-F / Handoff / Final Certification must be checked on the latest branch HEAD; tests for eb56d92... were cancelled/queued while subsequent checkpoints landed. Do not infer current success.
+HANDOFF_COVERAGE = src/components/CustomerReportSurface.tsx; src/components/SourceBoundReportSurface.tsx; scripts/smart-report-complete-intelligence-surface.test.mjs; PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md; PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+DATED_REPORT = PROGRAMMER_REPORTS/2026-10-11-domain-surface-source-hash-fix.md
+PREVIEW_PROOF = NOT PROVEN on the current branch head.
+PRODUCTION_PROOF = NO.
+NEXT_EXACT_ACTION = Read the exact-head gates after this report commit. First prove the actual /reports/inventory hash display in Chromium. Then fix the next terminal failure and prove upload → general + applicable specialty intelligence → source evidence → save/readback → linked surfaces → refresh/re-entry with the same reportJobId + sourceHash.
+
+--- HISTORICAL REPORTS BELOW; PRESERVED ---
 REPORT_FOR_HEAD = c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc
 UPDATED_AT = 2026-10-11T20:10:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor
