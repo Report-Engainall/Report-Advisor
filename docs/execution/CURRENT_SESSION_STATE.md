@@ -1,3 +1,20 @@
+# LIVE RESUME — 2026-10-11T20:10:00+03:00 / SOURCE-HASH VISIBILITY FIX COMMITTED; EXACT-HEAD CI REQUIRED
+
+CURRENT_EXACT_HEAD = c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc
+CURRENT_PRODUCT_HEAD = c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc
+CURRENT_EXECUTION_HEAD = c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = SOURCE_HASH_UI_FIX_COMMITTED; EXACT_HEAD_VALIDATION_REQUIRED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Inspect Build, Quality, Full Product Browser E2E, Session Handoff, Final Certification and Phase-F results triggered by c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc; repair the first terminal failure, then prove the same reportJobId + SHA-256 through linked surfaces and refresh.
+
+## Last verified failure and fix
+The Full Product Browser E2E run 38157202976 on parent 023d8d38d0c05e6b62c872b234422f9d717e2727 failed with `inventory: source hash missing`. The source-bound report route read the same report job and checked the expected source hash, but the linked inventory surface did not visibly render that hash. Commit c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc adds the full SHA-256 to shared SourceHeader in src/components/SourceBoundReportSurface.tsx; new-head browser validation is pending.
+Session Handoff 38157202962 and Final Certification 38157202927 failed because the report omitted five modified files; Phase-F 38157202966 was cancelled before live probes. Previous Build 38157202890 and Quality 38157202815 passed only on the parent and are not new-head proof.
+
+Dated report: PROGRAMMER_REPORTS/2026-10-11-source-hash-surface-fix.md
 # LIVE RESUME — 2026-10-11 / SHARED EVIDENCE LABEL + SOURCE-SAFE LOGICAL RESTORE
 
 CURRENT_EXACT_HEAD = 023d8d38d0c05e6b62c872b234422f9d717e2727
