@@ -18,6 +18,33 @@ const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
 };
 
 const REPORT_CONTEXT_CACHE = new Map<string, SmartReportDetail>();
+const SOURCE_CONTEXT_SHORTCUTS = [
+  { path: '/intelligence', label: 'الذكاء' },
+  { path: '/advisor-cases', label: 'قضية Advisor' },
+  { path: '/work-center', label: 'العمل' },
+  { path: '/replay', label: 'إعادة التتبع' },
+  { path: '/benchmark', label: 'المقارنة' },
+  { path: '/trust', label: 'الدليل' },
+  { path: '/decision-experience?stage=evidence', label: 'القرار' },
+] as const;
+
+function SourceContextNavigation({ jobId, sourceHash }: { jobId: string; sourceHash: string }) {
+  const contextQuery = 'reportJobId=' + encodeURIComponent(jobId) + '&sourceHash=' + encodeURIComponent(sourceHash);
+  return (
+    <nav aria-label="مسارات التقرير الحالي" data-testid="report-source-context-links" className="mt-3 flex flex-wrap gap-2">
+      {SOURCE_CONTEXT_SHORTCUTS.map((item) => (
+        <Link
+          key={item.path}
+          to={item.path + (item.path.includes('?') ? '&' : '?') + contextQuery}
+          className="btn-secondary text-[10px]"
+        >
+          {item.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
 
 // These surfaces are part of the report-to-decision operating chain. Once a
 // verified report is active, navigation to any of them must carry the exact
@@ -180,7 +207,13 @@ export function ReportSourceContext() {
         setError('مصدر التقرير لا يطابق البصمة المرسلة إلى هذه الشاشة.');
         return;
       }
-      if (value) REPORT_CONTEXT_CACHE.set(key, value);
+      if (!value) {
+        setReport(null);
+        setError('لم يتم العثور على التقرير المرتبط بالمصدر الحالي.');
+        return;
+      }
+      REPORT_CONTEXT_CACHE.set(key, value);
+      setError(null);
       setReport(value);
     }).catch((cause) => {
       if (active && !controller.signal.aborted) setError(cause instanceof Error ? cause.message : String(cause));
@@ -191,10 +224,26 @@ export function ReportSourceContext() {
   if (!needsContextContinuity(location.pathname)) return null;
 
   if (contextResolving && !report) {
-    return <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite"><div className="text-[11px] font-black text-primary-950">جارٍ ربط أحدث تقرير ذكي بالسياق الحالي…</div><p className="mt-1 text-[10px] leading-5 text-primary-900/80">لن نعرض أرقامًا أو توصيات عامة؛ سيتم تحميل النتيجة من آخر تقرير مكتمل في نفس مساحة العمل.</p></section>;
+    return (
+      <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite">
+        <div className="text-[11px] font-black text-primary-950">جارٍ ربط أحدث تقرير ذكي بالسياق الحالي…</div>
+        <p className="mt-1 text-[10px] leading-5 text-primary-900/80">لن نعرض أرقامًا أو توصيات عامة؛ سيتم تحميل النتيجة من آخر تقرير مكتمل في نفس مساحة العمل.</p>
+        {jobId && validSourceHash ? <SourceContextNavigation jobId={jobId} sourceHash={sourceHash} /> : null}
+      </section>
+    );
   }
 
   if (!jobId || !validSourceHash) return null;
+
+  if (!report && !error) {
+    return (
+      <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite" data-testid="report-source-context-loading">
+        <div className="text-[11px] font-black text-primary-950">جارٍ تحميل تفاصيل التقرير المرتبط بالمصدر…</div>
+        <p className="mt-1 text-[10px] leading-5 text-primary-900/80">هوية التقرير وبصمته محفوظتان؛ تبقى تفاصيل التحليل قيد القراءة، ولا يتوقف التنقل بين مساحات التقرير أثناء ذلك.</p>
+        <SourceContextNavigation jobId={jobId} sourceHash={sourceHash} />
+      </section>
+    );
+  }
 
   if (error || !report) {
     return (
@@ -205,6 +254,7 @@ export function ReportSourceContext() {
             <div className="text-[11px] font-black text-warning-950">سياق المصدر غير متاح</div>
             <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{error === 'INVALID_REPORT_CONTEXT' ? 'تعذر تحديد سياق التقرير الحالي. افتح التقرير من مركز التقارير.' : error ?? 'تعذر قراءة التقرير المصدرّي الحالي.'}</p>
             <Link to="/reports" className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-[10px] font-black text-warning-950">العودة إلى مركز التقارير <ArrowLeft size={13}/></Link>
+            <SourceContextNavigation jobId={jobId} sourceHash={sourceHash} />
           </div>
         </div>
       </section>
