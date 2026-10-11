@@ -1,32 +1,46 @@
 # CURRENT EXECUTION REPORT
 
-REPORT_FOR_HEAD = 2352f1f2990cf48977162b5bfda0d152d76cb35c
-UPDATED_AT = 2026-10-11T22:24:00+03:00
+REPORT_FOR_HEAD = a70aa83c1a4698c741b3a76332f8a8b16cc3a663
+UPDATED_AT = 2026-10-11T22:45:00+03:00
+SESSION HANDOFF = NOT READY — fresh exact-head contract run required.
 
-# LIVE RESUME — 2026-10-11 22:24 +03 / HANDLER TEST REPAIRED; EXACT-HEAD GATES RUNNING
+# LIVE RESUME — 2026-10-11 22:45 +03 / SOURCE-BOUND AUDIT TRACE CONTRACT REPAIRED; EXACT-HEAD RETEST PENDING
 
 Repository: Report-Engainall/Report-Advisor
 Branch: fix/source-bound-generic-intelligence-20261009
 PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
-Code/test baseline: 2352f1f2990cf48977162b5bfda0d152d76cb35c.
+Code/test head: a70aa83c1a4698c741b3a76332f8a8b16cc3a663.
 Main/base: fa1ab4cbade9b01685507aa966c10f700a03f576.
-Product completion: NO; DO_NOT_MERGE = true.
+Archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2245-AUDIT-TRACE-ASSERTION-FIX.md
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
 
-## Proven actions and current evidence
-- Earlier Full Product Browser E2E [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on predecessor 3d6fa46 while waiting for the order transition confirmation. It predates the feedback-preservation code fix ca5b98d.
-- Code fix ca5b98d preserves operation feedback during the canonical reload for order, invoice and payment paths; regression test was extended to assert each success message is set before the preserving reload.
-- First new test run [38168153197](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168153197) exposed a test-only defect: handler boundary search used a literal backslash-n, so `runOrderTransition handler boundary must remain detectable` failed. No product assertion was weakened.
-- Fixed the test boundary to search for the actual newline in commit 2352f1f2990cf48977162b5bfda0d152d76cb35c.
-- Fresh workflow batch for 2352f1f2990cf48977162b5bfda0d152d76cb35c is running. Full Product Browser E2E: [38168484001](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168484001); Session Handoff: [38168483816](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483816); Build: [38168483827](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483827); Quality: [38168483872](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483872); Phase-F: [38168484021](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168484021); Final Certification: [38168483847](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168483847).
-- The previous Handoff failure on 41acd3 explicitly listed unreported files `scripts/real-business-e2e.mjs`, `scripts/transactional-spine-contract.test.mjs`, and `src/pages/OperationsPage.tsx`. Root cause: the report baseline was too old. This checkpoint anchors REPORT_FOR_HEAD to 2352f1f, so the checker sees the already-recorded code/test edits as baseline, not as new changes. No checker rule was changed.
+## Verified Quality / resilience history
+On the previous exact source head 5d983bc8edd0a21c09d0b579b6bc7c6aabb043b6, these gates passed:
+- Product Build Gate [38168570478](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570478) — PASS.
+- Quality [38168570498](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570498) — PASS.
+- Phase-F Live Resilience [38168570530](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570530) — PASS.
+- Session Handoff [38168570511](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570511) — PASS.
+- Final Certification Gate [38168570382](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570382) — PASS.
+These are not transferred to code head a70aa; its own checks are running.
 
-FIRST_ACTIVE_FAILURE = Previous test-only handler-boundary assertion failed due to an incorrectly escaped newline; fixed in 2352f1f.
-ROOT_CAUSE = The regression test searched for literal backslash-n rather than a real line break.
-NEXT_EXACT_ACTION = Read the newest full authenticated browser artifact and all required gates after they finish on the latest head; act only on the first failure supported by its logs.
+## First failed runtime proof and proven root cause
+Full Product Browser E2E [38168570376](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570376) failed on exact head 5d983bc8edd0a21c09d0b579b6bc7c6aabb043b6 with `TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING`; uploaded artifact [11713696199](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38168570376/artifacts/11713696199).
+The certified report checks passed first: reportJobId `8dbafdf8-f769-4c4f-97a5-22eac8b47d41`, source `تقارير ارصدة المخزون.pdf`, sourceHash `sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839`, 254 rows and quality 98 were read back. Source-bound executive/trust/decision/work/inventory, advisor-case and inbox context assertions also passed. The transactional sales-role and role-handoff checks passed, including persisted status readback to `confirmed`.
+The failure was a UI/E2E vocabulary mismatch, not missing persisted audit rows: the page queried `source='operations-runtime'`, but rendered only translated generic badges/entity labels and not the actual `entry.action`. The E2E instead expected `order_status_changed` / `order_created`, which belongs to a different audit event source. Read-only staging SQL showed real rows for `orders:update`, `sales_invoices:insert`, `sales_invoices:update`, and `payments:insert` under `operations-runtime`, with matching entity IDs.
 
-WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 from live GitHub state and repair the next evidence-backed blocker without rebuilding the intelligence core or weakening the acceptance criteria.
-WHAT_I_ACTUALLY_DID = Inspected the previous full-browser error and exact-head workflow logs; confirmed feedback preservation exists in OperationsPage; added regression checks for all three transaction handlers; fixed the test's newline boundary bug and committed 2352f1f; reconciled the session report baseline to the exact code/test head.
-WHAT_IS_PROVEN = The test-only failure's cause and fix are visible in GitHub. The new browser/build/quality/handoff/resilience/certification workflows are running; their terminal results have not yet been read.
+## Implemented fix
+Commit [a70aa83](https://github.com/Report-Engainall/Report-Advisor/commit/a70aa83c1a4698c741b3a76332f8a8b16cc3a663):
+- `src/pages/OperationsPage.tsx`: audit trace now visibly exposes the persisted action code beside the Arabic action/entity label.
+- `scripts/real-business-e2e.mjs`: browser check asserts visible source-bound operational action codes; DB readback separately asserts action + entity type + source for order, invoice and payment.
+- `scripts/transactional-spine-contract.test.mjs`: contract now protects action-code visibility and the E2E evidence assertions.
+GitHub readback verified the commit contains exactly these three files and that the UI/test markers are present. The change is IMPLEMENTED/INTEGRATED/PERSISTED; new browser proof is pending.
+
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E failed with TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING after report identity/source and role-handoff proofs passed.
+ROOT_CAUSE = Audit UI hid the operational action string, while the browser contract looked for different domain event names from another source. Direct DB readback proved operational events exist using orders:update, sales_invoices:insert/update, payments:insert.
+WHAT_I_WAS_ASKED_TO_DO = Continue the live PR #912, prove rather than assume Quality/Phase-F, inspect the full journey's first failure, and fix the real defect without weakening authentication, tenant isolation or audit evidence.
+WHAT_I_ACTUALLY_DID = Re-read PR and exact workflow run; extracted Full Product Browser log and artifact; ran a read-only staging SQL query on E2E tenant audit rows; verified the actual action vocabulary; committed a UI action-code disclosure + matching visible and DB assertions at a70aa83; read back the commit and edited files on GitHub.
+WHAT_IS_PROVEN = Previous Build, Quality, Phase-F Live Resilience, Session Handoff and Final Certification passed on exact source head 5d983 only (links above). The a70aa83 code commit is persisted and readable. Its current-head browser and release gates are pending; do not carry forward old PASS.
+NEXT_EXACT_ACTION = Consume exact-head Full Product Browser artifact on a70aa83/current docs-only descendant, then fix only the first fresh failure and re-run required gates against the resulting head.
 
 ---
 
