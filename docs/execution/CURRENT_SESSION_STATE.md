@@ -1,3 +1,33 @@
+# LIVE RESUME — 2026-10-11T19:24:00+03:00 / CART_ITEMS RESTORE FIX + CURRENT-HEAD RECONCILIATION
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Exact product/test head covered: [`eaebe8ccaaacf17846ceb070c33229cd7d1e3b48`](https://github.com/Report-Engainall/Report-Advisor/commit/eaebe8ccaaacf17846ceb070c33229cd7d1e3b48).
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- `PRODUCT_COMPLETE = NO`.
+- `ACTION_STATUS = RESTORE_ROOT_CAUSE_PATCH_COMMITTED; EXACT_HEAD_REVALIDATION_REQUIRED`.
+
+## What changed through this exact head
+
+- `scripts/real-business-e2e.mjs`: current report browser proof now verifies visible GUIDANCE and source-bound report evidence across the actual linked surfaces.
+- `scripts/smart-report-complete-intelligence-surface.test.mjs`: the visible guidance contract is asserted.
+- `scripts/phase-f-live-resilience-probes.mjs`: logical restore excludes the operational cart parent and child rows (`public.carts`, `public.cart_items`) because auth/cart session state is not report/decision truth.
+- `scripts/resilience-runtime.test.mjs` and `scripts/check-phase10-backup-restore-contract.mjs`: regression contracts enforce the new exclusion. Report and decision evidence tables are not excluded by this patch.
+
+## Exact-head evidence boundary
+
+On parent `eb94db1f3bad9d59020d7beb8ea42c8309f53ee1`, Build Gate, Quality, data-quality runtime, Storage Tenant Runtime E2E, Device-Independent Browser E2E and Report Value Cohort passed. Full Product Browser E2E was still in progress at capture. Final Certification and Session Handoff failed because the report omitted two changed files. Phase-F was 3/4 and failed only the logical restore on `cart_items_cart_id_fkey`.
+
+Those parent passes are not promoted to the new head. On `eaebe8ccaaacf17846ceb070c33229cd7d1e3b48`, fresh validation is required; statuses at checkpoint were queued/pending for Build, Quality, Phase-F, Handoff, Final Certification and full browser proof.
+
+CURRENT_EXACT_HEAD = eaebe8ccaaacf17846ceb070c33229cd7d1e3b48
+CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+CURRENT_EXECUTION_HEAD = eaebe8ccaaacf17846ceb070c33229cd7d1e3b48
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+FIRST_ACTIVE_FAILURE = Parent-head logical restore attempted to reinsert cart_items referencing excluded carts. The new code excludes both tables and adds regression assertions; current-head runtime confirmation is pending.
+NEXT_EXACT_ACTION = Read current-head Phase-F + Full Product Browser E2E + Handoff/Final Certification results. Verify a fresh upload renders all available generic intelligence and source evidence across linked views, then save/readback/refresh with the same reportJobId and SHA-256. Fix only the first terminal failure and checkpoint its evidence.
+DO_NOT_MERGE = true
 # LIVE RESUME — 2026-10-11T19:21:00+03:00 / 844CFDC — VISIBLE GUIDANCE + LOGICAL RESTORE ROOT-CAUSE FIX
 
 - Repository: `Report-Engainall/Report-Advisor`

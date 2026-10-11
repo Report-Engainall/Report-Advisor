@@ -1,3 +1,19 @@
+# LIVE RESUME — 2026-10-11T19:24:00+03:00 / EXACT-HEAD CART_ITEMS RESTORE REPAIR COMMITTED; VALIDATION RUNS REQUIRED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Exact code/test head: `eaebe8ccaaacf17846ceb070c33229cd7d1e3b48`
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+- `PRODUCT_COMPLETE = NO`.
+
+The latest live Phase-F run on parent `eb94db1f3bad9d59020d7beb8ea42c8309f53ee1` failed its logical backup restore because `public.cart_items` rows still referenced excluded `public.carts`. The code/test fix now excludes both operational parent and child tables, and both the resilience runtime and Phase-10 contract assert that invariant. This does not exclude canonical report data or evidence.
+
+Parent-head Build, Quality, data-quality runtime, tenant runtime E2E, device-independent browser smoke and report-value cohort passed. Parent-head Handoff and Final Certification failed because the then-current report failed to list `scripts/real-business-e2e.mjs` and `scripts/smart-report-complete-intelligence-surface.test.mjs`. The new archive and current report name those files and cover code head `eaebe8ccaaacf17846ceb070c33229cd7d1e3b48`.
+
+Fresh exact-head gates were queued/pending for Build, Quality, Phase-F live restore, Session Handoff, Final Certification and Full Product Browser E2E at checkpoint time. Do not inherit predecessor pass states. 48-archetype real-source proof, full authenticated upload/save/readback/refresh proof and production-current proof remain NOT PROVEN.
+
+NEXT EXACT ACTION = Read terminal exact-head Phase-F + Full Product Browser E2E + Handoff/Final Certification results. Fix only the first true failure, then prove a fresh non-fixture upload displays source-bound generic signals/recommendations/evidence across linked screens and persists with identical reportJobId + SHA-256 after navigation and refresh.
 # LIVE RESUME — 2026-10-11T18:16:00+03:00 / GENERIC INTELLIGENCE CARD + SOURCE-ROW SEARCH FIX SAVED; FRESH-UPLOAD E2E PENDING
 
 - Repository: `Report-Engainall/Report-Advisor`

@@ -1,10 +1,6 @@
 ## Latest report — 2026-10-11
 
-- [Generic intelligence UI and report-row search retest](2026-10-11/REPORT-20261011-A644AB5-ROW-SEARCH-RETEST.md) — exact code HEAD `a644ab51e06b37f75bb498851d36e970ed993144`; fixes persisted; authenticated fresh-upload E2E still pending.
-- [PostgREST schema-cache reload and exact-head retest checkpoint](2026-10-11/REPORT-20261011-E32943B-POSTGREST-RELOADED-RETEST.md) — historical root-cause and recovery checkpoint.
-
----
-
+- [Cart-item logical restore root-cause fix](2026-10-11/REPORT-20261011-EAEBE8C-CART-ITEMS-RESTORE-FIX.md) — exact code/test head `eaebe8ccaaacf17846ceb070c33229cd7d1e3b48`; live restore fix committed, fresh exact-head validation required.
 # Programmer Report Archive
 
 Live files:

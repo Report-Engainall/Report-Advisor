@@ -1,3 +1,19 @@
+REPORT_FOR_HEAD = eaebe8ccaaacf17846ceb070c33229cd7d1e3b48
+UPDATED_AT = 2026-10-11T19:24:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+WHAT_CHANGED = Added both public.carts and public.cart_items to the logical-restore volatile exclusion set after the exact-head restore failed on cart_items_cart_id_fkey; added regression assertions. Reconciled the missed changes in scripts/real-business-e2e.mjs and scripts/smart-report-complete-intelligence-surface.test.mjs into the session record.
+WHAT_IS_PROVEN = On predecessor eb94db1f3bad9d59020d7beb8ea42c8309f53ee1, Product Build Gate, Quality, data-quality runtime, Storage Tenant Runtime E2E, Device-Independent Browser E2E and Report Value Cohort passed. Session Handoff and Final Certification failed only at the stale-report guard; Phase-F was 3/4 with cart_items_cart_id_fkey. New head eaebe8ccaaacf17846ceb070c33229cd7d1e3b48 has not yet earned those passes; fresh workflows were queued/pending at checkpoint time.
+FIRST_ACTIVE_FAILURE = The prior report had not covered scripts/real-business-e2e.mjs and scripts/smart-report-complete-intelligence-surface.test.mjs; Phase-F logical restore attempted to restore child cart_items after carts were excluded.
+ROOT_CAUSE = The checkpoint pointed at the old 844cfdc head even though the branch had advanced; additionally, operational cart child rows were not excluded along with the parent carts table. Both problems are explicitly addressed in this code checkpoint and report.
+CURRENT_HEAD_GATES = Build and Quality fresh run required; Full Product Browser E2E fresh run required; Phase-F live restore fresh run required; Handoff and Final Certification must read this checkpoint; production-current proof remains NOT PROVEN.
+NEXT_EXACT_ACTION = Consume terminal current-head Phase-F and Full Product Browser E2E results, plus Handoff/Certification. If restore passes, use the authenticated browser artifact to verify fresh upload → general + eligible specialist results → evidence → save/readback → navigation → refresh/re-entry with identical reportJobId + sourceHash; fix only the first true runtime defect.
+DO_NOT_REPEAT = No stale-SHA PASS; no queued run as PASS; no weakening of auth/RLS/evidence; no fake real-source 48-archetype coverage; no production-current claim from preview success.
+
+---
+
 REPORT_FOR_HEAD = 844cfdc20958ddc35908727c5511901844e4e5d7
 UPDATED_AT = 2026-10-11T19:21:00+03:00
 WHAT_CHANGED = Visible GUIDANCE title was added to the shared report intelligence panel; logical backup pg_dump now excludes volatile tables from which Auth parents are outside the public-only dump; source-row and restore contract tests were extended.
