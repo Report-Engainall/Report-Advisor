@@ -5,6 +5,8 @@ import { parseNumber } from '@/lib/file-engine/normalizer';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
+import { GenericFileIntelligenceCard } from '@/components/GenericFileIntelligenceCard';
+import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 
 const SPECIALTY_LABELS: Record<string, string> = {
   sales: 'المبيعات',
@@ -374,6 +376,20 @@ export function CustomerReportSurface({
       </section>
 
       <BusinessDataExplorer report={report} />
+
+      <section aria-label="التحليل العام للمصدر" data-testid="customer-report-general-intelligence">
+        <GenericFileIntelligenceCard
+          intelligence={report.genericIntelligence}
+          format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
+          sourcePath={report.sourcePath}
+          sourceHash={report.sourceHash}
+          reportJobId={report.jobId}
+          analysisScope={report.canonicalAnalysisScope}
+          analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}
+        />
+      </section>
+
+      <ReportIntelligencePanel report={report} />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
