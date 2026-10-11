@@ -712,7 +712,6 @@ async function proveReportsCenterRealSurface(page, report) {
   const rowSearchPlaceholder = 'ابحث داخل الصفوف: اسم صنف، عميل، رقم، قيمة...';
   const rowSearch = page.getByPlaceholder(rowSearchPlaceholder, { exact: true });
   assert.equal(await rowSearch.count(), 1, 'REPORTS_CENTER_ROW_SEARCH_MISSING');
-  assert.ok(body.includes(rowSearchPlaceholder), 'REPORTS_CENTER_ROW_SEARCH_LABEL_MISSING');
   const sourceRowsSelector = '[aria-label="مساحة البيانات الفعلية"] tbody tr';
   const sourceRowsLocator = page.locator(sourceRowsSelector);
   const originalVisibleRows = await sourceRowsLocator.count();
