@@ -1,23 +1,32 @@
-# LIVE RESUME — 2026-10-11 — role-governed operational workflow / ROLE-BASED ORDER LIFECYCLE CORRECTION READY FOR EXACT-HEAD TEST
+# CURRENT SESSION STATE
 
-CURRENT_EXACT_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
-CURRENT_CODE_TEST_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
-CURRENT_EXECUTION_PARENT_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
-BRANCH = fix/source-bound-generic-intelligence-20261009
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
-ACTION_STATUS = ROLE_AWARE_ORDER_UI_AND_ADMIN_HANDOFF_COMMITTED; EXACT_HEAD_TESTS_PENDING
-PRODUCT_COMPLETE = NO
-DO_NOT_MERGE = true
-UPDATED_AT = 2026-10-11 — role-governed operational workflow
+# LIVE RESUME — 2026-10-11 22:20 +03 / EXACT-HEAD ORDER FEEDBACK RETEST REQUIRED
 
-The prior full browser run [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on `3d6fa46...` when a `sales` actor successfully changed pending→confirmed but then attempted the forbidden confirmed→preparing transition. The canonical RPC correctly returned 403/42501 `order transition not allowed`; the current RPC role matrix permits sales on pending→confirmed and ready→completed, while confirmed→preparing and preparing→ready require owner/admin/warehouse. Do not weaken this matrix.
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Latest observed PR head before this governance checkpoint: bc53828428900c7594a67b8cd4761bc73bb1f3fc.
+Main/base: fa1ab4cbade9b01685507aa966c10f700a03f576.
+Code fix to verify: ca5b98d592b090dd2b315e5fe3fe6c589edfb39a.
+Checkpoint archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2220-ORDER-FEEDBACK-RETEST.md
+Checkpoint commit: 59e6ee8f88ca7179cc5fed4254ec5801a003945a.
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
 
-The code changes at `bc53828428900c7594a67b8cd4761bc73bb1f3fc` and `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee` gate UI actions by resolved tenant role, show an Arabic restriction note for unauthorized users, retain the post-mutation success toast across readback, and hand off the remainder of the E2E order lifecycle to an independently logged-in admin actor in the same tenant. The E2E explicitly proves the sales actor has no forbidden action, validates the admin membership, and re-reads each persisted status.
+## Fresh live evidence
+- Full Product Browser E2E [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on tested SHA 3d6fa46f159540ff5c510c87b062baf70a1996b2. Route/auth proof passed; business journey timed out waiting for `تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.`. Artifact: [11711923595](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841/artifacts/11711923595).
+- Session Handoff Contract [38166724780](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724780) passed on 3d6fa46 only.
+- Build, Quality, Data Quality Runtime, Phase-F resilience, Final Certification, Device-Independent Browser and Storage Tenant Runtime passed on 3d6fa46 only. No transfer of these passes to the later branch head.
+- Existing code fix ca5b98d592b090dd2b315e5fe3fe6c589edfb39a preserves mutation feedback during reload and adds transactional-spine regression assertions. Exact-head browser proof for that patch is still missing.
+- An archive checkpoint has been persisted at 59e6ee8f88ca7179cc5fed4254ec5801a003945a. Fresh exact-head gates must be consumed after this governance commit.
 
-Existing gate results apply to prior head `3d6fa46...` only. The latest code has not yet been tested; this next docs-only checkpoint updates `REPORT_FOR_HEAD` to `e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee`.
+FIRST_ACTIVE_FAILURE = Browser timeout waiting for order transition success feedback.
+ROOT_CAUSE = Existing staging readback showed order state persisted pending → confirmed, while OperationsPage load() cleared success feedback during the post-mutation reload. Patch adds preserveFeedback; browser proof still pending.
+NEXT_EXACT_ACTION = Read the newest Full Product Browser E2E and required gates after the current checkpoint; inspect the new result artifact, then fix the first demonstrated failure only.
 
-NEXT_EXACT_ACTION = Verify this checkpoint is committed/read back, then inspect the exact-head transactional-spine, Full Product Browser E2E, Quality, Session Handoff, Product Build, Data Quality, Phase-F and Final Certification runs. If the role boundary and admin handoff pass, continue with the first new failure only. PR stays open; PRODUCT_COMPLETE=NO.
+CURRENT_CODE_TEST_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+SESSION_HANDOFF_PASS = predecessor-only (3d6fa46); fresh exact-head result required.
+BROWSER_PROVEN = NO for feedback-preservation patch.
+PRODUCTION_PROVEN = NO.
 
 ---
 
