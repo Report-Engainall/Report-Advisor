@@ -285,7 +285,9 @@ export function CustomerReportSurface({
           <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.16em] text-amber-200">
             <FileText size={14} /> الأغبري · مستشار الأعمال
             <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 tracking-normal text-slate-300">مصدر محدد</span>
+            <span className="rounded-full border border-indigo-300/25 bg-indigo-300/10 px-2.5 py-1 tracking-normal text-indigo-100">SOURCE-BOUND DOMAIN ANALYSIS</span>
           </div>
+          <p className="mt-2 text-[10px] leading-5 text-slate-300">هذه الشاشة مربوطة مباشرة بنتيجة التقرير؛ تُعرض المؤشرات ضمن سياق المصدر نفسه ولا تُستبدل ببيانات افتراضية.</p>
           <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
               <h1 className="text-2xl font-black tracking-tight lg:text-4xl">{displayTitle}</h1>
