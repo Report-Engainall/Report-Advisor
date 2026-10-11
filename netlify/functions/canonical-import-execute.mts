@@ -14,6 +14,26 @@ function json(status: number, body: Record<string, unknown>): Response {
   });
 }
 
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') {
+    const value = error as Record<string, unknown>;
+    const fields = ['message', 'code', 'details', 'hint', 'status', 'statusCode'];
+    const parts = fields.flatMap((field) => {
+      const item = value[field];
+      return item == null || String(item).trim() === '' ? [] : [`${field}=${String(item).trim()}`];
+    });
+    if (parts.length) return parts.join(' | ');
+    try {
+      const encoded = JSON.stringify(value);
+      if (encoded) return encoded;
+    } catch {
+      // Fall through to String() for non-serializable error objects.
+    }
+  }
+  return String(error);
+}
+
 function env(name: string): string {
   const value = Netlify.env.get(name);
   if (!value) throw new Error(`NETLIFY_ENV_MISSING:${name}`);
@@ -378,7 +398,7 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
         },
       );
     } catch (error) {
-      const detail = error instanceof Error ? error.message : String(error);
+      const detail = describeError(error);
       throw new Error(`CANONICAL_IMPORT_DURABLE_RUN_FAILED:${entityType}:${job.id}:${detail}`);
     }
 
@@ -475,7 +495,7 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
       authoritativePreview: authoritativeDataset.preview.slice(0, 25),
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
+    const message = describeError(error) || 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
     console.error('[canonical-import-execute] failed', error);
     const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
     const debugEnabled = Netlify.env.get('REPORT_ADVISOR_E2E_DEBUG') === '1';

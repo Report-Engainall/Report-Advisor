@@ -10,6 +10,7 @@ const files = [
   'src/lib/report-execution/durable-worker-adapter.ts',
   'src/lib/report-execution/execution-ledger.ts',
   'netlify/functions/canonical-import-execute.mts',
+  'supabase/migrations/20261011202515_disambiguate_enqueue_report_execution_job_rpc_overloads.sql',
 ];
 
 for (const file of files) if (!existsSync(file)) throw new Error(`Missing report execution component: ${file}`);
@@ -23,6 +24,7 @@ const download = read(files[5]);
 const durable = read(files[6]);
 const ledger = read(files[7]);
 const canonicalImport = read(files[8]);
+const enqueueRpcMigration = read(files[9]);
 
 const required = (source, tokens, label) => {
   for (const token of tokens) if (!source.includes(token)) throw new Error(`${label} missing ${token}`);
@@ -67,3 +69,26 @@ try { assertGateImplementation(tamperedWithoutQuarantine); } catch { quarantineT
 if (!quarantineTamperRejected) throw new Error('Test-of-test failed: quarantine gate removal was not detected');
 
 console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');
+
+required(canonicalImport, [
+  'function describeError(error: unknown): string',
+  'const detail = describeError(error);',
+  'const message = describeError(error)',
+], 'Canonical import must preserve structured RPC failures');
+
+required(enqueueRpcMigration, [
+  'drop function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean);',
+  'create function public.enqueue_report_execution_job(',
+  'revoke all on function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean) from public, anon, authenticated;',
+  'grant execute on function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean) to service_role;',
+], 'Enqueue RPC overload migration must preserve the service-only force-reprocess boundary');
+const sevenArgumentSignature = enqueueRpcMigration.match(
+  /create function public\.enqueue_report_execution_job\(([\s\S]*?)\)\s*returns jsonb/i,
+)?.[1];
+if (!sevenArgumentSignature) throw new Error('Seven-argument enqueue RPC signature missing');
+if (/\bDEFAULT\b/i.test(sevenArgumentSignature)) {
+  throw new Error('Seven-argument force-reprocess RPC must not accept omitted arguments');
+}
+if (/grant execute on function public\.enqueue_report_execution_job\([^)]*\) to (?:public|anon|authenticated)\b/i.test(enqueueRpcMigration)) {
+  throw new Error('Force-reprocess RPC must not broaden execute permissions');
+}
