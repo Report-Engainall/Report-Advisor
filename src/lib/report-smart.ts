@@ -1,6 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
 import { buildGenericFileIntelligence } from './file-engine/generic-intelligence.ts';
+import { selectGenericSourceRows } from './file-engine/generic-source-rows.ts';
 import { composeIntelligenceLayers } from './report-intelligence/compose-intelligence-layers.ts';
 import type { ColumnProfile, Dataset } from './file-engine/types.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
@@ -351,30 +352,24 @@ function buildGenericDatasetForReport(input: {
 }): Dataset | null {
   const canonicalRows = input.canonicalRows
     .map((row) => row.data)
-    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object'));
+    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object' && !Array.isArray(row)));
 
   const sourceDataset = input.sourceAnalysis?.datasets?.find((dataset) => dataset && typeof dataset === 'object') as Record<string, unknown> | undefined;
-  const snapshotRows = Array.isArray(sourceDataset?.rows)
-    ? sourceDataset.rows.filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object' && !Array.isArray(row)))
-    : [];
-  const snapshotRowCount = Number(sourceDataset?.rowCount);
   const sourceDatasetCount = (input.sourceAnalysis?.datasets ?? [])
     .filter((dataset) => dataset && typeof dataset === 'object').length;
-  // Snapshot datasets are fetched only after tenant + sourceHash + importJobId are
-  // matched. Permit a fallback only when its own row count proves the snapshot is
-  // complete; never relabel an arbitrary 50-row preview as the full source.
-  const completeBoundSnapshot = canonicalRows.length === 0
-    && snapshotRows.length > 0
-    && Number.isSafeInteger(snapshotRowCount)
-    && snapshotRowCount > 0
-    && snapshotRows.length === snapshotRowCount
-    && (sourceDatasetCount !== 1
-      || input.sourceAnalysis?.rowCount == null
-      || Number(input.sourceAnalysis.rowCount) === snapshotRowCount);
-  const rows = canonicalRows.length > 0 ? canonicalRows : completeBoundSnapshot ? snapshotRows : [];
+  // sourceAnalysis was selected using company + sourceHash + importJobId. The
+  // selector below accepts its rows only when the declared dataset size proves
+  // the snapshot is complete; generic results never promote a preview to truth.
+  const selectedRows = selectGenericSourceRows({
+    canonicalRows,
+    sourceDataset,
+    sourceDatasetCount,
+    sourceAnalysisRowCount: input.sourceAnalysis?.rowCount,
+  });
+  const rows = selectedRows.rows;
   if (!rows.length) return null;
 
-  if (completeBoundSnapshot) {
+  if (selectedRows.origin === 'source-analysis-snapshot') {
     input.runtimeWarnings?.push('التحليل العام مشتق من لقطة الاستخراج المربوطة بنفس المصدر لأن الصفوف الكانونية غير متاحة؛ تبقى تغطية المصدر الكانونية قيد المراجعة ولا يُرقّى التقرير إلى جاهز للقرار.');
   }
 
@@ -405,7 +400,7 @@ function buildGenericDatasetForReport(input: {
     name: String(sourceDataset?.name ?? input.sourcePath),
     source: String(sourceDataset?.source ?? input.sourcePath),
     sheet: sourceDataset?.sheet == null ? undefined : String(sourceDataset.sheet),
-    rowCount: canonicalRows.length > 0 && input.sourceAnalysis?.rowCount != null ? Number(input.sourceAnalysis.rowCount) : rows.length,
+    rowCount: selectedRows.origin === 'canonical' && input.sourceAnalysis?.rowCount != null ? Number(input.sourceAnalysis.rowCount) : rows.length,
     columnCount: input.sourceAnalysis?.columnCount == null ? columns.length : Number(input.sourceAnalysis.columnCount),
     columns,
     rows,
