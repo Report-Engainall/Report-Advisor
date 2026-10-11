@@ -1,16 +1,20 @@
 REPORT_FOR_HEAD = eaebe8ccaaacf17846ceb070c33229cd7d1e3b48
-UPDATED_AT = 2026-10-11T19:24:00+03:00
+UPDATED_AT = 2026-10-11T19:25:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_PR_GOVERNANCE_HEAD = 95207a6c5bd4a1d720b147abc60cfdcf6cdf93b3
 PRODUCT_COMPLETE = NO
-WHAT_CHANGED = Added both public.carts and public.cart_items to the logical-restore volatile exclusion set after the exact-head restore failed on cart_items_cart_id_fkey; added regression assertions. Reconciled the missed changes in scripts/real-business-e2e.mjs and scripts/smart-report-complete-intelligence-surface.test.mjs into the session record.
-WHAT_IS_PROVEN = On predecessor eb94db1f3bad9d59020d7beb8ea42c8309f53ee1, Product Build Gate, Quality, data-quality runtime, Storage Tenant Runtime E2E, Device-Independent Browser E2E and Report Value Cohort passed. Session Handoff and Final Certification failed only at the stale-report guard; Phase-F was 3/4 with cart_items_cart_id_fkey. New head eaebe8ccaaacf17846ceb070c33229cd7d1e3b48 has not yet earned those passes; fresh workflows were queued/pending at checkpoint time.
-FIRST_ACTIVE_FAILURE = The prior report had not covered scripts/real-business-e2e.mjs and scripts/smart-report-complete-intelligence-surface.test.mjs; Phase-F logical restore attempted to restore child cart_items after carts were excluded.
-ROOT_CAUSE = The checkpoint pointed at the old 844cfdc head even though the branch had advanced; additionally, operational cart child rows were not excluded along with the parent carts table. Both problems are explicitly addressed in this code checkpoint and report.
-CURRENT_HEAD_GATES = Build and Quality fresh run required; Full Product Browser E2E fresh run required; Phase-F live restore fresh run required; Handoff and Final Certification must read this checkpoint; production-current proof remains NOT PROVEN.
-NEXT_EXACT_ACTION = Consume terminal current-head Phase-F and Full Product Browser E2E results, plus Handoff/Certification. If restore passes, use the authenticated browser artifact to verify fresh upload → general + eligible specialist results → evidence → save/readback → navigation → refresh/re-entry with identical reportJobId + sourceHash; fix only the first true runtime defect.
-DO_NOT_REPEAT = No stale-SHA PASS; no queued run as PASS; no weakening of auth/RLS/evidence; no fake real-source 48-archetype coverage; no production-current claim from preview success.
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing source-bound general-intelligence and linked-screen work in PR #912; preserve the existing engine; prove varied-file upload, visible evidence-backed results, durable readback and refresh without depending on the user's device.
+WHAT_I_ACTUALLY_DID = Fixed the proven Phase-F restore defect by excluding both public.carts and dependent public.cart_items from the public-only logical dump; added regression assertions to resilience-runtime and Phase-10 restore contracts; reconciled the E2E and visible-guidance contract files omitted from the prior checkpoint; persisted the current state, memory, dated archive and archive index in GitHub.
+WHAT_IS_PROVEN = On parent code/test head eb94db1f3bad9d59020d7beb8ea42c8309f53ee1, Product Build Gate, Quality, data-quality runtime, Storage Tenant Runtime E2E, Device-Independent Browser E2E and Report Value Cohort passed. Session Handoff and Final Certification failed at the stale-report coverage guard. Phase-F live restore was 3/4 and failed on cart_items_cart_id_fkey. The new code/test head eaebe8ccaaacf17846ceb070c33229cd7d1e3b48 has the exclusion fix committed, but fresh exact-head test results were queued/pending at the time of the archive; no pass is inherited.
+FIRST_ACTIVE_FAILURE = The logical dump omitted public.carts but still restored child public.cart_items, causing cart_items_cart_id_fkey. The prior handoff also failed to list scripts/real-business-e2e.mjs and scripts/smart-report-complete-intelligence-surface.test.mjs.
+ROOT_CAUSE = The volatile exclusion set omitted a child table that references the excluded parent. Separately, the prior checkpoint was stale relative to the PR branch's subsequent E2E/contract commits. Both are now explicitly covered by this commit's documented parent code head.
+CURRENT_HEAD_GATES = Exact-head Product Build Gate, Quality, Phase-F live restore, Session Handoff, Final Certification and Full Product Browser E2E must finish; then read their terminal artifacts. Full authenticated upload-to-save/readback/refresh is not yet proven on the new code head. Real-source 48-archetype coverage and production-current proof remain NOT_PROVEN.
+NEXT_EXACT_ACTION = Consume the newest exact-head Phase-F, Full Product Browser E2E, Session Handoff and Final Certification results. If restore passes, use the authenticated browser artifact to verify fresh varied-file upload → all source-supported generic results and eligible specialty results → evidence → save/readback → cross-screen navigation → refresh/re-entry with the same reportJobId + SHA-256; fix only the first true runtime failure.
+SESSION HANDOFF = READY
+CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+CURRENT EXECUTION HEAD = eaebe8ccaaacf17846ceb070c33229cd7d1e3b48
 
 ---
 
