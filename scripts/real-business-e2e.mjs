@@ -709,7 +709,43 @@ async function proveReportsCenterRealSurface(page, report) {
   const body = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(body, 'reports center');
   assert.ok(body.includes('ما الذي ينصح به النظام؟'), 'REPORTS_CENTER_RECOMMENDATIONS_MISSING');
-  assert.ok(body.includes('بحث داخل الصفوف: اسم صنف، عميل، رقم، قيمة...'), 'REPORTS_CENTER_ROW_SEARCH_MISSING');
+  const rowSearchPlaceholder = 'ابحث داخل الصفوف: اسم صنف، عميل، رقم، قيمة...';
+  const rowSearch = page.getByPlaceholder(rowSearchPlaceholder, { exact: true });
+  assert.equal(await rowSearch.count(), 1, 'REPORTS_CENTER_ROW_SEARCH_MISSING');
+  assert.ok(body.includes(rowSearchPlaceholder), 'REPORTS_CENTER_ROW_SEARCH_LABEL_MISSING');
+  const sourceRowsSelector = '[aria-label="مساحة البيانات الفعلية"] tbody tr';
+  const sourceRowsLocator = page.locator(sourceRowsSelector);
+  const originalVisibleRows = await sourceRowsLocator.count();
+  assert.ok(originalVisibleRows > 1, 'REPORTS_CENTER_SOURCE_ROWS_NOT_VISIBLE');
+
+  // Select a value known to occur in exactly one canonical source row.
+  const valueCounts = new Map();
+  for (const sourceRow of report.canonicalRows ?? []) {
+    const rowData = sourceRow?.data && typeof sourceRow.data === 'object' ? sourceRow.data : {};
+    for (const rawValue of Object.values(rowData)) {
+      if (rawValue == null || typeof rawValue === 'object') continue;
+      const value = String(rawValue).trim();
+      if (value.length < 4) continue;
+      valueCounts.set(value, (valueCounts.get(value) ?? 0) + 1);
+    }
+  }
+  const uniqueSourceValue = [...valueCounts.entries()].find(([, count]) => count === 1)?.[0];
+  assert.ok(uniqueSourceValue, 'REPORTS_CENTER_NO_UNIQUE_SOURCE_VALUE_FOR_SEARCH_PROOF');
+  await rowSearch.fill(uniqueSourceValue);
+  await page.waitForFunction(({ selector, maxRows }) => document.querySelectorAll(selector).length < maxRows, {
+    selector: sourceRowsSelector,
+    maxRows: originalVisibleRows,
+  }, { timeout: 10000 });
+  const filteredRows = await sourceRowsLocator.count();
+  assert.ok(filteredRows > 0 && filteredRows < originalVisibleRows, 'REPORTS_CENTER_SEARCH_DID_NOT_FILTER_SOURCE_ROWS');
+  const filteredText = (await sourceRowsLocator.allInnerTexts()).join(' ');
+  assert.ok(filteredText.includes(uniqueSourceValue), 'REPORTS_CENTER_SEARCH_RESULT_NOT_BOUND_TO_SOURCE_VALUE');
+
+  await page.getByRole('button', { name: 'تصفير الفلاتر', exact: true }).click();
+  await page.waitForFunction(({ selector, expected }) => document.querySelectorAll(selector).length === expected, {
+    selector: sourceRowsSelector,
+    expected: originalVisibleRows,
+  }, { timeout: 10000 });
   assert.ok(body.includes('كل السجلات'), 'REPORTS_CENTER_ROW_SUMMARY_MISSING');
   assert.ok(body.includes('انقر صفًا لفتح تفاصيله.'), 'REPORTS_CENTER_ROW_DETAIL_HANDOFF_MISSING');
   assert.ok(body.includes(REAL_SMART_REPORT_JOB_ID), 'REPORTS_CENTER_JOB_ID_NOT_VISIBLE');
