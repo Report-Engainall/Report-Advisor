@@ -1,22 +1,24 @@
-REPORT_FOR_HEAD = 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1
-UPDATED_AT = 2026-10-11T21:16:00+03:00
+REPORT_FOR_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
+UPDATED_AT = 2026-10-11T21:34:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-CURRENT_EXECUTION_PARENT_HEAD = 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1
+CURRENT_EXECUTION_PARENT_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
 CURRENT_PRODUCT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
-CURRENT_CODE_TEST_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
+CURRENT_CODE_TEST_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
 PRODUCT_COMPLETE = NO
-SESSION HANDOFF = READY — this docs checkpoint anchors the workflow-only evidence fix; exact-head gates remain pending
-ACTION_STATUS = BROWSER_FAILURE_EVIDENCE_UNBLOCKED; EXACT_HEAD_RETEST_PENDING
+SESSION HANDOFF = READY — this checkpoint is anchored to exact code/test commit 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00; exact-head release checks are still pending
+ACTION_STATUS = SMART_REPORT_EVIDENCE_LOCATOR_FIXED; EXACT_HEAD_BROWSER_RETEST_PENDING
 
-WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 without rebuilding the intelligence engine, fix the first proven failure, make browser failure evidence recoverable, and persist an exact-head handoff.
-WHAT_I_ACTUALLY_DID = Verified earlier exact-head passes on 2ed9da0 for Build, Quality, Handoff, Final Certification, Device-Independent Browser, Storage Tenant Runtime and Phase-F. The Full Product Browser run 38162258379 on 2b5f9b4 failed its blocking step Real Chromium business journey and smart report proof, then remained in progress at the optional non-blocking 48-archetype diagnostic. Logs returned BlobNotFound and no artifacts were available. Committed 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1 to condition that diagnostic on the successful blocking step, letting fail-closed verification and artifact upload proceed after a browser failure. Updated memory/state and archived the checkpoint.
-WHAT_IS_PROVEN = 431e0c9 adds step ID business-e2e and conditions only the diagnostic 48-source step on its outcome being success. Exact error from the older business journey is not yet retrievable. New-head browser, build, quality and resilience evidence remain pending.
-FIRST_ACTIVE_FAILURE = Full Product Browser E2E [38162258379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379) on 2b5f9b47c99b6208b4d1578135adc12659f242aa: step 18 Real Chromium business journey and smart report proof = FAIL. Exact message unavailable.
-ROOT_CAUSE = Application-level root cause remains unknown until result.json is recovered. The independently proven evidence-pipeline problem is that the optional 48-source diagnostic held the workflow before fail-closed result inspection and artifact upload. Commit 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1 fixes that recovery path without relaxing product gates.
-NEXT_EXACT_ACTION = Read the exact-head Full Product Browser E2E artifact and result.json; fix the first logged product failure, then prove upload, generic and applicable specialty analysis, persistence/readback, and source identity after refresh.
-HANDOFF_COVERAGE = .github/workflows/full-product-browser-e2e.yml; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-431E0C9-BROWSER-FAILURE-EVIDENCE-UNBLOCK.md
+WHAT_I_WAS_ASKED_TO_DO = Recover the exact full-browser failure, fix the underlying cause without hiding checks, persist the state/report, and continue PR #912 on the actual latest head.
+WHAT_I_ACTUALLY_DID = Fetched completed browser job logs and its artifact. The report's real inventory source-bound surface passed with exact reportJobId and sourceHash. The actual failing assertion was a 30-second wait for nonexistent exact text 'EVIDENCE INSPECTOR' after Smart Report refresh. Read SmartReportPage.tsx: the real evidence inspector is rendered within a collapsed Passport details section and is headed 'سلسلة الثقة لهذا التقرير'. Committed 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00 in scripts/real-business-e2e.mjs to call the existing smart-report surface proof, open the actual Passport disclosure, and require that real heading while preserving exact report/job/source hash/path assertions. Then saved this checkpoint and new dated archive.
+WHAT_IS_PROVEN = Old run 38162258379 on 2b5f9b4 failed due to stale locator; its result JSON has no recorded runtime failure list but records this actual timeout. Inventory source-bound evidence passed on that old SHA. Full Product Browser E2E on code/workflow head 431e0c9 had route/auth browser step 17 PASS, business step 18 FAIL on stale locator, then correctly skipped optional 48-source matrix and uploaded evidence. Current code/test SHA 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00; fresh full browser/build/quality/handoff/resilience evidence remains to be checked.
+FIRST_ACTIVE_FAILURE = Previously: getByText('EVIDENCE INSPECTOR', { exact: true }) timed out after the report persisted refresh. It is not a missing inventory card.
+ROOT_CAUSE = Browser test used a nonexistent English heading that is not part of the real Smart Report UI. The actual EvidenceInspector is under an intentionally collapsed details disclosure; the correct user proof is open that disclosure and verify 'سلسلة الثقة لهذا التقرير' plus persisted source/job identity.
+NEXT_EXACT_ACTION = Read exact-head Action gates for 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00; confirm the fixed business proof on a new uploaded browser artifact and act on any first new functional failure.
+HANDOFF_COVERAGE = scripts/real-business-e2e.mjs; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-08A46DD-SMART-REPORT-EVIDENCE-SELECTOR-FIX.md
+
+---
 
 ---
 

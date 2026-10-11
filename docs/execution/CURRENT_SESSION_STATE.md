@@ -1,26 +1,32 @@
-# LIVE RESUME — 2026-10-11T21:16:00+03:00 / FULL-BROWSER FAILURE EVIDENCE UNBLOCK
+# LIVE RESUME — 2026-10-11T21:34:00+03:00 / SMART-REPORT EVIDENCE UI ASSERTION REPAIRED
 
-CURRENT_EXACT_HEAD = 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1
+CURRENT_EXACT_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
 CURRENT_PRODUCT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
-CURRENT_CODE_TEST_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
-CURRENT_EXECUTION_HEAD_BEFORE_GOVERNANCE_COMMIT = 431e0c9e3752ce9f756495d0fe1ead92cc4d27a1
+CURRENT_CODE_TEST_HEAD = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
+CURRENT_EXECUTION_HEAD_BEFORE_GOVERNANCE_COMMIT = 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
 MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
-ACTION_STATUS = INVENTORY_UI_FIXED; SOURCEPATH_CONTRACT_FIXED; BROWSER_FAILURE_EVIDENCE_UNBLOCKED; EXACT_HEAD_RETEST_PENDING
+ACTION_STATUS = INVENTORY_GENERAL_INTELLIGENCE_PASSED_IN_PRIOR_ARTIFACT; SMART_REPORT_EVIDENCE_LOCATOR_FIXED; EXACT_HEAD_GATES_PENDING
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-UPDATED_AT = 2026-10-11T21:16:00+03:00
+UPDATED_AT = 2026-10-11T21:34:00+03:00
 
-## Previous product/test head 2ed9da0829f9ae3c00521b412cb425eaa121bec3
-- Build PASS: [38162590589](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162590589)
-- Quality PASS: [38162590662](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162590662)
-- Session Handoff PASS: [38162590674](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162590674)
-- Final Certification PASS: [38162590668](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162590668)
-- Device-independent browser PASS: [38162590607](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162590607)
-- Storage tenant runtime PASS: [38162590647](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162590647)
-- Phase-F resilience PASS: [38162590585](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162590585)
-These are exact-head results on `2ed9da0…`, not this latest workflow-only head `431e0c9e3752ce9f756495d0fe1ead92cc4d27a1`.
+## First actual failure and precise cause
+On browser run [38162258379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379) (head `2b5f9b47c99b6208b4d1578135adc12659f242aa`), `source-bound-surface:inventory` passed for report `8dbafdf8-f769-4c4f-97a5-22eac8b47d41`, source hash `sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839`, 254 rows. The browser journey's final persisted Smart Report refresh then failed because its test waited for the literal visible text `EVIDENCE INSPECTOR`; that string is absent from the UI. The actual evidence inspector is nested inside the `التفاصيل الكاملة للتقرير` disclosure and shows `سلسلة الثقة لهذا التقرير`. Result JSON reported `failures: []` but root `error` was `locator.waitFor: Timeout 30000ms exceeded` on that invalid locator. Artifact [11711565090](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379/artifacts/11711565090) was uploaded.
+
+## Code fix 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00
+`scripts/real-business-e2e.mjs` now validates the actual visible Evidence Passport disclosure after reload, opens it, waits for the real trust-chain heading `سلسلة الثقة لهذا التقرير`, and asserts it. The existing assertions for report ID, full source fingerprint and source path remain. This strengthens the actual end-user proof without changing the product component or relaxing the business gate.
+
+## Workflow evidence recovery
+`.github/workflows/full-product-browser-e2e.yml` commit `431e0c9e3752ce9f756495d0fe1ead92cc4d27a1` assigns `id: business-e2e` and skips only the diagnostic non-blocking 48-source matrix when the main business journey fails. Failure evidence is then checked and uploaded promptly.
+
+## Exact-head checks from earlier SHA (not transferable)
+`2ed9da0…` had Build/Quality/Handoff/Final Certification/device-independent browser/storage tenant/Phase-F PASS. `2c707176…` had Build/Quality/Handoff/Final Certification PASS. Neither result is automatically the result for `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`.
+
+PRODUCT_COMPLETE = NO
+NEXT_EXACT_ACTION = Read every required exact-head run for 08a46dd52decb9b60c3fe6e488c4f56d6ea75d00; inspect its business result artifact to prove the corrected Evidence Passport selector, persisted reportJobId/sourceHash, all surfaces after refresh, and finish the live resilience gate. Do not merge PR #912.
+
 
 ## First proven browser failure
 Run [38162258379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379), head `2b5f9b47c99b6208b4d1578135adc12659f242aa`: step `Real Chromium business journey and smart report proof` = FAIL. Job remained in progress at diagnostic-only 48-archetype coverage; log fetch returned `BlobNotFound`, with no artifact available. Exact failure message is UNKNOWN and must not be guessed.

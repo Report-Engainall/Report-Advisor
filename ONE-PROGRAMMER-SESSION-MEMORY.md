@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-11T21:34:00+03:00 / SMART-REPORT EVIDENCE UI ASSERTION REPAIRED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Code/test parent for this governance checkpoint: `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`.
+- Product complete: **NO**.
+
+## Exact root cause from real Chromium artifact/log
+The browser failure was not an inventory generic-intelligence failure: the old run [38162258379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379) explicitly recorded `source-bound-surface:inventory` as PASS with matching reportJobId/sourceHash and 254 rows. It later failed after navigating back to the persisted Smart Report and refreshing because the test waited for exact visible text `EVIDENCE INSPECTOR`, which does not exist in the actual UI. The current UI presents the real Passport disclosure `EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل`, and the contained EvidenceInspector has the real heading `سلسلة الثقة لهذا التقرير` — inside a collapsed `details` disclosure by design. Error captured in `artifacts/e2e-business/result.json`: `locator.waitFor: Timeout 30000ms exceeded` while waiting for `getByText('EVIDENCE INSPECTOR', { exact: true })`. The JSON had `failures: []`; this was the explicit browser journey assertion failure. Artifact [`full-product-browser-proof-38162258379`](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379/artifacts/11711565090) was uploaded successfully.
+
+## Executed repair
+Commit [`08a46dd`](https://github.com/Report-Engainall/Report-Advisor/commit/08a46dd52decb9b60c3fe6e488c4f56d6ea75d00) updates `scripts/real-business-e2e.mjs` only. Following the authenticated Smart Report reload, the test now calls the existing `waitForSmartReportEvidenceSurface`, opens the visible summary for `التفاصيل الكاملة للتقرير`, waits for the actual heading `سلسلة الثقة لهذا التقرير`, and asserts it in the rendered body. Existing assertions for persisted reportJobId, source path and full sourceHash are preserved. The change improves proof of the real UI; it does not omit evidence checks, add fake product headings, or weaken success rules.
+
+## Other confirmed proof and boundaries
+- On prior head `2ed9da0…`, Build, Quality, Handoff, Final Certification, device-independent browser, storage tenant runtime, and Phase-F had passed; those passes are not transferable to a later SHA.
+- On current previous workflow head `431e0c9…`, the real browser-route/authenticated proof (step 17) passed, and prerequisite preview, dynamic source-bound context, test actor provisioning, governed source passports, `48/48` engine runtime, and report resume passed; the business step later failed at the stale text assertion above. Its workflow change now skips optional 48-pattern matrix on blocking business failure and still executes fail-closed/result artifact upload.
+- Current PR head has advanced to `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`. Its build/quality/handoff/full-browser/live-resilience results must be read by exact SHA.
+- The previous browser artifact includes credentials only for ephemeral test actors; do not copy sensitive log content into reports or user output.
+
+## NEXT EXACT ACTION
+Read exact-head Build, Quality, Session Handoff, Final Certification, Phase-F and Full Product Browser E2E results for `08a46dd52decb9b60c3fe6e488c4f56d6ea75d00`. After the new browser artifact uploads, confirm the corrected disclosure/open/heading proof and all persisted `reportJobId + sourceHash` checks; fix the first new functional failure only, then require complete exact-head browser and live-resilience PASS. Keep PR #912 open.
+
+
+---
+
 # LIVE RESUME — 2026-10-11T21:16:00+03:00 / FULL-BROWSER FAILURE EVIDENCE UNBLOCK
 
 - Repository: `Report-Engainall/Report-Advisor`
