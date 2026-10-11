@@ -11,6 +11,10 @@ const files = [
   'src/lib/report-execution/execution-ledger.ts',
   'netlify/functions/canonical-import-execute.mts',
   'supabase/migrations/20261011202515_disambiguate_enqueue_report_execution_job_rpc_overloads.sql',
+  'supabase/migrations/20261011203323_remove_ambiguous_legacy_enqueue_report_execution_job_overload.sql',
+  'supabase/migrations/20261011203457_restore_tenant_bound_legacy_enqueue_report_execution_job_overload.sql',
+  'supabase/migrations/20261011204019_disambiguate_import_commit_batch_rpc_overloads.sql',
+  'src/lib/import/canonical-commit.ts',
 ];
 
 for (const file of files) if (!existsSync(file)) throw new Error(`Missing report execution component: ${file}`);
@@ -25,6 +29,10 @@ const durable = read(files[6]);
 const ledger = read(files[7]);
 const canonicalImport = read(files[8]);
 const enqueueRpcMigration = read(files[9]);
+const removeLegacyEnqueueRpcMigration = read(files[10]);
+const restoreLegacyEnqueueRpcMigration = read(files[11]);
+const importCommitRpcMigration = read(files[12]);
+const canonicalCommit = read(files[13]);
 
 const required = (source, tokens, label) => {
   for (const token of tokens) if (!source.includes(token)) throw new Error(`${label} missing ${token}`);
@@ -91,6 +99,52 @@ if (/\bDEFAULT\b/i.test(sevenArgumentSignature)) {
 }
 if (/grant execute on function public\.enqueue_report_execution_job\([^)]*\) to (?:public|anon|authenticated)\b/i.test(enqueueRpcMigration)) {
   throw new Error('Force-reprocess RPC must not broaden execute permissions');
+}
+
+
+const normalizedRemoveLegacyEnqueueRpcMigration = removeLegacyEnqueueRpcMigration.toLowerCase().replace(/\s+/g, ' ');
+for (const marker of [
+  'drop function if exists public.enqueue_report_execution_job(uuid, text, text, text, text[], integer);',
+  'revoke all on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer, boolean) from public, anon, authenticated;',
+  'grant execute on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer, boolean) to service_role;',
+]) {
+  if (!normalizedRemoveLegacyEnqueueRpcMigration.includes(marker)) throw new Error('Legacy enqueue overload cleanup migration missing: ' + marker);
+}
+
+const normalizedRestoreLegacyEnqueueRpcMigration = restoreLegacyEnqueueRpcMigration.toLowerCase().replace(/\s+/g, ' ');
+for (const marker of [
+  'create or replace function public.enqueue_report_execution_job(',
+  'p_max_attempts integer default 5',
+  'select public.enqueue_report_execution_job(',
+  'p_max_attempts, false',
+  'revoke all on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer) from public, anon;',
+  'grant execute on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer) to authenticated, service_role;',
+]) {
+  if (!normalizedRestoreLegacyEnqueueRpcMigration.includes(marker)) throw new Error('Tenant-bound normal enqueue wrapper missing: ' + marker);
+}
+
+required(canonicalCommit, [
+  'const rpcArgs: Record<string, unknown> = {',
+  'const repairExistingSource = context.repairExistingSource === true;',
+  'if (repairExistingSource) rpcArgs.p_repair = true;',
+  "'import_commit_batch'",
+], 'Canonical commit caller must send repair only for explicit repair requests');
+
+const normalizedImportCommitRpcMigration = importCommitRpcMigration.toLowerCase().replace(/\s+/g, ' ');
+for (const marker of [
+  'drop function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean);',
+  'create function public.import_commit_batch(',
+  'revoke all on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) from public, anon, authenticated;',
+  'grant execute on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) to service_role;',
+]) {
+  if (!normalizedImportCommitRpcMigration.includes(marker)) throw new Error('import_commit_batch overload migration missing: ' + marker);
+}
+const repairCommitSignature = importCommitRpcMigration.match(
+  /create function public\.import_commit_batch\(([\s\S]*?)\)\s*returns jsonb/i,
+)?.[1];
+if (!repairCommitSignature) throw new Error('Seven-argument import_commit_batch signature missing');
+if (/\bDEFAULT\b/i.test(repairCommitSignature)) {
+  throw new Error('Seven-argument import_commit_batch repair overload must not accept omitted arguments');
 }
 
 console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');
