@@ -57,19 +57,67 @@ function FindingList({ title, items }: { title: string; items: BusinessFinding[]
   );
 }
 
+function SourceLineage({ sourcePath, sourceHash, reportJobId }: { sourcePath?: string | null; sourceHash?: string | null; reportJobId?: string | null }) {
+  if (!sourcePath && !sourceHash && !reportJobId) return null;
+  return (
+    <section className="mb-5 rounded-xl border border-primary-100 bg-primary-50/40 p-3" data-testid="generic-intelligence-source-lineage">
+      <div className="mb-2 flex items-center gap-2 text-xs font-black text-primary-900"><ShieldCheck size={14}/> هوية المصدر المرتبط بهذه النتائج</div>
+      <dl className="grid gap-2 sm:grid-cols-2">
+        {sourcePath && <div className="min-w-0"><dt className="text-[10px] text-ink-500">الملف</dt><dd className="mt-1 break-words text-xs font-bold text-ink-900">{sourcePath}</dd></div>}
+        {reportJobId && <div className="min-w-0"><dt className="text-[10px] text-ink-500">معرّف التقرير</dt><dd className="mt-1 break-all font-mono text-[10px] text-ink-800">{reportJobId}</dd></div>}
+        {sourceHash && <div className="min-w-0 sm:col-span-2"><dt className="text-[10px] text-ink-500">بصمة SHA-256</dt><dd className="mt-1 break-all font-mono text-[10px] leading-5 text-ink-800">{sourceHash}</dd></div>}
+      </dl>
+    </section>
+  );
+}
+
+function scopeLabel(scope: string): string {
+  const labels: Record<string, string> = {
+    FULL_SOURCE: 'المصدر الكانوني كامل',
+    PARTIAL_FETCH_CEILING: 'تحليل جزئي: تم بلوغ حد القراءة',
+    PARTIAL_FETCH_ERROR: 'تحليل جزئي: تعذر قراءة جزء من الصفوف',
+    PARTIAL_FETCH_INCOMPLETE: 'تغطية الصفوف الكانونية غير مكتملة',
+  };
+  return labels[scope] ?? 'نطاق القراءة يحتاج مراجعة';
+}
+
 export function GenericFileIntelligenceCard({
   intelligence,
   format,
   sourcePath,
   sourceHash,
   reportJobId,
+  analysisScope,
+  analysisSource,
 }: {
-  intelligence: ReportIntelligence;
+  intelligence: ReportIntelligence | null;
   format: string;
   sourcePath?: string | null;
   sourceHash?: string | null;
   reportJobId?: string | null;
+  analysisScope?: string | null;
+  analysisSource?: 'canonical' | 'source-analysis-snapshot' | null;
 }) {
+  if (!intelligence) {
+    return (
+      <Card className="border-amber-200 bg-white" data-testid="generic-file-intelligence">
+        <CardHeader
+          title="التحليل العام للمصدر"
+          subtitle="لم تتوفر مجموعة صفوف كاملة ومطابقة يمكن اشتقاق التحليل العام منها بأمان."
+          action={<Badge variant="warning">التحليل غير متاح</Badge>}
+        />
+        <CardBody>
+          <SourceLineage sourcePath={sourcePath} sourceHash={sourceHash} reportJobId={reportJobId}/>
+          <section className="rounded-xl border border-amber-200 bg-amber-50/70 p-4" data-testid="generic-intelligence-unavailable">
+            <h3 className="text-sm font-black text-amber-950">لم تكتمل مادة المصدر اللازمة للتحليل العام</h3>
+            <p className="mt-2 text-xs leading-6 text-amber-950">لا أعرض التحليل المتخصص على أنه تحليل عام، ولا أستبدل الصفوف المفقودة بأرقام تقديرية. أعد محاولة استخراج هذا الملف أو استعادة صفوف المصدر، ثم أعد فتح التقرير للتحقق من ظهور الإشارات والتوصيات والأدلة.</p>
+            {analysisScope && analysisScope !== 'FULL_SOURCE' && <p className="mt-2 text-xs font-bold text-amber-900">حالة تغطية المصدر: {scopeLabel(analysisScope)}.</p>}
+          </section>
+        </CardBody>
+      </Card>
+    );
+  }
+
   const brief = intelligence.advisorBrief;
   const signals = intelligence.signals ?? [];
   const recommendations = intelligence.recommendations ?? [];
@@ -90,14 +138,13 @@ export function GenericFileIntelligenceCard({
         action={<Badge variant={brief.health === 'REVIEW_REQUIRED' ? 'warning' : brief.health === 'ATTENTION' ? 'warning' : 'neutral'}>{healthLabel(brief.health)}</Badge>}
       />
       <CardBody>
-        {(sourcePath || sourceHash || reportJobId) && (
-          <section className="mb-5 rounded-xl border border-primary-100 bg-primary-50/40 p-3" data-testid="generic-intelligence-source-lineage">
-            <div className="mb-2 flex items-center gap-2 text-xs font-black text-primary-900"><ShieldCheck size={14}/> هوية المصدر المرتبط بهذه النتائج</div>
-            <dl className="grid gap-2 sm:grid-cols-2">
-              {sourcePath && <div className="min-w-0"><dt className="text-[10px] text-ink-500">الملف</dt><dd className="mt-1 break-words text-xs font-bold text-ink-900">{sourcePath}</dd></div>}
-              {reportJobId && <div className="min-w-0"><dt className="text-[10px] text-ink-500">معرّف التقرير</dt><dd className="mt-1 break-all font-mono text-[10px] text-ink-800">{reportJobId}</dd></div>}
-              {sourceHash && <div className="min-w-0 sm:col-span-2"><dt className="text-[10px] text-ink-500">بصمة SHA-256</dt><dd className="mt-1 break-all font-mono text-[10px] leading-5 text-ink-800">{sourceHash}</dd></div>}
-            </dl>
+        <SourceLineage sourcePath={sourcePath} sourceHash={sourceHash} reportJobId={reportJobId}/>
+        {(analysisSource === 'source-analysis-snapshot' || (analysisScope && analysisScope !== 'FULL_SOURCE')) && (
+          <section className="mb-5 rounded-xl border border-amber-200 bg-amber-50/70 p-3" data-testid="generic-intelligence-analysis-scope">
+            <div className="text-xs font-black text-amber-950">حدود القراءة والإثبات</div>
+            {analysisSource === 'source-analysis-snapshot'
+              ? <p className="mt-1 text-xs leading-6 text-amber-950">اشتُق التحليل العام من لقطة الاستخراج المرتبطة بهوية هذا المصدر لأن الصفوف الكانونية غير متاحة. النتائج وصفية، وتبقى تغطية الإثبات الكانوني قيد المراجعة قبل أي قرار.</p>
+              : <p className="mt-1 text-xs leading-6 text-amber-950">نطاق التحليل: {scopeLabel(analysisScope || 'UNKNOWN')}. الإشارات والأعداد هنا تخص الصفوف التي أمكن قراءتها فقط؛ لا تعممها على الصفوف غير المقروءة.</p>}
           </section>
         )}
 
