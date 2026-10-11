@@ -1,3 +1,13 @@
+REPORT_FOR_HEAD = a644ab51e06b37f75bb498851d36e970ed993144
+UPDATED_AT = 2026-10-11T18:17:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Finish generic intelligence visibility on all eligible files and prove authenticated upload to displayed insights, source-bound persistence, readback and refresh without rebuilding the intelligence core.
+WHAT_I_ACTUALLY_DID = Fixed shared Card DOM attribute forwarding, restricted the candidate-cohort RPC to service_role, extended fresh CSV upload and source-lineage browser proof, corrected the Arabic source-row search assertion, selected canonical row data and verified the query against its row number; saved a dated report and resume checkpoint.
+WHAT_IS_PROVEN = On code HEAD a644ab51e06b37f75bb498851d36e970ed993144, Phase 2 security closure, Report Value Cohort, and Evidence Passport Live Proof passed; on predecessor 6bdb4c2 the existing 254-row inventory PDF report and Smart Report source lineage survived readback and refresh. Latest exact-head Full Product Browser E2E was pending when this checkpoint was prepared. Netlify deploy-preview status was success.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38150429588 is pending/no job surfaced at code HEAD a644ab51e06b37f75bb498851d36e970ed993144; the previous run failed at REPORTS_CENTER_ROW_SEARCH_MISSING before the new CSV upload.
+ROOT_CAUSE = Test expected an Arabic placeholder string differing from the rendered input, and its canonical REST selection omitted the data column needed to choose a source-grounded unique search value. Shared Card also discarded DOM test/accessibility attributes; both code/test contracts were repaired.
+NEXT_EXACT_ACTION = Inspect the terminal Full Product Browser E2E result for code HEAD a644ab51e06b37f75bb498851d36e970ed993144; prove row-search/reset then a fresh multi-row upload with non-empty general signals/recommendations and same reportJobId/sourceHash/sourcePath through persistence, readback and browser refresh.
+SESSION HANDOFF = READY
+
 # Execution Report — 11 October 2026 — Generic Intelligence UI and Report-Row Search Retest
 
 **Repository:** `Report-Engainall/Report-Advisor`  
