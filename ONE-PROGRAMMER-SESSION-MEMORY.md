@@ -1,3 +1,27 @@
+# LIVE RESUME — 2026-10-11T21:05:00+03:00 / INVENTORY INTELLIGENCE SURFACE FIX; NEW-HEAD PROOF REQUIRED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Product/test code head: `08a1ac3464cd7ba818cf09287e3a83a852291681`.
+- Product complete: **NO**.
+
+## Root failure and code change
+The completed Full Product Browser E2E run [38160613377](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38160613377) on parent `9bd1902902a01422590123a0d13f2a78e5658e35` recorded the exact error `inventory: intelligence panel missing`. Artifact 11710353371 proves upload/canonical readback and Smart Report, Reports Center, executive, trust, decision and work views passing for report `8dbafdf8-f769-4c4f-97a5-22eac8b47d41`, source hash `sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839`, path `تقارير ارصدة المخزون.pdf`, 254 canonical rows, quality 98, TRUSTED, awaiting evidence snapshot. Only the inventory source-bound surface was missing the general card and shared intelligence panel.
+
+Code commit [`08a1ac3464cd7ba818cf09287e3a83a852291681`](https://github.com/Report-Engainall/Report-Advisor/commit/08a1ac3464cd7ba818cf09287e3a83a852291681) adds existing `GenericFileIntelligenceCard` with `report.genericIntelligence` and source/job/hash/canonical coverage props, plus `ReportIntelligencePanel`, inside the actual `CustomerReportSurface` used by `/reports/inventory`. The existing specialist/domain summary and data explorer are retained. The contract test now requires these components and source identity on this route. This is IMPLEMENTED but not yet browser-proven on the new head.
+
+## Earlier exact-head results (do not inherit to newer heads)
+On `9bd1902902a01422590123a0d13f2a78e5658e35`, Product Build 38160613528 PASS, Quality 38160613269 PASS, Data Quality Runtime 38160613476 PASS, Phase-F 38160613515 PASS. Session Handoff 38160613659 and Final Certification 38160608535 failed because the old report baseline did not account for the actual `.github/workflows/phase-f-live-resilience.yml` edit. The checker is not weakened; the new current report baseline is `08a1ac3464cd7ba818cf09287e3a83a852291681`, so only documents/archive change after this baseline.
+
+## Separate gap
+Non-blocking real-source archetype diagnostics: 21 supported / 27 NOT_PROVEN; the target report was invisible to the diagnostic actor tenant. Do not confuse this with the Chromium error. This remains unproven and needs focused attention after the inventory fix passes.
+
+## Next exact action
+Verify the governance commit and branch readback. Consume the new exact-head Session Handoff, Build, Quality, and Full Product Browser E2E results. If a browser assertion remains, repair the first proven failure. Do not merge or declare PRODUCT_COMPLETE until end-to-end and production-current proofs pass.
+
+---
+
 # LIVE RESUME — 2026-10-11 / ID-ONLY AUTH RESTORE + VISIBLE PASSPORT FIX
 
 - Repository: `Report-Engainall/Report-Advisor`

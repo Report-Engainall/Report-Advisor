@@ -1,3 +1,25 @@
+REPORT_FOR_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+UPDATED_AT = 2026-10-11T21:05:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_PARENT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+CURRENT_PRODUCT_TEST_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY — exact-head revalidation pending
+ACTION_STATUS = INVENTORY_GENERAL_INTELLIGENCE_UI_IMPLEMENTED; REGRESSION_CONTRACT_ADDED; EXACT_HEAD_VALIDATION_PENDING
+
+WHAT_I_WAS_ASKED_TO_DO = Resume PR #912 from the latest live state; fix Session Handoff without weakening its contract; extract the true Full Product Browser E2E failure; repair the actual inventory UI while preserving the existing general-intelligence engine and specialty layer; and save a durable checkpoint.
+WHAT_I_ACTUALLY_DID = Confirmed exact branch/PR head 9bd1902902a01422590123a0d13f2a78e5658e35, read session memory/state/current report and the Phase-F workflow/handoff checker, inspected Session Handoff and Final Certification logs, downloaded browser artifact 11710353371, and read artifacts/e2e-business/result.json. The actual user-facing failure was inventory: intelligence panel missing. Created code commit 08a1ac3464cd7ba818cf09287e3a83a852291681: CustomerReportSurface now mounts the existing GenericFileIntelligenceCard using report.genericIntelligence and source/job/hash/scope props, plus ReportIntelligencePanel; the surface-contract test now prevents regression. Prepared this governance snapshot with REPORT_FOR_HEAD advanced to the code/test commit.
+WHAT_IS_PROVEN = On parent 9bd1902902a01422590123a0d13f2a78e5658e35, Product Build, Quality, Data Quality Runtime and Phase-F passed (38160613528, 38160613269, 38160613476, 38160613515). Full Product Browser artifact proves 254 canonical rows, quality 98, TRUSTED state and AWAITING_EVIDENCE_SNAPSHOT for reportJobId 8dbafdf8-f769-4c4f-97a5-22eac8b47d41/sourceHash sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839; Smart Report, Reports Center, executive, trust, decision and work routes passed, but inventory failed because its general intelligence/panel was missing. The new UI fix and regression test are committed on 08a1ac3464cd7ba818cf09287e3a83a852291681, but have not yet been rerun on that head.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract on 9bd1902902a01422590123a0d13f2a78e5658e35: unreported .github/workflows/phase-f-live-resilience.yml. The actual functional browser failure on the same parent is inventory: intelligence panel missing.
+ROOT_CAUSE = Handoff report anchor a298e522ebcf76b19d154026db4afc0a3cdf7327 failed to account for the actual Phase-F control-plane workflow change; fix the report baseline rather than altering the checker. For browser E2E, /reports/inventory renders CustomerReportSurface, which rendered domain-specific content and source hash but omitted the established GenericFileIntelligenceCard and ReportIntelligencePanel used by Smart Report. These components are now mounted with the same persisted report/source lineage; the regression contract enforces it.
+NEXT_EXACT_ACTION = Publish and verify the governance checkpoint on top of 08a1ac3464cd7ba818cf09287e3a83a852291681; run/read exact-head Session Handoff, Build, Quality and Full Product Browser E2E, then repair only the first new proven failure.
+
+HANDOFF_COVERAGE = src/components/CustomerReportSurface.tsx; scripts/smart-report-complete-intelligence-surface.test.mjs; .github/workflows/phase-f-live-resilience.yml; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-210500-INVENTORY-GENERAL-INTELLIGENCE.md
+
+---
+
 REPORT_FOR_HEAD = a298e522ebcf76b19d154026db4afc0a3cdf7327
 UPDATED_AT = 2026-10-11T20:33:00+03:00
 REPOSITORY = Report-Engainall/Report-Advisor

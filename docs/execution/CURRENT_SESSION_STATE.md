@@ -1,3 +1,50 @@
+# LIVE RESUME — 2026-10-11T21:05:00+03:00 / INVENTORY GENERAL INTELLIGENCE MOUNTED; EXACT-HEAD VALIDATION REQUIRED
+
+CURRENT_EXACT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+CURRENT_PRODUCT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+CURRENT_CODE_TEST_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
+CURRENT_EXECUTION_HEAD_BEFORE_GOVERNANCE_COMMIT = 08a1ac3464cd7ba818cf09287e3a83a852291681
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = INVENTORY_INTELLIGENCE_SURFACE_IMPLEMENTED; REGRESSION_GUARD_ADDED; EXACT_HEAD_GATES_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-11T21:05:00+03:00
+
+## First failure proven from the completed browser artifact
+
+Full Product Browser E2E [38160613377](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38160613377) failed on parent head `9bd1902902a01422590123a0d13f2a78e5658e35` with `inventory: intelligence panel missing`. Artifact 11710353371 shows upload/canonical persistence/readback and Smart Report, Reports Center, executive, trust, decision and work views passing for the same report. The inventory surface was missing the shared intelligence panel/general card.
+
+Report identity read back:
+- reportJobId = `8dbafdf8-f769-4c4f-97a5-22eac8b47d41`
+- sourcePath = `تقارير ارصدة المخزون.pdf`
+- sourceHash = `sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839`
+- 254 canonical rows; quality 98; TRUSTED; evidence `AWAITING_EVIDENCE_SNAPSHOT`.
+
+## Implemented fix on product/test head `08a1ac3464cd7ba818cf09287e3a83a852291681`
+
+- `CustomerReportSurface.tsx`, the actual source-bound domain surface used by `/reports/inventory`, now renders `GenericFileIntelligenceCard` with the report’s independent generic-intelligence output and stable report/source lineage, plus `ReportIntelligencePanel`.
+- `scripts/smart-report-complete-intelligence-surface.test.mjs` now guards those imports, render paths and source-bound inputs.
+- Commit: https://github.com/Report-Engainall/Report-Advisor/commit/08a1ac3464cd7ba818cf09287e3a83a852291681
+- Status = IMPLEMENTED; READBACK VERIFIED BY GITHUB CONTENTS API; BUILD/BROWSER PROOF ON NEW HEAD NOT YET AVAILABLE.
+
+## Exact parent-head gates
+
+PASS Product Build 38160613528; PASS Quality 38160613269; PASS Data Quality Runtime 38160613476; PASS Phase-F 38160613515.
+FAIL Session Handoff 38160613659 and Final Certification 38160608535 because the stale report baseline omitted `.github/workflows/phase-f-live-resilience.yml`.
+FAIL Full Product Browser 38160613377 because inventory intelligence panel was not mounted. Do not carry forward these results as results for `08a1ac3464cd7ba818cf09287e3a83a852291681`.
+
+## Separate non-blocking gap
+
+48-archetype real-source diagnostic found 21/48 supported, 27/48 NOT_PROVEN, with the target report invisible to the diagnostic actor tenant. This is separate from the main inventory-screen failure and still requires investigation.
+
+## Next exact action
+
+Publish the governance checkpoint with `REPORT_FOR_HEAD=08a1ac3464cd7ba818cf09287e3a83a852291681`, then inspect exact-head Session Handoff/Build/Quality and rerun the full browser proof on that exact branch head. Repair its first demonstrated failure only. PRODUCT_COMPLETE remains NO.
+
+---
+
 # LIVE RESUME — 2026-10-11T20:40:00+03:00 / SOURCE-HASH + DOMAIN-LINEAGE LABELS COMMITTED; NEW EXACT-HEAD VALIDATION REQUIRED
 
 CURRENT_EXACT_HEAD = a298e522ebcf76b19d154026db4afc0a3cdf7327
