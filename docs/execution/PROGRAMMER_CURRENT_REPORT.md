@@ -1,3 +1,29 @@
+REPORT_FOR_HEAD = c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc
+UPDATED_AT = 2026-10-11T20:10:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+ACTION_STATUS = SOURCE_HASH_UI_FIX_COMMITTED; EXACT_HEAD_VALIDATION_REQUIRED
+CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+CURRENT EXECUTION HEAD = c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc
+
+WHAT_I_ACTUALLY_DID = Inspected the latest persisted memory and exact-head GitHub workflow results; diagnosed Full Product Browser E2E failure "inventory: source hash missing"; patched SourceHeader to visibly display the complete source SHA-256 on source-bound linked surfaces; created a dated report and updated persistent memory/state.
+FILES_CHANGED_BY_PRODUCT_FIX = src/components/SourceBoundReportSurface.tsx
+HANDOFF_COVERAGE = scripts/check-phase10-backup-restore-contract.mjs; scripts/phase-f-live-resilience-probes.mjs; scripts/resilience-runtime.test.mjs; scripts/smart-report-complete-intelligence-surface.test.mjs; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx
+PARENT_HEAD_BUILD = PASS on 023d8d38d0c05e6b62c872b234422f9d717e2727 only
+PARENT_HEAD_QUALITY = PASS on 023d8d38d0c05e6b62c872b234422f9d717e2727 only
+PARENT_HEAD_BROWSER = FAIL; exact failure: inventory: source hash missing (run 38157202976)
+PARENT_HEAD_HANDOFF = FAIL; stale report omitted five files (run 38157202962)
+PARENT_HEAD_FINAL_CERTIFICATION = FAIL at handoff coverage (run 38157202927)
+PARENT_HEAD_PHASE_F = CANCELLED before live probes (run 38157202966)
+NEW_HEAD_BUILD_QUALITY_BROWSER_RESTORE = PENDING / MUST READ EXACT-HEAD RUNS
+PREVIEW_PASS = previous head only; new head not yet proven
+PRODUCTION_PASS = NO
+PRODUCT_COMPLETE = NO
+NEXT_EXACT_ACTION = Read terminal checks triggered by c7c774a6f1c6b620e99b7b628d586e99c8cc1bfc; fix first real E2E failure and prove linked-source hash after refresh before considering merge.
+
+--- HISTORICAL REPORTS BELOW; PRESERVED ---
 REPORT_FOR_HEAD = 023d8d38d0c05e6b62c872b234422f9d717e2727
 UPDATED_AT = 2026-10-11
 REPOSITORY = Report-Engainall/Report-Advisor
