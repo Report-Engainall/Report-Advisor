@@ -797,6 +797,9 @@ async function proveReportsCenterRealSurface(page, report) {
     '/trust',
     '/decision-experience',
   ];
+  // ReportSourceContext resolves report details asynchronously alongside the reports-center surface.
+  // Wait for its source-bound navigation before asserting every destination and lineage.
+  await page.locator('a[href^="/intelligence?"]').first().waitFor({ state: 'attached', timeout: 15000 });
   for (const route of expectedContextLinks) {
     const link = page.locator('a[href^="' + route + '?"]');
     assert.ok(await link.count() >= 1, 'REPORT_CONTEXT_LINK_MISSING:' + route);
