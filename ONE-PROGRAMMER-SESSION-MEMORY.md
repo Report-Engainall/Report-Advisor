@@ -1,3 +1,21 @@
+# LIVE RESUME — 2026-10-11 21:57 +03 / SELECT GRANT VERIFIED; FULL JOURNEY RETEST REQUIRED
+
+Repository: Report-Engainall/Report-Advisor  
+Branch: `fix/source-bound-generic-intelligence-20261009`  
+PR: [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912), OPEN / NOT MERGED.  
+Recovery/migration commit: `3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3`.  
+Migration: `20261011185449_restore_authenticated_order_status_history_select`; file `supabase/migrations/20261011185449_restore_authenticated_order_status_history_select.sql`.
+
+The failed browser evidence is [run 38164694687](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694687) and [uploaded artifact](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694687/artifacts/11711995869), tested SHA `d9884cb458d19da402a6b7f4d40ef3e8a9129794`. Route/auth passed, then a live authenticated read of `public.order_status_history` returned 403/42501. Staging ACL had no SELECT privilege even though RLS and the tenant SELECT policy existed.
+
+Applied the minimal SELECT grant to `authenticated`, kept `anon` denied and RLS enabled, and read back: authenticated SELECT true / anon SELECT false / RLS true / expected tenant policy true. This proves the DB grant only. It does not reclassify the old browser run as passing.
+
+Prior gates: Session Handoff [38164695511](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695511) and Final Certification [38164695553](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695553) passed on the pre-fix parent; Phase-F [38164694601](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694601) and Data Quality [38164694533](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694533) passed on the tested ancestor. Quality [38164694658](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694658) was an exact-head orchestration/setup race and is not a source quality pass.
+
+NEXT EXACT ACTION = Inspect all new exact-head workflows after the migration commit, with special attention to the Full Product Browser artifact and Quality. Preserve PR #912 as open; PRODUCT_COMPLETE = NO.
+
+---
+
 # LIVE RESUME — 2026-10-11 21:55 +03 / ORDER STATUS HISTORY ACL REPAIRED IN STAGING; FULL BROWSER RERUN REQUIRED
 
 - Repository: Report-Engainall/Report-Advisor

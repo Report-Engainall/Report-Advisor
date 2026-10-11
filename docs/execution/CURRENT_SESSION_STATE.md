@@ -1,3 +1,34 @@
+# LIVE RESUME — 2026-10-11 21:57 +03 / DATABASE GRANT AND REPOSITORY MIGRATION READBACK VERIFIED
+
+CURRENT_EXACT_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
+CURRENT_CODE_TEST_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
+CURRENT_EXECUTION_PARENT_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
+CURRENT_PATCH_COMMIT = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = ORDER_STATUS_HISTORY_SELECT_GRANT_VERIFIED; EXACT_HEAD_BROWSER_RERUN_REQUIRED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-11 21:57 +03
+
+## Latest proven repair
+The first recovery commit includes `supabase/migrations/20261011185449_restore_authenticated_order_status_history_select.sql`, matching applied staging migration version `20261011185449`. Post-migration readback: authenticated SELECT true; anon SELECT false; RLS enabled true; tenant SELECT policy present true.
+
+The first E2E failure is preserved, not rewritten as a pass: [Full Product Browser E2E run 38164694687](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694687) failed at exact tested SHA `d9884cb458d19da402a6b7f4d40ef3e8a9129794` when an authenticated SELECT against `public.order_status_history` got 403/42501. The uploaded result artifact is [here](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694687/artifacts/11711995869).
+
+The separate report selector issue is now past its first failing point; real Chromium route/auth passed, the new order history permission became the first blocker. No policy was weakened and no `anon`/DML grants were added.
+
+## Head-specific existing gate evidence
+- Session Handoff [38164695511](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695511) PASS on the pre-patch parent `2a128ab3621a426a26e855c4ce66c1dfe09724dc`.
+- Final Certification Gate [38164695553](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164695553) PASS on `2a128ab3621a426a26e855c4ce66c1dfe09724dc`.
+- Phase-F [38164694601](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694601) and Data Quality Runtime [38164694533](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694533) PASS on ancestor `d9884cb458d19da402a6b7f4d40ef3e8a9129794`.
+- Quality [38164694658](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38164694658) did not provide a source-quality verdict: exact-head consistency failed while the branch moved; dependencies were not installed, then `eslint`/`vite` commands failed as a consequence. A stable exact-head Quality run is still required.
+
+NEXT_EXACT_ACTION = Consume the new full-browser run triggered by this recovery and verify that it passes the tenant-scoped order status-history SELECT and continues the real report/decision/work journey. Inspect Quality, Session Handoff, Final Certification, and Phase-F for this exact new head; fix the first new evidence-backed failure. Keep PR #912 open, PRODUCT_COMPLETE=NO.
+
+---
+
 # LIVE RESUME — 2026-10-11 21:55 +03 / VERIFIED STAGING ACL FIX; EXACT-HEAD USER JOURNEY STILL PENDING
 
 CURRENT_EXACT_HEAD = 2a128ab3621a426a26e855c4ce66c1dfe09724dc

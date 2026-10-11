@@ -1,3 +1,24 @@
+REPORT_FOR_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
+UPDATED_AT = 2026-10-11 21:57 +03
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+CURRENT_EXECUTION_PARENT_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
+CURRENT_CODE_TEST_HEAD = 3e1e403fa13d3f9ea974cc8ee94268ee9e2d94f3
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY — the grant correction is read-back proven; full browser and release gates have not yet run on this exact head
+ACTION_STATUS = STAGING_GRANT_VERIFIED_AND_MIGRATION_COMMITTED; FULL_BROWSER_PROOF_PENDING
+
+WHAT_I_WAS_ASKED_TO_DO = Continue the live PR #912 work, fix the actual first end-to-end failure without weakening tests, persist the migration and exact-head state, then rerun the true browser journey.
+WHAT_I_ACTUALLY_DID = Committed the matching forward migration `supabase/migrations/20261011185449_restore_authenticated_order_status_history_select.sql` after applying Supabase staging migration version 20261011185449. Re-read database ACL and policy state after the change. Updated live state, memory, and this report; the new browser run must consume this exact committed migration before the fix can be called browser-proven.
+WHAT_IS_PROVEN = Post-migration DB readback gives `authenticated SELECT=true`, `anon SELECT=false`, `RLS=true`, and `order_status_history_staff_read policy=true`. The prior Full Product Browser run 38164694687 is still a FAIL on `d9884cb458d19da402a6b7f4d40ef3e8a9129794`; route/auth step 17 passed; business step 18 first failed due to missing authenticated SELECT on order_status_history. Handoff 38164695511 and Final Certification 38164695553 passed on ancestor `2a128ab...`; Phase-F 38164694601 and Data Quality 38164694533 passed on ancestor `d9884cb...`. Quality 38164694658 is invalid as a source-quality verdict because concurrent ref movement stopped setup before npm ci.
+FIRST_ACTIVE_FAILURE = The first demonstrated runtime blocker was `permission denied for table public.order_status_history` (HTTP 403 / SQLSTATE 42501), so the saved order-transition confirmation never appeared.
+ROOT_CAUSE = The staging table had RLS and the correct tenant SELECT policy, but its table ACL omitted SELECT for `authenticated`. Restored only that privilege; did not change RLS or grant anon/DML.
+NEXT_EXACT_ACTION = Verify the new exact-head full browser result after the migration commit. If it passes, rerun/consume Quality and release gates on the same exact head. If it fails, inspect the uploaded result.json and fix only its first actual runtime error.
+HANDOFF_COVERAGE = supabase/migrations/20261011185449_restore_authenticated_order_status_history_select.sql; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2155-ORDER-STATUS-PRIVILEGE-E2E-RECOVERY.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+
+---
+
 REPORT_FOR_HEAD = 2a128ab3621a426a26e855c4ce66c1dfe09724dc
 UPDATED_AT = 2026-10-11 21:55 +03
 REPOSITORY = Report-Engainall/Report-Advisor
