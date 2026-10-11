@@ -1,3 +1,37 @@
+# LIVE RESUME — 2026-10-11 23:56 +03 / ENQUEUE RPC TENANT-BOUNDARY FIX APPLIED; EXACT-HEAD GATES PENDING
+
+Repository: Report-Engainall/Report-Advisor
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Current code/test head: `5d983f95cb1db6d3b27210e2d7b82d41b03a54e7`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Source fix: https://github.com/Report-Engainall/Report-Advisor/commit/5d983f95cb1db6d3b27210e2d7b82d41b03a54e7
+New Staging migration: `20261011205504_bind_enqueue_report_execution_job_wrapper_to_authenticated_tenant`
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2356-ENQUEUE-RPC-TENANT-BOUNDARY-FIX.md`
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Root cause
+Phase 2 SECURITY DEFINER surface contract failed on predecessor `4029661bb38681e6f2878efc150eb8eeb3a79944` in [run 38174168107](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174168107). The log names `20261011203457_restore_tenant_bound_legacy_enqueue_report_execution_job_overload.sql`: the six-argument SECURITY DEFINER wrapper granted authenticated EXECUTE but did not itself enforce `auth.uid()` or the current tenant. Delegation to the protected seven-argument overload did not satisfy the static security contract.
+
+## Fix and direct Staging proof
+- Applied migration `20261011205504_bind_enqueue_report_execution_job_wrapper_to_authenticated_tenant` in Staging.
+- Source commit [5d983f95cb1db6d3b27210e2d7b82d41b03a54e7](https://github.com/Report-Engainall/Report-Advisor/commit/5d983f95cb1db6d3b27210e2d7b82d41b03a54e7) persists the matching SQL migration and regression assertions in `scripts/check-report-execution-e2e-contract.mjs`.
+- The six-argument wrapper now uses PL/pgSQL SECURITY DEFINER, fixed `pg_catalog` search_path, rejects null company, requires `auth.uid()` except for service_role, derives `public.current_company_id()`, checks tenant equality, and delegates only with `p_force_reprocess=false`.
+- SQL readback proves: six-arg defaults=2, anon EXECUTE=false, authenticated=true, service_role=true, direct user/tenant checks present; seven-arg defaults=0, anon=false, authenticated=false, service_role=true. No anon grant or RLS relaxation.
+- The test script now asserts the wrapper's direct tenant binding, fixed search_path, and explicit ACL statements, including no grant to PUBLIC/anon. Exact-head CI has not yet run these assertions to completion.
+
+## Exact evidence boundary
+- Phase 2 Security [38174168107](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174168107) FAILED on predecessor `4029661...` for the root cause above.
+- Full Product Browser E2E [38174168164](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174168164) was PENDING on `4029661...` when the source fix was made; it is not evidence for `5d983f95cb1db6d3b27210e2d7b82d41b03a54e7`.
+- Earlier PASS results (build, quality, Phase-F, Session Handoff, storage tenant, device-independent browser and product-creation) belonged to `7e5bf5c...` and must not be transferred to current code.
+- Latest Supabase Security Advisors return 46 `authenticated_security_definer_function_executable` warnings and 1 `auth_leaked_password_protection` warning. These are disclosed remaining advisories, not cleared by this fix.
+- Browser proof, final certification, production deployment proof, and cross-screen durable report identity remain unproven. PR #912 remains open.
+
+## NEXT EXACT ACTION
+Read the fresh exact-head workflow batch triggered by this checkpoint. Inspect the first failing security/certification or Chromium step and its logs/artifacts; then repair only that evidenced cause. Require authenticated upload → canonical commit → rendered intelligence → database readback → identical `reportJobId`/`sourceHash` through navigation, refresh and re-entry before certification.
+
+---
+
 # LIVE RESUME — 2026-10-11 23:55 +03 / CANONICAL REPAIR RPC ISOLATED; NEW-HEAD E2E VALIDATION REQUIRED
 
 Repository: `Report-Engainall/Report-Advisor`

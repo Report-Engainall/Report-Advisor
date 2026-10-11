@@ -1,54 +1,53 @@
 # CURRENT EXECUTION REPORT
 
-REPORT_FOR_HEAD = 9d756cf1409b0e29eb1bc08d9a22ade0090088ac
-UPDATED_AT = 2026-10-11T23:55:00+03:00
-SESSION HANDOFF = new exact-head browser retest is pending.
+REPORT_FOR_HEAD = 5d983f95cb1db6d3b27210e2d7b82d41b03a54e7
+UPDATED_AT = 2026-10-11T23:56:47+03:00
+SESSION HANDOFF = READY — governance checkpoint points at exact source commit; exact-head runtime proof is pending.
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
+WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 from live state, fix the evidenced certification blocker without rebuilding the intelligence core or weakening tenant isolation, and persist an exact-head checkpoint.
+WHAT_I_ACTUALLY_DID = Read branch/PR and the latest Phase 2 Security failure; proved the six-argument enqueue SECURITY DEFINER wrapper lacked a direct auth.uid/current-tenant guard; applied Staging migration 20261011205504_bind_enqueue_report_execution_job_wrapper_to_authenticated_tenant; read back function definitions and ACLs; committed matching SQL and regression assertions in 5d983f95cb1db6d3b27210e2d7b82d41b03a54e7; prepared this documentation-only checkpoint.
+WHAT_IS_PROVEN = PR #912 is open/not merged; commit 5d983f95cb1db6d3b27210e2d7b82d41b03a54e7 is persisted; Staging DB readback confirms the six-argument wrapper directly verifies signed-in user/current company/tenant equality; anonymous EXECUTE is false; seven-argument force-reprocess stays service_role-only with no defaults. New-head CI and browser proof are pending.
+FIRST_ACTIVE_FAILURE = Phase 2 Security closure 38174168107 on predecessor 4029661bb38681e6f2878efc150eb8eeb3a79944; log reports public.enqueue_report_execution_job in 20261011203457_restore_tenant_bound_legacy_enqueue_report_execution_job_overload.sql missing authenticated tenant/user binding or explicit service_role-only boundary.
+ROOT_CAUSE = The six-argument SECURITY DEFINER wrapper delegated to a protected seven-argument function but contained no direct auth.uid/current_company_id/tenant-equality checks; the security certification scanner requires this fail-closed check in the effective wrapper itself. The new forward-only migration adds it and keeps least privilege.
+NEXT_EXACT_ACTION = Inspect current-head Full Product Browser E2E and Phase 2 Security/Final Certification logs/artifacts; repair the first newly evidenced failure, then prove fresh upload through durable canonical commit, rendered intelligence, database readback, and identical reportJobId/sourceHash after navigation, refresh and re-entry.
 
-# LIVE RESUME — 2026-10-11 23:55 +03 / CANONICAL REPAIR RPC ISOLATED; NEW-HEAD E2E VALIDATION REQUIRED
+# LIVE RESUME — 2026-10-11 23:56 +03 / ENQUEUE RPC TENANT-BOUNDARY FIX APPLIED; EXACT-HEAD GATES PENDING
 
-Repository: `Report-Engainall/Report-Advisor`
+Repository: Report-Engainall/Report-Advisor
 Branch: `fix/source-bound-generic-intelligence-20261009`
 PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
-Source/code-test baseline: `9d756cf1409b0e29eb1bc08d9a22ade0090088ac`.
-Main/base last verified: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
-Staging migration: `20261011205000_disambiguate_import_commit_batch_repair_rpc`.
-Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2355-IMPORT-COMMIT-REPAIR-RPC-ISOLATION.md`.
-`PRODUCT_COMPLETE = NO`; `DO_NOT_MERGE = true`.
+Current code/test head: `5d983f95cb1db6d3b27210e2d7b82d41b03a54e7`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Source fix: https://github.com/Report-Engainall/Report-Advisor/commit/5d983f95cb1db6d3b27210e2d7b82d41b03a54e7
+New Staging migration: `20261011205504_bind_enqueue_report_execution_job_wrapper_to_authenticated_tenant`
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2356-ENQUEUE-RPC-TENANT-BOUNDARY-FIX.md`
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
 
-## Proven failure and root cause
+## Root cause
+Phase 2 SECURITY DEFINER surface contract failed on predecessor `4029661bb38681e6f2878efc150eb8eeb3a79944` in [run 38174168107](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174168107). The log names `20261011203457_restore_tenant_bound_legacy_enqueue_report_execution_job_overload.sql`: the six-argument SECURITY DEFINER wrapper granted authenticated EXECUTE but did not itself enforce `auth.uid()` or the current tenant. Delegation to the protected seven-argument overload did not satisfy the static security contract.
 
-Full Product Browser E2E [38172444159](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159) failed on predecessor `242d5462e3febc1fa615e3db9e583b79ecd6c8c9`; [artifact 11714956740](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38172444159/artifacts/11714956740). Authenticated route/session checks passed. A new three-row `marker.csv` import reached canonical commit and failed with `PGRST203`: PostgREST could not choose between six-argument ordinary `import_commit_batch` and a seven-argument repair overload under the same name. Failed job: `098a8fa0-cb75-4330-95b5-9a5a8426170a`. This was a different downstream overload from the earlier `enqueue_report_execution_job` defect; enqueue had already succeeded.
+## Fix and direct Staging proof
+- Applied migration `20261011205504_bind_enqueue_report_execution_job_wrapper_to_authenticated_tenant` in Staging.
+- Source commit [5d983f95cb1db6d3b27210e2d7b82d41b03a54e7](https://github.com/Report-Engainall/Report-Advisor/commit/5d983f95cb1db6d3b27210e2d7b82d41b03a54e7) persists the matching SQL migration and regression assertions in `scripts/check-report-execution-e2e-contract.mjs`.
+- The six-argument wrapper now uses PL/pgSQL SECURITY DEFINER, fixed `pg_catalog` search_path, rejects null company, requires `auth.uid()` except for service_role, derives `public.current_company_id()`, checks tenant equality, and delegates only with `p_force_reprocess=false`.
+- SQL readback proves: six-arg defaults=2, anon EXECUTE=false, authenticated=true, service_role=true, direct user/tenant checks present; seven-arg defaults=0, anon=false, authenticated=false, service_role=true. No anon grant or RLS relaxation.
+- The test script now asserts the wrapper's direct tenant binding, fixed search_path, and explicit ACL statements, including no grant to PUBLIC/anon. Exact-head CI has not yet run these assertions to completion.
 
-## Repair committed and Staging-readback verified
-
-Commit [`9d756cf`](https://github.com/Report-Engainall/Report-Advisor/commit/9d756cf1409b0e29eb1bc08d9a22ade0090088ac) changes:
-- `src/lib/import/canonical-commit.ts`: repair requests use `import_repair_commit_batch`; ordinary commits remain on `import_commit_batch`.
-- `supabase/migrations/20261011205000_disambiguate_import_commit_batch_repair_rpc.sql`: renames the existing repair function in place, revokes privileges from PUBLIC/anon/authenticated, grants EXECUTE only to `service_role`, and asks PostgREST to reload its schema.
-- `scripts/check-report-execution-e2e-contract.mjs`: asserts distinct repair routing and the least-privilege boundary; final PASS remains after the assertions.
-
-The migration was applied to Staging project `fnqbvfuwbdpwvhcgzksl`. Database readback shows:
-- `import_commit_batch(uuid,text,jsonb,text,text,uuid)`: defaults 0; anon=false; authenticated=true; service_role=true.
-- `import_commit_batch(uuid,text,jsonb,text,text)`: defaults 2; anon=false; authenticated=false; service_role=true.
-- `import_repair_commit_batch(uuid,text,jsonb,text,text,uuid,boolean)`: defaults 0; anon=false; authenticated=false; service_role=true.
-
-No end-user permission was widened. The rename preserves the function body/OID while isolating the privileged route by name.
-
-## Exact-head CI scope
-
-The source commit used `[skip ci]` so this normal documentation checkpoint triggers a fresh batch. There is no post-fix authenticated browser PASS yet. The prior run and its PASS gates on `242d5462...` do not certify `9d756cf`. An earlier predecessor batch had Session Handoff and Final Certification failures and Phase-F cancellations; check fresh results by exact `head_sha`, not workflow names alone.
-
-## Not yet proven
-
-No browser run after `9d756cf` has proved marker.csv through canonical commit, rendered intelligence, database readback and stable `reportJobId + sourceHash` across Smart Report, Evidence, Decision and Work Center after refresh/re-entry. Netlify production was last observed on commit `858ef8e3e5bc5bf74430555eadfb9e6767be348b` (Oct 5), so production does not yet prove this code. Keep PR #912 open and `PRODUCT_COMPLETE = NO`.
+## Exact evidence boundary
+- Phase 2 Security [38174168107](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174168107) FAILED on predecessor `4029661...` for the root cause above.
+- Full Product Browser E2E [38174168164](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38174168164) was PENDING on `4029661...` when the source fix was made; it is not evidence for `5d983f95cb1db6d3b27210e2d7b82d41b03a54e7`.
+- Earlier PASS results (build, quality, Phase-F, Session Handoff, storage tenant, device-independent browser and product-creation) belonged to `7e5bf5c...` and must not be transferred to current code.
+- Latest Supabase Security Advisors return 46 `authenticated_security_definer_function_executable` warnings and 1 `auth_leaked_password_protection` warning. These are disclosed remaining advisories, not cleared by this fix.
+- Browser proof, final certification, production deployment proof, and cross-screen durable report identity remain unproven. PR #912 remains open.
 
 ## NEXT EXACT ACTION
+Read the fresh exact-head workflow batch triggered by this checkpoint. Inspect the first failing security/certification or Chromium step and its logs/artifacts; then repair only that evidenced cause. Require authenticated upload → canonical commit → rendered intelligence → database readback → identical `reportJobId`/`sourceHash` through navigation, refresh and re-entry before certification.
 
-Commit/read back this checkpoint, then inspect the newly triggered exact-head Full Product Browser E2E and artifact/result JSON first. Fix the next evidence-backed failure without weakening tenant/RPC security. Require marker.csv to reach commit, render, DB readback and matching source identity across navigation, refresh and re-entry. Then verify quality, build, handoff, data quality, tenant isolation, Phase-F/recovery, certification and authenticated browser on the exact same source head, followed by a deployment-head match and production browser proof.
+---
 
 ---
 
