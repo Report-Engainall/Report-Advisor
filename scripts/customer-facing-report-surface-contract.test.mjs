@@ -27,6 +27,8 @@ assert.ok(app.includes("if (authQuery) return <AuthGate><AppShell /></AuthGate>;
 assert.ok(app.includes("const isLandingPath = location.pathname === '/' || location.pathname === '';"), 'PUBLIC_PROPOSAL_DEMO_MUST_BE_LANDING_ONLY');
 assert.ok(app.includes("if (demoQuery || (isLandingPath && (isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview))) return <ProposalDemoPage />;"), 'PUBLIC_PREVIEW_MUST_NOT_REPLACE_REPORTS_OR_SMART_REPORT_ROUTES_WITH_FIXTURE_DEMO');
 assert.ok(!app.includes("if (demoQuery || isNetlifyPreview || isPrimaryPublicPreview || isGitHubPagesPublicPreview) return <ProposalDemoPage />;"), 'BROAD_PUBLIC_PREVIEW_ROUTE_OVERRIDE_FORBIDDEN');
+assert.ok(reportSourceContext.includes('if (!needsContextContinuity(location.pathname)) return null;'),
+  'ReportSourceContext must not render stale report content on routes without source-context continuity');
 assert.ok((reportSourceContext.match(/if \(!needsContextContinuity\(location\.pathname\)/g) ?? []).length >= 3,
   'ReportSourceContext catalog, resolver, and detail effects must be scoped to context-continuity routes');
 assert.ok((reportSourceContext.match(/new AbortController\(\)/g) ?? []).length >= 3,

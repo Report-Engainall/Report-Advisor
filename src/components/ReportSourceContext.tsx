@@ -188,6 +188,8 @@ export function ReportSourceContext() {
     return () => { active = false; controller.abort(); };
   }, [location.pathname, contextResolving, jobId, sourceHash, validSourceHash]);
 
+  if (!needsContextContinuity(location.pathname)) return null;
+
   if (contextResolving && !report) {
     return <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite"><div className="text-[11px] font-black text-primary-950">جارٍ ربط أحدث تقرير ذكي بالسياق الحالي…</div><p className="mt-1 text-[10px] leading-5 text-primary-900/80">لن نعرض أرقامًا أو توصيات عامة؛ سيتم تحميل النتيجة من آخر تقرير مكتمل في نفس مساحة العمل.</p></section>;
   }
