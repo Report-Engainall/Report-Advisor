@@ -1,3 +1,57 @@
+## LIVE RESUME — 2026-10-12 / EXECUTIVE INTELLIGENCE VISUAL POLISH CHECKPOINT
+
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PR_STATE = OPEN / NOT MERGED
+CURRENT_EXACT_HEAD = 6157cecb98aabb2a205e630f519e2439499b3275
+CURRENT_CODE_CHECKPOINT = 6157cecb98aabb2a205e630f519e2439499b3275
+PREVIOUS_GOVERNANCE_HEAD = 03471e2c9e56a8cccac95d67ffa8ed584ff9214c
+CURRENT_BASE_MAIN = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12
+
+ACTION_STATUS = UI VISUAL REFINEMENT COMMITTED; EXACT-HEAD VALIDATION PENDING
+
+CHANGES = src/components/CustomerReportSurface.tsx; src/components/GenericFileIntelligenceCard.tsx; src/components/UniversalIntelligenceChain.tsx; scripts/customer-facing-report-surface-contract.test.mjs
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/6157cecb98aabb2a205e630f519e2439499b3275
+
+Exact code/UI head = 6157cecb98aabb2a205e630f519e2439499b3275
+Code commit = https://github.com/Report-Engainall/Report-Advisor/commit/6157cecb98aabb2a205e630f519e2439499b3275
+Previous docs/governance head = 03471e2c9e56a8cccac95d67ffa8ed584ff9214c
+Branch = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+Base main = fa1ab4cbade9b01685507aa966c10f700a03f576
+Product complete = NO; do not merge or deploy.
+
+UI implementation on this candidate:
+- Refined CustomerReportSurface executive hero to deep ink + indigo radial/linear gradients, restrained ring/elevation, higher spacing, and consistent KPI/white-card surfaces.
+- Refined GenericFileIntelligenceCard's main surface, evidence/finding cards and recommendation panel using layered neutral/indigo surfaces and subtle hover feedback.
+- Refined UniversalIntelligenceChain with a shared dark-indigo executive signal and light indigo stage surfaces; VERIFIED/TRUSTED status accents now use indigo instead of emerald-heavy green.
+- Added visual direction regression assertions to scripts/customer-facing-report-surface-contract.test.mjs.
+- Data lineage, reportJobId/sourceHash props, generic intelligence payload, recommendation semantics, confidence and evidence logic were not intentionally changed; edits were presentation-only.
+
+Live checks at time of checkpoint:
+- New candidate Product Build Gate: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184830349 — QUEUED.
+- New candidate Quality: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184830566 — QUEUED.
+- New candidate Full Product Browser E2E: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184830581 — PENDING.
+- New candidate Phase-F Live Resilience: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184830552 — PENDING.
+- New candidate Final Certification: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184830456 — IN_PROGRESS.
+- New candidate Session Handoff Contract: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184830448 — IN_PROGRESS.
+- Earlier authenticated browser run https://github.com/Report-Engainall/Report-Advisor/actions/runs/38184038418 remains IN_PROGRESS on prior code head 02b909915a11b47cd50141dbc2d98b392ce5fb58 at last read, currently at the governed real-corpus evidence-passport step. It is diagnostic only and is not UI proof for this candidate.
+- Production is still stale at commit 858ef8e3e5bc5bf74430555eadfb9e6767be348b; it must not be deployed until authenticated source-bound proof passes.
+
+Not yet proven:
+- UI visual contract, build and responsive browser presentation for this candidate.
+- Full authenticated Chromium business journey.
+- Fresh CSV and XLSX extraction, generic intelligence rendering and durable readback after refresh/re-login.
+- Governed real-source matrix supported=48/48 on an exact-head artifact.
+- Production deployed SHA equals the accepted application SHA.
+
+NEXT_EXACT_ACTION = Read this candidate's Product Build/Quality outputs, then Full Product Browser E2E job logs/artifacts; repair only the first evidenced failure and rerun all affected gates on the resulting exact head.
+
+
 ## LIVE RESUME — 2026-10-12T02:30+03:00 / EXACT-HEAD RECONCILIATION
 
 REPOSITORY = Report-Engainall/Report-Advisor
