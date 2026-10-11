@@ -1,3 +1,33 @@
+# LIVE RESUME — 2026-10-12 01:52 +03 / SOURCE NAVIGATION MOUNTED ON REPORTS CENTER; EXACT-HEAD BROWSER PROOF PENDING
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact code/test head: 7bdeef87b0a6948998e58bd230b2ac9043ac852f
+Previous code/test checkpoint: 58a746dfc8a97c71967c8a666f68179ea90ffa12
+Main/base: fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Latest code change
+- Commit: https://github.com/Report-Engainall/Report-Advisor/commit/7bdeef87b0a6948998e58bd230b2ac9043ac852f
+- Exported the existing SourceContextNavigation component and introduced a dark contrast variant; the universal intelligence logic is unchanged.
+- Mounted the seven reportJobId + sourceHash preserving links inside the primary current-report card on ReportsPage, the actual /reports customer surface.
+- Strengthened customer-facing surface contract and Chromium E2E: the links must exist inside [data-testid="reports-center-source-navigation"] and retain exact identity for all seven target surfaces.
+
+## First failure now addressed
+- Predecessor run: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180320237
+- Artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180320237/artifacts/11718390641
+- Exact error: locator.waitFor timeout for a[href^="/intelligence?"] in the reports-center flow.
+- Root cause: ReportSourceContext's route scope intentionally excludes /reports, so navigation rendered only on other continuity routes and never on the root reports center. Source identity, durable readback and hash checks had already passed for the 254-row inventory PDF; trust was TRUSTED and evidence state remained AWAITING_EVIDENCE_SNAPSHOT.
+
+## Gate ledger
+- Predecessor head 58a746dfc8a97c71967c8a666f68179ea90ffa12: quality #38180320315 PASS; build #38180320253 PASS; handoff #38180320224 PASS; data quality #38180320133 PASS; Phase-F #38180320254 PASS; final certification #38180320298 PASS.
+- These predecessor statuses do not transfer as proof to 7bdeef87b0a6948998e58bd230b2ac9043ac852f. Fresh exact-head runs must be read individually.
+
+NEXT_EXACT_ACTION = Inspect the Full Product Browser E2E run triggered by 7bdeef87b0a6948998e58bd230b2ac9043ac852f, verify result.json and screenshots/artifacts, repair the next demonstrated failure, then rerun affected gates. Keep PR #912 open; PRODUCT_COMPLETE = NO.
+
+---
+
 # LIVE RESUME — 2026-10-12 01:23 +03 / SOURCE-BOUND REPORT NAVIGATION AVAILABLE DURING DETAIL LOAD; EXACT-HEAD RETEST PENDING
 
 Repository: `Report-Engainall/Report-Advisor`

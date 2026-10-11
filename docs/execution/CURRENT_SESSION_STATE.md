@@ -1,5 +1,29 @@
 # CURRENT SESSION STATE
 
+## LIVE RESUME — 2026-10-12 01:52 +03 / REPORTS-CENTER SOURCE NAVIGATION FIX; EXACT-HEAD RETEST PENDING
+
+CURRENT_EXACT_HEAD = 7bdeef87b0a6948998e58bd230b2ac9043ac852f
+CURRENT_CODE_TEST_HEAD = 7bdeef87b0a6948998e58bd230b2ac9043ac852f
+CURRENT_EXECUTION_PARENT_HEAD = 58a746dfc8a97c71967c8a666f68179ea90ffa12
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = REPORTS_CENTER_SOURCE_NAVIGATION_ADDED; EXACT_HEAD_BROWSER_PROOF_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12 01:52 +03
+SOURCE_NAVIGATION_FIX_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/7bdeef87b0a6948998e58bd230b2ac9043ac852f
+PREVIOUS_FAILED_E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180320237
+PREVIOUS_E2E_ARTIFACT = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180320237/artifacts/11718390641
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38180320237 on predecessor 58a746dfc8a97c71967c8a666f68179ea90ffa12 timed out waiting for a source-bound /intelligence link in the ReportsPage flow.
+ROOT_CAUSE = ReportSourceContext is not rendered on /reports because needsContextContinuity excludes that root route; navigation must be mounted directly in the primary smart-report card.
+WHAT_CHANGED = Exported the shared SourceContextNavigation, mounted seven context-preserving destination links in ReportsPage's actual current-report card with a high-contrast dark treatment, and scoped Chromium proof to that visible container.
+WHAT_IS_PROVEN = Code/test commit 7bdeef87b0a6948998e58bd230b2ac9043ac852f is pushed to PR #912. Predecessor run 38180320237 proves authenticated source readback/hash/row count and identifies the missing reports-center links. New-head browser and release gates are not yet claimed.
+NEXT_EXACT_ACTION = Read the new-head Full Product Browser E2E artifact for 7bdeef87b0a6948998e58bd230b2ac9043ac852f; fix the first actual result.json failure and rerun exact-head verification.
+SESSION HANDOFF = READY — code checkpoint and next action are explicit; fresh browser proof pending.
+
+---
+
 ## LIVE RESUME — 2026-10-12 01:23 +03 / SOURCE-BOUND NAVIGATION FIX; EXACT-HEAD RETEST PENDING
 
 CURRENT_EXACT_HEAD = 158b84c52112d3125d5080bd8cda4df6533fb0a9

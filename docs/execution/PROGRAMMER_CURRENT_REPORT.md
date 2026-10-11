@@ -1,3 +1,24 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 01:52 +03 / SOURCE-BOUND NAVIGATION ON THE ACTUAL REPORTS CENTER
+
+REPORT_FOR_HEAD = 7bdeef87b0a6948998e58bd230b2ac9043ac852f
+UPDATED_AT = 2026-10-12T01:52:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+BASE_MAIN = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+SESSION HANDOFF = READY — code change is checkpointed; exact-head browser proof remains pending.
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from live GitHub state, fix the first evidenced failure in the authenticated report journey, keep the universal intelligence engine and security boundaries intact, and persist evidence before further long-running validation.
+WHAT_I_ACTUALLY_DID = On the existing PR branch, exported the shared SourceContextNavigation primitive with a dark high-contrast variant, rendered it inside the real primary report card on ReportsPage using the same primarySmartReport job id and SHA-256 hash, and tightened the Chromium assertion to require the navigation container on that actual screen. Added regression contracts for the shared component and mounted reports-center use. Code commit: https://github.com/Report-Engainall/Report-Advisor/commit/7bdeef87b0a6948998e58bd230b2ac9043ac852f.
+WHAT_IS_PROVEN = The predecessor Full Product Browser E2E run 38180320237 at 58a746dfc8a97c71967c8a666f68179ea90ffa12 passed authentication, tenant isolation and persisted readback for reportJobId 8dbafdf8-f769-4c4f-97a5-22eac8b47d41, sourceHash sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839, 254 canonical rows, quality 98%, trust TRUSTED, evidence AWAITING_EVIDENCE_SNAPSHOT; its browser failure is recorded and artifact 11718390641 is available at https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180320237/artifacts/11718390641. On the predecessor documentation head 58a746d, Quality (#38180320315), Product Build (#38180320253), Session Handoff (#38180320224), Data Quality (#38180320133), Phase-F Live Resilience (#38180320254), and Final Certification (#38180320298) passed. Those results do not prove the new code head 7bdeef87b0a6948998e58bd230b2ac9043ac852f until the new-head workflows complete.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38180320237, job 114592437388, exact head 58a746dfc8a97c71967c8a666f68179ea90ffa12; timed out waiting for a[href^="/intelligence?"] on the reports-center journey after source identity/hash and persisted readback passed.
+ROOT_CAUSE = ReportSourceContext intentionally returns null on the /reports route because that route is not in CONTEXT_CONTINUITY_PATHS; therefore its shortcut nav cannot appear in the reports center. The prior component fix did not mount navigation in the actual primary report card that the test was checking.
+NEXT_EXACT_ACTION = Inspect the new Full Product Browser E2E run triggered by 7bdeef87b0a6948998e58bd230b2ac9043ac852f, read its result.json and browser proof artifact, fix the next runtime failure evidenced on that exact code head, then re-run any affected exact-head gates. Keep PR #912 open and PRODUCT_COMPLETE = NO.
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 01:23 +03 / SOURCE-BOUND NAVIGATION DURING REPORT LOAD
 
 REPORT_FOR_HEAD = 158b84c52112d3125d5080bd8cda4df6533fb0a9
