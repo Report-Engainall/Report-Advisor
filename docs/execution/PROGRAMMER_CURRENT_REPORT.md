@@ -1,21 +1,34 @@
-REPORT_FOR_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
-UPDATED_AT = 2026-10-11 — role-governed operational workflow
-REPOSITORY = Report-Engainall/Report-Advisor
-BRANCH = fix/source-bound-generic-intelligence-20261009
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-CURRENT_EXECUTION_PARENT_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
-CURRENT_CODE_TEST_HEAD = e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee
-PRODUCT_COMPLETE = NO
-SESSION HANDOFF = NOT READY — role-aware UI and the legitimate actor handoff are committed, but exact-head browser/CI verification is pending
-ACTION_STATUS = ROLE_GOVERNED_ORDER_TRANSITION_PATCH_COMMITTED; FULL_BROWSER_PROOF_PENDING
+# CURRENT EXECUTION REPORT
 
-WHAT_I_WAS_ASKED_TO_DO = Continue PR #912 by fixing the first real business-journey failure without weakening database authorization, then save and read back the recovery state.
-WHAT_I_ACTUALLY_DID = Investigated Full Product Browser run 38166724841 and read-only order/history DB evidence. The sales actor persisted pending→confirmed then the canonical transition_order RPC rejected confirmed→preparing as intended. Updated OperationsPage so action visibility depends on the active tenant membership role; added an Arabic restriction note; updated the full E2E to verify the restriction for sales and switch to the existing admin/approver identity for fulfillment; added contract assertions for those boundaries. The patches are at bc53828 and e4f01c4.
-WHAT_IS_PROVEN = On old head 3d6fa46, build/quality/handoff/data quality/Phase-F/final certification all PASS; Full Product Browser FAIL because its sales actor tried an admin/warehouse-only stage. Canonical transition_order function enforces least privilege. The new role-aware UI and E2E changes are committed but have no exact-head validation yet.
-FIRST_ACTIVE_FAILURE = HTTP 403 / SQLSTATE 42501, `order transition not allowed`, at confirmed→preparing after sales had correctly persisted pending→confirmed.
-ROOT_CAUSE = UI exposed next-status action based on status only and E2E reused the sales actor for all lifecycle stages. The DB boundary was correct and must remain unchanged.
-NEXT_EXACT_ACTION = Advance REPORT_FOR_HEAD to e4f01c4cf7bb19b44cfd9b76b3f3e8286a21fdee through this docs-only commit; then inspect the new exact-head test and full browser workflows. Require sales restriction proof, admin same-tenant handoff, full status history, invoice/payment/audit readback, then continue the report/decision/action chain.
-HANDOFF_COVERAGE = src/pages/OperationsPage.tsx; scripts/real-business-e2e.mjs; scripts/transactional-spine-contract.test.mjs; docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-ROLE-GOVERNED-ORDER-LIFECYCLE.md; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+REPORT_FOR_HEAD = ca5b98d592b090dd2b315e5fe3fe6c589edfb39a
+UPDATED_AT = 2026-10-11T22:20:00+03:00
+
+# LIVE RESUME — 2026-10-11 22:20 +03 / EXACT-HEAD ORDER FEEDBACK RETEST REQUIRED
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Latest observed PR head before this governance checkpoint: bc53828428900c7594a67b8cd4761bc73bb1f3fc.
+Main/base: fa1ab4cbade9b01685507aa966c10f700a03f576.
+Code fix to verify: ca5b98d592b090dd2b315e5fe3fe6c589edfb39a.
+Checkpoint archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2220-ORDER-FEEDBACK-RETEST.md
+Checkpoint commit: 59e6ee8f88ca7179cc5fed4254ec5801a003945a.
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Fresh live evidence
+- Full Product Browser E2E [38166724841](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841) failed on tested SHA 3d6fa46f159540ff5c510c87b062baf70a1996b2. Route/auth proof passed; business journey timed out waiting for `تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.`. Artifact: [11711923595](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724841/artifacts/11711923595).
+- Session Handoff Contract [38166724780](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38166724780) passed on 3d6fa46 only.
+- Build, Quality, Data Quality Runtime, Phase-F resilience, Final Certification, Device-Independent Browser and Storage Tenant Runtime passed on 3d6fa46 only. No transfer of these passes to the later branch head.
+- Existing code fix ca5b98d592b090dd2b315e5fe3fe6c589edfb39a preserves mutation feedback during reload and adds transactional-spine regression assertions. Exact-head browser proof for that patch is still missing.
+- An archive checkpoint has been persisted at 59e6ee8f88ca7179cc5fed4254ec5801a003945a. Fresh exact-head gates must be consumed after this governance commit.
+
+FIRST_ACTIVE_FAILURE = Browser timeout waiting for order transition success feedback.
+ROOT_CAUSE = Existing staging readback showed order state persisted pending → confirmed, while OperationsPage load() cleared success feedback during the post-mutation reload. Patch adds preserveFeedback; browser proof still pending.
+NEXT_EXACT_ACTION = Read the newest Full Product Browser E2E and required gates after the current checkpoint; inspect the new result artifact, then fix the first demonstrated failure only.
+
+WHAT_I_WAS_ASKED_TO_DO = Resume the existing Report-Advisor PR #912 from live GitHub state, correct the next proven failure, preserve the universal intelligence core and require exact-head evidence.
+WHAT_I_ACTUALLY_DID = Re-read PR metadata, exact workflow jobs, browser logs and artifacts. Confirmed the order-feedback failure on tested SHA 3d6fa46, read back the existing preserve-feedback patch at ca5b98d, and committed a dated governance checkpoint at 59e6ee8.
+WHAT_IS_PROVEN = The older browser run failed at the order-success confirmation. The patch exists in GitHub. The old run is not a pass for the patch; latest exact-head browser proof is pending.
 
 ---
 
