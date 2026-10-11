@@ -718,22 +718,26 @@ async function proveReportsCenterRealSurface(page, report) {
   assert.ok(originalVisibleRows > 1, 'REPORTS_CENTER_SOURCE_ROWS_NOT_VISIBLE');
 
   // Select a value known to occur in exactly one canonical source row.
+  // A value is unique when it identifies one source row, not one source cell.
+  // The same value may legitimately occur in multiple columns of a single row.
   const valueOccurrences = new Map();
   for (const sourceRow of report.canonicalRows ?? []) {
+    const rowNumber = Number(sourceRow?.row_number);
+    if (!Number.isFinite(rowNumber)) continue;
     const rowData = sourceRow?.data && typeof sourceRow.data === 'object' ? sourceRow.data : {};
     for (const rawValue of Object.values(rowData)) {
       if (rawValue == null || typeof rawValue === 'object') continue;
       const value = String(rawValue).trim();
       if (value.length < 4) continue;
-      const prior = valueOccurrences.get(value);
-      valueOccurrences.set(value, prior
-        ? { count: prior.count + 1, rowNumber: prior.rowNumber }
-        : { count: 1, rowNumber: Number(sourceRow.row_number) });
+      const rowNumbers = valueOccurrences.get(value) ?? new Set();
+      rowNumbers.add(rowNumber);
+      valueOccurrences.set(value, rowNumbers);
     }
   }
-  const uniqueSourceEntry = [...valueOccurrences.entries()].find(([, item]) => item.count === 1 && Number.isFinite(item.rowNumber));
+  const uniqueSourceEntry = [...valueOccurrences.entries()].find(([, rowNumbers]) => rowNumbers.size === 1);
   assert.ok(uniqueSourceEntry, 'REPORTS_CENTER_NO_UNIQUE_SOURCE_VALUE_FOR_SEARCH_PROOF');
-  const [uniqueSourceValue, uniqueSourceRow] = uniqueSourceEntry;
+  const [uniqueSourceValue, uniqueSourceRows] = uniqueSourceEntry;
+  const uniqueSourceRow = { rowNumber: [...uniqueSourceRows][0] };
   await rowSearch.fill(uniqueSourceValue);
   await page.waitForFunction(({ selector, maxRows }) => document.querySelectorAll(selector).length < maxRows, {
     selector: sourceRowsSelector,
