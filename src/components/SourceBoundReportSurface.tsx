@@ -316,6 +316,7 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">السجلات: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الثقة: {stateLabel(report.trustState ?? report.sourceTrustState)}</span>
+            <span data-testid="source-bound-report-source-hash" className="max-w-full break-all rounded-full border border-amber-200/30 bg-amber-200/10 px-3 py-1 font-mono text-[9px] text-amber-100">SHA-256: {report.sourceHash}</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
