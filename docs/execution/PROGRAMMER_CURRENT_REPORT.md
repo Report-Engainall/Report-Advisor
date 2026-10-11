@@ -1,3 +1,34 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 00:27 +03 / TRUTH-STATE VISIBILITY FIX; EXACT-HEAD RETEST PENDING
+
+REPORT_FOR_HEAD = bdfb7d3e4f5db3894d5b441e64c62ebefc708217
+UPDATED_AT = 2026-10-12T00:27:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+FAILED_PREDECESSOR_E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130
+ARTIFACT = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130/artifacts/11715802981
+SOURCE_FIX = https://github.com/Report-Engainall/Report-Advisor/commit/bdfb7d3e4f5db3894d5b441e64c62ebefc708217
+ARCHIVE = `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0027-SMART-TRUTH-STATE-VISIBILITY-FIX.md`
+SESSION HANDOFF = PENDING new checkpoint run
+
+WHAT_I_WAS_ASKED_TO_DO = Continue on the actual live PR #912 head, repair the first proven product-journey failure without weakening guards, persist current state and verify the next exact-head runs.
+
+WHAT_I_ACTUALLY_DID = Re-read current PR/branch and the failed browser artifact. Confirmed the fresh generic file had already uploaded, canonical data persisted/read back, source hash bound, and generic signals/recommendations rendered; exact failed assertion was visibility of the truth-state section. Moved the section from the closed EVIDENCE PASSPORT details element into the always-visible Smart Report flow and added a static source-order regression assertion. Created and read back commit `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`.
+
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38175717130 on predecessor `ef0c3d1c426fb182dc6aa382f18c9d47cc57746b`: `Smart Report truth-state section must be visible`.
+
+ROOT_CAUSE = `ما الذي ثبت وما الذي لم يُثبت` and its state cards were rendered inside a `<details>` disclosure collapsed by default; the authenticated journey correctly requires this decision-state summary to be visible without opening evidence details.
+
+WHAT_IS_PROVEN = Source and static test changes persisted on GitHub at `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`; GitHub readback placed the truth-state phrase before the EVIDENCE PASSPORT disclosure and confirmed the new regression assertion. On predecessor `ef0c3d1...`, Session Handoff, build, quality, Phase-F, Phase 2 security, Data Quality Runtime and Final Certification each passed their own runs; Full Product Browser E2E failed with the result/artifact cited above.
+
+WHAT_IS_NOT_PROVEN = All exact-head workflow outcomes for `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`; a successful new-file authenticated journey through truth-state visibility/refresh/readback; cross-screen source identity on this latest exact head; diverse-source matrix complete product proof; live production SHA/runtime including this fix.
+
+NEXT_EXACT_ACTION = Refresh exact-head runs on `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`, starting with Full Product Browser E2E; inspect result.json/screenshot and fix its first actual failure only. Do not merge or call PRODUCT_COMPLETE until authenticated upload→render→persistence/readback→refresh/navigation/re-entry and production proof pass.
+
+---
+
 # CURRENT EXECUTION REPORT
 
 REPORT_FOR_HEAD = 0bca7cd91a2840f1764d972a43c797fe39d4fbaa

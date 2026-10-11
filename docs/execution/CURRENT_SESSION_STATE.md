@@ -1,5 +1,42 @@
 # CURRENT SESSION STATE
 
+# LIVE RESUME — 2026-10-12 00:27 +03 / TRUTH-STATE VISIBILITY FIX ON NEW CODE HEAD
+
+CURRENT_EXACT_HEAD = bdfb7d3e4f5db3894d5b441e64c62ebefc708217
+CURRENT_CODE_TEST_HEAD = bdfb7d3e4f5db3894d5b441e64c62ebefc708217
+CURRENT_EXECUTION_PARENT_HEAD = ef0c3d1c426fb182dc6aa382f18c9d47cc57746b
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+FAILED_PREDECESSOR_E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130
+ARTIFACT = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130/artifacts/11715802981
+FIX_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/bdfb7d3e4f5db3894d5b441e64c62ebefc708217
+ACTION_STATUS = TRUTH_STATE_MOVED_OUTSIDE_COLLAPSED_DISCLOSURE; EXACT_HEAD_GATES_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12 00:27 +03
+ARCHIVE = docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0027-SMART-TRUTH-STATE-VISIBILITY-FIX.md
+
+## Failure and repair recorded
+The full authenticated business journey failed on predecessor `ef0c3d1c426fb182dc6aa382f18c9d47cc57746b` with `Smart Report truth-state section must be visible`. The heading/cards lived inside the collapsed EVIDENCE PASSPORT disclosure. The fresh generic file itself imported successfully (3/3 valid, 0 invalid), canonical commit/history readback passed, source identity was bound, and general signals/recommendations appeared. Commit `bdfb7d3e4f5db3894d5b441e64c62ebefc708217` moves the existing truth-state section before the disclosure so it is visible without opening details, and the boundary test asserts that ordering. Source/test readback from GitHub passed.
+
+## Predecessor CI — not transferable
+- Handoff PASS [38175717044](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717044)
+- Product Build PASS [38175717219](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717219)
+- Quality PASS [38175717148](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717148)
+- Phase-F Live Resilience PASS [38175717208](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717208)
+- Phase 2 Security PASS [38175717132](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717132)
+- Final Certification Gate PASS [38175717185](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717185)
+- Data Quality Runtime PASS [38175717166](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717166)
+- Full Product Browser E2E FAILED [38175717130](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130), exact predecessor head, artifact [11715802981](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130/artifacts/11715802981).
+
+The specific Phase-F workflow change previously reported on `9bd1902...` was inspected: `.github/workflows/phase-f-live-resilience.yml` adds a comment that archives/control-plane workflow are not shipped app code and expands the runtime-provenance classifier to include `PROGRAMMER_REPORTS/` and that exact workflow path while maintaining fail-closed treatment of source/API/function/build changes. Do not weaken or delete this guard.
+
+NEXT_EXACT_ACTION = Inspect new exact-head CI and E2E results after `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`, repair the first proven failure, and prove truth-state visibility plus durable source/report identity through refresh, navigation and re-entry.
+SESSION HANDOFF = PENDING exact-head post-checkpoint run.
+
+---
+
 # LIVE RESUME — 2026-10-12 00:18 +03 / SMART REPORT LABEL PATCH; FULL PRODUCT E2E PENDING
 
 CURRENT_EXACT_HEAD = 0bca7cd91a2840f1764d972a43c797fe39d4fbaa

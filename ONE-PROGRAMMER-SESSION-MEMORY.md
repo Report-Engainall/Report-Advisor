@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-12 00:27 +03 / TRUTH-STATE SUMMARY VISIBILITY FIX COMMITTED; EXACT-HEAD RETEST REQUIRED
+
+Repository: Report-Engainall/Report-Advisor
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Latest verified code/test head: `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Fix commit: https://github.com/Report-Engainall/Report-Advisor/commit/bdfb7d3e4f5db3894d5b441e64c62ebefc708217
+Failed predecessor Full Product Browser E2E: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130
+Artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38175717130/artifacts/11715802981
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0027-SMART-TRUTH-STATE-VISIBILITY-FIX.md`
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Immediate cause and repair
+- Predecessor browser run `38175717130` failed with `Smart Report truth-state section must be visible`; upload, canonical persistence/readback, source binding, generic signals/recommendations, and pending-evidence label had passed.
+- Root cause: `ما الذي ثبت وما الذي لم يُثبت` was inside the default-collapsed `EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل` disclosure.
+- Commit `bdfb7d3e4f5db3894d5b441e64c62ebefc708217` moves the existing truth-state section to the always-visible page flow immediately before that disclosure. The regression test asserts the source order, preventing the section from silently returning to the collapsed detail panel.
+- GitHub readback proves both the UI move and regression assertion are persisted. No state was promoted to VERIFIED and no auth/RLS boundary or failure guard changed.
+
+## Exact result boundary
+On parent `ef0c3d1...`, the handoff, build, quality, Phase-F, Phase 2 security and final certification jobs passed; Full Product Browser E2E failed and the log/artifact above was read directly. None of the predecessor PASS checks is claimed for new head `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`. Exact-head gates and the browser journey must be refreshed.
+
+NEXT_EXACT_ACTION = Read build/quality/handoff/security/Phase-F/final-gate and Full Product Browser E2E for `bdfb7d3e4f5db3894d5b441e64c62ebefc708217`; extract the browser result.json/screenshot and fix its first actual failure. Preserve PR open and PRODUCT_COMPLETE=NO.
+
+---
+
 # LIVE RESUME — 2026-10-12 00:18 +03 / SMART REPORT PENDING-EVIDENCE LABEL FIX; EXACT-HEAD E2E RETEST REQUIRED
 
 Repository: Report-Engainall/Report-Advisor
