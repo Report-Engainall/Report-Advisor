@@ -1064,11 +1064,13 @@ export function SmartReportPage() {
 
     <section aria-label="التحليل العام للمصدر" data-testid="smart-report-generic-intelligence">
       <GenericFileIntelligenceCard
-        intelligence={report.genericIntelligence ?? report.intelligence}
+        intelligence={report.genericIntelligence}
         format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
         sourcePath={report.sourcePath}
         sourceHash={report.sourceHash}
         reportJobId={report.jobId}
+        analysisScope={report.canonicalAnalysisScope}
+        analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}
       />
     </section>
 
