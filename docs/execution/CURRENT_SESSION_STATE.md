@@ -1,5 +1,31 @@
 # CURRENT SESSION STATE
 
+## LIVE RESUME — 2026-10-12 01:23 +03 / SOURCE-BOUND NAVIGATION FIX; EXACT-HEAD RETEST PENDING
+
+CURRENT_EXACT_HEAD = 158b84c52112d3125d5080bd8cda4df6533fb0a9
+CURRENT_CODE_TEST_HEAD = 158b84c52112d3125d5080bd8cda4df6533fb0a9
+CURRENT_EXECUTION_PARENT_HEAD = 0188d75a979b19a6671947827d84fcea91ed398d
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
+ACTION_STATUS = SOURCE_CONTEXT_NAVIGATION_AVAILABLE_DURING_DETAIL_LOAD; EXACT_HEAD_GATES_PENDING
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12 01:23 +03
+PREVIOUS_FAILED_E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38179172579
+PREVIOUS_E2E_ARTIFACT = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38179172579/artifacts/11717034355
+SOURCE_CONTEXT_UI_FIX_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/3f95fa168d4afbf57ceb072e2926a64aaae91ba0
+SOURCE_CONTEXT_CONTRACT_TEST_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/95baf6b4fdb5d7df48a62f85bfd53aa498312830
+BROWSER_E2E_SYNC_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/158b84c52112d3125d5080bd8cda4df6533fb0a9
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E on predecessor head 0188d75a979b19a6671947827d84fcea91ed398d failed with REPORT_CONTEXT_LINK_MISSING:/intelligence after report persistence/readback had passed.
+ROOT_CAUSE = ReportSourceContext rendered report-context links only after an independent fetchSmartReport completed, racing with the reports-center view. Pending/error states did not keep the cross-screen links available.
+WHAT_CHANGED = Added query-bound intelligence/decision/work/evidence links while report detail is pending; null report detail responses become explicit failures; added a source-context contract assertion and made Chromium wait for the concrete intelligence link before checking all seven route lineages.
+WHAT_IS_PROVEN = Commits 158b84c52112d3125d5080bd8cda4df6533fb0a9 and its component/test predecessors are on PR #912 and files were read back from GitHub. The predecessor E2E artifact proves 254 canonical rows and the stored/read-back report's exact hash, quality score and trust state. No new-head runtime gate or successful new-head E2E is claimed.
+NEXT_EXACT_ACTION = Read workflow statuses for exact head 158b84c52112d3125d5080bd8cda4df6533fb0a9; after Full Product Browser E2E completes, inspect result.json and artifacts, fix the first actual new-head failure, then rerun exact-head required gates.
+SESSION HANDOFF = READY — checkpoint is aligned to the code/test head; exact-head gates pending.
+
+---
+
 ## LIVE RESUME — 2026-10-12 01:06 +03 / SOURCE-CONTEXT LIFECYCLE FIX COMMITTED
 
 CURRENT_EXACT_HEAD = c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2

@@ -1,3 +1,24 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 01:23 +03 / SOURCE-BOUND NAVIGATION DURING REPORT LOAD
+
+REPORT_FOR_HEAD = 158b84c52112d3125d5080bd8cda4df6533fb0a9
+UPDATED_AT = 2026-10-12T01:23:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+BASE_MAIN = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+SESSION HANDOFF = READY — source/navigation repair is checkpointed; exact-head browser proof remains pending.
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from the live GitHub head, diagnose the first real failure in the authenticated business journey, repair it without rebuilding the existing intelligence engine or weakening data security, and persist state/report before the next long validation.
+WHAT_I_ACTUALLY_DID = Read the live PR and prior exact-head Actions; retrieved the full browser job log and artifact. On the same PR branch, made ReportSourceContext expose source-bound shortcut links while its independent report-detail read is pending, turn a null report read into an explicit error, add a source-context regression assertion, and make the Chromium test wait for the expected intelligence link before checking destination lineage. Code/test commits: 3f95fa168d4afbf57ceb072e2926a64aaae91ba0, 95baf6b4fdb5d7df48a62f85bfd53aa498312830, 158b84c52112d3125d5080bd8cda4df6533fb0a9.
+WHAT_IS_PROVEN = The prior run 38179172579 on predecessor head 0188d75a979b19a6671947827d84fcea91ed398d uploaded artifact 11717034355 and recorded REPORT_CONTEXT_LINK_MISSING:/intelligence. The same result confirms tenant-authenticated readback and a saved report for تقارير ارصدة المخزون.pdf: 254 canonical rows, quality 98%, TRUSTED, exact source hash sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839; evidence remains AWAITING_EVIDENCE_SNAPSHOT, not final proof. The new component/test changes were read back from GitHub at report head 158b84c52112d3125d5080bd8cda4df6533fb0a9; that is persistence proof only, not an E2E PASS.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38179172579, browser job 114589036744, predecessor head 0188d75a979b19a6671947827d84fcea91ed398d, failed at REPORT_CONTEXT_LINK_MISSING:/intelligence. The browser authenticated, checked tenant isolation and read back the stored report before the failure.
+ROOT_CAUSE = The cross-screen navigation links were only inside the fully loaded ReportSourceContext detail view, while ReportsCenterPage performed a separate asynchronous report fetch. The E2E assertion inspected report-center content before the source-context detail request had produced its links; the pending/error states also had no source-bound shortcut links. No evidence indicated a database save/hash mismatch.
+NEXT_EXACT_ACTION = Read all workflows on exact code head 158b84c52112d3125d5080bd8cda4df6533fb0a9, wait for the newly triggered Full Product Browser E2E and retrieve its artifact/result.json. Fix the next evidenced failure and rerun required gates against one exact head. Do not merge PR #912 or declare PRODUCT_COMPLETE until the full authenticated upload→render→persist→readback→cross-screen path and production proof pass.
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 01:06 +03 / SOURCE-CONTEXT REQUEST CANCELLATION FIX; RUNTIME RETEST PENDING
 
 REPORT_FOR_HEAD = c4792cf6dedfafc549f96bb3b3f3205d5e7eebf2

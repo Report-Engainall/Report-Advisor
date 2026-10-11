@@ -1,3 +1,44 @@
+# LIVE RESUME — 2026-10-12 01:23 +03 / SOURCE-BOUND REPORT NAVIGATION AVAILABLE DURING DETAIL LOAD; EXACT-HEAD RETEST PENDING
+
+Repository: `Report-Engainall/Report-Advisor`
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact code-and-test head: `158b84c52112d3125d5080bd8cda4df6533fb0a9`
+Previous checkpoint head: `0188d75a979b19a6671947827d84fcea91ed398d`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Prior Full Product Browser E2E failure: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38179172579
+Prior failure artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38179172579/artifacts/11717034355
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Latest change committed on the existing branch
+
+- UI fix: [3f95fa1](https://github.com/Report-Engainall/Report-Advisor/commit/3f95fa168d4afbf57ceb072e2926a64aaae91ba0) keeps report-context destination links available during the asynchronous report-detail read; valid context links carry the exact `reportJobId` and encoded SHA-256 source hash. A missing detail response now sets an explicit error rather than leaving a perpetual pending state.
+- Regression contract: [95baf6b](https://github.com/Report-Engainall/Report-Advisor/commit/95baf6b4fdb5d7df48a62f85bfd53aa498312830) protects early source-context navigation during loading.
+- Browser E2E: [158b84c](https://github.com/Report-Engainall/Report-Advisor/commit/158b84c52112d3125d5080bd8cda4df6533fb0a9) waits for the actual source-bound intelligence link before validating all destination links and lineage. This is synchronization with an independently fetched UI component, not a relaxed assertion.
+
+## Proven prior failure and diagnosis
+
+Prior run `38179172579` at exact head `0188d75a979b19a6671947827d84fcea91ed398d` failed at `REPORT_CONTEXT_LINK_MISSING:/intelligence`. Its artifact contains the exact failure and a persisted report readback for `تقارير ارصدة المخزون.pdf`: `reportJobId=8dbafdf8-f769-4c4f-97a5-22eac8b47d41`, source hash `sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839`, 254 canonical rows, quality 98%, trust `TRUSTED`, and evidence state `AWAITING_EVIDENCE_SNAPSHOT`. The report save/readback and authentication assertions passed before the link assertion failed.
+Root cause: `ReportSourceContext` rendered its cross-surface shortcut links only after its own `fetchSmartReport` returned, while the reports-center page loaded its own report separately. The browser assertion observed the main surface before that parallel read had rendered the shortcut links. The loading/error UI also lacked context-preserving shortcuts.
+Security posture unchanged: no RLS, tenant membership, or `anon` permissions were weakened.
+
+## Exact status and next action
+
+Source and test files have been read back from GitHub at `158b84c52112d3125d5080bd8cda4df6533fb0a9`. This confirms persistence, not browser proof. New-head gate results must be read individually; prior-head PASS results do not transfer.
+Latest workflow statuses observed for the code head:\nFinal Certification Gate: queued (#38180199841 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180199841)
+quality: queued (#38180199864 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180199864)
+Full Product Browser E2E: pending (#38180200305 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180200305)
+Product Build Gate: in_progress (#38180200273 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180200273)
+data-quality-runtime: completed/success (#38180200298 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180200298)
+Session Handoff Contract: completed/failure (#38180200198 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180200198)
+Final Certification Gate: in_progress (#38180195768 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180195768)
+Session Handoff Contract: completed/failure (#38180195769 https://github.com/Report-Engainall/Report-Advisor/actions/runs/38180195769)
+
+NEXT_EXACT_ACTION = Read the latest Actions on `158b84c52112d3125d5080bd8cda4df6533fb0a9` and inspect the new Full Product Browser E2E artifact after it completes. Repair only the next failure recorded on that exact head, then refresh the execution ledger and rerun required gates. Keep PR #912 open; PRODUCT_COMPLETE = NO.
+
+
+---
+
 # LIVE RESUME — 2026-10-12 01:06 +03 / SOURCE-CONTEXT REQUEST LIFECYCLE FIX COMMITTED; EXACT-HEAD RETEST PENDING
 
 Repository: `Report-Engainall/Report-Advisor`
