@@ -1,3 +1,28 @@
+# LIVE RESUME — 2026-10-11T21:08:00+03:00 / SOURCE-PATH CONTRACT REPAIR; EXACT-HEAD RETEST REQUIRED
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Product/test parent for this governance checkpoint: `167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6`.
+- Product complete: **NO**.
+
+## Current verified status
+The previous governance head `2b5f9b47c99b6208b4d1578135adc12659f242aa` has a passing [Session Handoff Contract](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258338) and [Final Certification Gate](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258407). Do not transfer those results to a newer head. Its [Product Build Gate](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258148) failed only at the customer-facing surface contract assertion shown in the job log: `assert.ok(!surface.includes('{report.sourcePath}'))`.
+
+## Executed test-contract repair
+Commit [`167ebdc`](https://github.com/Report-Engainall/Report-Advisor/commit/167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6) changes only `scripts/customer-facing-report-surface-contract.test.mjs`. It now requires `sourcePath={report.sourcePath}` as the source-bound general-intelligence component prop, strips that specific prop expression for the raw-rendering check, and still rejects remaining `{report.sourcePath}` occurrences in customer-visible copy. This corrects a stale assertion without weakening the customer-facing privacy/presentation contract.
+
+## Current limitations
+- Exact-head build/quality results for `167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6` are not yet read back.
+- Full Product Browser E2E run [38162258379](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379) was in progress on prior head `2b5f9b4…` when last checked. Do not cancel or count it as PASS.
+- The earlier user-visible failure was `inventory: intelligence panel missing`; the source-bound inventory view was repaired in `08a1ac3`, but the fix is not yet browser-proven on the current code/test head.
+- `PRODUCT_COMPLETE = NO`; PR #912 remains open and must not be merged yet.
+
+## NEXT EXACT ACTION
+Read the exact-head runs triggered by `167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6`. Fix only the first new terminal failure with supporting logs, and preserve proof of authenticated upload, visible general plus applicable specialist analysis, saved readback, and matching `reportJobId + sourceHash` after route changes and refresh.
+
+---
+
 # LIVE RESUME — 2026-10-11T21:05:00+03:00 / INVENTORY INTELLIGENCE SURFACE FIX; NEW-HEAD PROOF REQUIRED
 
 - Repository: `Report-Engainall/Report-Advisor`

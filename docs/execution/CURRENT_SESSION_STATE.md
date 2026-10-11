@@ -1,16 +1,29 @@
-# LIVE RESUME — 2026-10-11T21:05:00+03:00 / INVENTORY GENERAL INTELLIGENCE MOUNTED; EXACT-HEAD VALIDATION REQUIRED
+# LIVE RESUME — 2026-10-11T21:08:00+03:00 / SOURCE-PATH CONTRACT REPAIR; EXACT-HEAD RETEST REQUIRED
 
-CURRENT_EXACT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
-CURRENT_PRODUCT_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
-CURRENT_CODE_TEST_HEAD = 08a1ac3464cd7ba818cf09287e3a83a852291681
-CURRENT_EXECUTION_HEAD_BEFORE_GOVERNANCE_COMMIT = 08a1ac3464cd7ba818cf09287e3a83a852291681
+CURRENT_EXACT_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
+CURRENT_PRODUCT_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
+CURRENT_CODE_TEST_HEAD = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
+CURRENT_EXECUTION_HEAD_BEFORE_GOVERNANCE_COMMIT = 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
 MAIN_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
-ACTION_STATUS = INVENTORY_INTELLIGENCE_SURFACE_IMPLEMENTED; REGRESSION_GUARD_ADDED; EXACT_HEAD_GATES_PENDING
+ACTION_STATUS = CUSTOMER_SURFACE_CONTRACT_CORRECTED; EXACT_HEAD_GATES_PENDING
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-UPDATED_AT = 2026-10-11T21:05:00+03:00
+UPDATED_AT = 2026-10-11T21:08:00+03:00
+
+## Current confirmed failure and repair
+The Product Build Gate on prior head `2b5f9b47c99b6208b4d1578135adc12659f242aa` failed at the customer-facing report contract, with exact assertion `assert.ok(!surface.includes('{report.sourcePath}'))`. It incorrectly rejected passing the exact source path as an input property to the generic intelligence component. Commit `167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6` changes the test contract to permit the sourcePath component prop while explicitly rejecting remaining direct customer-visible `{report.sourcePath}` rendering. Typecheck, production build, and the two earlier smart-report contracts passed on the prior head; new-head proof remains required.
+
+## Prior-head gate readback (not transferable)
+- [Session Handoff Contract](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258338): PASS on `2b5f9b4…`.
+- [Final Certification Gate](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258407): PASS on `2b5f9b4…`.
+- [Product Build Gate](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258148): FAIL on `2b5f9b4…` for the stale assertion above.
+- [Full Product Browser E2E](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38162258379): IN PROGRESS on `2b5f9b4…` at last read; do not cancel and do not claim pass.
+- Product/test commit `167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6` has triggered new runs, which must be read by exact SHA.
+
+PRODUCT_COMPLETE = NO
+NEXT_EXACT_ACTION = Read exact-head Build, Quality, Full Product Browser E2E and Phase-F results for 167ebdc1d0bcf3f1090d4de9299cbc9688fb0dc6; fix the first proven terminal failure without cancelling an existing run or transferring prior-head passes.
 
 ## First failure proven from the completed browser artifact
 
