@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-11 / SHARED EVIDENCE LABEL + SOURCE-SAFE LOGICAL RESTORE
+
+CURRENT_EXACT_HEAD = 023d8d38d0c05e6b62c872b234422f9d717e2727
+CURRENT_PRODUCT_HEAD = 023d8d38d0c05e6b62c872b234422f9d717e2727
+CURRENT_EXECUTION_HEAD = 023d8d38d0c05e6b62c872b234422f9d717e2727
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = FIXES_COMMITTED; EXACT_HEAD_VALIDATION_QUEUED
+SESSION HANDOFF = READY
+PRODUCT_COMPLETE = NO
+NEXT_EXACT_ACTION = Read the fresh exact-head Build, Quality, Session Handoff, Final Certification, Full Product Browser E2E and Phase-F runtime results. If restore passes, verify authenticated upload → visible general intelligence + eligible specialty findings → evidence → save/readback → linked-screen navigation → refresh/re-entry with unchanged reportJobId + sourceHash; fix the first terminal failure only.
+
+## Changes committed on this application/test head
+
+- `src/components/ReportIntelligencePanel.tsx`: the shared intelligence heading now visibly includes `EVIDENCE PASSPORT` alongside `GUIDANCE`. Root cause from browser evidence: authenticated route/source checks passed, but the source-bound Trust screen did not visibly include the required passport label.
+- `scripts/phase-f-live-resilience-probes.mjs`: logical restore now gathers UUIDs actually referenced by public foreign keys to `auth.users`, then creates ID-only placeholder users in the temporary local restore target before restoring public rows. No emails, password hashes, user metadata, or auth tokens are copied; no remote/staging DDL or auth mutation is performed.
+- Existing volatile exclusions remain limited to `public.operational_health_snapshots`, `public.carts`, and `public.cart_items`. Business rows such as `company_memberships`, orders, invoices, payments, and decision/evidence records are not excluded.
+- `scripts/resilience-runtime.test.mjs`, `scripts/check-phase10-backup-restore-contract.mjs`, and `scripts/smart-report-complete-intelligence-surface.test.mjs` now require the ID-only restore boundary and visible passport label.
+
+## Current proof boundary
+
+- The previous Full Product Browser run [38155955866](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38155955866) reached the real source-bound report and proved authentication, report/tenant lineage, 254 canonical rows, Smart Report refresh readback and Reports Center source identity before failing because the Trust surface lacked visible `EVIDENCE PASSPORT`. It was not a full journey PASS.
+- Phase-F on previous candidate [38156050104](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38156050104) passed 3/4 probes but failed when `company_memberships_user_id_fkey` referenced users absent from the public-only restore. The new ID-only stub strategy addresses this class of Auth FK without excluding business tables.
+- Fresh validation for `023d8d38d0c05e6b62c872b234422f9d717e2727` is queued/pending: Build Gate [38157202890](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202890), Quality [38157202815](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202815), Session Handoff [38157202962](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202962), Final Certification [38157202927](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202927), Full Product Browser E2E [38157202976](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202976), and Phase-F live resilience [38157202966](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202966). Do not inherit predecessor PASS states.
+- Current public Netlify preview has not yet been proven to contain this new source head. Production proof remains NOT_PROVEN; real-source 48-archetype coverage remains NOT_PROVEN.
+
 # LIVE RESUME — 2026-10-11T19:24:00+03:00 / CART_ITEMS RESTORE FIX + CURRENT-HEAD RECONCILIATION
 
 - Repository: `Report-Engainall/Report-Advisor`

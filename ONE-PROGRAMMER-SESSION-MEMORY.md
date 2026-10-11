@@ -1,3 +1,27 @@
+# LIVE RESUME — 2026-10-11 / ID-ONLY AUTH RESTORE + VISIBLE PASSPORT FIX
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR: https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+- Exact application/test head: `023d8d38d0c05e6b62c872b234422f9d717e2727`
+- Product complete: **NO**.
+
+## Committed changes
+- Shared `ReportIntelligencePanel` now visibly renders `EVIDENCE PASSPORT`, fixing the first browser assertion failure on the source-bound Trust route; it retains visible `GUIDANCE`.
+- Phase-F logical restore discovers UUIDs in public single-column foreign keys to `auth.users` and inserts only those IDs into the disposable local restore target before loading public rows. It does not copy email, passwords, auth metadata or tokens, and does not mutate the remote/staging database.
+- Public business tables are retained; only volatile operational health/cart state is excluded from the public-only logical dump.
+- Regressions cover stub idempotency, ordering before restore, absence of auth credentials, and visible passport wording.
+
+## Exact execution frontier
+- Previous browser run [38155955866](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38155955866) proved auth, tenant/source identity, canonical 254-row report, Smart Report refresh readback and Reports Center. It failed at the Trust surface because EVIDENCE PASSPORT was not visibly rendered; do not label the run PASS.
+- Previous Phase-F run [38156050104](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38156050104) passed 3/4 runtime probes and failed to restore company_memberships constraints because Auth parent UUIDs were absent from the ephemeral target.
+- Current-head Build [38157202890](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202890), Quality [38157202815](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202815), Handoff [38157202962](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202962), Final Certification [38157202927](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202927), Full Browser E2E [38157202976](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202976) and Phase-F [38157202966](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38157202966) are fresh queued/pending, not PASS.
+- The published PR preview was last proven at source SHA `eaebe8ccaaacf17846ceb070c33229cd7d1e3b48`; it is not yet proof of current code `023d8d38d0c05e6b62c872b234422f9d717e2727`. Production-current and 48-archetype real-source proof remain NOT_PROVEN.
+
+NEXT EXACT ACTION = Read the current-head Phase-F restore and Full Product Browser E2E artifacts. Fix the first terminal failure, then prove varied upload → all visible general findings and applicable specialty results → source evidence → saved readback → linked surfaces → refresh/re-entry with stable reportJobId + SHA-256.
+
+---
+
 # LIVE RESUME — 2026-10-11T19:24:00+03:00 / EXACT-HEAD CART_ITEMS RESTORE REPAIR COMMITTED; VALIDATION RUNS REQUIRED
 
 - Repository: `Report-Engainall/Report-Advisor`

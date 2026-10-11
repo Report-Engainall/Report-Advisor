@@ -1,20 +1,21 @@
-REPORT_FOR_HEAD = eaebe8ccaaacf17846ceb070c33229cd7d1e3b48
-UPDATED_AT = 2026-10-11T19:25:00+03:00
+REPORT_FOR_HEAD = 023d8d38d0c05e6b62c872b234422f9d717e2727
+UPDATED_AT = 2026-10-11
 REPOSITORY = Report-Engainall/Report-Advisor
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-CURRENT_PR_GOVERNANCE_HEAD = 95207a6c5bd4a1d720b147abc60cfdcf6cdf93b3
 PRODUCT_COMPLETE = NO
-WHAT_I_WAS_ASKED_TO_DO = Continue the existing source-bound general-intelligence and linked-screen work in PR #912; preserve the existing engine; prove varied-file upload, visible evidence-backed results, durable readback and refresh without depending on the user's device.
-WHAT_I_ACTUALLY_DID = Fixed the proven Phase-F restore defect by excluding both public.carts and dependent public.cart_items from the public-only logical dump; added regression assertions to resilience-runtime and Phase-10 restore contracts; reconciled the E2E and visible-guidance contract files omitted from the prior checkpoint; persisted the current state, memory, dated archive and archive index in GitHub.
-WHAT_IS_PROVEN = On parent code/test head eb94db1f3bad9d59020d7beb8ea42c8309f53ee1, Product Build Gate, Quality, data-quality runtime, Storage Tenant Runtime E2E, Device-Independent Browser E2E and Report Value Cohort passed. Session Handoff and Final Certification failed at the stale-report coverage guard. Phase-F live restore was 3/4 and failed on cart_items_cart_id_fkey. The new code/test head eaebe8ccaaacf17846ceb070c33229cd7d1e3b48 has the exclusion fix committed, but fresh exact-head test results were queued/pending at the time of the archive; no pass is inherited.
-FIRST_ACTIVE_FAILURE = The logical dump omitted public.carts but still restored child public.cart_items, causing cart_items_cart_id_fkey. The prior handoff also failed to list scripts/real-business-e2e.mjs and scripts/smart-report-complete-intelligence-surface.test.mjs.
-ROOT_CAUSE = The volatile exclusion set omitted a child table that references the excluded parent. Separately, the prior checkpoint was stale relative to the PR branch's subsequent E2E/contract commits. Both are now explicitly covered by this commit's documented parent code head.
-CURRENT_HEAD_GATES = Exact-head Product Build Gate, Quality, Phase-F live restore, Session Handoff, Final Certification and Full Product Browser E2E must finish; then read their terminal artifacts. Full authenticated upload-to-save/readback/refresh is not yet proven on the new code head. Real-source 48-archetype coverage and production-current proof remain NOT_PROVEN.
-NEXT_EXACT_ACTION = Consume the newest exact-head Phase-F, Full Product Browser E2E, Session Handoff and Final Certification results. If restore passes, use the authenticated browser artifact to verify fresh varied-file upload → all source-supported generic results and eligible specialty results → evidence → save/readback → cross-screen navigation → refresh/re-entry with the same reportJobId + SHA-256; fix only the first true runtime failure.
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing Report-Advisor universal intelligence work in parallel without using the user's device; fix source-bound result rendering, preserve all business rows during restore, and prove the actual authenticated upload/readback journey.
+WHAT_I_ACTUALLY_DID = Added a visible EVIDENCE PASSPORT badge to the shared intelligence panel so every source-bound surface exposes the same required marker. Repaired Phase-F logical restore by discovering UUIDs referenced by public FKs to auth.users and seeding ID-only, non-authenticating placeholders in the disposable local target before public data restore. Kept business tables in the dump and limited exclusions to operational/cart session data. Added static regressions for ordering, idempotency, identity-only payload and visible UI label. Committed the changes to PR #912; no user-local device was used.
+WHAT_IS_PROVEN = On previous browser run 38155955866, authentication, tenant/source identity, Smart Report refresh readback, the 254-row canonical source and Reports Center proof passed before the first terminal UI assertion failed on missing visible EVIDENCE PASSPORT in the Trust surface. Previous Phase-F 38156050104 passed operational health, tenant canary and rollback/forward drill, then failed the restore constraint on company_memberships_user_id_fkey. The new head 023d8d38d0c05e6b62c872b234422f9d717e2727 has the UI/restore corrections committed; fresh tests are currently queued/pending, so none are promoted to PASS.
+FIRST_ACTIVE_FAILURE = Exact-head current-code confirmation is pending. Prior specific failures were: source-bound Trust view missing visible EVIDENCE PASSPORT; logical restore lacked auth.users parent IDs because the public-only dump intentionally excludes the Auth schema.
+ROOT_CAUSE = The passport contract existed in a hidden contract marker/Smart Report-only disclosure but was not visible on all source-bound surfaces. The logical backup correctly avoided copying auth data, but its target lacked identity-only parent rows needed to reapply public foreign keys. Fixes now expose the label in the shared UI and seed only referenced UUIDs in the ephemeral restore target.
+CURRENT_HEAD_GATES = Product Build Gate, Quality, Session Handoff, Final Certification, Full Product Browser E2E and Phase-F live resilience are fresh/queued on this exact head; their run IDs are recorded in CURRENT_SESSION_STATE.md. Production deployment currentness, the full authenticated upload/save/readback/refresh journey, and real-source 48-archetype coverage remain NOT_PROVEN.
+NEXT_EXACT_ACTION = Consume terminal results for current-head Phase-F and Full Product Browser E2E first. Verify the restore succeeds with public table counts intact and only ID-only local Auth stubs, then verify the Trust surface and full upload → intelligence → evidence → persistence → cross-screen navigation → refresh/re-entry journey with identical reportJobId + sourceHash. Repair only the first terminal failure.
 SESSION HANDOFF = READY
-CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
-CURRENT EXECUTION HEAD = eaebe8ccaaacf17846ceb070c33229cd7d1e3b48
+CURRENT_MAIN_HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
+CURRENT_EXECUTION_HEAD = 023d8d38d0c05e6b62c872b234422f9d717e2727
+
+---
 
 ---
 

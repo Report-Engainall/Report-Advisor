@@ -1,5 +1,9 @@
 ## Latest report — 2026-10-11
 
+- [Visible passport + source-safe logical restore](2026-10-11/REPORT-20261011-023D8D3-AUTH-STUBS-AND-PASSPORT-LABEL.md) — application/test head `023d8d38d0c05e6b62c872b234422f9d717e2727`; fresh exact-head proof queued/pending.
+
+## Latest report — 2026-10-11
+
 - [Cart-item logical restore root-cause fix](2026-10-11/REPORT-20261011-EAEBE8C-CART-ITEMS-RESTORE-FIX.md) — exact code/test head `eaebe8ccaaacf17846ceb070c33229cd7d1e3b48`; live restore fix committed, fresh exact-head validation required.
 # Programmer Report Archive
 
