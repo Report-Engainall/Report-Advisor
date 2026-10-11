@@ -29,6 +29,11 @@ if (!/const directPort = parsed\.port \|\| '5432';/.test(phaseFProbe) || !/direc
 if (!/function runDockerPgDump\(databaseUrl, outputPath\)/.test(phaseFProbe) || !/pg_dump "\$PGURI"/.test(phaseFProbe) || !/runDockerPgDump\(runnerSource, backupPath\)/.test(phaseFProbe)) {
   throw new Error('Phase-F logical dump must use the resolved runnerSource URI via pg_dump');
 }
+if (!/const volatileExcludeArgs = \[\.\.\.VOLATILE_RESTORE_TABLES\]/.test(phaseFProbe)
+  || !/--exclude-table-data=\$\{tableName\}/.test(phaseFProbe)
+  || !/--data-only \$\{volatileExcludeArgs\}/.test(phaseFProbe)) {
+  throw new Error('Phase-F logical restore must exclude volatile public rows whose Supabase Auth parent rows are not present in the public-only dump');
+}
 
 const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')

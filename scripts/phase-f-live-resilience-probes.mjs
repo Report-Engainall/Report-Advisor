@@ -206,12 +206,18 @@ function runDockerPgDump(databaseUrl, outputPath) {
   const outputName = path.basename(outputPath);
   const containerDir = '/tmp/phase-f-output';
   const containerPath = `${containerDir}/${outputName}`;
+  // A public-only dump cannot restore auth.users. Exclude volatile operational
+  // rows that depend on Supabase-managed Auth instead of counting them as parity
+  // data and then accidentally writing them into the restore target.
+  const volatileExcludeArgs = [...VOLATILE_RESTORE_TABLES]
+    .map((tableName) => `--exclude-table-data=${tableName}`)
+    .join(' ');
   const args = [
     'run', '--rm', '--network', 'host',
     '-v', `${outputDir}:${containerDir}`,
     '-e', `PGURI=${databaseUrl}`,
     postgresClientImage,
-    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
+    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only ${volatileExcludeArgs} --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
   ];
   return retryTransientPostgresConnection(
     () => runCommand('docker', args),
