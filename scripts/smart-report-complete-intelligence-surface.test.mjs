@@ -29,6 +29,10 @@ const recommendationBlock = source.slice(recommendationStart, forecastStart);
 if (signalBlock.includes('signals.slice(')) throw new Error('Signals must not be artificially truncated');
 if (recommendationBlock.includes('recommendations.slice(')) throw new Error('Recommendations must not be artificially truncated');
 
+const reportIntelligencePanel = fs.readFileSync(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url), 'utf8');
+if (!reportIntelligencePanel.includes('>GUIDANCE</span>')) throw new Error('Guidance contract must be visible text in the intelligence panel, not only a data attribute');
+if (!reportIntelligencePanel.includes('ذكاء المصدر')) throw new Error('Arabic source-intelligence heading must remain visible beside the guidance label');
+
 console.log('smart-report-complete-intelligence-surface: PASS');
 
 const smartReportPage = fs.readFileSync(new URL('../src/pages/SmartReportPage.tsx', import.meta.url), 'utf8');
