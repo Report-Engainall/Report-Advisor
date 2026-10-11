@@ -37,6 +37,10 @@ assert.ok((reportSourceContext.match(/controller\.abort\(\)/g) ?? []).length >= 
   'Every ReportSourceContext request effect must abort in-flight work during cleanup');
 assert.ok(reportSourceContext.includes('AbortSignal.any([controller.signal, AbortSignal.timeout(12000)])'),
   'ReportSourceContext requests must preserve timeout and cleanup cancellation');
+assert.ok(reportSourceContext.includes('function SourceContextNavigation'), 'Source-bound navigation must be available independently of report detail rendering');
+assert.ok(reportSourceContext.includes('data-testid="report-source-context-links"'), 'Source-context navigation must expose a stable browser-proof surface');
+assert.ok(reportSourceContext.includes('if (!report && !error)'), 'Pending report-detail reads must retain navigation while they resolve');
+assert.ok(reportSourceContext.includes("path: '/intelligence'"), 'Source-bound navigation must retain the intelligence route');
 
 assert.ok(smart.includes('تصدير XLSX'));
 
