@@ -463,14 +463,16 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
       const rendered = evidence.renderedOutput && typeof evidence.renderedOutput === 'object'
         ? evidence.renderedOutput as Record<string, unknown>
         : {};
+      // Analysis snapshot proves source extraction and lineage, not a governed evidence passport.
+      // Keep the report awaiting evidence until refresh_report_evidence_passport validates canonical coverage.
       const linkedEvidence = {
         ...evidence,
         sourceSnapshotId: snapshotId,
-        evidenceStatus: 'VERIFIED',
+        evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT',
         renderedOutput: {
           ...rendered,
           sourceSnapshotId: snapshotId,
-          evidenceStatus: 'VERIFIED',
+          evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT',
           sourceAnalysisSnapshotId: snapshotId,
         },
       };

@@ -172,7 +172,7 @@ if (/\bDEFAULT\b/i.test(repairCommitSignature)) {
 
 
 if (!/activeClient\.rpc\(\s*repairExistingSource\s*\?\s*'import_repair_commit_batch'\s*:\s*'import_commit_batch'\s*,\s*rpcArgs\s*,?\s*\)/.test(canonicalCommit)) {
-  throw new Error('Canonical import must route repair work to a separately named RPC');
+  throw new Error('Canonical import must route repair work to a separately named RPC only for explicit repair requests');
 }
 
 required(importCommitRpcMigration, [
@@ -185,8 +185,24 @@ required(importCommitRpcMigration, [
   "NOTIFY pgrst, 'reload schema'",
 ], 'Repair RPC migration must preserve its service-only permission boundary');
 
-if (/GRANT EXECUTE ON FUNCTION public\\.import_repair_commit_batch\\([^)]*\\)\\s+TO (?:PUBLIC|anon|authenticated)\\b/i.test(importCommitRpcMigration)) {
+if (/GRANT EXECUTE ON FUNCTION public\.import_repair_commit_batch\([^)]*\)\s+TO (?:PUBLIC|anon|authenticated)\b/i.test(importCommitRpcMigration)) {
   throw new Error('Repair RPC must not grant execution to public, anon, or authenticated');
+}
+
+const sourceAnalysisLinkStart = canonicalImport.indexOf('const linkedEvidence = {');
+const sourceAnalysisLinkEnd = canonicalImport.indexOf('const { error: evidenceUpdateError }', sourceAnalysisLinkStart);
+if (sourceAnalysisLinkStart < 0 || sourceAnalysisLinkEnd < 0) {
+  throw new Error('Canonical source-analysis evidence-link block missing');
+}
+const sourceAnalysisLinkBlock = canonicalImport.slice(sourceAnalysisLinkStart, sourceAnalysisLinkEnd);
+if (!sourceAnalysisLinkBlock.includes("evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT'")) {
+  throw new Error('Source-analysis snapshot must leave governed evidence awaiting passport verification');
+}
+if (sourceAnalysisLinkBlock.includes("evidenceStatus: 'VERIFIED'")) {
+  throw new Error('Source-analysis snapshot must not independently promote report evidence to VERIFIED');
+}
+if (!sourceAnalysisLinkBlock.includes('sourceAnalysisSnapshotId: snapshotId')) {
+  throw new Error('Source-analysis snapshot provenance link missing');
 }
 
 console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');
