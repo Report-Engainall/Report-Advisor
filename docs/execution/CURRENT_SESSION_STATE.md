@@ -1,3 +1,34 @@
+# LIVE RESUME — 2026-10-11T20:40:00+03:00 / SOURCE-HASH + DOMAIN-LINEAGE LABELS COMMITTED; NEW EXACT-HEAD VALIDATION REQUIRED
+
+CURRENT_EXACT_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
+CURRENT_PRODUCT_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
+CURRENT_CODE_TEST_HEAD = 7e99202909c88aec0630dd53c578d1350d4f9a74
+CURRENT_EXECUTION_HEAD_BEFORE_THIS_STATE_COMMIT = 7e99202909c88aec0630dd53c578d1350d4f9a74
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = DOMAIN_SOURCE_HASH_AND_CONTEXT_FIXES_COMMITTED; EXACT_HEAD_GATES_REQUIRED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+## Actual UI fixes after reading the live E2E assertion
+- `/reports/inventory` renders through `ReportsPage.tsx → SourceBoundDomainSurface → CustomerReportSurface`. The previous patch now visibly prints the complete SHA-256 as `data-testid="customer-report-source-hash"`.
+- A second exact requirement was found in `scripts/real-business-e2e.mjs`: inventory must also show `SOURCE-BOUND DOMAIN ANALYSIS` and `هذه الشاشة مربوطة مباشرة بنتيجة التقرير`. The actual domain component previously rendered neither, so the screen now presents both labels as visible source context; this is not a test weakening.
+- Commit `a49287cbb5271e52d0c196dcee8ba3a81a12b8fb`: visible source-bound domain labels.
+- Commit `7e99202909c88aec0630dd53c578d1350d4f9a74`: contract test now asserts the visible hash and both domain labels.
+- Prior report baseline `e21023d9aa5f8373568fcb869a2120efface4000` is the preview-runtime commit. Compare evidence shows it differs from the tested code commit `eb56d92...` by one doc-only report commit. The new current product/test head is `7e992029...`.
+
+## Current evidence boundary
+- Session Handoff Contract passed on parent head `465ae7d48a56b2aa5610aebe3ae4d7166ababa95`: [run 38159499475](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159499475). The guard was preserved; report anchor was adjusted to an ancestor that correctly bounds the diff.
+- Quality passed on that same parent: [run 38159499402](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38159499402), but it does not validate the later two UI/test commits.
+- Full Product Browser E2E on older head `ae203723...` reproduced the old blocker `inventory: source hash missing`; it subsequently completed route/auth proof successfully but business journey failed. The same old run reported real-source 48-archetype coverage step successful; this still is not the current full browser pass.
+- On parent `465ae7d...`, Build, Quality, Phase-F, Final Certification, and Browser had started; some runs may have been cancelled as the later UI/test commits landed. No result is inherited to `7e992029...`.
+- Netlify health is healthy at deployment/source/build SHA `e21023d9...`; this preview contains the prior source-hash patch but predates the newly added domain labels. A fresh browser proof must target the newest deployment before calling the label fix proven.
+- Production proof remains NO.
+
+## NEXT EXACT ACTION
+Let the exact-head gates restart on the branch containing `7e992029...`; confirm Product Build Gate and Quality, then read the Full Product Browser E2E result. The first visible inventory route must now include the full `sourceHash`, `SOURCE-BOUND DOMAIN ANALYSIS`, and the Arabic source-lineage explanation, with identical `reportJobId + sourceHash` through refresh. Fix only the first new failure. Do not modify workflow scope or disable failing assertions.
+
+--- HISTORICAL STATE BELOW; PRESERVED ---
 # LIVE RESUME — 2026-10-11T20:27:00+03:00 / DOMAIN REPORT HASH NOW VISIBLE IN ACTUAL RENDERED COMPONENT
 
 CURRENT_PR_BASE = fa1ab4cbade9b01685507aa966c10f700a03f576
