@@ -347,13 +347,37 @@ function buildGenericDatasetForReport(input: {
   sourceAnalysis: SmartReportDetail['sourceAnalysis'];
   canonicalRows: SmartReportDetail['canonicalRows'];
   qualityScore: number | null;
+  runtimeWarnings?: string[];
 }): Dataset | null {
-  const rows = input.canonicalRows
+  const canonicalRows = input.canonicalRows
     .map((row) => row.data)
     .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object'));
-  if (!rows.length) return null;
 
   const sourceDataset = input.sourceAnalysis?.datasets?.find((dataset) => dataset && typeof dataset === 'object') as Record<string, unknown> | undefined;
+  const snapshotRows = Array.isArray(sourceDataset?.rows)
+    ? sourceDataset.rows.filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object' && !Array.isArray(row)))
+    : [];
+  const snapshotRowCount = Number(sourceDataset?.rowCount);
+  const sourceDatasetCount = (input.sourceAnalysis?.datasets ?? [])
+    .filter((dataset) => dataset && typeof dataset === 'object').length;
+  // Snapshot datasets are fetched only after tenant + sourceHash + importJobId are
+  // matched. Permit a fallback only when its own row count proves the snapshot is
+  // complete; never relabel an arbitrary 50-row preview as the full source.
+  const completeBoundSnapshot = canonicalRows.length === 0
+    && snapshotRows.length > 0
+    && Number.isSafeInteger(snapshotRowCount)
+    && snapshotRowCount > 0
+    && snapshotRows.length === snapshotRowCount
+    && (sourceDatasetCount !== 1
+      || input.sourceAnalysis?.rowCount == null
+      || Number(input.sourceAnalysis.rowCount) === snapshotRowCount);
+  const rows = canonicalRows.length > 0 ? canonicalRows : completeBoundSnapshot ? snapshotRows : [];
+  if (!rows.length) return null;
+
+  if (completeBoundSnapshot) {
+    input.runtimeWarnings?.push('التحليل العام مشتق من لقطة الاستخراج المربوطة بنفس المصدر لأن الصفوف الكانونية غير متاحة؛ تبقى تغطية المصدر الكانونية قيد المراجعة ولا يُرقّى التقرير إلى جاهز للقرار.');
+  }
+
   const sourceColumns = Array.isArray(sourceDataset?.columns) ? sourceDataset.columns : [];
   const fallbackNames = Object.keys(rows[0] ?? {});
   const rawColumns = sourceColumns.length ? sourceColumns : fallbackNames.map((name) => ({ name }));
@@ -381,7 +405,7 @@ function buildGenericDatasetForReport(input: {
     name: String(sourceDataset?.name ?? input.sourcePath),
     source: String(sourceDataset?.source ?? input.sourcePath),
     sheet: sourceDataset?.sheet == null ? undefined : String(sourceDataset.sheet),
-    rowCount: input.sourceAnalysis?.rowCount == null ? rows.length : Number(input.sourceAnalysis.rowCount),
+    rowCount: canonicalRows.length > 0 && input.sourceAnalysis?.rowCount != null ? Number(input.sourceAnalysis.rowCount) : rows.length,
     columnCount: input.sourceAnalysis?.columnCount == null ? columns.length : Number(input.sourceAnalysis.columnCount),
     columns,
     rows,
@@ -997,6 +1021,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
       canonicalRows,
       qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+      runtimeWarnings,
     });
     if (genericDataset) {
       genericIntelligence = buildGenericFileIntelligence(
