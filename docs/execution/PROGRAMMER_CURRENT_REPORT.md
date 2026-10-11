@@ -1335,3 +1335,15 @@ CURRENT MAIN HEAD = fa1ab4cbade9b01685507aa966c10f700a03f576
 CURRENT EXECUTION HEAD = 447d1009caa6279faf5664da932c1f25addb8594
 REPORT_FOR_HEAD = 447d1009caa6279faf5664da932c1f25addb8594
 
+
+
+## LIVE CHECKPOINT — 2026-10-11 20:30 — EXECUTION UPDATE
+
+- Branch `fix/source-bound-generic-intelligence-20261009`; PR #912 remains open/unmerged; main/base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Last observed branch head before this checkpoint commit: `9f2d7b39aa6d73e3c680b0a7870bd27f056f1d4b` (documentation-only: “record actual inventory lineage UI contract and exact head”).
+- Actual domain surface root cause: inventory report route uses `CustomerReportSurface`, not only `SourceBoundReportSurface`. The source hash is now rendered by `CustomerReportSurface` and the regression contract explicitly asserts this route-level surface.
+- Exact-current-head CI runs were still pending/queued at the status read: browser E2E 38159739343; Product Build 38159739335; Quality 38159739332; Session Handoff 38159739357; Final Certification 38159739368; Phase-F 38159739385. Data Quality Runtime 38159739327 and Report Value Cohort 38159739145 were in progress. Full run links/statuses are in the append-only session memory. These results must be refreshed after this checkpoint commit changes the branch SHA.
+- Deployment context: Netlify deploy-preview was successful as a status check only; Vercel remained pending. Neither equals authenticated product or production proof.
+- Product remains incomplete until the actual browser journey proves visible universal + relevant specialty analysis, evidence/recommendations, persistence and readback/reload, preserving reportJobId + sourceHash.
+- Changed files in this handoff checkpoint: `ONE-PROGRAMMER-SESSION-MEMORY.md`, `docs/execution/CURRENT_SESSION_STATE.md`, `docs/execution/PROGRAMMER_CURRENT_REPORT.md`, `PROGRAMMER_REPORTS/2026-10-11-live-resume-current-head.md`.
+- NEXT EXACT ACTION: read current-head browser/build/quality results; resolve the first actual failed assertion in the rendered inventory/report-detail journey and rerun focused proof.

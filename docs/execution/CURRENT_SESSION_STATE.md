@@ -1722,3 +1722,14 @@ J reopen after refresh/re-login: not proven on current head.
 
 NEXT_EXACT_ACTION = Consume the first terminal exact-head result after this documentation sync; diagnose the first failing step from its job log, then complete the authenticated XLSX report resume and Chromium journey through persisted catalog/detail/refresh proof. Do not re-run queued jobs blindly or promote stale-head evidence.
 DO_NOT_MERGE = true
+
+
+## LIVE CHECKPOINT — 2026-10-11 20:30 — CURRENT-HEAD DOMAIN SOURCE FINGERPRINT VERIFICATION
+
+- Repo `Report-Engainall/Report-Advisor`; PR #912 open/unmerged; branch `fix/source-bound-generic-intelligence-20261009`.
+- Head before this checkpoint: `9f2d7b39aa6d73e3c680b0a7870bd27f056f1d4b`; main/base `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Current UI fix chain: `a49287c` identifies the rendered source-bound domain surface; `3e06dd9` renders the full source hash in `CustomerReportSurface`; `7e99202` tightens the UI contract. The previous hash rendering in `SourceBoundReportSurface` alone did not fix the inventory route; the actual inventory route uses `CustomerReportSurface`.
+- Current-head Full Product Browser E2E and most code quality/build/certification gates were pending/queued when checked. See `PROGRAMMER_REPORTS/2026-10-11-live-resume-current-head.md` for exact run IDs/statuses. Do not convert in-progress or queued to PASS.
+- Main engine and UI chain remain in place. General intelligence must still render alongside an applicable specialty; all displayed findings/signals/recommendations/evidence must remain grounded in the same reportJobId + sourceHash.
+- `PRODUCT_COMPLETE = NO`; production proof not established.
+- NEXT_EXACT_ACTION = read current-head authenticated browser + build/quality terminal results; prove actual inventory domain surface fingerprint; repair first confirmed failing assertion; then prove upload → complete rendered results → persistence/readback/reload and identical source identity across screens.
