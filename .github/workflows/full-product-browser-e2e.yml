@@ -398,6 +398,7 @@ jobs:
         run: node scripts/run-full-product-browser-e2e.mjs
 
       - name: Real Chromium business journey and smart report proof
+        id: business-e2e
         if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
@@ -409,7 +410,8 @@ jobs:
         run: node scripts/real-business-e2e.mjs
 
       - name: Report real-source 48 archetype coverage (non-blocking)
-        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
+        # This diagnostic is optional after the blocking business journey; do not delay failure artifacts or the next exact-head retry.
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' && steps.business-e2e.outcome == 'success' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
