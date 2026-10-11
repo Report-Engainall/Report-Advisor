@@ -47,7 +47,7 @@ for (const [handler, successMessage] of [
 ]) {
   const start = page.indexOf(`const ${handler} = async`);
   assert.notEqual(start, -1, handler + ' handler must remain present');
-  const end = page.indexOf('\\n  };', start);
+  const end = page.indexOf('\n  };', start);
   assert.notEqual(end, -1, handler + ' handler boundary must remain detectable');
   const body = page.slice(start, end);
   const feedbackAt = body.indexOf(`setFeedback('${successMessage}')`);
