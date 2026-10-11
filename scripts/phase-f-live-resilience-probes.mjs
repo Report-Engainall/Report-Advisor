@@ -199,8 +199,8 @@ function buildAuthUserStubSql(userIds) {
   if (ids.some(id => !uuidPattern.test(id))) {
     throw new Error('logical_restore_auth_user_id_invalid');
   }
-  if (!ids.length) return 'BEGIN;\\nCOMMIT;\\n';
-  const values = ids.map(id => "  ('" + id + "'::uuid)").join(',\\n');
+  if (!ids.length) return 'BEGIN;\nCOMMIT;\n';
+  const values = ids.map(id => "  ('" + id + "'::uuid)").join(',\n');
   // Identity-only placeholders for the ephemeral restore target; never copy auth credentials or metadata.
   return [
     'BEGIN;',
@@ -395,7 +395,7 @@ BEGIN
 END $$;
 SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_name;`;
   const authUserIdsSql = `CREATE TEMP TABLE _phase_f_auth_user_ids (id uuid PRIMARY KEY) ON COMMIT DROP;
-DO $
+DO $phase_f_auth_ids$
 DECLARE
   fk record;
 BEGIN
@@ -427,7 +427,7 @@ BEGIN
       fk.child_column
     );
   END LOOP;
-END $;
+END $phase_f_auth_ids$;
 SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
 
   let localDbUrl = null;
