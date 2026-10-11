@@ -8,6 +8,9 @@ const app = fs.readFileSync('src/App.tsx', 'utf8');
 const reportSourceContext = fs.readFileSync('src/components/ReportSourceContext.tsx', 'utf8');
 
 assert.ok(reports.includes("import { CustomerReportSurface } from '@/components/CustomerReportSurface';"));
+assert.ok(reports.includes("import { SourceContextNavigation } from '@/components/ReportSourceContext';"), 'Reports center must render the source-bound navigation on its actual report surface');
+assert.ok(reports.includes('<div data-testid="reports-center-source-navigation"'), 'Reports center must expose a visible navigation container within the current report card');
+assert.ok(reports.includes('<SourceContextNavigation jobId={primarySmartReport.jobId} sourceHash={primarySmartReport.sourceHash} variant="dark" />'), 'Reports-center shortcuts must carry the primary report exact job id and source hash');
 assert.ok(reports.includes('return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;'));
 assert.ok(!reports.includes('{report.sourcePath}</div>'));
 assert.ok(!reports.includes('title={report.sourcePath}>{report.sourcePath}'));
@@ -37,7 +40,8 @@ assert.ok((reportSourceContext.match(/controller\.abort\(\)/g) ?? []).length >= 
   'Every ReportSourceContext request effect must abort in-flight work during cleanup');
 assert.ok(reportSourceContext.includes('AbortSignal.any([controller.signal, AbortSignal.timeout(12000)])'),
   'ReportSourceContext requests must preserve timeout and cleanup cancellation');
-assert.ok(reportSourceContext.includes('function SourceContextNavigation'), 'Source-bound navigation must be available independently of report detail rendering');
+assert.ok(reportSourceContext.includes('export function SourceContextNavigation'), 'Source-bound navigation must be reusable by the actual reports-center surface independently of report detail rendering');
+assert.ok(reportSourceContext.includes("variant === 'dark'"), 'Source navigation must support readable contrast on the executive dark report card');
 assert.ok(reportSourceContext.includes('data-testid="report-source-context-links"'), 'Source-context navigation must expose a stable browser-proof surface');
 assert.ok(reportSourceContext.includes('if (!report && !error)'), 'Pending report-detail reads must retain navigation while they resolve');
 assert.ok(reportSourceContext.includes("path: '/intelligence'"), 'Source-bound navigation must retain the intelligence route');

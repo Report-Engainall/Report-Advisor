@@ -797,11 +797,12 @@ async function proveReportsCenterRealSurface(page, report) {
     '/trust',
     '/decision-experience',
   ];
-  // ReportSourceContext resolves report details asynchronously alongside the reports-center surface.
-  // Wait for its source-bound navigation before asserting every destination and lineage.
-  await page.locator('a[href^="/intelligence?"]').first().waitFor({ state: 'attached', timeout: 15000 });
+  // The primary report card owns this navigation on /reports; do not accept unrelated
+  // sidebar links or a shared component that is intentionally absent from the reports root.
+  const sourceNavigation = page.locator('[data-testid="reports-center-source-navigation"]');
+  await sourceNavigation.waitFor({ state: 'visible', timeout: 15000 });
   for (const route of expectedContextLinks) {
-    const link = page.locator('a[href^="' + route + '?"]');
+    const link = sourceNavigation.locator('a[href^="' + route + '?"]');
     assert.ok(await link.count() >= 1, 'REPORT_CONTEXT_LINK_MISSING:' + route);
     const hrefs = await link.evaluateAll(nodes => nodes.map(node => node.getAttribute('href') || ''));
     assert.ok(

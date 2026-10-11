@@ -28,7 +28,7 @@ const SOURCE_CONTEXT_SHORTCUTS = [
   { path: '/decision-experience?stage=evidence', label: 'القرار' },
 ] as const;
 
-function SourceContextNavigation({ jobId, sourceHash }: { jobId: string; sourceHash: string }) {
+export function SourceContextNavigation({ jobId, sourceHash, variant = 'default' }: { jobId: string; sourceHash: string; variant?: 'default' | 'dark' }) {
   const contextQuery = 'reportJobId=' + encodeURIComponent(jobId) + '&sourceHash=' + encodeURIComponent(sourceHash);
   return (
     <nav aria-label="مسارات التقرير الحالي" data-testid="report-source-context-links" className="mt-3 flex flex-wrap gap-2">
@@ -36,7 +36,9 @@ function SourceContextNavigation({ jobId, sourceHash }: { jobId: string; sourceH
         <Link
           key={item.path}
           to={item.path + (item.path.includes('?') ? '&' : '?') + contextQuery}
-          className="btn-secondary text-[10px]"
+          className={variant === 'dark'
+            ? 'inline-flex min-h-9 items-center rounded-lg border border-white/15 bg-white/[.06] px-3 py-2 text-[10px] font-bold text-slate-100 transition hover:border-primary-300/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300'
+            : 'btn-secondary text-[10px]'}
         >
           {item.label}
         </Link>

@@ -11,6 +11,7 @@ import { fetchSmartReport, fetchSmartReportCatalogPage, type SmartReportCatalogI
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { CustomerReportSurface } from '@/components/CustomerReportSurface';
+import { SourceContextNavigation } from '@/components/ReportSourceContext';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
@@ -384,6 +385,13 @@ export function ReportsCenterPage() {
             </div>
             <Link to={'/reports/smart/' + primarySmartReport.jobId + '?sourceHash=' + encodeURIComponent(primarySmartReport.sourceHash)} className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950 transition hover:bg-ink-100">فتح التقرير الذكي ←</Link>
           </div>
+        </div>
+        <div data-testid="reports-center-source-navigation" className="mt-5 rounded-2xl border border-white/10 bg-white/[.035] p-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-[10px] font-black text-slate-100">تابع التقرير عبر مسار القرار</div>
+            <span className="text-[9px] text-slate-400">كل انتقال يحتفظ بارتباط المصدر نفسه</span>
+          </div>
+          <SourceContextNavigation jobId={primarySmartReport.jobId} sourceHash={primarySmartReport.sourceHash} variant="dark" />
         </div>
       </section>
     })() : snapshot ? <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
