@@ -1,5 +1,25 @@
 # CURRENT SESSION STATE
 
+## LIVE RESUME — 2026-10-12 / XLSX IMPORT COMPLETION FORMAT FIX
+
+Repository = Report-Engainall/Report-Advisor
+Branch = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+EXACT_CODE_HEAD = 5465692b6626166ce0df858ab562b206707349cc
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/5465692b6626166ce0df858ab562b206707349cc
+PREVIOUS_CODE_CHECKPOINT = 219288d1f26a350b526f96466d7bb677247021fd
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+NEW FINDING = The newly added fresh-XLSX browser scenario exposed a shared helper assumption: waitForAuthoritativeImportCompletion always queried file_records with marker + '.csv'. Without correcting it, the journey would wait for a file name that the XLSX upload never creates.
+FIX = The helper now accepts format (csv/xlsx), constructs the exact filename with that extension, and importOne passes the same format to durable import discovery. A regression contract requires the format parameter and call-site propagation. Prior to this correction, the XLSX scenario was implemented but not yet runtime-proven.
+PREVIOUS RUN = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38182451467 on 9d8b673… proves the older source-bound UI flow and fresh CSV, but it failed at an incorrect single-tenant 48-archetype subtest. Commit 219288d separated the multi-tenant proof into its own required gate, extended fail-closed to assert 48/48, and added the fresh XLSX scenario. Commit 5465692b6626166ce0df858ab562b206707349cc fixes the filename contract that scenario requires.
+VALIDATION = The previous candidate run at 219288d had passed build and canonical heart regressions before the XLSX helper extension was corrected; do not count its future/full browser outcome as validation for this new head. Exact-head runs on 5465692b6626166ce0df858ab562b206707349cc are required.
+NEXT ACTION = Read the current PR head runs for 5465692b6626166ce0df858ab562b206707349cc; confirm customer-facing surface contract, build, browser upload/readback for both CSV and XLSX, and the governed matrix proof. Fix any first exact-head failure using its logs/artifact; do not merge or deploy until all gates and published-head verification pass.
+SESSION HANDOFF = CHECKPOINTED; exact-head validation pending.
+
+---
+
 ## LIVE RESUME — 2026-10-12 / REAL-SOURCE MATRIX BLOCKING GATE + FRESH XLSX JOURNEY
 
 Repository = Report-Engainall/Report-Advisor

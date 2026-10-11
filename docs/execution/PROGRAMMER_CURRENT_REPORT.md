@@ -1,3 +1,25 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / XLSX IMPORT FORMAT CONTRACT FIX
+
+REPORT_FOR_HEAD = 5465692b6626166ce0df858ab562b206707349cc
+UPDATED_AT = 2026-10-12
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+IMPLEMENTED = Fixed authoritative import discovery to query the actual upload extension (CSV or XLSX), added regression assertions for extension propagation, preserved fresh CSV and fresh XLSX flow, and retained the independent blocking 48/48 multi-tenant matrix gate.
+FILES = scripts/real-business-e2e.mjs; scripts/customer-facing-report-surface-contract.test.mjs
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/5465692b6626166ce0df858ab562b206707349cc
+
+WHY = The fresh workbook upload would otherwise become invisible to waitForAuthoritativeImportCompletion because that function hard-coded marker + '.csv'. The import itself and durable readback must discover file_records by the exact XLSX filename, not merely select a parser or UI input.
+PREVIOUS FAILURE = Run 38182451467 on 9d8b673… verified route proof 32/32, cross-screen report identity/source hash, smart-report refresh, tenant isolation and fresh CSV, but its final in-process single-tenant archetype subprocess failed 4 supported / 38 missing / 6 review; the correct multi-tenant source matrix was skipped due to a success-dependent workflow condition.
+CORRECTIVE CHAIN = 219288d separated the proper five-tenant matrix into its own required fail-closed gate and added real fresh XLSX upload. 5465692 fixed the exact file extension used by authoritative completion/readback and added a contract to keep it correct.
+NOT PROVEN = Any full E2E result after the new XLSX helper fix; true 48/48 on the governed corpus; exact-head product gates; merge; deploy; live published SHA. Production site still references earlier commit 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+NEXT ACTION = Verify the Full Product Browser E2E, separate real matrix artifact, build/quality/handoff/resilience/final certification for exact head 5465692b6626166ce0df858ab562b206707349cc, then diagnose and fix the earliest failure without weakening proof.
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / REAL-SOURCE MATRIX GATE AND FRESH XLSX
 
 REPORT_FOR_HEAD = 219288d1f26a350b526f96466d7bb677247021fd

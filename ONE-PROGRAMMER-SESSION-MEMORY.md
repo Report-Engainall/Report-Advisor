@@ -1,3 +1,24 @@
+# LIVE RESUME — 2026-10-12 / FRESH XLSX DISCOVERY FIXED; REVALIDATE FROM 5465692b6626166ce0df858ab562b206707349cc
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED
+Exact code head: 5465692b6626166ce0df858ab562b206707349cc
+Commit: https://github.com/Report-Engainall/Report-Advisor/commit/5465692b6626166ce0df858ab562b206707349cc
+Product complete: NO; do not merge.
+
+Latest correction: waitForAuthoritativeImportCompletion accepts the real upload format and uses marker.extension for file_records discovery; importOne passes format through to that helper. Customer-facing contract now checks the call-site propagation. This is required for the fresh XLSX browser test; the previous helper only searched for .csv.
+
+Predecessor proof: run 38182451467 at 9d8b673… proved 32/32 routes, authenticated persisted real PDF context, source-bound navigation across seven destinations, refresh/readback, tenant isolation, and fresh CSV persistence. It failed on a wrong-scope single-tenant 48-archetype subprocess; that was removed from the business journey without lowering the 48/48 acceptance gate. The governed five-tenant matrix now runs independently and blocks unless its exact-head artifact proves supported=48 / totalArchetypes=48.
+
+Relevant commits: 219288d1f26a350b526f96466d7bb677247021fd (matrix gate + fresh XLSX) and 5465692b6626166ce0df858ab562b206707349cc (XLSX filename lookup extension fix).
+Previous full browser run: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38182451467
+New-head validation remains pending. Production Netlify still points to an older commit and was not changed.
+
+NEXT ACTION = Inspect current PR workflow run(s) at 5465692b6626166ce0df858ab562b206707349cc. Require both fresh format uploads to complete with source-bound generic analysis and durable post-refresh readback, plus the true governed 48/48 source matrix. Fix any real runtime failure from exact-head artifacts/logs; keep PR #912 open until all exact-head and production proof gates pass.
+
+---
+
 # LIVE RESUME — 2026-10-12 / REAL-SOURCE 48 GATE + XLSX BROWSER PROOF
 
 Repository = Report-Engainall/Report-Advisor
