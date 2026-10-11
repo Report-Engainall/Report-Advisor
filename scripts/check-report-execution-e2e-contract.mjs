@@ -31,13 +31,12 @@ const durable = read(files[6]);
 const ledger = read(files[7]);
 const canonicalImport = read(files[8]);
 const enqueueRpcMigration = read(files[9]);
-const importCommitRpcMigration = read(files[10]);
-const canonicalCommit = read(files[11]);
 const removeLegacyEnqueueRpcMigration = read(files[10]);
 const restoreLegacyEnqueueRpcMigration = read(files[11]);
-const importCommitRpcMigration = read(files[12]);
+const legacyImportCommitRpcMigration = read(files[12]);
 const tenantBoundEnqueueWrapperMigration = read(files[13]);
 const canonicalCommit = read(files[14]);
+const importCommitRpcMigration = read(files[15]);
 
 const required = (source, tokens, label) => {
   for (const token of tokens) if (!source.includes(token)) throw new Error(`${label} missing ${token}`);
@@ -154,16 +153,16 @@ required(canonicalCommit, [
   "'import_commit_batch'",
 ], 'Canonical commit caller must send repair only for explicit repair requests');
 
-const normalizedImportCommitRpcMigration = importCommitRpcMigration.toLowerCase().replace(/\s+/g, ' ');
+const normalizedLegacyImportCommitRpcMigration = legacyImportCommitRpcMigration.toLowerCase().replace(/\s+/g, ' ');
 for (const marker of [
   'drop function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean);',
   'create function public.import_commit_batch(',
   'revoke all on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) from public, anon, authenticated;',
   'grant execute on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) to service_role;',
 ]) {
-  if (!normalizedImportCommitRpcMigration.includes(marker)) throw new Error('import_commit_batch overload migration missing: ' + marker);
+  if (!normalizedLegacyImportCommitRpcMigration.includes(marker)) throw new Error('Legacy import_commit_batch overload migration missing: ' + marker);
 }
-const repairCommitSignature = importCommitRpcMigration.match(
+const repairCommitSignature = legacyImportCommitRpcMigration.match(
   /create function public\.import_commit_batch\(([\s\S]*?)\)\s*returns jsonb/i,
 )?.[1];
 if (!repairCommitSignature) throw new Error('Seven-argument import_commit_batch signature missing');
@@ -172,9 +171,9 @@ if (/\bDEFAULT\b/i.test(repairCommitSignature)) {
 }
 
 
-required(canonicalCommit, [
-  "activeClient.rpc(repairExistingSource ? 'import_repair_commit_batch' : 'import_commit_batch', rpcArgs)",
-], 'Canonical import must route repair work to a separately named RPC');
+if (!/activeClient\.rpc\(\s*repairExistingSource\s*\?\s*'import_repair_commit_batch'\s*:\s*'import_commit_batch'\s*,\s*rpcArgs\s*,?\s*\)/.test(canonicalCommit)) {
+  throw new Error('Canonical import must route repair work to a separately named RPC');
+}
 
 required(importCommitRpcMigration, [
   'ALTER FUNCTION public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean)',
