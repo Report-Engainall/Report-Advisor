@@ -173,4 +173,12 @@ for (const marker of [
   if (!businessE2E.includes(marker)) throw new Error('Authenticated browser proof must exercise a fresh, source-bound upload: ' + marker);
 }
 
+const reportSmartSource = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
+if (!reportSmartSource.includes('selectGenericSourceRows({')) throw new Error('Saved Smart Reports must use the source-bound generic row selector');
+if (!reportSmartSource.includes("selectedRows.origin === 'source-analysis-snapshot'")) throw new Error('Snapshot-derived generic intelligence must surface a review warning');
+const sourceRowsSelector = fs.readFileSync(new URL('../src/lib/file-engine/generic-source-rows.ts', import.meta.url), 'utf8');
+for (const marker of ['snapshotRows.length === declaredRows', "origin: 'source-analysis-snapshot'", "origin: 'unavailable'"]) {
+  if (!sourceRowsSelector.includes(marker)) throw new Error('Generic source fallback must fail closed on incomplete data: ' + marker);
+}
+
 console.log('smart-report-catalog-navigation: PASS');
