@@ -1,6 +1,49 @@
 # CURRENT SESSION STATE
 
-# LIVE RESUME — 2026-10-11 23:05 +03 / IMPORT E2E QUEUE FLOW ALIGNED; EXACT-HEAD RETEST REQUIRED
+# LIVE RESUME — 2026-10-11 23:28 +03 / ENQUEUE RPC OVERLOAD FIX APPLIED TO STAGING; EXACT-HEAD BROWSER PROOF PENDING
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912 — OPEN / NOT MERGED.
+Code/test baseline for this checkpoint: 39187072a37e20e2b1fe35551a734d38bd0ac484.
+Code fix commit: a914eb5986fd52ee37fca55ed5eb7bf305208a3b.
+Main/base last read: fa1ab4cbade9b01685507aa966c10f700a03f576.
+Staging migration: 20261011202515_disambiguate_enqueue_report_execution_job_rpc_overloads.
+Archive: docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261011-2328-ENQUEUE-RPC-OVERLOAD-FIX.md.
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Current proven blocker and root cause
+
+Full Product Browser E2E failed on exact pre-fix head 1b981cdf061e0fa0666a1ef22514ace52d84ffb9: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38170744962 (artifact https://github.com/Report-Engainall/Report-Advisor/actions/runs/38170744962/artifacts/11714390242). The existing smart report/source identity checks passed before the new three-row marker.csv import failed. Its persisted import job reported zero processed rows despite the summary proving three parsed/valid rows.
+
+Read-only Staging inspection proved two overloads for enqueue_report_execution_job: six arguments and seven arguments. The seven-argument service-only force-reprocess function defaulted its trailing arguments, so ordinary six-argument requests matched both overloads; Edge logs show HTTP 300 at 2026-10-11T20:16:47.231Z. This was not an extraction failure. Separate tenant-B no-JWT 401/42501 requests remain denied by design and must not be “fixed” by granting anon access.
+
+## Repair and database readback
+
+Migration version 20261011202515 disambiguate_enqueue_report_execution_job_rpc_overloads was applied to Supabase Staging. It recreated only the seven-argument overload with all seven arguments required; the six-argument overload was left unchanged. The least-privilege execute permissions were restored explicitly.
+
+Readback proves:
+- Seven-argument overload: defaults = 0; service_role EXECUTE = true; authenticated = false; anon = false; SECURITY DEFINER = true.
+- Six-argument overload: defaults = 2; service_role EXECUTE = true; authenticated = true; anon = false; SECURITY DEFINER = true.
+- No anon grant or tenant-policy relaxation was performed.
+
+Commit a914eb5986fd52ee37fca55ed5eb7bf305208a3b adds the matching repository migration, improves structured PostgREST error serialization in netlify/functions/canonical-import-execute.mts rather than masking failures as [object Object], and adds regression assertions to scripts/check-report-execution-e2e-contract.mjs. Commit 39187072a37e20e2b1fe35551a734d38bd0ac484 moves the test contract PASS message after all assertions. Both source commits used [skip ci] so the following docs-only checkpoint defines the new exact-head validation batch.
+
+## Gate evidence scope
+
+On the pre-fix head 1b981cdf, Quality 38170744670, Product Build 38170745052, Phase-F 38170744888, Session Handoff 38170744823, Final Certification 38170745003, Device-Independent Browser 38170744904, Storage Tenant 38170744546, Data Quality 38170744814 and Commercial Product Creation E2E 38170745041 all passed. Full Product Browser E2E 38170744962 failed. These results belong only to the pre-fix head and must not be transferred to this source fix.
+
+## Not yet proven
+
+The post-fix authenticated browser journey has not yet proved that generic import completes durable enqueue, canonical commit, rendered output, database readback and stable report/source identity across refresh or re-entry. The product is not complete and PR #912 must remain open.
+
+## NEXT_EXACT_ACTION
+
+Read the current PR branch ref and exact-head workflows after this docs-only checkpoint. Inspect Full Product Browser E2E first. If marker.csv still fails, use its preserved result/logs to fix the first new runtime failure. Require completion and readback using the same source hash, then prove cross-screen identity through Smart Report, Evidence, Decision and Work Center after refresh/re-entry. Check the new exact-head Quality, Build, Session Handoff, Phase-F and Final Certification results without wasting runs or transferring old status.
+
+---
+
+# HISTORICAL CHECKPOINT — 2026-10-11 23:05 +03 / IMPORT E2E QUEUE FLOW ALIGNED
 
 Repository: Report-Engainall/Report-Advisor
 Branch: fix/source-bound-generic-intelligence-20261009
