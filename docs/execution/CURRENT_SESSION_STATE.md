@@ -1,3 +1,41 @@
+# LIVE RESUME — 2026-10-11T18:16:00+03:00 / GENERIC INTELLIGENCE CARD + SOURCE-ROW SEARCH FIX SAVED; FRESH-UPLOAD E2E PENDING
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Exact code/test HEAD being checked: `a644ab51e06b37f75bb498851d36e970ed993144` ([commit](https://github.com/Report-Engainall/Report-Advisor/commit/a644ab51e06b37f75bb498851d36e970ed993144)).
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Product status: `PRODUCT_COMPLETE = NO`. Do not merge or claim production readiness.
+
+CURRENT_EXACT_HEAD = a644ab51e06b37f75bb498851d36e970ed993144
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = ACTIVE_EXECUTION
+NEXT_EXACT_ACTION = Inspect Full Product Browser E2E run 38150429588 at a644ab51e06b37f75bb498851d36e970ed993144; confirm row-search filtering/reset, then require the fresh three-row CSV upload, non-empty general signals/recommendations, persisted same-source readback and refresh to pass.
+
+## Exact-head verified checks
+- Phase 2 security-definer closure: PASS [38150429372](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38150429372).
+- Report Value Cohort: PASS [38150429603](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38150429603).
+- Evidence Passport Live Proof: PASS [38150429601](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38150429601).
+- Netlify deploy-preview status success: https://deploy-preview-912--aghbari-report-advisor.netlify.app. Vercel status was pending at this checkpoint.
+- Product Build [38150429457](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38150429457), Quality [38150429418](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38150429418), and Full Product Browser [38150429588](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38150429588) were in progress/pending; none is treated as passing.
+- Previous browser artifact [11706298027](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38149353444/artifacts/11706298027) confirmed the existing 254-row inventory PDF report and source hash, but failed at the mismatched report-center search assertion before the fresh upload.
+- Staging PostgREST schema cache was previously recovered via staging-only `pg_notify('pgrst','reload schema')`; this is infrastructure recovery, not product E2E proof.
+
+## Actual changes already persisted in Git
+- `301c742d`: forward HTML/ARIA/test attributes through shared Card and explicitly scope the candidate-cohort RPC to service_role.
+- `6bdb4c2`: add fresh Arabic CSV upload test, persisted canonical rows, synthetic-fixture exclusion metadata and source-bound report/refresh assertions.
+- `6fba06d` / `d60fe20`: fix and tighten report-center search test.
+- `a644ab5`: include canonical cell data in the readback and require filter results to match the exact source row number.
+
+## Known blockers
+- Exact-head authenticated upload-to-save/readback/refresh proof not yet established.
+- Predecessor browser failure was `REPORTS_CENTER_ROW_SEARCH_MISSING`; the corrected test now tests the actual placeholder and filter/reset behavior.
+- Previous session-handoff gate failed because the resume report omitted eight modified files. This checkpoint and the dated report refresh the record on the present code/test HEAD.
+- Keep separate: IMPLEMENTED ≠ UI-EXPOSED ≠ READBACK-PROVEN ≠ BROWSER-PROVEN ≠ PRODUCTION-PROVEN.
+
+---
+
 # LIVE RESUME — 2026-10-11T17:36:49+03:00 / POSTGREST SCHEMA CACHE RELOADED; EXACT-HEAD RETEST NEXT
 
 - Repository: `Report-Engainall/Report-Advisor`
