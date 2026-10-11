@@ -38,6 +38,27 @@ if (!/const VOLATILE_RESTORE_TABLES = new Set\(\[[\s\S]*?'public\.carts'[\s\S]*?
   throw new Error('Phase-F logical restore must exclude both carts and dependent cart_items rows from the public-only data dump');
 }
 
+if (!/const authUserIdsSql =/.test(phaseFProbe)
+  || !phaseFProbe.includes("c.confrelid = 'auth.users'::regclass")
+  || !phaseFProbe.includes('function buildAuthUserStubSql(userIds)')
+  || !phaseFProbe.includes('INSERT INTO auth.users (id)')
+  || !phaseFProbe.includes("auth_user_stub_mode: 'id-only-ephemeral'")) {
+  throw new Error('Phase-F must create ephemeral ID-only Auth placeholders while retaining all public business tables');
+}
+const authStubBuilderStart = phaseFProbe.indexOf('function buildAuthUserStubSql(userIds)');
+const authStubBuilderEnd = phaseFProbe.indexOf('\nfunction verifyRestoredRecommendationAuthority', authStubBuilderStart);
+const authStubBuilder = authStubBuilderStart >= 0 && authStubBuilderEnd > authStubBuilderStart
+  ? phaseFProbe.slice(authStubBuilderStart, authStubBuilderEnd)
+  : '';
+if (!authStubBuilder || ['email', 'encrypted_password', 'raw_app_meta_data', 'raw_user_meta_data', 'confirmation_token'].some(field => authStubBuilder.includes(field))) {
+  throw new Error('Phase-F Auth placeholders must not copy credentials or personal metadata');
+}
+const authStubApplyPosition = phaseFProbe.indexOf('runDockerPsqlFileRaw(localDbUrl, authUserStubsPath)');
+const publicRestorePosition = phaseFProbe.indexOf('runDockerPsqlFile(localDbUrl, backupPath)');
+if (authStubApplyPosition < 0 || publicRestorePosition < 0 || authStubApplyPosition > publicRestorePosition) {
+  throw new Error('Phase-F must seed local Auth IDs before restoring business rows and reapplying foreign keys');
+}
+
 const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*--[^\n]*/g, '$1');

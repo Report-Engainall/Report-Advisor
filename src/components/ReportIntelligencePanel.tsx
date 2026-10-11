@@ -166,6 +166,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <div className="section-kicker" data-intelligence-contract-markers="SOURCE INTELLIGENCE|BUSINESS QUESTION|EVIDENCE PASSPORT|GUIDANCE">ذكاء المصدر</div>
+              <span className="rounded-md border border-ink-200 bg-ink-50 px-1.5 py-0.5 text-[8px] font-black tracking-[.08em] text-ink-700">EVIDENCE PASSPORT</span>
               <span className="rounded-md border border-primary-200 bg-primary-50 px-1.5 py-0.5 text-[8px] font-black tracking-[.08em] text-primary-700">GUIDANCE</span>
             </div>
             <h2 className="mt-1 text-xl font-black text-ink-950">ماذا استنتج النظام من هذا التقرير؟</h2>

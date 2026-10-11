@@ -32,6 +32,7 @@ if (recommendationBlock.includes('recommendations.slice(')) throw new Error('Rec
 const reportIntelligencePanel = fs.readFileSync(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url), 'utf8');
 if (!reportIntelligencePanel.includes('>GUIDANCE</span>')) throw new Error('Guidance contract must be visible text in the intelligence panel, not only a data attribute');
 if (!reportIntelligencePanel.includes('ذكاء المصدر')) throw new Error('Arabic source-intelligence heading must remain visible beside the guidance label');
+if (!reportIntelligencePanel.includes('>EVIDENCE PASSPORT</span>')) throw new Error('Evidence passport must be visibly labelled on every source-bound intelligence surface');
 const authenticatedBrowserProof = fs.readFileSync(new URL('../scripts/real-business-e2e.mjs', import.meta.url), 'utf8');
 if (!authenticatedBrowserProof.includes("const guidanceLabel = page.getByText('GUIDANCE', { exact: true });")
   || !authenticatedBrowserProof.includes("assert.equal(await guidanceLabel.isVisible(), true")) {

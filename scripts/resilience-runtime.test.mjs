@@ -27,6 +27,18 @@ assert.match(phaseFProbe, /--exclude-table-data=\$\{tableName\}/);
 assert.match(phaseFProbe, /--data-only \$\{volatileExcludeArgs\}/, 'logical backup must exclude data from volatile tables that depend on auth.users');
 assert.match(phaseFProbe, /'public\.carts'/, 'logical restore must exclude auth-dependent cart rows');
 assert.match(phaseFProbe, /'public\.cart_items'/, 'logical restore must exclude child rows referencing excluded carts');
+assert.ok(phaseFProbe.includes("const authUserIdsSql ="), 'logical restore must discover missing Auth user IDs');
+assert.ok(phaseFProbe.includes("c.confrelid = 'auth.users'::regclass"), 'Auth placeholder discovery must follow actual FK references');
+assert.ok(phaseFProbe.includes("INSERT INTO auth.users (id)"), 'restore must insert ID-only user placeholders');
+assert.ok(phaseFProbe.includes("ON CONFLICT (id) DO NOTHING"), 'placeholder insert must be rerunnable');
+assert.ok(phaseFProbe.includes("SET LOCAL session_replication_role = replica"), 'placeholder insert must not trigger user creation side effects');
+assert.ok(phaseFProbe.includes("runDockerPsqlFileRaw(localDbUrl, authUserStubsPath)"), 'placeholders must be applied to the ephemeral restore target');
+assert.ok(phaseFProbe.includes("auth_user_stub_mode: 'id-only-ephemeral'"));
+const authStubBuilder = phaseFProbe.slice(phaseFProbe.indexOf('function buildAuthUserStubSql(userIds)'), phaseFProbe.indexOf('\nfunction verifyRestoredRecommendationAuthority'));
+assert.ok(authStubBuilder.startsWith('function buildAuthUserStubSql(userIds)'), 'ID-only Auth placeholder builder must exist');
+for (const forbidden of ['email', 'encrypted_password', 'raw_app_meta_data', 'raw_user_meta_data', 'confirmation_token']) {
+  assert.equal(authStubBuilder.includes(forbidden), false, 'restore must not copy Auth credential/PII field: ' + forbidden);
+}
 assert.match(phaseFProbe, /retryTransientPostgresConnection/);
 assert.match(postgresRetrySource, /PHASE_F_TRANSIENT_POSTGRES_RETRY/);
 assert.equal(isTransientPostgresConnectionError(new Error('FATAL: Failed to connect to database: authentication did not complete within 15000ms')), true);

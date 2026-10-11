@@ -176,6 +176,44 @@ function runDockerPsqlFile(databaseUrl, filePath) {
   ]);
 }
 
+function runDockerPsqlFileRaw(databaseUrl, filePath) {
+  return runCommand('docker', [
+    'run', '--rm', '--network', 'host',
+    '-v', `${path.resolve(filePath)}:/tmp/phase-f-auth-user-stubs.sql:ro`,
+    '-e', `PGURI=${databaseUrl}`,
+    postgresClientImage,
+    'sh', '-lc',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -f /tmp/phase-f-auth-user-stubs.sql',
+  ]);
+}
+
+function parseAuthUserIds(raw) {
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const values = raw.split(/\r?\n/).map(value => value.trim()).filter(value => uuidPattern.test(value));
+  return [...new Set(values.map(value => value.toLowerCase()))].sort();
+}
+
+function buildAuthUserStubSql(userIds) {
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const ids = [...new Set(userIds.map(value => String(value).trim().toLowerCase()))].sort();
+  if (ids.some(id => !uuidPattern.test(id))) {
+    throw new Error('logical_restore_auth_user_id_invalid');
+  }
+  if (!ids.length) return 'BEGIN;\\nCOMMIT;\\n';
+  const values = ids.map(id => "  ('" + id + "'::uuid)").join(',\\n');
+  // Identity-only placeholders for the ephemeral restore target; never copy auth credentials or metadata.
+  return [
+    'BEGIN;',
+    'SET LOCAL session_replication_role = replica;',
+    'INSERT INTO auth.users (id)',
+    'VALUES',
+    values,
+    'ON CONFLICT (id) DO NOTHING;',
+    'COMMIT;',
+    '',
+  ].join('\\n');
+}
+
 function verifyRestoredRecommendationAuthority(databaseUrl) {
   const sql = `
 do $$
@@ -356,6 +394,41 @@ BEGIN
   END LOOP;
 END $$;
 SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_name;`;
+  const authUserIdsSql = `CREATE TEMP TABLE _phase_f_auth_user_ids (id uuid PRIMARY KEY) ON COMMIT DROP;
+DO $
+DECLARE
+  fk record;
+BEGIN
+  FOR fk IN
+    SELECT
+      child_ns.nspname AS child_schema,
+      child.relname AS child_table,
+      child_att.attname AS child_column
+    FROM pg_constraint c
+    JOIN pg_class child ON child.oid = c.conrelid
+    JOIN pg_namespace child_ns ON child_ns.oid = child.relnamespace
+    JOIN pg_attribute child_att ON child_att.attrelid = c.conrelid AND child_att.attnum = c.conkey[1]
+    WHERE c.contype = 'f'
+      AND c.confrelid = 'auth.users'::regclass
+      AND child_ns.nspname = 'public'
+      AND cardinality(c.conkey) = 1
+      AND cardinality(c.confkey) = 1
+      AND child_att.atttypid = 'uuid'::regtype
+      AND (child_ns.nspname || '.' || child.relname) <> ALL (
+        ARRAY['public.carts', 'public.cart_items', 'public.operational_health_snapshots']
+      )
+    ORDER BY child.relname, child_att.attname
+  LOOP
+    EXECUTE format(
+      'INSERT INTO _phase_f_auth_user_ids(id) SELECT DISTINCT %I::uuid FROM %I.%I WHERE %I IS NOT NULL ON CONFLICT (id) DO NOTHING',
+      fk.child_column,
+      fk.child_schema,
+      fk.child_table,
+      fk.child_column
+    );
+  END LOOP;
+END $;
+SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
 
   let localDbUrl = null;
   let localStarted = false;
@@ -415,10 +488,20 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     const rpoSeconds = Math.max(0, (backupCompletedAt - snapshotAt) / 1000);
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
+    let authUserIds;
+    try {
+      authUserIds = parseAuthUserIds(runDockerPsql(querySource, authUserIdsSql));
+    } catch (error) {
+      throw new Error(`logical_source_auth_user_ids_failed:${error}`);
+    }
+    const authUserStubsPath = path.join(backupDir, 'auth-user-id-stubs.sql');
+    fs.writeFileSync(authUserStubsPath, buildAuthUserStubSql(authUserIds), { encoding: 'utf8', mode: 0o600 });
+
     const restoreConstraints = captureRestoreConstraints(localDbUrl);
     const restoreStartedAt = Date.now();
     try {
       dropRestoreConstraints(localDbUrl, restoreConstraints);
+      runDockerPsqlFileRaw(localDbUrl, authUserStubsPath);
       runDockerPsqlFile(localDbUrl, backupPath);
       verifyRestoredRecommendationAuthority(localDbUrl);
       restoreRestoreConstraints(localDbUrl, restoreConstraints);
@@ -492,6 +575,8 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
       source_count_drift_tables: sourceDriftTables,
       restore_verified: true,
       restore_target: 'ephemeral-local-supabase-postgres',
+      auth_user_stub_count: authUserIds.length,
+      auth_user_stub_mode: 'id-only-ephemeral',
       excluded_volatile_tables: [...VOLATILE_RESTORE_TABLES],
       backup_started_at: new Date(backupStartedAt).toISOString(),
       backup_completed_at: new Date(backupCompletedAt).toISOString(),
