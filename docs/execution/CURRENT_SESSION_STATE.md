@@ -1,3 +1,49 @@
+# LIVE RESUME — 2026-10-11T19:21:00+03:00 / 844CFDC — VISIBLE GUIDANCE + LOGICAL RESTORE ROOT-CAUSE FIX
+
+- Repository: `Report-Engainall/Report-Advisor`
+- Branch: `fix/source-bound-generic-intelligence-20261009`
+- PR [#912](https://github.com/Report-Engainall/Report-Advisor/pull/912): OPEN / NOT MERGED.
+- Exact product/test head covered by this checkpoint: [`844cfdc20958ddc35908727c5511901844e4e5d7`](https://github.com/Report-Engainall/Report-Advisor/commit/844cfdc20958ddc35908727c5511901844e4e5d7).
+- Main base: `fa1ab4cbade9b01685507aa966c10f700a03f576`.
+- Product completion: `NO`. Full current-head upload/save/readback/refresh browser proof remains unproven.
+
+CURRENT_EXACT_HEAD = 844cfdc20958ddc35908727c5511901844e4e5d7
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = CODE_FIXES_COMMITTED; EXACT_HEAD_VALIDATION_IN_PROGRESS
+NEXT_EXACT_ACTION = Read exact-head Build Gate, quality, browser E2E and Phase-F restore results; fix the first failure, then demonstrate fresh non-fixture uploads display generic findings/signals/recommendations/evidence across all linked views and persist under the same job ID and source hash.
+
+## Actual code/test changes through 844cfdc20958ddc35908727c5511901844e4e5d7
+
+- Shared generic intelligence remains in `src/lib/report-smart.ts`: canonical rows are first priority; a source-bound extraction snapshot is used only when all rows match the declared count; partial/mismatched snapshots fail closed.
+- Smart Report no longer labels specialist output as the general analysis when generic intelligence is absent; explicit unavailable/partial state and source lineage are shown.
+- Reports Center displays report job ID, SHA-256 and source path; browser proof reads fresh DOM after reset.
+- `src/components/ReportIntelligencePanel.tsx` now visibly renders the `GUIDANCE` label, not only a hidden data attribute. This fixes the artifact-proven old browser failure `executive: guidance section missing`; new E2E confirmation is pending.
+- `scripts/phase-f-live-resilience-probes.mjs` now excludes all `VOLATILE_RESTORE_TABLES` data from logical `pg_dump` using `--exclude-table-data`. Root cause: `public.carts` is user-auth data dependent but Auth rows are outside public-only logical backups; merely excluding it from count comparisons did not prevent pg_dump from restoring it.
+- Contract assertions added/updated in `scripts/smart-report-complete-intelligence-surface.test.mjs`, `scripts/resilience-runtime.test.mjs`, and `scripts/check-phase10-backup-restore-contract.mjs`.
+
+## Exact evidence and outstanding gates
+
+- On parent product head `9a17dd08aba41efa4a1b21f67126de3c3fb8530c`, Build Gate [38154787842](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154787842) PASS, Quality [38154787888](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154787888) PASS, Data-quality runtime [38154787868](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154787868) PASS. These include visible GUIDANCE UI patch but predate the subsequent Phase-F fix.
+- At exact head `844cfdc20958ddc35908727c5511901844e4e5d7` when checkpoint was written: Build Gate [38154988245](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154988245) in progress; Quality [38154988352](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154988352) in progress; data-quality runtime [38154988348](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154988348) in progress; Final Certification [38154988336](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154988336) in progress; Phase-F live resilience [38154988385](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154988385) pending; Full Product Browser E2E [38154988368](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154988368) pending. Do not promote pending/in-progress to PASS.
+- Session Handoff Contract [38154988297](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154988297) failed because the former report did not cover five files changed after it: `scripts/check-phase10-backup-restore-contract.mjs`, `scripts/phase-f-live-resilience-probes.mjs`, `scripts/resilience-runtime.test.mjs`, `scripts/smart-report-complete-intelligence-surface.test.mjs`, `src/components/ReportIntelligencePanel.tsx`. This checkpoint covers the current code head; rerun must validate that.
+- Browser artifact [38153724487](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38153724487) had proven auth, tenant isolation, source row count/hash, persistence, reload/readback, and Reports Center source-row rendering; it failed when executive view required visible `GUIDANCE`. The 48-archetype diagnostic was `NOT_PROVEN`, not 48/48 complete.
+- Prior Phase-F live check [38154198486](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38154198486) failed backup restore with `carts_user_id_fkey`; three other checks passed (operational health, tenant canary, rollback-forward drill). This code head applies the root-cause fix but it is not proven until its Phase-F run completes.
+- PC01 is offline; no local build/test/browser result is claimed.
+- Production remains unproven. Previous preview URL `https://deploy-preview-912--aghbari-report-advisor.netlify.app` was tied to an older head only; confirm exact-head deployment before calling it current.
+
+## Status vocabulary
+
+`IMPLEMENTED`: committed to PR branch.  
+`INTEGRATED`: generic/specialty are composed without substitution; source-row selector wired into saved report path.  
+`UI-EXPOSED`: generic unavailable/partial state, source lineage and guidance title are visibly rendered.  
+`READBACK-PROVEN`: previous report’s persistence/reload readback passed; revised generic layer not yet proven end-to-end on this head.  
+`BROWSER-PROVEN`: not yet proven for this head.  
+`PRODUCTION-PROVEN`: not proven for this head.  
+`PRODUCT COMPLETE`: NO.
+
+---
+
 # LIVE RESUME — 2026-10-11T19:12:00+03:00 / READBACK AFTER GOVERNANCE REPAIR
 
 - Repository: `Report-Engainall/Report-Advisor`

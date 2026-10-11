@@ -1822,3 +1822,14 @@ NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts w
 - Product changes: generic layer restored for saved report when full same-source snapshot is usable, fails closed for partial/mismatched snapshots, specialist intelligence is not mislabeled as generic, and source identity is visible. Focused source-row and UI contracts passed via exact code-head Build/Quality.
 - PC01 is offline; no local browser or test run claimed. `PRODUCT_COMPLETE = NO`.
 - First next step: recover old browser result artifact, fix its first asserted failure, then re-prove fresh uploaded file → visible generic findings/signals/recommendations/evidence → saved readback → refresh with same job ID and source hash.
+
+
+# LIVE RESUME — 2026-10-11T19:21:00+03:00 / CODE HEAD 844cfdc20958ddc35908727c5511901844e4e5d7
+
+- Repo `Report-Engainall/Report-Advisor`; branch `fix/source-bound-generic-intelligence-20261009`; PR #912 open. Current code head `844cfdc20958ddc35908727c5511901844e4e5d7`.
+- Source-bound general intelligence fix remains integrated; it prefers canonical rows, falls back only to a complete identity-bound extraction snapshot with equal row counts, fails closed for incomplete snapshots, and never labels specialist-only output as general.
+- UI patch now makes `GUIDANCE` a visible text badge next to Arabic «ذكاء المصدر», fixing the proven old E2E error `executive: guidance section missing`; exact-head browser pass still pending.
+- Restore root fix: `scripts/phase-f-live-resilience-probes.mjs` now adds `--exclude-table-data` for the volatile-table set to the public-only pg_dump. Old Phase-F run failed on carts_user_id_fkey because carts were in the dump while auth.users was not. Exact-head restore result pending.
+- Previous code head 9a17dd0 Build Gate, Quality and data-quality runtime passed. Current head 844cfdc build/quality/certification were running, Full Product Browser E2E and Phase-F were pending. Handoff failed because the prior resume report omitted five changed files; this checkpoint should correct that and requires a fresh pass.
+- Full user E2E remains unproven; prior real-browser artifact passed auth, tenant isolation, source identity and persistence/readback/reload, but failed at guidance visibility. 48 archetype coverage explicitly NOT_PROVEN. PC01 offline; no local tests claimed. Production proof absent; `PRODUCT_COMPLETE = NO`.
+- Next step: inspect exact-head build, quality, handoff, browser and Phase-F, repair the first failure, then prove fresh generic upload → complete visible findings/signals/recommendations/evidence → persistent readback and refresh with identical reportJobId and SHA-256.

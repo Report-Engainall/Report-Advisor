@@ -1,3 +1,15 @@
+REPORT_FOR_HEAD = 844cfdc20958ddc35908727c5511901844e4e5d7
+UPDATED_AT = 2026-10-11T19:21:00+03:00
+WHAT_CHANGED = Visible GUIDANCE title was added to the shared report intelligence panel; logical backup pg_dump now excludes volatile tables from which Auth parents are outside the public-only dump; source-row and restore contract tests were extended.
+WHAT_IS_PROVEN = Code commits are present on PR #912. Product Build Gate, Quality and data-quality runtime passed for preceding code head 9a17dd08aba41efa4a1b21f67126de3c3fb8530c. Exact head 844cfdc20958ddc35908727c5511901844e4e5d7 is still in build/quality/certification; Phase-F and browser E2E are pending. The source-browser artifact for ancestor e3554c0 confirms authentication, tenant isolation, durable report readback/reload and Reports Center identity/rows; it fails exactly at visible GUIDANCE.
+FIRST ACTIVE ISSUE = New current-head proof for visible GUIDANCE and pg_dump volatile exclusions is not yet completed.
+ROOT CAUSE 1 = GUIDANCE existed only in a DOM attribute, not visible text, while browser contract correctly required visible content.
+ROOT CAUSE 2 = Phase-F logical pg_dump used --schema=public --data-only without excluding public.carts; the dump then included user_id values with no public dump of auth.users, causing restore foreign-key failure.
+NEXT EXACT ACTION = Wait for exact-head 844cfdc build and quality; inspect current-head Full Product Browser E2E and Phase-F restore results. Fix their first precise failures, prove source-bound upload→visible generic findings/signals/recommendations/evidence→readback→refresh, then checkpoint exact findings.
+SESSION HANDOFF = READY
+
+---
+
 REPORT_FOR_HEAD = 6d87806659a7d87b4292a8926e395f898efbcc87
 UPDATED_AT = 2026-10-11T19:12:00+03:00
 WHAT_CHANGED = Checkpoint-only update after code/test head 732e71e. Source code is unchanged from the head whose Product Build Gate, quality and data-quality runtime passed. Handoff/certification checks on 6d87806 both passed.
