@@ -80,6 +80,18 @@ const composer = fs.readFileSync(new URL('../src/lib/report-intelligence/compose
 for (const marker of ['mergeSignals', 'mergeRecommendations', 'uniqueStrings([...(existing.evidence ?? []), ...(incoming.evidence ?? [])])', 'moreCautiousHealth']) {
   if (!composer.includes(marker)) throw new Error('General/specialist layer composition guard missing: ' + marker);
 }
+
+const cardComponent = fs.readFileSync(new URL('../src/components/ui/Card.tsx', import.meta.url), 'utf8');
+if (!/interface CardProps extends Omit<HTMLAttributes<HTMLElement>/.test(cardComponent)) {
+  throw new Error('Card must accept standard DOM attributes such as data-testid and aria-label');
+}
+if (!/<section\\s+\\{\\.\\.\\.attributes\\}/.test(cardComponent)) {
+  throw new Error('Card must forward standard DOM attributes to its rendered section');
+}
+if (!cardComponent.includes("import { type HTMLAttributes, type ReactNode } from 'react';")) {
+  throw new Error('Card DOM attribute forwarding must remain typed');
+}
+
 console.log('smart-report-generic-intelligence-composition: PASS');
 
 const smartReportSource = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');

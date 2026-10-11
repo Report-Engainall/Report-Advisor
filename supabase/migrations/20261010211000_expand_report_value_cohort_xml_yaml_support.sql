@@ -90,3 +90,11 @@ CREATE INDEX IF NOT EXISTS idx_report_value_cohort_candidates_source
     AND source_path !~* '^canonical-import:'
     AND job_key ~ '^canonical-import:generic:'
     AND (evidence -> 'renderedOutput' ->> 'importId') ~* '^[0-9a-fA-F]{8}-[0-9a-fA-F-]{27,35}$';
+
+
+-- Keep the cohort runtime restricted to the trusted server-side reader.
+-- This function can enumerate source-bound report candidates when no tenant is supplied.
+REVOKE ALL ON FUNCTION public.get_report_value_cohort_candidates(integer, uuid)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_report_value_cohort_candidates(integer, uuid)
+  TO service_role;
