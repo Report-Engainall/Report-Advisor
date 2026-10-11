@@ -975,9 +975,15 @@ async function proveTransactionalMutationAndAudit(page) {
   assert.notEqual(afterBody, beforeBody, 'TRANSACTIONAL_UI_READBACK_DID_NOT_CHANGE');
   const auditTrace = transactionPage.locator('[data-testid="operations-audit-trace"]');
   await auditTrace.waitFor({ state: 'visible', timeout: 30000 });
-  const auditText = await auditTrace.innerText();
-  assert.ok(auditText.includes('order_status_changed') || auditText.includes('order_created'), 'TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING');
-  assert.ok(auditText.includes('invoice_created'), 'TRANSACTIONAL_INVOICE_AUDIT_ROW_MISSING');
+  const auditCodes = await auditTrace.locator('[data-testid="audit-event-code"]').allTextContents();
+  assert.ok(
+    auditCodes.some(action => ['orders:update', 'orders:insert'].includes(action.trim())),
+    'TRANSACTIONAL_ORDER_AUDIT_EVENT_NOT_VISIBLE',
+  );
+  assert.ok(
+    auditCodes.some(action => ['sales_invoices:insert', 'sales_invoices:update'].includes(action.trim())),
+    'TRANSACTIONAL_INVOICE_AUDIT_EVENT_NOT_VISIBLE',
+  );
 
   const orderAudit = await restSelect(transactionPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: orderId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
   const invoiceAudit = await restSelect(transactionPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: invoiceId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
@@ -985,6 +991,18 @@ async function proveTransactionalMutationAndAudit(page) {
   assert.ok(orderAudit.length > 0, 'TRANSACTIONAL_ORDER_AUDIT_DB_ROW_MISSING');
   assert.ok(invoiceAudit.length > 0, 'TRANSACTIONAL_INVOICE_AUDIT_DB_ROW_MISSING');
   assert.ok(paymentAudit.length > 0, 'TRANSACTIONAL_PAYMENT_AUDIT_DB_ROW_MISSING');
+  assert.ok(
+    orderAudit.some(row => row.source === 'operations-runtime' && row.entity_type === 'orders' && row.action === 'orders:update'),
+    'TRANSACTIONAL_ORDER_OPERATIONAL_AUDIT_EVENT_MISSING',
+  );
+  assert.ok(
+    invoiceAudit.some(row => row.source === 'operations-runtime' && row.entity_type === 'sales_invoices' && ['sales_invoices:insert', 'sales_invoices:update'].includes(row.action)),
+    'TRANSACTIONAL_INVOICE_OPERATIONAL_AUDIT_EVENT_MISSING',
+  );
+  assert.ok(
+    paymentAudit.some(row => row.source === 'operations-runtime' && row.entity_type === 'payments' && row.action === 'payments:insert'),
+    'TRANSACTIONAL_PAYMENT_OPERATIONAL_AUDIT_EVENT_MISSING',
+  );
 
   await transactionPage.screenshot({ path: reportDir + '/transactional-real-mutation-invoice-payment-audit.png', fullPage: true });
   evidence.steps.push({ step: 'transactional-real-mutation', status: 'PASS', orderId, fixtureKey: String(e2eFixture.idempotency_key), beforePrepare, prepareContract: 'prepare_e2e_order', transitions, finalOrderStatus: orderStatus, requesterRole, fulfillmentRole, roleHandoffActorId: fulfillmentUserId, invoiceId, invoicePersistence: true, invoiceReadback: true, paymentId: String(payment.id), paymentPersistence: true, paymentReadback: true, auditOrderReadback: true, auditInvoiceReadback: true, auditPaymentReadback: true, tenantId: evidence.tenantA });

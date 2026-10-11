@@ -398,6 +398,7 @@ export function OperationsPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant={entry.action.endsWith(':insert') ? 'success' : entry.action.endsWith(':update') ? 'warning' : 'danger'}>{entry.action.endsWith(':insert') ? 'إنشاء' : entry.action.endsWith(':update') ? 'تحديث' : 'إجراء'}</Badge>
                     {entry.entityType && <span className="text-[10px] font-black text-ink-700">{entry.entityType.includes('order') ? 'طلب' : entry.entityType.includes('invoice') ? 'فاتورة' : entry.entityType.includes('payment') ? 'تحصيل' : 'عملية'}</span>}
+                    <span data-testid="audit-event-code" className="font-mono text-[9px] text-ink-500">{entry.action}</span>
                   </div>
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-ink-400">
                     <span>{new Date(entry.createdAt).toLocaleString('ar-YE')}</span>

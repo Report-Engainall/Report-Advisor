@@ -30,6 +30,12 @@ assert.match(page, /PRICING TRUTH/);
 assert.match(page, /SUPPLIER OPERATIONS/);
 assert.match(page, /FULFILLMENT \/ WAREHOUSE/);
 assert.match(page, /AUDIT \/ TRACE/);
+assert.match(page, /data-testid="audit-event-code"/, 'the operations audit trace must expose the persisted action code');
+assert.match(businessE2E, /TRANSACTIONAL_ORDER_AUDIT_EVENT_NOT_VISIBLE/);
+assert.match(businessE2E, /TRANSACTIONAL_INVOICE_AUDIT_EVENT_NOT_VISIBLE/);
+assert.match(businessE2E, /TRANSACTIONAL_ORDER_OPERATIONAL_AUDIT_EVENT_MISSING/);
+assert.match(businessE2E, /TRANSACTIONAL_INVOICE_OPERATIONAL_AUDIT_EVENT_MISSING/);
+assert.match(businessE2E, /TRANSACTIONAL_PAYMENT_OPERATIONAL_AUDIT_EVENT_MISSING/);
 assert.match(page, /READBACK CONTRACT/);
 assert.match(page, /READ-ONLY/);
 
