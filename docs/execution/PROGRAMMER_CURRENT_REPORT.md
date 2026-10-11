@@ -1,3 +1,22 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 01:00 +03 / SOURCE-CONTEXT AUTH-LIFECYCLE FAILURE
+
+REPORT_FOR_HEAD = 47bcc617f1823ea6a50ef09bfa23cc3c585035d4
+UPDATED_AT = 2026-10-12T01:00:00+03:00
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912 (OPEN / NOT MERGED)
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+SESSION HANDOFF = NOT READY — exact-head E2E failed, repair is next.
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from current GitHub truth, preserve the existing report intelligence engine, repair the first proven authenticated browser journey failure without weakening security, and checkpoint the head and next action.
+WHAT_I_ACTUALLY_DID = Re-read the live branch and PR head, current workflow run statuses, current Session Handoff / Build / Quality / Phase-F / Data Quality / Security / Final Certification results, and the full browser job log. Read the source context, report catalog/detail query callers, and the source_analysis_snapshots migration/RLS privileges. Created this execution checkpoint before further code work.
+WHAT_IS_PROVEN = Live head is 47bcc617f1823ea6a50ef09bfa23cc3c585035d4; PR #912 is open/not merged; main is fa1ab4cbade9b01685507aa966c10f700a03f576. Product Build, Quality, Session Handoff, Phase-F Live Resilience, Data Quality Runtime, Phase 2 Security and Final Certification passed on the current head. Full Product Browser E2E failed at run 38176651182; its log proves request failures reading source_analysis_snapshots with PostgREST code 42501, permission denied. The table is intentionally not granted to anon. The code path confirms ReportSourceContext requests recent catalog/detail data on /import, outside CONTEXT_CONTINUITY_PATHS, and effects only mark callbacks inactive instead of aborting the HTTP requests.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38176651182, browser job 114582010996, source_analysis_snapshots GET 401 / 42501 after tenant logout.
+ROOT_CAUSE = Out-of-scope ReportSourceContext asynchronous catalog/detail reads are allowed to continue across route/auth changes because they are unguarded by CONTEXT_CONTINUITY_PATHS and their cleanup does not abort requests. Do not resolve this by granting anon SELECT or weakening RLS.
+NEXT_EXACT_ACTION = Update ReportSourceContext so its catalog/detail resolver effects only load on designated context-continuity routes and cancel in-flight queries on cleanup; add a regression assertion, commit on the same branch, then inspect and repair the next actual failure from a fresh exact-head Full Product Browser E2E run.
+
+
 # CURRENT EXECUTION REPORT — 2026-10-12 00:27 +03 / TRUTH-STATE VISIBILITY FIX; EXACT-HEAD RETEST PENDING
 
 REPORT_FOR_HEAD = bdfb7d3e4f5db3894d5b441e64c62ebefc708217

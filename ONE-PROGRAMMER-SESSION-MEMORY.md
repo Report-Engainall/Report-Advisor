@@ -1,3 +1,39 @@
+# LIVE RESUME — 2026-10-12 01:00 +03 / EXACT-HEAD BROWSER FAILURE: SOURCE-CONTEXT REQUEST SURVIVES AUTH CHANGE
+
+Repository: `Report-Engainall/Report-Advisor`
+Branch: `fix/source-bound-generic-intelligence-20261009`
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Live code/test head verified: `47bcc617f1823ea6a50ef09bfa23cc3c585035d4`
+Main/base: `fa1ab4cbade9b01685507aa966c10f700a03f576`
+Current full-browser run: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182
+Failure artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651182/artifacts/11716501331
+PRODUCT_COMPLETE = NO; DO_NOT_MERGE = true.
+
+## Current-head evidence
+
+- Product Build Gate PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651300
+- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651337
+- Session Handoff Contract PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651263
+- Phase-F Live Resilience PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651258
+- Final Certification Gate PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651261
+- Data Quality Runtime PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651305
+- Phase 2 security closure PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38176651340
+- Full Product Browser E2E FAIL on exact head `47bcc617f1823ea6a50ef09bfa23cc3c585035d4`, browser job `114582010996`.
+
+## Proven browser failure
+
+The signed-in Chromium proof got through route/auth setup and reached a new generic CSV upload, then collected HTTP 401 / PostgREST 42501 responses for browser reads from `source_analysis_snapshots`. Error: `permission denied for table source_analysis_snapshots`. The table migration intentionally revokes all privileges from `anon` and allows tenant-scoped authenticated reads. Do not grant anonymous SELECT.
+
+Source inspection identified the faulty caller path: `ReportSourceContext` is mounted on `/import`; its effects launch recent-report catalog and persisted-report detail reads even though `/import` is not in `CONTEXT_CONTINUITY_PATHS`. The effect cleanups only suppress stale state updates and do not abort those network requests. Browser evidence logged a tenant logout and then the request failures, consistent with unneeded source-context requests surviving an auth transition. This is a client lifecycle/scope defect, not grounds to weaken RLS.
+
+The fresh uploaded file itself was registered and its source-bound job recorded (3 rows): `reportJobId=2e129587-fdce-4bee-acb7-4b2ba905ce0a`, source `report-advisor-e2e-47bcc617f1-1791755149865.csv`, `sourceHash=sha256:567c5d126eebf952ad55815d031efcf205670baec9cfc3d3cdb6fe6dbde64e23`.
+
+## Next action
+
+Guard all three `ReportSourceContext` data-loading effects to run only on intended report-context continuity routes, and abort in-flight catalog/detail requests on route cleanup/unmount. Add a regression contract to the existing customer-facing surface test and run its test plus the full authenticated browser E2E on the new exact head. Keep the RLS revocation intact. Update state and archive again after the fix commit and exact-head outcomes.
+
+---
+
 # LIVE RESUME — 2026-10-12 00:27 +03 / TRUTH-STATE SUMMARY VISIBILITY FIX COMMITTED; EXACT-HEAD RETEST REQUIRED
 
 Repository: Report-Engainall/Report-Advisor
