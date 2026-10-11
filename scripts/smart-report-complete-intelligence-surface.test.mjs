@@ -37,9 +37,9 @@ if (!smartReportPage.includes('data-testid="smart-report-generic-intelligence"')
 if (!smartReportPage.includes('intelligence={report.genericIntelligence}')) throw new Error('Smart Report must render only the independent general intelligence layer, never label specialty results as generic');
 if (!smartReportPage.includes('analysisScope={report.canonicalAnalysisScope}')) throw new Error('Smart Report must expose canonical source coverage to the general intelligence surface');
 if (!smartReportPage.includes("analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}")) throw new Error('Smart Report must identify source-snapshot fallback separately from canonical analysis');
-const genericCard = fs.readFileSync(new URL('../src/components/GenericFileIntelligenceCard.tsx', import.meta.url), 'utf8');
-if (!genericCard.includes('data-testid="generic-intelligence-unavailable"')) throw new Error('Missing explicit unavailable state when source-bound general analysis cannot be derived');
-if (!genericCard.includes('data-testid="generic-intelligence-analysis-scope"')) throw new Error('Missing explicit warning for partial or extraction-snapshot analysis');
+const genericCardUnavailableUi = fs.readFileSync(new URL('../src/components/GenericFileIntelligenceCard.tsx', import.meta.url), 'utf8');
+if (!genericCardUnavailableUi.includes('data-testid="generic-intelligence-unavailable"')) throw new Error('Missing explicit unavailable state when source-bound general analysis cannot be derived');
+if (!genericCardUnavailableUi.includes('data-testid="generic-intelligence-analysis-scope"')) throw new Error('Missing explicit warning for partial or extraction-snapshot analysis');
 
 if (!smartReportPage.includes('sourceHash={report.sourceHash}') || !smartReportPage.includes('reportJobId={report.jobId}')) throw new Error('Generic intelligence card must retain report source lineage');
 if (!smartReportPage.includes('generalIntelligence: report.genericIntelligence ?? undefined')) throw new Error('Persisted universal evidence chain must include the same report general layer');
@@ -193,14 +193,14 @@ for (const marker of [
 ]) {
   if (!reportsCenterPage.includes(marker)) throw new Error('Reports Center must visibly expose its exact source lineage: ' + marker);
 }
-const businessE2E = fs.readFileSync(new URL('../scripts/real-business-e2e.mjs', import.meta.url), 'utf8');
-if (!businessE2E.includes("const resetBody = (await page.locator('body').innerText()).trim();")) throw new Error('Reports Center source-lineage proof must read the post-reset DOM');
+const businessE2EPostReset = fs.readFileSync(new URL('../scripts/real-business-e2e.mjs', import.meta.url), 'utf8');
+if (!businessE2EPostReset.includes("const resetBody = (await page.locator('body').innerText()).trim();")) throw new Error('Reports Center source-lineage proof must read the post-reset DOM');
 for (const marker of [
   "resetBody.includes(REAL_SMART_REPORT_JOB_ID)",
   "resetBody.includes(REAL_SMART_REPORT_SOURCE_HASH)",
   "resetBody.includes(REAL_SMART_REPORT_SOURCE_PATH)",
 ]) {
-  if (!businessE2E.includes(marker)) throw new Error('Post-reset browser proof must assert visible source identity: ' + marker);
+  if (!businessE2EPostReset.includes(marker)) throw new Error('Post-reset browser proof must assert visible source identity: ' + marker);
 }
 
 console.log('smart-report-catalog-navigation: PASS');
