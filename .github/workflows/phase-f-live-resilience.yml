@@ -222,6 +222,8 @@ jobs:
           }
           NODE
             )
+            # Documentation archives and this exact control-plane workflow are not shipped app code.
+            # Keep every source/API/function/build-config path fail-closed.
             source="${values[0]:-}"
             build="${values[1]:-}"
             deployment="${values[2]:-}"
@@ -234,7 +236,7 @@ jobs:
             fi
             if [[ -n "$source" && "$source" == "$build" && "$build" == "$deployment" && "$deployment" != "$expected" ]]; then
               mapfile -t changed_files < <(git diff --name-only "$deployment..$expected")
-              if (( ${#changed_files[@]} > 0 )) && printf "%s\n" "${changed_files[@]}" | grep -vqE "^(docs/execution/|ONE-PROGRAMMER-SESSION-MEMORY\\.md$)"; then
+              if (( ${#changed_files[@]} > 0 )) && printf "%s\n" "${changed_files[@]}" | grep -vqE "^(docs/execution/|PROGRAMMER_REPORTS/|ONE-PROGRAMMER-SESSION-MEMORY\\.md$|\\.github/workflows/phase-f-live-resilience\\.yml$)"; then
                 echo "RUNTIME_PROVENANCE_CODE_DRIFT=true"
               elif (( ${#changed_files[@]} > 0 )); then
                 echo "RUNTIME_PROVENANCE_CODE_EQUIVALENT=true"
