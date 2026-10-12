@@ -446,7 +446,6 @@ jobs:
       - name: Diagnose optional real-source coverage for 48 specialist archetypes
         id: real-source-matrix
         # Specialist coverage is a diagnostic capability report, not a prerequisite for generic analysis of supported files.
-        continue-on-error: true
         if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
@@ -461,10 +460,46 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${TEST_USER_B_EMAIL}"
-          test -n "${TEST_USER_B_PASSWORD}"
-          test -n "${SUPABASE_SERVICE_ROLE_KEY}"
-          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
+          matrix_file='artifacts/e2e-business/real-48-source-matrix-preflight.json'
+          mkdir -p artifacts/e2e-business
+          matrix_exit=0
+          matrix_reason=''
+          if [[ -z "${TEST_USER_B_EMAIL:-}" || -z "${TEST_USER_B_PASSWORD:-}" || -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]]; then
+            matrix_exit=78
+            matrix_reason='SPECIALIST_CREDENTIALS_MISSING'
+          else
+            set +e
+            node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
+            matrix_exit=$?
+            set -e
+            if [ "$matrix_exit" -ne 0 ]; then
+              matrix_reason='SPECIALIST_PREFLIGHT_EXECUTION_FAILED'
+            fi
+          fi
+
+          if [ "$matrix_exit" -ne 0 ]; then
+            echo "OPTIONAL_SPECIALIST_MATRIX_EXECUTION_ERROR reason=$matrix_reason exit=$matrix_exit"
+            # Keep a truthful diagnostic artifact even when the optional tool itself
+            # cannot run. Do not convert an execution error into a coverage PASS.
+            if [ ! -s "$matrix_file" ]; then
+              EXACT_HEAD="$EXACT_HEAD" MATRIX_EXIT_CODE="$matrix_exit" MATRIX_ERROR_REASON="$matrix_reason" node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
+          fs.writeFileSync(path, JSON.stringify({
+            exactHead: process.env.EXACT_HEAD,
+            status: 'NOT_PROVEN',
+            summary: { totalArchetypes: 48, supported: 0, notProven: 48 },
+            diagnostics: {
+              failureCode: process.env.MATRIX_ERROR_REASON || 'SPECIALIST_MATRIX_EXECUTION_FAILED',
+              exitCode: Number(process.env.MATRIX_EXIT_CODE || 1),
+              fallbackArtifact: true,
+            },
+            note: 'Optional specialist coverage did not execute; universal generic-file analysis is tested independently.',
+          }, null, 2) + '\n');
+          NODE
+            fi
+          fi
+          exit 0
 
       - name: Validate generic file intelligence across supported formats
         if: ${{ always() }}

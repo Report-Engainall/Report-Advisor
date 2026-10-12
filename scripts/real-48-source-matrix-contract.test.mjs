@@ -29,6 +29,12 @@ if (source.includes("request_decision_approval")) fail('Preflight must not creat
 if (source.includes("create_decision_work_item")) fail('Preflight must not create work items');
 
 
+if (browserWorkflow.includes('continue-on-error: true')) {
+  fail('Optional specialist coverage must be made non-blocking by its explicit diagnostic wrapper, not continue-on-error');
+}
+if (!browserWorkflow.includes('OPTIONAL_SPECIALIST_MATRIX_EXECUTION_ERROR')) {
+  fail('Optional specialist execution errors must be surfaced explicitly in the diagnostic log');
+}
 for (const marker of [
   "REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY === '1'",
   "OPTIONAL_SPECIALIST_COVERAGE_NOT_PROVEN",
