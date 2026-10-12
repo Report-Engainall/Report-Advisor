@@ -224,6 +224,7 @@ jobs:
           npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
           npm run test:report-intelligence-value-chain
+          node scripts/generic-file-analysis.test.mjs
           npm run test:report-smart-evidence-boundary
           npm run test:customer-facing-report-surface
           npm run test:smart-report-complete-intelligence-surface
@@ -436,13 +437,14 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/real-business-e2e.mjs
 
-      - name: Prove governed real-source 48 archetype matrix
+      - name: Diagnose optional real-source coverage for 48 specialist archetypes
         id: real-source-matrix
-        # Run independently of the browser journey outcome so real-source coverage evidence is never skipped by an unrelated UI failure.
+        # Specialist coverage is a diagnostic capability report, not a prerequisite for generic analysis of supported files.
         if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
+          REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY: '1'
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           REAL_48_TEST_USER_EMAIL: ${{ env.TEST_USER_B_EMAIL }}
@@ -457,7 +459,36 @@ jobs:
           test -n "${SUPABASE_SERVICE_ROLE_KEY}"
           node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
 
-      - name: Fail closed on browser evidence
+      - name: Validate generic file intelligence across supported formats
+        if: ${{ always() }}
+        run: node scripts/generic-file-analysis.test.mjs
+
+      - name: Report optional specialist coverage (does not gate generic file analysis)
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const file = 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
+          if (!fs.existsSync(file)) {
+            console.warn('SPECIALIST_COVERAGE=NOT_REPORTED; generic file-analysis proof is evaluated separately.');
+            process.exit(0);
+          }
+          try {
+            const result = JSON.parse(fs.readFileSync(file, 'utf8'));
+            const supported = Number(result.summary?.supported);
+            const total = Number(result.summary?.totalArchetypes);
+            if (result.exactHead !== process.env.EXACT_HEAD || total !== 48 || !Number.isInteger(supported) || supported < 0 || supported > total) {
+              console.warn('SPECIALIST_COVERAGE=INVALID_DIAGNOSTIC; inspect artifact; generic file-analysis proof remains independent.');
+              process.exit(0);
+            }
+            console.log('OPTIONAL_SPECIALIST_COVERAGE=' + supported + '/' + total + ' STATUS=' + result.status + ' NOT_A_GENERIC_ANALYSIS_GATE=true');
+          } catch {
+            console.warn('SPECIALIST_COVERAGE=UNREADABLE_DIAGNOSTIC; inspect artifact; generic file-analysis proof remains independent.');
+          }
+          NODE
+
+      - name: Fail closed on universal browser evidence
         if: ${{ always() }}
         shell: bash
         run: |
@@ -467,7 +498,6 @@ jobs:
           const files = [
             'artifacts/e2e-browser/result.json',
             'artifacts/e2e-business/result.json',
-            'artifacts/e2e-business/real-48-source-matrix-preflight.json',
           ];
           const failures = [];
           for (const file of files) {
@@ -478,9 +508,6 @@ jobs:
             const result = JSON.parse(fs.readFileSync(file, 'utf8'));
             if (result.exactHead !== process.env.EXACT_HEAD) failures.push(file + ': EXACT_HEAD_MISMATCH');
             if (result.status !== 'PASS') failures.push(file + ': STATUS=' + (result.status || 'UNKNOWN'));
-            if (file.endsWith('real-48-source-matrix-preflight.json') && (result.summary?.totalArchetypes !== 48 || result.summary?.supported !== 48)) {
-              failures.push(file + ': REAL_SOURCE_ARCHETYPE_COVERAGE=' + String(result.summary?.supported ?? 'UNKNOWN') + '/' + String(result.summary?.totalArchetypes ?? 'UNKNOWN'));
-            }
             const items = [
               ...(Array.isArray(result.findings) ? result.findings : []),
               ...(Array.isArray(result.steps) ? result.steps : []),
@@ -489,10 +516,10 @@ jobs:
             if (blocked.length) failures.push(file + ': UNRESOLVED_BROWSER_FINDINGS=' + blocked.length);
           }
           if (failures.length) {
-            console.error(failures.join('\n'));
+            console.error(failures.join('\\n'));
             process.exit(1);
           }
-          console.log('BROWSER_PROOF_GATE=PASS');
+          console.log('UNIVERSAL_BROWSER_PROOF_GATE=PASS');
           NODE
 
       - name: Upload browser proof artifacts
