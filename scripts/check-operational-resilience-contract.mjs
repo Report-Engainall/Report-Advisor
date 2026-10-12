@@ -46,7 +46,7 @@ for (const token of [
 }
 
 const snapshotProbe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
-for (const token of ['pg_export_snapshot()', '--snapshot="$SNAPSHOT_ID"', "source_snapshot_strategy: 'postgres-exported-snapshot-shared-with-pg-dump'"]) {
+for (const token of ['buildExportedSnapshotSql()', '--snapshot="$SNAPSHOT_ID"', "source_snapshot_strategy: 'postgres-exported-snapshot-shared-with-pg-dump'"]) {
   if (!snapshotProbe.includes(token)) throw new Error('Logical restore snapshot binding missing: ' + token);
 }
 const snapshotHelper = fs.readFileSync(path.join(root,'src/server/logical-restore-snapshot.mjs'),'utf8');
