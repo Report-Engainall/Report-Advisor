@@ -357,7 +357,7 @@ function runDockerPgDump(databaseUrl, outputPath, snapshotId) {
     '-e', 'SNAPSHOT_ID=' + snapshotId,
     postgresClientImage,
     'sh', '-lc',
-    'pg_dump "$PGURI" --serializable-deferrable --snapshot="$SNAPSHOT_ID" --schema=public --data-only ' + volatileExcludeArgs + ' --no-owner --no-privileges --format=plain --file=' + containerPath,
+    `pg_dump "$PGURI" --serializable-deferrable --snapshot="$SNAPSHOT_ID" --schema=public --data-only ${volatileExcludeArgs} --no-owner --no-privileges --format=plain --file=${containerPath}`,
   ];
   return retryTransientPostgresConnection(
     () => runCommand('docker', args),
