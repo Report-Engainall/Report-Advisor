@@ -609,7 +609,11 @@ await (await import('node:fs/promises')).mkdir(outFile.slice(0, outFile.lastInde
 await (await import('node:fs/promises')).writeFile(outFile, JSON.stringify(proof, null, 2) + '\n', 'utf8');
 
 if (proof.status !== 'PASS') {
-  console.error(JSON.stringify({ summary: proof.summary, sourceJobsScanned: proof.sourceJobsScanned, diagnostics: proof.diagnostics }));
+  console.warn(JSON.stringify({ summary: proof.summary, sourceJobsScanned: proof.sourceJobsScanned, diagnostics: proof.diagnostics }));
+  if (process.env.REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY === '1') {
+    console.warn('OPTIONAL_SPECIALIST_COVERAGE_NOT_PROVEN: this report is independent of generic file analysis.');
+    process.exit(0);
+  }
   process.exit(2);
 }
 console.log(JSON.stringify(proof.summary));
