@@ -421,6 +421,10 @@ jobs:
           ./node_modules/.bin/playwright install --with-deps chromium
           ./node_modules/.bin/playwright --version
 
+      - name: Verify page-scoped browser request accounting
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
+        run: node scripts/check-browser-e2e-page-telemetry-contract.mjs
+
       - name: Real Chromium route and authenticated browser proof
         if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
