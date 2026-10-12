@@ -84,7 +84,7 @@ async function main() {
   // Universal file analysis is the product baseline; the optional specialist catalog
   // must not be required for useful, source-bound findings on an unfamiliar table.
   const unclassifiedDatasetList = await parseFile(
-    buffer('record_key,observation_text,amount_value\\nA-01,Review pending,100\\nB-02,Completed,250\\nC-03,Discrepancy,75'),
+    buffer('record_key,observation_text,amount_value\nA-01,Review pending,100\nB-02,Completed,250\nC-03,Discrepancy,75'),
     'unclassified-operational-data.csv',
     'csv',
   );
