@@ -13,21 +13,44 @@ const clientUiSettingsParityMigration = read('supabase/migrations/20260925184000
 
 
 
-// Logical source snapshot/count reads intentionally use the resolved transaction-pooler URI.
+// Source counts and pg_dump must consume the same exported PostgreSQL snapshot.
+// The snapshot export uses a safe serializable read-only transaction; imports use the
+// resolved transaction-pooler URI so the snapshot id belongs to the same source database.
+const phaseFSnapshotHelper = read('src/server/logical-restore-snapshot.mjs');
 if (!/const querySource = await preferIpv4Host\(toTransactionPooler\(runnerSource\)\);/.test(phaseFProbe)) {
   throw new Error('Phase-F logical reads must derive an IPv4-safe transaction-pooler querySource from runnerSource');
 }
-if (!/snapshotText = runDockerPsql\(querySource, exactSnapshotSql\)/.test(phaseFProbe)) {
-  throw new Error('Phase-F source snapshot must use the resolved querySource URI');
+if (!/exportedSnapshot = await startExportedSnapshot\(querySource\)/.test(phaseFProbe)
+  || !/buildExportedSnapshotSql\(\)/.test(phaseFProbe)) {
+  throw new Error('Phase-F source snapshot must be exported from the resolved querySource URI');
 }
-if (!/sourceCounts = parseTableCounts\(runDockerPsql\(querySource, countSql\)\)/.test(phaseFProbe)) {
-  throw new Error('Phase-F schema-count query must use the resolved querySource URI');
+if (!/sourceCounts = parseTableCounts\(runDockerPsqlWithSnapshot\(querySource, exportedSnapshot\.snapshotId, countSql\)\)/.test(phaseFProbe)) {
+  throw new Error('Phase-F source row counts must import the exported snapshot on querySource');
+}
+if (!/runDockerPgDump\(querySource, backupPath, exportedSnapshot\.snapshotId\)/.test(phaseFProbe)) {
+  throw new Error('Phase-F pg_dump must use the resolved querySource URI and the same exported snapshot id');
+}
+if (!/function runDockerPgDump\(databaseUrl, outputPath, snapshotId\)/.test(phaseFProbe)
+  || !/pg_dump "\$PGURI" --serializable-deferrable --snapshot="\$SNAPSHOT_ID"/.test(phaseFProbe)) {
+  throw new Error('Phase-F logical dump must preserve serializable-deferrable and the exported snapshot binding');
+}
+if (!/sourceCountsAfter = parseTableCounts\(runDockerPsql\(querySource, countSql\)\)/.test(phaseFProbe)
+  || !/source_snapshot_strategy: 'postgres-exported-snapshot-shared-with-pg-dump'/.test(phaseFProbe)) {
+  throw new Error('Phase-F post-dump source drift must be diagnostic and snapshot provenance must be recorded');
+}
+if (!/finally \{\s*if \(exportedSnapshot\) await exportedSnapshot\.close\(\);\s*\}/.test(phaseFProbe)) {
+  throw new Error('Phase-F must close the exported snapshot transaction after counts and dump finish');
+}
+for (const token of [
+  'buildExportedSnapshotSql()',
+  'BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE',
+  'pg_export_snapshot()',
+  'SET TRANSACTION SNAPSHOT',
+]) {
+  if (!phaseFSnapshotHelper.includes(token)) throw new Error(\`Phase-F exported snapshot helper invariant missing: \${token}\`);
 }
 if (!/const directPort = parsed\.port \|\| '5432';/.test(phaseFProbe) || !/directPort === '5432'/.test(phaseFProbe)) {
   throw new Error('Phase-F direct Supabase source fallback must treat an omitted port as the default 5432');
-}
-if (!/function runDockerPgDump\(databaseUrl, outputPath\)/.test(phaseFProbe) || !/pg_dump "\$PGURI"/.test(phaseFProbe) || !/runDockerPgDump\(runnerSource, backupPath\)/.test(phaseFProbe)) {
-  throw new Error('Phase-F logical dump must use the resolved runnerSource URI via pg_dump');
 }
 if (!/const volatileExcludeArgs = \[\.\.\.VOLATILE_RESTORE_TABLES\]/.test(phaseFProbe)
   || !/--exclude-table-data=\$\{tableName\}/.test(phaseFProbe)
