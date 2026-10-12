@@ -1,39 +1,46 @@
-## LIVE RESUME — 2026-10-12 / UNIVERSAL STRUCTURED-FILE TEXT SIGNALS
+## LIVE RESUME — 2026-10-12 / POST-MERGE RELEASE STATE
 
-CURRENT_EXACT_HEAD = 6798db8af5653e7b91e786c38d50fae279fccfa0
-CODE_CHECKPOINT = 6798db8af5653e7b91e786c38d50fae279fccfa0
-FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
-BRANCH = fix/source-bound-generic-intelligence-20261009
+CURRENT_EXACT_HEAD = 6dbc16ea1f762cb78b398c741d925c52275017fe
+CODE_CHECKPOINT = 6dbc16ea1f762cb78b398c741d925c52275017fe
+LIVE_MAIN_HEAD_AT_REBASELINE = 6dbc16ea1f762cb78b398c741d925c52275017fe
+BRANCH = main
+MERGED_FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = GENERIC_STRUCTURED_TEXT_SIGNAL_FIX_PRESENT; HANDOFF_REBASELINE_AND_EXACT_HEAD_TESTS_PENDING
-UPDATED_AT = 2026-10-12T18:35:00Z
+PR_STATE = CLOSED
+MERGE_STATE = MERGED
+ACTION_STATUS = GENERIC_INTELLIGENCE_MERGED; MAIN_BUILD_QUALITY_BROWSER_CERTIFICATION_PASS; VERCEL_DEPLOYMENT_READY; NETLIFY_DEPLOY_BLOCKED_MISSING_GITHUB_SECRETS; PHASE_F_NOT_READY
+UPDATED_AT = 2026-10-12T19:15:00Z
 PRODUCT_COMPLETE = NO
-DO_NOT_MERGE = true
+DO_NOT_MERGE = NOT_APPLICABLE_PR_ALREADY_MERGED
+IMPLEMENTED = YES — source-bound generic intelligence and structured-table risk/action signals are in main.
+INTEGRATED = YES — PR #912 merge commit 6dbc16ea1f762cb78b398c741d925c52275017fe.
+PERSISTED = PROVEN_IN_AUTHENTICATED_E2E — canonical persistence plus readback checks passed on the exact main SHA.
+UI-EXPOSED = PROVEN_IN_CHROMIUM_E2E — real authenticated route and Smart Report journey passed on the exact main SHA.
+READBACK-PROVEN = YES_IN_CI — generic and XLSX reads after refresh are backed by durable canonical rows.
+BROWSER-PROVEN = YES_IN_CI — Full Product Browser E2E run 38294294413 succeeded against 6dbc16ea1f762cb78b398c741d925c52275017fe.
+PRODUCTION_DEPLOYMENT = VERCEL_READY — dpl_3MHFGEZgSs3CVVmH7kscLuXaoJuD, deployment SHA 6dbc16ea1f762cb78b398c741d925c52275017fe.
+PRODUCTION_PROVEN = PARTIAL — Vercel production deployment exists at the exact SHA; public Netlify is stale and live Phase-F certification failed.
+NETLIFY_PRODUCTION = BLOCKED — GitHub Actions secrets NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are empty/missing; production remains at SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+PHASE_F_LIVE_RESILIENCE = NOT_READY — run 38294294464 reports health SHA missing/HTTP 404, tenant-canary fetch failure, logical backup/restore PASS, and rollback probe serving HTML without deployment SHA.
+GITHUB_PAGES_FALLBACK = NOT_READY — build passed, deploy failed HTTP 404 because GitHub Pages is not enabled for the repository.
+
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Verify Handoff on the new documentation checkpoint; read generic-file analysis and Full Product Browser E2E results on 6798db8af5653e7b91e786c38d50fae279fccfa0; verify exact-head build, quality, Phase-F, final certification and Smart Report refresh readback.
+NEXT_EXACT_ACTION = 1) Restore NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID in repository Actions secrets, then publish the exact main SHA to Netlify. 2) Verify the published Netlify deploy commit and all four runtime endpoints. 3) Repair RESILIENCE_*_URL targets to the correct deployed functions and rerun Phase-F until all four probes pass. 4) Treat GitHub Pages as an optional static-only alternative; enable it in repository settings only if intentionally retained. Do not relax or skip these release gates.
 
 ## Universal analysis invariant
 
-Every supported uploaded file must receive source-grounded generic analysis regardless of whether any of the 48 optional specialist archetypes matches. For structured tables, general profile/numeric signals must coexist with risk/action-language signals derived from the cell text. Preserve evidence, recommendations, confidence state and limitations; never invent cause, impact, benchmark or outcome. Preserve tenant + reportJobId + sourceHash across report, evidence, decision and work surfaces.
+Every supported uploaded file must receive source-grounded generic analysis regardless of whether any of the 48 optional specialist archetypes matches. For structured tables, general profile/numeric signals must coexist with risk/action-language signals derived from cell text. Preserve evidence, recommendations, confidence state and limitations; never invent causes, impact, benchmarks or outcomes. Preserve tenant + reportJobId + sourceHash across report, evidence, decision and work surfaces.
 
-## Code change observed on 6798db8af5653e7b91e786c38d50fae279fccfa0
+## Verified main-SHA workflow evidence
 
-Commit 6798db8af5653e7b91e786c38d50fae279fccfa0 (“fix(intelligence): preserve text signals in structured files”) is parented to c175d551da597e2d3b212d15f4b4ee70560d6022:
-- src/lib/file-engine/generic-intelligence.ts now retains generic risk-language and action-language signals alongside structured-table profiling, instead of suppressing those signals for tables.
-- scripts/generic-file-analysis.test.mjs adds a generic CSV fixture with “Critical stock shortage” and assertions for risk/action signals, text-based review recommendation, content finding and visible evidence guidance.
+- Product Build Gate: PASS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294535
+- Quality: PASS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294479
+- Final Certification Gate: PASS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294431
+- Session Handoff Contract: PASS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294421
+- Full Product Browser E2E: PASS — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294413
+- Browser evidence artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294413/artifacts/11768252264
+- Phase-F Live Resilience: FAIL / NOT READY — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294464
+- Netlify Production Deploy: FAIL before deploy because NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID were blank — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294516
+- GitHub Pages deploy: FAIL / HTTP 404 (Pages not enabled) — https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294425
 
-## Handoff failure
-
-Session Handoff run 38291747693 failed with: “stale report; unreported files: scripts/generic-file-analysis.test.mjs, src/lib/file-engine/generic-intelligence.ts”. This is a strict state/report freshness failure caused by the new code commit after the prior checkpoint, not proof that the new analysis test failed. This checkpoint documents the exact head and files without relaxing the contract.
-
-## Gate state
-
-- Data Quality Runtime run 38291747650 on 6798db8af5653e7b91e786c38d50fae279fccfa0: PASS.
-- Product Build Gate run 38291747376: in progress at last read.
-- Quality run 38291747390: in progress at last read.
-- Phase-F Live Resilience run 38291747666: in progress at last read.
-- Final Certification run 38291747638: in progress at last read.
-- Full Product Browser E2E run 38291747645: pending at last read.
-- Older browser run 38290929481 on a554b93… passed the page-scoped telemetry contract and is in the Chromium route step; it is not exact-head proof.
-
-Predecessor PASS results are not transferred to 6798db8af5653e7b91e786c38d50fae279fccfa0. Production was last verified at 858ef8e3e5bc5bf74430555eadfb9e6767be348b. PR #912 remains OPEN / NOT MERGED.
+SESSION HANDOFF = READY

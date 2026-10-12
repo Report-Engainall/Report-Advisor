@@ -1,3 +1,38 @@
+# LIVE RESUME — 2026-10-12 / POST-MERGE RELEASE CHECKPOINT
+
+Repository: Report-Engainall/Report-Advisor
+Default branch: main
+Verified main/code checkpoint: 6dbc16ea1f762cb78b398c741d925c52275017fe
+PR #912: CLOSED / MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO.
+MERGE_STATE = MERGED.
+ACTION_STATUS = core code merged; exact-head build/quality/certification/browser E2E pass; Vercel production is READY at 6dbc16ea1f762cb78b398c741d925c52275017fe; Netlify publish blocked by missing GitHub Actions secrets; Phase-F live resilience NOT READY.
+
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md — current code checkpoint 6dbc16ea1f762cb78b398c741d925c52275017fe.
+
+PROVEN ON EXACT MAIN SHA:
+- Product Build Gate run 38294294535: PASS.
+- Quality run 38294294479: PASS.
+- Final Certification Gate run 38294294431: PASS.
+- Session Handoff Contract run 38294294421: PASS.
+- Full Product Browser E2E run 38294294413: PASS.
+- Authenticated browser test proves tenant/session survives full page refresh; generic and XLSX uploads have durable canonical persistence/history and source-bound generic intelligence readback after refresh. The log explicitly records genericReadbackMode=RECOMPUTED_FROM_DURABLE_CANONICAL_ROWS and genericSourceBoundAfterRefresh=true.
+- Browser artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294413/artifacts/11768252264
+- Vercel production deploy dpl_3MHFGEZgSs3CVVmH7kscLuXaoJuD is READY and points at 6dbc16ea1f762cb78b398c741d925c52275017fe.
+
+ACTIVE BLOCKERS:
+- Netlify production deploy run 38294294516: build passed, publish step failed because NETLIFY_AUTH_TOKEN is missing; NETLIFY_SITE_ID is also blank. The Netlify production deploy still serves SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+- Phase-F run 38294294464: NOT READY, 1/4 probes passed. Operational health returned HTTP 404 with missing deployment SHA; tenant-canary returned fetch failed; logical backup/restore passed with RPO 62.72s and RTO 11.27s; rollback probe received HTTP 200 but SPA HTML instead of function JSON/deployment identity.
+- GitHub Pages deploy run 38294294425: build passed; deployment failed HTTP 404 because GitHub Pages is not enabled. Treat as optional static-only fallback, not as the product deployment.
+
+NEXT: Add the authorized Netlify token and site ID as GitHub Actions repository secrets (never commit secret values), redeploy the exact current main SHA, check every live API route/identity, and rerun Phase-F until 4/4 probes pass. Do not relax fail-closed gates. Do not claim PRODUCT_COMPLETE while Netlify parity / Phase-F remain unresolved.
+
+SESSION HANDOFF = READY
+
+---
+
+## Superseded historical entry (kept for traceability, not current status)
+
 # LIVE RESUME — 2026-10-12 / BROWSER PAGE-TELEMETRY REPAIR
 
 Repository: Report-Engainall/Report-Advisor
