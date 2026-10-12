@@ -1,3 +1,34 @@
+## LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
+
+CURRENT_EXACT_HEAD = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+CODE_CHECKPOINT = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+LIVE_MAIN_HEAD_AT_REBASELINE = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+BRANCH = fix/session-handoff-after-squash-20261013
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/914 (MERGED); this branch is a documentation-only handoff repair.
+PR_STATE = FOLLOW-UP CHECKPOINT PREPARATION
+MERGE_STATE = PR #914 MERGED; handoff repair must use merge commit to preserve ancestry.
+ACTION_STATUS = VERCEL_TOKEN_SYNC_PATCH_MERGED; EXACT_HEAD_BUILD_QUALITY_CERTIFICATION_HANDOFF_PASSED_ON_CANDIDATE; POST_MERGE_HANDOFF_FAILED_ANCESTRY; NETLIFY_DEPLOY_BLOCKED_MISSING_ACTIONS_SECRET; PHASE_F_IN_PROGRESS
+UPDATED_AT = 2026-10-13
+PRODUCT_COMPLETE = NO
+IMPLEMENTED = YES — PR #914 merge commit 5ca8ffceae0693d510c349732a2cce52f62ab1a8 updates .github/workflows/vercel-production-deploy.yml so the manual Vercel deployment syncs the existing RESILIENCE_OPERATIONAL_TOKEN secret into production before build. Fail-closed checks remain intact.
+INTEGRATED = YES — PR #914 merged.
+PERSISTED = NOT_APPLICABLE — workflow configuration change, no report data write.
+UI-EXPOSED = NO_UI_CODE_CHANGED — this fix changes deployment configuration only.
+READBACK-PROVEN = YES — current main ref/merge SHA, closed PR #914, workflow code, and exact-head CI were read back through GitHub.
+TESTED = Candidate SHA 17063a81e3a674be963fb6b6b7776033ddecc55b: Build PASS (38310513149), Quality PASS (38310513321), Final Certification PASS (38310513437), Session Handoff PASS (38310513177), data-quality-runtime PASS (38310513320). Exact candidate check-runs: 42 success, 3 neutral, 1 skipped, 0 failures.
+BROWSER-PROVEN = Prior authenticated Chromium product journey only on SHA 6dbc16ea1f762cb78b398c741d925c52275017fe (run 38294294413). No new browser test is implied by this workflow/docs fix.
+PRODUCTION-PROVEN = PARTIAL — live Vercel deploy workflow sync not run/proven after merge; Netlify deploy remains stale/blocked; Phase-F run 38310884566 was still in progress at checkpoint capture.
+FIRST_ACTIVE_FAILURE = Post-merge Session Handoff Contract run 38310884756: REPORT_FOR_HEAD is not an ancestor of HEAD. PR #914 was squash-merged, so its recorded branch checkpoint 198777e8f138799f7326a131c0c56ec8cb8e6cc7 is not an ancestor of main merge commit 5ca8ffceae0693d510c349732a2cce52f62ab1a8. Contract remains strict.
+ROOT_CAUSE = Report metadata points to an intermediate branch commit lost from main ancestry by squash merge. Correct by setting REPORT_FOR_HEAD to 5ca8ffceae0693d510c349732a2cce52f62ab1a8, with only allowed documentation files changed relative to it, and merging this handoff repair with a normal merge commit.
+NETLIFY_PRODUCTION = BLOCKED — run 38310884816 failed with Missing NETLIFY_AUTH_TOKEN; NETLIFY_SITE_ID blank. Do not synthesize or expose credentials.
+PHASE_F_LIVE_RESILIENCE = IN_PROGRESS at checkpoint capture: run 38310884566; await exact run conclusion.
+VERCEL_PRODUCTION = FIX MERGED; production effect NOT_PROVEN — Vercel env inventory showed empty RESILIENCE_OPERATIONAL_TOKEN before merge. Must execute the existing workflow_dispatch and verify the health endpoint with its authenticated token/header and exact deployment ID/SHA.
+CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
+NEXT_EXACT_ACTION = Complete this checkpoint repair and have Session Handoff PASS on the exact branch head; merge using a normal merge commit, not squash, then recheck current main gates and the real Vercel production workflow.
+SESSION HANDOFF = READY
+
+---
+
 ## LIVE RESUME — 2026-10-13 / VERCEL TOKEN-SYNC REPAIR
 
 CURRENT_EXACT_HEAD = 198777e8f138799f7326a131c0c56ec8cb8e6cc7
