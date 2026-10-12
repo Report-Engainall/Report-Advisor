@@ -81,6 +81,32 @@ async function main() {
   assert.ok(!guessedCustomerIntelligence.summary.includes('ملف نشاط العملاء'), 'inferred mappedField must not override a generic raw header');
   assert.notEqual(guessedCustomerIntelligence.findings[0]?.title, 'ملف نشاط العملاء', 'a generic raw name column must not trigger customer specialization');
 
+  // Universal file analysis is the product baseline; the optional specialist catalog
+  // must not be required for useful, source-bound findings on an unfamiliar table.
+  const unclassifiedDatasetList = await parseFile(
+    buffer('record_key,observation_text,amount_value\\nA-01,Review pending,100\\nB-02,Completed,250\\nC-03,Discrepancy,75'),
+    'unclassified-operational-data.csv',
+    'csv',
+  );
+  assert.equal(unclassifiedDatasetList.length, 1, 'unclassified supported CSV should parse without a specialty');
+  const unclassifiedDataset = unclassifiedDatasetList[0];
+  const unclassifiedGeneric = buildGenericFileIntelligence(unclassifiedDataset, 'csv');
+  const universalWithoutSpecialty = buildUniversalReportIntelligence({
+    sourcePath: 'unclassified-operational-data.csv',
+    sourceHash: 'sha256:' + 'c'.repeat(64),
+    reportJobId: 'generic-file-contract-job',
+    tenantId: 'generic-file-contract-tenant',
+    rowCount: unclassifiedDataset.rowCount,
+    sourceAnalysis: { datasets: [unclassifiedDataset] },
+    canonicalRows: unclassifiedDataset.rows.map((data, index) => ({ row_number: index + 1, data })),
+    generalIntelligence: unclassifiedGeneric,
+  });
+  assert.equal(universalWithoutSpecialty.archetype, null, 'a generic source without a valid specialist fingerprint must remain unclassified');
+  assert.ok(universalWithoutSpecialty.intelligence.signals.some((signal) => signal.id === 'generic:table:structure'), 'generic source structural analysis must remain visible without a specialist');
+  assert.ok(universalWithoutSpecialty.intelligence.findings.some((finding) => finding.id === 'generic:table:profile'), 'generic source findings must remain available without a specialist');
+  assert.ok(universalWithoutSpecialty.intelligence.recommendations.some((item) => item.id === 'generic:table:validate-profile'), 'generic review recommendation must remain available without a specialist');
+  assert.ok(universalWithoutSpecialty.intelligence.summary.length > 20, 'universal analysis must return a useful source-derived summary when no archetype is applicable');
+
   // Real XLSX regression: customer portfolio + eight monthly measures.
   // The report should map the observed semantics, summarize the table and expose
   // evidence-backed customer-status, monthly-trend and reconciliation signals.
