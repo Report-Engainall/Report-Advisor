@@ -6,11 +6,11 @@ FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
 ACTION_STATUS = UNIVERSAL_FILE_ACCEPTANCE_CONTRACT_AND_TS_LOADER_FIXED; EXACT_HEAD_CI_REQUIRED
-UPDATED_AT = 2026-10-12T17:46:08.093Z
+UPDATED_AT = 2026-10-12T17:47:50.747Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Fast-forward documented checkpoint to PR #912, then read exact-head Build, Quality, Session Handoff, Phase-F, Full Product Browser E2E and Final Certification; verify generic tests and browser/report artifacts independently of the specialist matrix.
+NEXT_EXACT_ACTION = Inspect exact-head Product Build, Quality, Session Handoff, Phase-F, Full Product Browser E2E and Final Certification. Verify generic-format analysis plus authenticated report persistence/readback; read specialist coverage separately.
 
 Product acceptance is arbitrary supported-file analysis, not 48 report categories. Generic extraction/findings/signals/recommendations remain mandatory for an unknown/unclassified supported file. The 48 archetypes are optional specialization when actual source fields/evidence fit.
 
