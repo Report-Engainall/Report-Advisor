@@ -93,8 +93,9 @@ for (const token of [
 }
 
 const netlifyBrowserWorkflow = fs.readFileSync(path.join(root,'.github/workflows/full-product-browser-e2e.yml'),'utf8');
+const netlifyBrowserPullRequestPaths = (netlifyBrowserWorkflow.split('  pull_request:')[1] || '').split('  workflow_dispatch:')[0];
 for (const token of ['netlify/functions/**', 'netlify.toml', 'scripts/write-netlify-runtime-provenance.mjs']) {
-  if (!netlifyBrowserWorkflow.includes(token)) throw new Error(`Netlify runtime changes must trigger full authenticated browser proof: ${token}`);
+  if (!netlifyBrowserPullRequestPaths.includes(token)) throw new Error(`Netlify runtime changes must trigger full authenticated browser proof on pull requests: ${token}`);
 }
 const netlifyPhaseFWorkflow = fs.readFileSync(path.join(root,'.github/workflows/phase-f-live-resilience.yml'),'utf8');
 for (const token of ['netlify/functions/**', 'netlify.toml', 'scripts/write-netlify-runtime-provenance.mjs']) {
