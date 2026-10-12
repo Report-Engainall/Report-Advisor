@@ -55,6 +55,17 @@ jobs:
           mkdir -p .vercel
           printf '%s\n' '{"projectId":"'"$VERCEL_PROJECT_ID"'","orgId":"'"$VERCEL_ORG_ID"'"}' > .vercel/project.json
 
+      - name: Synchronize operational token into Vercel production environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${RESILIENCE_OPERATIONAL_TOKEN:?RESILIENCE_OPERATIONAL_TOKEN_MISSING}"
+          token_file="$(mktemp)"
+          trap 'rm -f "$token_file"' EXIT
+          chmod 600 "$token_file"
+          printf '%s' "$RESILIENCE_OPERATIONAL_TOKEN" > "$token_file"
+          npx vercel@latest env update RESILIENCE_OPERATIONAL_TOKEN production --token="$VERCEL_TOKEN" < "$token_file"
+
       - name: Pull production environment
         run: npx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
 
