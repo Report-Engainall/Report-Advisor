@@ -462,7 +462,7 @@ jobs:
 
       - name: Validate generic file intelligence across supported formats
         if: ${{ always() }}
-        run: node scripts/generic-file-analysis.test.mjs
+        run: node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/generic-file-analysis.test.mjs
 
       - name: Report optional specialist coverage (does not gate generic file analysis)
         if: ${{ always() }}
