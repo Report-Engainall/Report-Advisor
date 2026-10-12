@@ -1,6 +1,6 @@
 ﻿import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
 import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-schema.ts';
-import { isGovernedRealFileRecord } from './real-source-provenance.mjs';
+import { committedCanonicalRecordIds, isGovernedRealFileRecord, resolveCanonicalImportIdFromAnchor } from './real-source-provenance.mjs';
 
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || 'https://fnqbvfuwbdpwvhcgzksl.supabase.co').replace(/\/$/, '');
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
@@ -250,6 +250,61 @@ async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   ) ?? null;
 }
 
+
+/**
+ * The report can legitimately point at a later idempotent import attempt that
+ * produced no canonical rows. Resolve rows only through a persisted commit
+ * anchor that matches this company and exact SHA-256 source identity.
+ */
+async function resolveCanonicalImportContext(companyId, sourceHash, fallbackImportId) {
+  const commits = await serviceRestSelect(
+    'canonical_import_commits',
+    { company_id: companyId, source_hash: sourceHash },
+    'id,company_id,entity_type,source_hash,committed_ids,committed_count,committed_at',
+    { order: 'committed_at.desc', limit: 20 },
+  );
+
+  for (const commit of commits) {
+    if (String(commit.company_id ?? '') !== String(companyId) ||
+        String(commit.source_hash ?? '') !== String(sourceHash)) continue;
+    for (const recordId of committedCanonicalRecordIds(commit, 8)) {
+      const anchors = await serviceRestSelect(
+        'canonical_dataset_records',
+        { company_id: companyId, id: recordId, source_hash: sourceHash },
+        'id,company_id,source_hash,import_job_id',
+        { limit: 2 },
+      );
+      const anchor = anchors.find((row) => Boolean(resolveCanonicalImportIdFromAnchor(
+        row,
+        { recordId, companyId, sourceHash },
+      )));
+      const importJobId = resolveCanonicalImportIdFromAnchor(
+        anchor,
+        { recordId, companyId, sourceHash },
+      );
+      if (importJobId) {
+        return {
+          importJobId,
+          resolution: importJobId === String(fallbackImportId ?? '').trim()
+            ? 'analysis-import-confirmed-by-canonical-commit'
+            : 'canonical-commit-anchor',
+          commitId: String(commit.id ?? ''),
+          anchorRecordId: recordId,
+          committedCount: Number(commit.committed_count ?? 0),
+        };
+      }
+    }
+  }
+
+  return {
+    importJobId: String(fallbackImportId ?? '').trim(),
+    resolution: 'analysis-import-fallback-no-valid-commit-anchor',
+    commitId: null,
+    anchorRecordId: null,
+    committedCount: null,
+  };
+}
+
 const profiles = listReportArchetypes();
 const evidenceSelect = serviceRestSelect;
 const sourceRecords = [];
@@ -312,13 +367,19 @@ for (const companyId of configuredTenantIds) {
     );
     if (!analysis?.import_job_id) continue;
 
+    const canonicalContext = await resolveCanonicalImportContext(
+      companyId,
+      sourceHash,
+      String(analysis.import_job_id),
+    );
+    const canonicalImportJobId = canonicalContext.importJobId;
     const analysisFields = usableColumns(analysis);
     const canonicalPreview = await evidenceSelect(
       'canonical_dataset_records',
       {
         company_id: companyId,
         source_hash: sourceHash,
-        import_job_id: String(analysis.import_job_id),
+        import_job_id: canonicalImportJobId,
       },
       'data',
       { limit: 25 },
@@ -336,6 +397,12 @@ for (const companyId of configuredTenantIds) {
       fields,
       fieldSet: canonicalFieldSet(fields),
       sampleSize: Number(analysis.row_count ?? 0),
+      analysisImportJobId: String(analysis.import_job_id),
+      canonicalImportJobId,
+      canonicalImportResolution: canonicalContext.resolution,
+      canonicalCommitId: canonicalContext.commitId,
+      canonicalAnchorRecordId: canonicalContext.anchorRecordId,
+      canonicalCommittedCount: canonicalContext.committedCount,
       sourceRecord: governedRealSource,
     });
   }
@@ -353,7 +420,7 @@ async function sourceRowsFor(source) {
     {
       company_id: source.companyId,
       source_hash: String(source.job.source_hash),
-      import_job_id: String(source.analysis.import_job_id),
+      import_job_id: String(source.canonicalImportJobId),
     },
     'row_number,data',
     { order: 'row_number.asc', limit: 5000 },
@@ -386,7 +453,12 @@ for (const profile of profiles) {
       candidateDiagnostics.push({
         reportJobId: candidate.job.id,
         sourcePath: candidate.job.source_path,
-        reasons: ['CANONICAL_SAMPLE_BELOW_MINIMUM:' + rows.length + '<' + profile.minimumSample],
+        reasons: [
+          'CANONICAL_SAMPLE_BELOW_MINIMUM:' + rows.length + '<' + profile.minimumSample,
+          'ANALYSIS_IMPORT_JOB_ID:' + candidate.analysisImportJobId,
+          'CANONICAL_IMPORT_JOB_ID:' + candidate.canonicalImportJobId,
+          'CANONICAL_IMPORT_RESOLUTION:' + candidate.canonicalImportResolution,
+        ],
       });
       continue;
     }
@@ -442,6 +514,12 @@ for (const profile of profiles) {
       reportJobId: candidate.job.id,
       sourcePath: candidate.job.source_path,
       sampleSize: rows.length,
+      analysisImportJobId: candidate.analysisImportJobId,
+      canonicalImportJobId: candidate.canonicalImportJobId,
+      canonicalImportResolution: candidate.canonicalImportResolution,
+      canonicalCommitId: candidate.canonicalCommitId,
+      canonicalAnchorRecordId: candidate.canonicalAnchorRecordId,
+      canonicalCommittedCount: candidate.canonicalCommittedCount,
       reasons,
     });
 
@@ -478,6 +556,12 @@ for (const profile of profiles) {
     evidencePassportId: chosen?.passport?.id ?? null,
     sourceRowCount: chosen?.sampleSize ?? null,
     canonicalRowsRead: chosen ? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,
+    analysisImportJobId: chosen?.analysisImportJobId ?? null,
+    canonicalImportJobId: chosen?.canonicalImportJobId ?? null,
+    canonicalImportResolution: chosen?.canonicalImportResolution ?? null,
+    canonicalCommitId: chosen?.canonicalCommitId ?? null,
+    canonicalAnchorRecordId: chosen?.canonicalAnchorRecordId ?? null,
+    canonicalCommittedCount: chosen?.canonicalCommittedCount ?? null,
     governedSource: chosen ? {
       fileRecordId: chosen.sourceRecord?.id ?? null,
       fileName: chosen.sourceRecord?.file_name ?? null,
