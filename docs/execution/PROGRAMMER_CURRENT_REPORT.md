@@ -1,3 +1,21 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / PHASE-10 CONTRACT MIGRATION TO SHARED SNAPSHOT
+
+REPORT_FOR_HEAD = 94d75b29125d5fc208a1e3e085e28641733b6fd5
+UPDATED_AT = 2026-10-12T01:32:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 OPEN / NOT MERGED
+PRODUCT_COMPLETE=NO
+DO_NOT_MERGE=true
+
+ROOT CAUSE = Quality run 38192019364 and Final Certification run 38192019266 failed the source-level Phase-10 contract because it required the retired exactSnapshotSql query, independent row-count query and two-argument pg_dump call. The implementation intentionally binds count and dump to a single exported snapshot to prevent live-write count drift.
+CHANGE = Commit 94d75b29125d5fc208a1e3e085e28641733b6fd5 updates scripts/check-phase10-backup-restore-contract.mjs to validate the new shared-snapshot contract strictly: resolved querySource, exported snapshot created, source counts and dump consume same ID, serializable-deferrable and snapshot flags retained, export session closes, and SQL helper contains safe exporter/import isolation. The existing table-exclusion assertions still remain after the changed block.
+WHAT_IS_PROVEN = Product Build Gate passed on prior head 29d96; Phase-F got through all static/local contracts and into live probes on the same prior head. Latest live restore result has not been confirmed. Latest completed real-source matrix is 23/48, 25 NOT_PROVEN. Do not transfer old test successes to the new head.
+NEXT ACTION = Publish docs-only state archive; verify branch and files; inspect fresh Phase-F. Then confirm build, quality, authenticated full browser/source matrix and final certification on exact SHA.
+SESSION HANDOFF=READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / QUERY SOURCE BINDING FIX
 
 REPORT_FOR_HEAD = 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0

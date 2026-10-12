@@ -1,3 +1,15 @@
+# LIVE RESUME — 2026-10-12 / UPDATE PHASE-10 CONTRACT FOR SHARED SNAPSHOT
+
+PR #912 OPEN / NOT MERGED. Branch: fix/source-bound-generic-intelligence-20261009. Latest code commit: 94d75b29125d5fc208a1e3e085e28641733b6fd5. PRODUCT_COMPLETE=NO.
+
+The latest Quality and Final Certification on 29d96 failed because scripts/check-phase10-backup-restore-contract.mjs still encoded the former implementation (timestamp query exactSnapshotSql, separate source count query and pg_dump with two parameters). This contradicted the corrected runtime, which exports one safe PostgreSQL snapshot and binds both the row-count manifest and pg_dump to the same snapshot identifier. New commit 94d75b29125d5fc208a1e3e085e28641733b6fd5 updates the contract to assert querySource resolution, exported snapshot source, count and pg_dump using the same ID, serializable-deferrable + snapshot flags, exporter close in finally, and helper-owned SERIALIZABLE READ ONLY DEFERRABLE / pg_export_snapshot / SET TRANSACTION SNAPSHOT. This is replacing outdated assertions with stronger assertions for the actual intended safety property, not relaxing integrity.
+
+The build passed on prior head 29d96. Phase-F on 29d96 was still in Live resilience probes; it may have been cancelled by the branch advance and must not be counted as PASS. Build/quality/browser on the new exact head are pending. Real-source coverage remains 23/48 from the latest completed matrix, with 25 NOT_PROVEN due missing required source fields. Do not merge or claim complete.
+
+NEXT: docs-only checkpoint child of 94d75b29125d5fc208a1e3e085e28641733b6fd5, push branch using expected previous head 29d96da, re-read GitHub, inspect Phase-F actual backup/restore then build, quality, browser matrix and certification.
+
+---
+
 # LIVE RESUME — 2026-10-12 / RESOLVED SOURCE URI FIX
 
 PR #912 is OPEN / NOT MERGED. Branch: fix/source-bound-generic-intelligence-20261009. Latest code commit: 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0. PRODUCT_COMPLETE=NO.

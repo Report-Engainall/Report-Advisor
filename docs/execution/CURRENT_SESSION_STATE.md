@@ -1,3 +1,20 @@
+## LIVE RESUME — 2026-10-12 / PHASE-10 SINGLE-SNAPSHOT CONTRACT
+
+CURRENT_EXACT_HEAD = 94d75b29125d5fc208a1e3e085e28641733b6fd5
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = CONTRACT_UPDATED_TO_MATCH_STRICT_SHARED_SNAPSHOT_ARCHITECTURE
+NEXT_EXACT_ACTION = Publish docs-only checkpoint child; verify readback; inspect exact-head Phase-F live backup/restore, Product Build Gate, Quality, full authenticated browser/real-source matrix, and Final Certification.
+UPDATED_AT = 2026-10-12T01:32:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+The latest prior head 29d96 build passed but its Quality/Final Certification static Phase-10 contract expected old code: exactSnapshotSql, unsynchronized independent source counts, runDockerPgDump(runnerSource, backupPath). These were superseded intentionally by the shared snapshot implementation. Commit 94d75b29125d5fc208a1e3e085e28641733b6fd5 updates tests to require the real safety contract: querySource resolved via IPv4-safe Transaction Pooler, one exported snapshot, count import via SET TRANSACTION SNAPSHOT, pg_dump with the same snapshot ID + --serializable-deferrable, source drift diagnostic only, exporter closed in finally, and safe helper isolation assertions. No row parity gate, excluded table, threshold, or data-integrity test was deleted.
+
+Phase-F run 38192019396 on 29d96 reached Live resilience probes. Its final status must be inspected (do not treat in-progress as proof). The new code exact-head Actions are still pending. Latest completed source matrix remains 23/48; 25 NOT_PROVEN. PRODUCT_COMPLETE=NO.
+
+---
+
 ## LIVE RESUME — 2026-10-12 / RESOLVED SOURCE URI FIX
 
 CURRENT_EXACT_HEAD = 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0
