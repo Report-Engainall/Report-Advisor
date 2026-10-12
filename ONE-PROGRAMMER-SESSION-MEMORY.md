@@ -1,3 +1,26 @@
+# LIVE RESUME — 2026-10-12 / STRICT SNAPSHOT RESTORE CONTRACT
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Latest implementation candidate: cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64
+PRODUCT_COMPLETE = NO.
+
+Current-head run 38191589811 / Phase-F Live Resilience failed at the local operational runtime tests before any live backup/restore because existing evidence integrity assertions require the original pg_dump command template interpolation, specifically the form --data-only ${volatileExcludeArgs}. The snapshot implementation had built this string by concatenation instead, triggering the fail-closed contract. Code commit cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64 restores the required single template-literal command while retaining the same exported snapshot id, --serializable-deferrable, --snapshot, and exact excluded table arguments. No contract or data-integrity threshold was relaxed. This latest fix has not yet been run through CI.
+
+The previous published exact head fe5aef9912633ecf008aa870993ddcb609148d6c had:
+- Product Build Gate run 38191589866 in progress.
+- Quality run 38191589934 in progress; initial steps through 20-stage parallel release readiness had passed.
+- Phase-F run 38191589811 failed step 8 before touching the database due command-string static contract.
+- Final Certification run 38191589805 in progress at certification contract tests.
+- Session Handoff run 38191585889 PASS and Execution Enforcement Contract run 38191585927 PASS.
+- Full Product Browser E2E run 38190886463 remains active on prior head 008b65c1 at real Chromium business journey/smart report proof. The new workflow concurrency setting is cancel-in-progress=false to preserve it.
+- Last completed real-source 48-archetype matrix is still 23/48; 25 archetypes remain NOT_PROVEN because qualifying real records are missing required source fields. Do not treat synthetic fixture data as real.
+
+The 84724e2 implementation introduced shared PostgreSQL snapshot; 41ef788 restored the table-exclusion expression; 637556f exported from SERIALIZABLE READ ONLY DEFERRABLE and retained --serializable-deferrable; d0558fe preserved active E2E runs on new branch updates. On previous published head 008b, build passed and critical initial assets measured 925.6KB against fixed 950KB.
+
+NEXT EXACT ACTION: publish latest command-template correction cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64 with an accurate docs-only checkpoint; verify exact branch, PR and readback; inspect new exact-head Phase-F, build, quality, browser E2E/source matrix and certification results. Preserve all strict fail-closed rules.
+---
 # LIVE RESUME — 2026-10-12 / SAFE SHARED SNAPSHOT + QUEUED EXACT-HEAD PROOFS
 
 Repository: Report-Engainall/Report-Advisor

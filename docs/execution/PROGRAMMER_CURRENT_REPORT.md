@@ -1,3 +1,29 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / RESTORE CONTRACT CORRECTION
+
+REPORT_FOR_HEAD = cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64
+UPDATED_AT = 2026-10-12T01:24:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_WAS_ASKED_TO_DO = Continue work on the live PR, repair release blockers from actual evidence, preserve data and source integrity, and keep the interface responsive.
+WHAT_I_ACTUALLY_DID = Implemented shared PostgreSQL snapshot for row-count manifest and dump, unit/contract tests, lazy-loaded noncritical UI components to bring the initial critical asset budget under the unchanged limit, and a workflow rule preserving active browser evidence. Latest correction commit cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64 restores the pg_dump argument interpolation demanded by the strict existing contract.
+WHAT_IS_PROVEN = On published head 008b65c1, Build passed and the critical asset budget was 925.6KB versus the fixed 950KB. Helper test passed locally. Session Handoff and Execution Enforcement passed on fe5aef99. Exact-head live restore is not yet proven.
+FIRST_ACTIVE_FAILURE = Phase-F run 38191589811, step 8, failed the local evidence-integrity contract before any live database action because pg_dump command syntax no longer matched the expected template expression for volatile table exclusions.
+ROOT_CAUSE = Rewriting pg_dump arguments to concatenation preserved intended shell text but broke a deliberate structural assertion guarding backup/restore semantics. Correction restores the exact command template without changing what tables are excluded or weakening validation.
+NEXT_EXACT_ACTION = Publish this docs child; validate the corrected exact head by rerunning Phase-F and inspect real backup/restore output; also inspect the build, performance budget, authenticated full-browser matrix, and final certification gates. Keep the real-source 48/48 requirement strict.
+SESSION HANDOFF = READY
+
+## Exact evidence
+- Phase-F failed before live restore on previous head: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38191589811
+- Product Build Gate in progress at checkpoint: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38191589866
+- Quality in progress at checkpoint: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38191589934
+- Final Certification in progress at checkpoint: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38191589805
+- Active browser evidence on earlier head: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38190886463
+- Last completed real-source matrix: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480095
+---
 # CURRENT EXECUTION REPORT — 2026-10-12 / PRESERVED LIVE PROOF + SNAPSHOT RESTORE
 
 REPORT_FOR_HEAD = d0558fe80dfb969c3aefa44735cc2f0a4861b78a

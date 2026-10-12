@@ -1,3 +1,20 @@
+## LIVE RESUME — 2026-10-12 / PG_DUMP TEMPLATE CONTRACT CORRECTION
+
+CURRENT_EXACT_HEAD = cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = IMPLEMENTED_STATIC_CONTRACT_CORRECTION_PENDING_EXACT_HEAD_TESTS
+NEXT_EXACT_ACTION = Publish this documentation-only child, verify branch/ref readback, then inspect new exact-head Phase-F live restore, build, Quality, full authenticated Browser E2E/source matrix and final certification.
+UPDATED_AT = 2026-10-12T01:24:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+Latest fix commit cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64 restores the established pg_dump command template interpolation required by the evidence-integrity contract: "--data-only ${volatileExcludeArgs}". It retains the exclusion template literal, --serializable-deferrable, and --snapshot="$SNAPSHOT_ID". The source exporter is SERIALIZABLE READ ONLY DEFERRABLE and count/dump consume the same snapshot. No static assertion was relaxed. Live restore has not yet run against this implementation.
+
+Prior published head fe5aef99 results: Phase-F run 38191589811 failed step 8 (Local operational runtime tests) before touching the database because of the command-template assertion. The other exact-head checks were still in progress when this correction was prepared. Session Handoff 38191585889 and Execution Enforcement Contract 38191585927 passed. On an earlier published head, build passed and critical asset budget was 925.6KB against the unchanged 950KB limit after lazy loading.
+Full Product Browser E2E run 38190886463 remains active on prior head 008b65c1; do not cancel it. Workflow cancellation is disabled for new synchronized-head runs.
+Real source coverage remains 23/48 with 25 NOT_PROVEN; no synthetic data is counted as real proof.
+---
 ## LIVE RESUME — 2026-10-12 / SAFE SHARED SNAPSHOT + PRESERVED BROWSER PROOF
 
 CURRENT_EXACT_HEAD = d0558fe80dfb969c3aefa44735cc2f0a4861b78a
