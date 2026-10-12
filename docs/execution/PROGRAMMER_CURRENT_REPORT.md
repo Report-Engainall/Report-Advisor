@@ -1,3 +1,31 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / SOURCE PROVENANCE AND EXECUTIVE VISUAL REFINEMENT
+
+REPORT_FOR_HEAD = bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19
+UPDATED_AT = 2026-10-12T16:24:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from the live GitHub head, close the first evidenced product journey failure, retain honest source/evidence boundaries, improve the user-facing visual system, and save a durable checkpoint.
+
+WHAT_I_ACTUALLY_DID = Committed workspace landing-route fix 75f64f4b631b0da07fd9171eb6ef293798c79c34 in src/App.tsx by removing the permanent one-shot landingAppliedRef guard. Added a shared source provenance classifier and regression test (scripts/real-source-provenance.mjs and scripts/real-source-provenance.test.mjs), applied it to both 48-archetype real-source certification and passport refresh, and wired the test into Full Product Browser E2E. The classifier excludes repository fixture paths, explicit synthetic fixture metadata and the 48-archetype synthetic catalog even when report_corpus is set. Added a limited ink/indigo/brass refinement to executive and import surfaces in src/index.css; semantic success/warning/error colors were not changed. Code is committed at bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19.
+
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E on predecessor fbab01a7b361995cf3f52fdee09ce8957c4087b7 failed WORKSPACE_LANDING_REDIRECT_FAILED:/ after workspace preferences were saved. On the landing-fix code head 75f64f4b631b0da07fd9171eb6ef293798c79c34, run 38275049594 reached and completed the "Real Chromium route and authenticated browser proof" step successfully, and then completed "Real Chromium business journey and smart report proof" successfully. The full workflow had not finished its source-matrix gate at last read; full job and release gates remain pending.
+
+ROOT_CAUSE = AppShell latched landingAppliedRef.current during the first root visit even when the persisted default path was still /. Subsequent return to / could not apply a newly saved preference. Removing this one-shot latch fixed the route selection and the Chromium browser proof step passed on code head 75f64f4... . A new full run against bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19 remains required for exact-head proof.
+
+SOURCE_INTEGRITY_BLOCKER = Predecessor run 38192806591 showed only 23/48 supported and 25 NOT_PROVEN. Its source evidence contained report paths under tests/fixtures/realistic-reports although file-record metadata was marked report_corpus. The folder README defines these as test-fixture data, not actual customer uploads. The previous matrix classifier relied on flags and did not consider the job's source_path. The new shared classifier checks both the file-record and exact report-job source path; the passport refresher applies the same rule before refreshing evidence. This may lower the real-source count. Never weaken the 48/48 gate or relabel synthetic fixtures as actual uploads.
+
+WHAT_IS_PROVEN = GitHub read-back confirmed code commit bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19 and PR #912 still open. On predecessor code head 75f64f4..., Build Gate 38275049565 passed; canonical heart regressions passed; resolved-report server proof passed; Chromium route/auth browser proof passed; authenticated business journey/smart-report proof passed. These are predecessor-only results, not full proof on bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19. On checkpoint predecessor adcba785..., Session Handoff passed in run 38275164040 and Final Certification's contract job passed; that does not certify this code head. Links: https://github.com/Report-Engainall/Report-Advisor/commit/bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38275049594 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38275049565 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38275164040 .
+
+WHAT_IS_NOT_PROVEN = Exact-head build, quality/lint, Session Handoff, Phase-F restore, complete Full Product Browser E2E including real-source matrix, final certification and production deployment/readback on bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19. The 48-archetype engine contract passing is not equivalent to 48/48 eligible real-source evidence. Cross-screen persisted reportJobId/sourceHash proof after refresh/re-login, varied real-source coverage and live production build provenance remain required.
+
+NEXT_EXACT_ACTION = Read fresh workflow jobs for bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19 and preserve their exact SHA; fix the first actual failing step. Verify the new real-source provenance test, then obtain full authenticated Chromium, matrix and Final Certification results. Keep PR #912 open and PRODUCT_COMPLETE = NO until real upload/source provenance, durable readback and live production proof all pass.
+
+SESSION HANDOFF = READY
+---
 # CURRENT EXECUTION REPORT — 2026-10-12 / WORKSPACE LANDING ROUTE FIX
 
 REPORT_FOR_HEAD = 75f64f4b631b0da07fd9171eb6ef293798c79c34
