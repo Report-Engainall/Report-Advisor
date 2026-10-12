@@ -28,6 +28,12 @@ framework = "#custom"
   force = true
 
 [[redirects]]
+  from = "/api/tenant-canary"
+  to = "/.netlify/functions/tenant-canary"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/canonical-import-execute"
   to = "/.netlify/functions/canonical-import-execute"
   status = 200
