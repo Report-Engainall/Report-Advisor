@@ -1,3 +1,33 @@
+## LIVE RESUME — 2026-10-12 / TS TEST-LOADER REGRESSION CHECKPOINT
+
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PR_STATE = OPEN / NOT MERGED
+CURRENT_EXACT_HEAD = 717b8f49124d7ae283eb313196cab201486f6564
+CODE_HEAD_UNDER_TEST = 717b8f49124d7ae283eb313196cab201486f6564
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/717b8f49124d7ae283eb313196cab201486f6564
+CURRENT_BASE_MAIN = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12
+
+ACTION_STATUS = FIXED CANONICAL REGRESSION TEST MODULE RESOLUTION; EXACT-HEAD GATES QUEUED; SOURCE MATRIX NOT YET RETESTED
+
+CHANGES = package.json
+CHANGE_SUMMARY = The report-intelligence-value-chain test now uses the repository's existing node-ts-extension-loader, which resolves application-style .js ESM specifiers back to their TypeScript source during the standalone Node test.
+FIRST_FAILURE = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187045138 on 279a25db73a31eb87e886fea26befac586cfc4b3. The real application build passed, then step 7 failed with ERR_MODULE_NOT_FOUND resolving src/lib/report-intelligence/report-smart-insights.js imported by archetype-evaluator.ts; dependent evidence validation failed because earlier steps had aborted before writing result JSON.
+ROOT_CAUSE = The new direct evaluator regression is executed under Node strip-types, while the app's TypeScript modules use bundler-style .js specifiers. The repository already has scripts/node-ts-extension-loader.mjs for this exact extension bridge, but the npm command did not enable it. Fixed the test command; did not remove the evaluator regression or loosen any assertions.
+LIVE_RUNS_ON_CODE_HEAD =
+- Full Product Browser E2E (prior failing run): https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187045138 — exact head 279a25db73a31eb87e886fea26befac586cfc4b3; test-import failure recorded above.
+- Product Build Gate (new head): https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183588 — QUEUED at last read.
+- Quality (new head): https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183525 — QUEUED at last read.
+- Session Handoff Contract (new head): https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183598 — QUEUED at last read.
+- Full Product Browser E2E (new head): https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183664 — QUEUED at last read.
+The prior parent head 26334116ce713eea1a6c16a6b644057c5490a2cc completed the authenticated CSV/XLSX source-bound journey, but the governed real-source matrix found 21/48. This new evaluator and loader change requires a new exact-head matrix; 48/48 is still mandatory and not yet proven.
+
+NEXT_EXACT_ACTION = Confirm handoff PASS on the governed docs checkpoint, then read the new-head canonical regression and browser logs. Only after that step passes should the authenticated journey and independent governed 48-source matrix be used to decide the next fix. Do not fabricate source fields and do not merge or deploy.
+
 ## LIVE RESUME — 2026-10-12 / SHORT-WINDOW TREND + SOURCE-BOUND READBACK CHECKPOINT
 
 REPOSITORY = Report-Engainall/Report-Advisor

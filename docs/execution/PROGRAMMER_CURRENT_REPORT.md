@@ -1,3 +1,24 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / TYPESCRIPT TEST-LOADER REGRESSION FIX
+
+REPORT_FOR_HEAD = 717b8f49124d7ae283eb313196cab201486f6564
+UPDATED_AT = 2026-10-12
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+BASE_MAIN = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_WAS_ASKED_TO_DO = Continue from live GitHub, fix the first proven failure and keep the release gates strict.
+WHAT_I_ACTUALLY_DID = Read the exact E2E log from run 38187045138 on 279a25db73a31eb87e886fea26befac586cfc4b3. Build succeeded, but canonical regression step 7 failed because Node could not resolve report-smart-insights.js, an ESM .js specifier referring to a TS source. Updated the test:report-intelligence-value-chain command in package.json to invoke the already existing scripts/node-ts-extension-loader.mjs with Node strip-types, preserving direct runtime assertions against applyArchetypeRuleSet, the 20-day trend, model signal, recommendation and weekly evidence. Commit https://github.com/Report-Engainall/Report-Advisor/commit/717b8f49124d7ae283eb313196cab201486f6564. No gate threshold or source data altered.
+WHAT_IS_PROVEN = Code commit 717b8f49124d7ae283eb313196cab201486f6564 was read back from the live PR branch. On the parent docs checkpoint 279a25db73a31eb87e886fea26befac586cfc4b3, Session Handoff passed in https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187045336; the browser failed exactly at the newly added value-chain test import. The new-head Product Build https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183588, Quality https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183525, Session Handoff https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183598, and Full Product Browser E2E https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183664 were queued at last read, and are not claimed passed.
+FIRST_ACTIVE_FAILURE = Run 38187045138, job 114611505591, step 7: ERR_MODULE_NOT_FOUND for src/lib/report-intelligence/report-smart-insights.js imported by archetype-evaluator.ts. The following fail-closed result step then reported absent artifacts because the regression aborted before browser/business results existed.
+ROOT_CAUSE = package test command lacked the extension resolver that the standalone runtime requires for the repository's bundler-style .js ESM imports. Reused the existing loader instead of changing production imports or deleting the test.
+NEXT_EXACT_ACTION = Save this checkpoint to the PR, verify its readback and Session Handoff PASS, then inspect the new-head Build/Quality and Full Product Browser E2E run. Once canonical regressions pass, verify the customer browser flow and exact-head 48/48 governed real-source matrix. Production remains at older SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b and must not be promoted.
+SESSION HANDOFF = READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / SHORT-WINDOW TREND + GENERIC READBACK PROOF
 
 REPORT_FOR_HEAD = d7a93d27cb6a04a58f6f4d4746f9d170432b3000

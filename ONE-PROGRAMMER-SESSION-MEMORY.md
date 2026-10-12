@@ -1,3 +1,24 @@
+# LIVE RESUME — 2026-10-12 / TEST LOADER FIX 717b8f49124d7ae283eb313196cab201486f6564
+
+Repository = Report-Engainall/Report-Advisor
+Branch = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Code head under test = 717b8f49124d7ae283eb313196cab201486f6564
+Code commit = https://github.com/Report-Engainall/Report-Advisor/commit/717b8f49124d7ae283eb313196cab201486f6564
+Base main = fa1ab4cbade9b01685507aa966c10f700a03f576
+Product complete = NO; do not merge or deploy.
+
+Latest repair:
+- The direct value-chain regression imports archetype-evaluator.ts, which uses TypeScript modules through .js ESM specifiers. Plain node --experimental-strip-types could not resolve these without a TS extension bridge.
+- package.json test:report-intelligence-value-chain now uses the repository's existing scripts/node-ts-extension-loader.mjs in addition to strip-types.
+- Regression remains active: 20-day source, day-first date parsing, weekly granularity evidence, source-derived trend finding, model signal, explicit recommendation.
+- Browser proof records the actually visible generic signals/recommendations after refresh and binds them to report job, path and full source hash.
+- Session handoff was reconciled on the previous checkpoint; the new docs checkpoint is required because package.json changed again. Checker logic and the 48/48 certification threshold remain unchanged.
+
+Earlier exact-head evidence on parent 26334116... authenticated fresh CSV/XLSX import, canonical persistence, report rendering/readback after refresh and source lineage across screens. Its governed real-source matrix was 21/48 only; this does not prove the matrix after the trend patch. Current E2E run 38187045138 on head 279a... failed before business proof due the TS resolver described above. Current new-head build/quality/E2E runs must be inspected, not assumed passed.
+
+One next action: verify the new handoff and runtime test on the current branch head, then continue exact-head browser + strict real-source matrix verification.
+
 # LIVE RESUME — 2026-10-12 / CODE CHECKPOINT d7a93d27cb6a04a58f6f4d4746f9d170432b3000
 
 Exact code head under test = d7a93d27cb6a04a58f6f4d4746f9d170432b3000
