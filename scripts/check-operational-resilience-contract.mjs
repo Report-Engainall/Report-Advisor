@@ -92,6 +92,15 @@ for (const token of [
   if (!netlifyCanary.includes(token)) throw new Error(`Netlify tenant canary safety contract missing: ${token}`);
 }
 
+const netlifyBrowserWorkflow = fs.readFileSync(path.join(root,'.github/workflows/full-product-browser-e2e.yml'),'utf8');
+for (const token of ['netlify/functions/**', 'netlify.toml', 'scripts/write-netlify-runtime-provenance.mjs']) {
+  if (!netlifyBrowserWorkflow.includes(token)) throw new Error(`Netlify runtime changes must trigger full authenticated browser proof: ${token}`);
+}
+const netlifyPhaseFWorkflow = fs.readFileSync(path.join(root,'.github/workflows/phase-f-live-resilience.yml'),'utf8');
+for (const token of ['netlify/functions/**', 'netlify.toml', 'scripts/write-netlify-runtime-provenance.mjs']) {
+  if (!netlifyPhaseFWorkflow.includes(token)) throw new Error(`Netlify runtime changes must trigger Phase-F live resilience proof: ${token}`);
+}
+
 console.log('Operational resilience contract: PASS');
 console.log('  - existing resilience contract remains intact');
 console.log('  - report execution failure/dead-letter alert emission remains source-bound');
