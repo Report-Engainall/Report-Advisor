@@ -59,7 +59,7 @@
     "test:migration-dependencies": "node scripts/analyze-migration-dependencies.mjs",
     "test:data-quality-projections": "node scripts/check-data-quality-projections.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
-    "test:operational-resilience": "node scripts/check-operational-resilience-contract.mjs && node scripts/check-backup-restore-evidence-integrity.mjs",
+    "test:operational-resilience": "node scripts/check-operational-resilience-contract.mjs && node scripts/logical-restore-snapshot.test.mjs && node scripts/check-backup-restore-evidence-integrity.mjs",
     "test:release-resilience-manifest": "node scripts/check-release-resilience-manifest.mjs",
     "test:continuous-trust": "node scripts/check-continuous-trust-contract.mjs",
     "test:phase-f-runtime-closure": "node scripts/check-phase-f-runtime-closure.mjs",

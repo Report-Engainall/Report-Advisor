@@ -4,9 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import dns from 'node:dns/promises';
 import { retryTransientPostgresConnection } from '../src/server/resilience-db-retry.mjs';
+import { buildSnapshotBoundQuery, parseExportedSnapshotOutput } from '../src/server/logical-restore-snapshot.mjs';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
 // Use the Docker Official Images mirror in Amazon ECR Public to avoid Docker Hub's
@@ -153,8 +154,8 @@ function toTransactionPooler(databaseUrl) {
 function runDockerPsql(databaseUrl, sql) {
   const args = [
     'run', '--rm', '--network', 'host',
-    '-e', `PGURI=${databaseUrl}`,
-    '-e', `QUERY=${sql}`,
+    '-e', 'PGURI=' + databaseUrl,
+    '-e', 'QUERY=' + sql,
     postgresClientImage,
     'sh', '-lc',
     'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "SET statement_timeout = 0" -c "$QUERY"',
@@ -163,6 +164,108 @@ function runDockerPsql(databaseUrl, sql) {
     () => runCommand('docker', args),
     { label: 'psql', maxAttempts: 3 },
   );
+}
+
+function runDockerPsqlWithSnapshot(databaseUrl, snapshotId, sql) {
+  const query = buildSnapshotBoundQuery(snapshotId, sql);
+  const args = [
+    'run', '--rm', '--network', 'host',
+    '-e', 'PGURI=' + databaseUrl,
+    '-e', 'QUERY=' + query,
+    postgresClientImage,
+    'sh', '-lc',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "SET statement_timeout = 0" -c "$QUERY"',
+  ];
+  return retryTransientPostgresConnection(
+    () => runCommand('docker', args),
+    { label: 'psql-exported-snapshot', maxAttempts: 3 },
+  );
+}
+
+function startExportedSnapshot(databaseUrl) {
+  const args = [
+    'run', '--rm', '-i', '--network', 'host',
+    '-e', 'PGURI=' + databaseUrl,
+    postgresClientImage,
+    'sh', '-lc',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -qAt',
+  ];
+  return new Promise((resolve, reject) => {
+    const child = spawn('docker', args, { stdio: ['pipe', 'pipe', 'pipe'] });
+    let stdout = '';
+    let stderr = '';
+    let settled = false;
+    let exited = false;
+    let closeResult = null;
+    let startTimer = null;
+
+    const closePromise = new Promise((resolveClose) => {
+      child.once('close', (code, signal) => {
+        exited = true;
+        closeResult = { code, signal };
+        resolveClose(closeResult);
+      });
+    });
+
+    const failStart = (error) => {
+      if (settled) return;
+      settled = true;
+      if (startTimer) clearTimeout(startTimer);
+      try { child.kill('SIGTERM'); } catch {}
+      reject(error);
+    };
+
+    startTimer = setTimeout(() => {
+      failStart(new Error('logical_snapshot_export_timeout:' + stderr.slice(-1200)));
+    }, 30000);
+    startTimer.unref?.();
+
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk.toString();
+      if (settled || !stdout.includes('|')) return;
+      try {
+        const snapshot = parseExportedSnapshotOutput(stdout);
+        settled = true;
+        if (startTimer) clearTimeout(startTimer);
+        resolve({
+          ...snapshot,
+          close: async () => {
+            if (!exited) {
+              const killTimer = setTimeout(() => {
+                if (!exited) child.kill('SIGTERM');
+              }, 5000);
+              killTimer.unref?.();
+              try {
+                child.stdin.end('ROLLBACK;\n\\q\n');
+              } catch {}
+              await closePromise;
+              clearTimeout(killTimer);
+            }
+            if (closeResult?.code !== 0) {
+              throw new Error('logical_snapshot_export_session_close_failed:' + (closeResult?.code ?? 'unknown') + ':' + stderr.slice(-1200));
+            }
+          },
+        });
+      } catch {
+        // Wait for a complete result line; any terminal failure includes bounded diagnostics.
+      }
+    });
+
+    child.stderr.on('data', (chunk) => {
+      stderr = (stderr + chunk.toString()).slice(-8000);
+    });
+    child.once('error', (error) => failStart(new Error('logical_snapshot_export_process_failed:' + error.message)));
+    child.once('close', (code, signal) => {
+      if (!settled) {
+        failStart(new Error('logical_snapshot_export_failed:exit_code=' + (code ?? 'unknown') + ':signal=' + (signal ?? 'none') + ':' + (stderr || stdout).slice(-2000)));
+      }
+    });
+    child.stdin.once('error', (error) => failStart(new Error('logical_snapshot_export_stdin_failed:' + error.message)));
+    child.stdin.write(
+      "BEGIN ISOLATION LEVEL REPEATABLE READ;\n" +
+      "SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"') || '|' || pg_export_snapshot();\n",
+    );
+  });
 }
 
 function runDockerPsqlFile(databaseUrl, filePath) {
@@ -239,27 +342,29 @@ end $$;`;
   return true;
 }
 
-function runDockerPgDump(databaseUrl, outputPath) {
+function runDockerPgDump(databaseUrl, outputPath, snapshotId) {
   const outputDir = path.dirname(path.resolve(outputPath));
   const outputName = path.basename(outputPath);
   const containerDir = '/tmp/phase-f-output';
-  const containerPath = `${containerDir}/${outputName}`;
+  const containerPath = containerDir + '/' + outputName;
   // A public-only dump cannot restore auth.users. Exclude volatile operational
   // rows that depend on Supabase-managed Auth instead of counting them as parity
   // data and then accidentally writing them into the restore target.
   const volatileExcludeArgs = [...VOLATILE_RESTORE_TABLES]
-    .map((tableName) => `--exclude-table-data=${tableName}`)
+    .map((tableName) => '--exclude-table-data=' + tableName)
     .join(' ');
   const args = [
     'run', '--rm', '--network', 'host',
-    '-v', `${outputDir}:${containerDir}`,
-    '-e', `PGURI=${databaseUrl}`,
+    '-v', outputDir + ':' + containerDir,
+    '-e', 'PGURI=' + databaseUrl,
+    '-e', 'SNAPSHOT_ID=' + snapshotId,
     postgresClientImage,
-    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only ${volatileExcludeArgs} --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
+    'sh', '-lc',
+    'pg_dump "$PGURI" --snapshot="$SNAPSHOT_ID" --schema=public --data-only ' + volatileExcludeArgs + ' --no-owner --no-privileges --format=plain --file=' + containerPath,
   ];
   return retryTransientPostgresConnection(
     () => runCommand('docker', args),
-    { label: 'pg_dump', maxAttempts: 3 },
+    { label: 'pg_dump-exported-snapshot', maxAttempts: 3 },
   );
 }
 
@@ -372,7 +477,7 @@ async function logicalBackupRestore() {
   fs.mkdirSync(backupDir, { recursive: true, mode: 0o777 });
   fs.chmodSync(backupDir, 0o777);
   const backupPath = path.join(backupDir, 'public-data.sql');
-  const exactSnapshotSql = 'select clock_timestamp()::text';
+
   const countSql = `create temp table _phase_f_counts(table_name text, row_count bigint) on commit drop;
 DO $$
 DECLARE
@@ -457,30 +562,37 @@ SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
     }
 
     let snapshotText;
-    try {
-      snapshotText = runDockerPsql(querySource, exactSnapshotSql);
-    } catch (error) {
-      throw new Error(`logical_source_snapshot_failed:${error}`);
-    }
-    const snapshotAt = Date.parse(snapshotText);
-    if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
-
+    let snapshotAt;
     let sourceCounts;
+    let sourceCountsAfter;
+    let backupStartedAt;
+    let backupCompletedAt;
+    let exportedSnapshot;
     try {
-      sourceCounts = parseTableCounts(runDockerPsql(querySource, countSql));
+      exportedSnapshot = await startExportedSnapshot(querySource);
+      snapshotText = exportedSnapshot.exportedAt;
+      snapshotAt = Date.parse(snapshotText);
+      if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
+
+      try {
+        sourceCounts = parseTableCounts(runDockerPsqlWithSnapshot(querySource, exportedSnapshot.snapshotId, countSql));
+      } catch (error) {
+        throw new Error('logical_source_counts_on_exported_snapshot_failed:' + error);
+      }
+
+      backupStartedAt = Date.now();
+      runDockerPgDump(runnerSource, backupPath, exportedSnapshot.snapshotId);
+      backupCompletedAt = Date.now();
     } catch (error) {
-      throw new Error(`logical_source_counts_failed:${error}`);
+      throw new Error('logical_backup_exported_snapshot_failed:' + error);
+    } finally {
+      if (exportedSnapshot) await exportedSnapshot.close();
     }
 
-    const backupStartedAt = Date.now();
-    runDockerPgDump(runnerSource, backupPath);
-    const backupCompletedAt = Date.now();
-
-    let sourceCountsAfter;
     try {
       sourceCountsAfter = parseTableCounts(runDockerPsql(querySource, countSql));
     } catch (error) {
-      throw new Error(`logical_source_counts_after_dump_failed:${error}`);
+      throw new Error('logical_source_counts_after_dump_failed:' + error);
     }
 
     const bytes = fs.statSync(backupPath).size;
@@ -528,19 +640,25 @@ SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
 
     const mismatchBefore = mismatchFor(sourceCounts);
     const mismatchAfter = mismatchFor(sourceCountsAfter);
-    const sourceDriftTables = mismatchFor(sourceCounts)
-      .map((item) => ({
-        tableName: item.tableName,
-        beforeCount: item.sourceCount,
-        afterCount: sourceCountsAfter[item.tableName] ?? 0,
+    const countTableNames = [...new Set([
+      ...Object.keys(sourceCounts),
+      ...Object.keys(sourceCountsAfter),
+      ...Object.keys(targetCounts),
+    ])].sort();
+    const sourceDriftTables = countTableNames
+      .map((tableName) => ({
+        tableName,
+        beforeCount: sourceCounts[tableName] ?? 0,
+        afterCount: sourceCountsAfter[tableName] ?? 0,
+        targetCount: targetCounts[tableName] ?? 0,
       }))
       .filter((item) => item.beforeCount !== item.afterCount);
 
+    // The source count manifest and pg_dump now import the same exported PostgreSQL snapshot.
+    // Counts observed after the dump are diagnostic only: concurrent business writes are valid.
     const restoreSnapshotMatch = mismatchBefore.length === 0
-      ? 'before-dump'
-      : mismatchAfter.length === 0
-        ? 'after-dump'
-        : null;
+      ? 'exported-source-snapshot'
+      : null;
 
     if (!restoreSnapshotMatch) {
       fs.writeFileSync(
@@ -557,7 +675,7 @@ SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
         'utf8',
       );
       throw new Error(
-        `logical_restore_table_count_mismatch:${JSON.stringify(mismatchAfter.length <= mismatchBefore.length ? mismatchAfter : mismatchBefore)}`,
+        `logical_restore_table_count_mismatch:${JSON.stringify(mismatchBefore)}`,
       );
     }
 
@@ -571,6 +689,7 @@ SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
       table_count: Object.keys(sourceCounts).length,
       source_snapshot_at: snapshotText,
       source_count_snapshot_match: restoreSnapshotMatch,
+      source_snapshot_strategy: 'postgres-exported-snapshot-shared-with-pg-dump',
       source_count_drift_detected: sourceDriftTables.length > 0,
       source_count_drift_tables: sourceDriftTables,
       restore_verified: true,

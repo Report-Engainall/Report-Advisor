@@ -75,6 +75,12 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'src/App.tsx'
+      - 'scripts/phase-f-live-resilience-probes.mjs'
+      - 'src/server/logical-restore-snapshot.mjs'
+      - 'scripts/logical-restore-snapshot.test.mjs'
+      - 'scripts/check-operational-resilience-contract.mjs'
+      - 'package.json'
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/resolve-e2e-report-context.mjs'
       - 'scripts/real-business-e2e.mjs'
