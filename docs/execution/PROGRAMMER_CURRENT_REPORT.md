@@ -1,3 +1,32 @@
+# CURRENT EXECUTION REPORT — 2026-10-13 / NETLIFY TENANT-CANARY ROUTE FIX
+
+REPORT_FOR_HEAD = 2397053a76623f12eb53f66fffaef3bed95aca74
+UPDATED_AT = 2026-10-13
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-tenant-canary-route-20261013
+PR = Pending creation from this branch; base main
+BASE_MAIN_HEAD = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until exact-head code, Phase-F, build, quality, and certification gates pass.
+
+WHAT_I_WAS_ASKED_TO_DO = Continue from the live GitHub head, fix a proven runtime/product journey blocker, implement the change in-repository, test the behavior, and maintain a resumable evidence checkpoint without confusing CI status with live product proof.
+
+WHAT_I_ACTUALLY_DID = Committed 2397053a76623f12eb53f66fffaef3bed95aca74 on branch fix/netlify-tenant-canary-route-20261013. The code adds a Netlify-native GET /api/tenant-canary endpoint through netlify/functions/tenant-canary.mjs and netlify.toml. It authenticates the operator token with a timing-safe comparison, requires a user bearer token, verifies the foreign-tenant seed via service role, reads own and foreign rows via the user's JWT (thereby exercising RLS), persists healthy/critical operational-health evidence, and returns failure instead of a false pass when prerequisites are missing or foreign rows are visible. Added tests for method/auth/config guards, missing foreign seed, healthy isolation, cross-tenant leak, sanitized upstream errors, and redirect ordering. Added the runtime/config paths to Phase-F's PR path filter so this class of change re-runs live resilience probes.
+
+FIRST_ACTIVE_FAILURE = Live https://aghbari-report-advisor.netlify.app/api/tenant-canary returned the site's RTL SPA document rather than JSON. The same live Netlify /api/health endpoint reports published source_sha 858ef8e3e5bc5bf74430555eadfb9e6767be348b, which is stale relative to current main 0c9e0aaf4442a270446af87e20146f2af9cbf8e3. Vercel production homepage reports current main SHA but /api/health returns 503 operational_token_not_configured. Phase-F main run 38311437866 is NOT READY (1/4); backup logical restore passed while health/canary/rollback failed. Netlify deploy run 38311437862 failed on missing NETLIFY_AUTH_TOKEN and blank NETLIFY_SITE_ID.
+
+ROOT_CAUSE = Netlify's explicit redirects do not define /api/tenant-canary, while a catch-all rewrite sends unknown API paths to /index.html. The resilience workflow does probe that route in Deploy Preview. The new handler adds proper server-only tenant-isolation logic and routing, with no bypass of the operational token, user authentication, or RLS. This patch does not supply missing hosting credentials and does not claim to repair current production until deployment and re-readback succeed.
+
+WHAT_IS_PROVEN = GitHub branch currently points to 2397053a76623f12eb53f66fffaef3bed95aca74; GitHub readback confirmed the new handler, test, package script, Netlify redirect, and Phase-F path-filter edits. Live read-only endpoint responses establish the Netlify SPA fallback and stale Netlify provenance; live Vercel page/health responses establish current deployed front-end SHA and the operational-token failure.
+
+WHAT_IS_NOT_PROVEN = Runtime tests execution; exact-head PR checks; deployed Netlify preview behavior; authenticated browser behavior on this patch; database persistence read-back; Vercel token-sync execution; a current-main Netlify deployment; Phase-F 4/4; production parity or PRODUCT_COMPLETE.
+
+NEXT_EXACT_ACTION = Open the PR from fix/netlify-tenant-canary-route-20261013, allow GitHub Actions to execute the focused tests and exact-head gates, and inspect the first actual failure. Do not merge the change before required checks pass. A release operator must separately restore the authorized Netlify deployment secrets and run the existing manual Vercel token-sync workflow before production certification can pass.
+
+SESSION HANDOFF = READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
 
 REPORT_FOR_HEAD = 5ca8ffceae0693d510c349732a2cce52f62ab1a8

@@ -1,3 +1,32 @@
+## LIVE RESUME — 2026-10-13 / NETLIFY TENANT-CANARY ROUTE FIX
+
+CURRENT_EXACT_HEAD = 2397053a76623f12eb53f66fffaef3bed95aca74
+CODE_CHECKPOINT = 2397053a76623f12eb53f66fffaef3bed95aca74
+LIVE_MAIN_HEAD_AT_REBASELINE = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+BRANCH = fix/netlify-tenant-canary-route-20261013
+PR = Pending creation from fix/netlify-tenant-canary-route-20261013; base main
+PR_STATE = IMPLEMENTED ON BRANCH / PR NOT OPEN YET
+MERGE_STATE = NOT MERGED
+ACTION_STATUS = NETLIFY_TENANT_CANARY_ROUTE_IMPLEMENTED; RUNTIME_TESTS_ADDED_NOT_YET_RUN; NETLIFY_PRODUCTION_STALE; VERCEL_HEALTH_BLOCKED_TOKEN; PHASE_F_NOT_READY
+UPDATED_AT = 2026-10-13
+PRODUCT_COMPLETE = NO
+IMPLEMENTED = YES — commit 2397053a76623f12eb53f66fffaef3bed95aca74 adds netlify/functions/tenant-canary.mjs, an explicit /api/tenant-canary redirect, failure-closed tenant isolation checks, persisted health evidence, focused tests, and Phase-F path filters for Netlify functions/config.
+INTEGRATED = NO — PR not opened or merged yet.
+PERSISTED = NOT_PROVEN — tests assert the persistence request is made; no real database read-back was performed.
+UI-EXPOSED = NOT_APPLICABLE — this patch repairs a backend resilience endpoint, not a product UI screen.
+READBACK-PROVEN = YES — the exact branch ref/commit and modified files were re-read from GitHub.
+TESTED = PENDING — runtime tests and GitHub Actions must execute on the PR head; no PASS claimed before run evidence.
+BROWSER-PROVEN = NOT_PROVEN — no new authenticated browser journey on this checkpoint.
+PRODUCTION-PROVEN = PARTIAL / BLOCKED — Vercel homepage confirms SHA 0c9e0aaf4442a270446af87e20146f2af9cbf8e3 but live /api/health returns 503 operational_token_not_configured. Netlify health exposes old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b and the tenant-canary route serves the SPA fallback.
+FIRST_ACTIVE_FAILURE = Live Netlify /api/tenant-canary responds with the Arabic SPA document instead of an API payload. The route has no matching Netlify function or redirect. Independent deployment blockers remain: Netlify Actions run 38311437862 lacks NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID; Phase-F run 38311437866 failed on runtime identity, canary and rollback route.
+ROOT_CAUSE = netlify.toml routes health/rollback/canonical import but not tenant-canary, while the SPA wildcard follows them. The Phase-F preview explicitly probes /api/tenant-canary, so the missing route produces HTML rather than canary JSON.
+OPEN_BLOCKER = New route is not yet deployed or tested on a preview. Netlify production publishing is blocked by missing deployment credentials; Vercel operational health is blocked by its unsynchronized operational token.
+CURRENT RESUME POINTER = fix/netlify-tenant-canary-route-20261013 at 2397053a76623f12eb53f66fffaef3bed95aca74; preserve historical execution evidence below.
+NEXT_EXACT_ACTION = Open the PR and verify exact-head runtime/Quality/Build/Phase-F/Certification results; leave it unmerged until gates pass.
+SESSION HANDOFF = READY
+
+---
+
 ## LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
 
 CURRENT_EXACT_HEAD = 5ca8ffceae0693d510c349732a2cce52f62ab1a8

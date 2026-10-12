@@ -1,3 +1,25 @@
+# LIVE RESUME — 2026-10-13 / NETLIFY TENANT-CANARY ROUTE FIX
+
+Repository: Report-Engainall/Report-Advisor
+CODE CHECKPOINT = 2397053a76623f12eb53f66fffaef3bed95aca74
+LIVE MAIN HEAD AT BRANCH CREATION = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+BRANCH = fix/netlify-tenant-canary-route-20261013
+PR = Pending creation after this documentation-only checkpoint commit
+MERGE STATE = NOT MERGED
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = YES ON BRANCH — added a Netlify tenant-isolation canary endpoint using the existing server-side Supabase helpers; it requires the operational token and authenticated user JWT, verifies an existing foreign-tenant seed, checks the caller's own versus foreign rows under RLS, persists the canary health evidence, and fails closed on cross-tenant visibility or missing configuration. Added the /api/tenant-canary redirect and an adversarial runtime test. Phase-F is now triggered by Netlify function/config path changes.
+READBACK-PROVEN = YES — code commit 2397053a76623f12eb53f66fffaef3bed95aca74 and all five changed source/config/test files were read back from GitHub. Unit tests are present in the package command but have not yet executed.
+TESTED = PENDING — exact-head GitHub Actions checks must run after PR creation. No local execution is claimed; the local container could not resolve github.com.
+PERSISTED = NOT_PROVEN — no live database write/read-back was performed in this session.
+BROWSER-PROVEN = NOT_PROVEN — no new authenticated Chromium run on this code checkpoint.
+PRODUCTION-PROVEN = PARTIAL / NOT_RELEASED — Vercel root serves SHA 0c9e0aaf4442a270446af87e20146f2af9cbf8e3 (HTTP 200), but /api/health returns 503 operational_token_not_configured. Netlify /api/health returns old published SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Netlify /api/tenant-canary returned SPA HTML, not API JSON.
+OPEN_BLOCKER = Netlify production deploy run 38311437862 failed because NETLIFY_AUTH_TOKEN is missing and NETLIFY_SITE_ID is blank. The latest Phase-F Live Resilience run 38311437866 failed 1/4 (health runtime identity missing, canary fetch failure, rollback endpoint returned SPA HTML; logical restore passed). Vercel health still lacks the operational token because the manual token-sync deployment workflow has not been run.
+NEXT_EXACT_ACTION = Open the PR from this branch and inspect all exact-head checks, especially the new Netlify canary tests and Phase-F Live Resilience; do not merge until required checks prove the new code and route.
+SESSION HANDOFF = READY
+
+---
+
 # LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
 
 Repository: Report-Engainall/Report-Advisor
