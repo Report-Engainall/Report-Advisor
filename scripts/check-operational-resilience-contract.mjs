@@ -50,7 +50,7 @@ for (const token of ['pg_export_snapshot()', '--snapshot="$SNAPSHOT_ID"', "sourc
   if (!snapshotProbe.includes(token)) throw new Error('Logical restore snapshot binding missing: ' + token);
 }
 const snapshotHelper = fs.readFileSync(path.join(root,'src/server/logical-restore-snapshot.mjs'),'utf8');
-for (const token of ['SET TRANSACTION SNAPSHOT', 'logical_snapshot_id_invalid']) {
+for (const token of ['SET TRANSACTION SNAPSHOT', 'logical_snapshot_id_invalid', 'BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE', 'pg_export_snapshot()']) {
   if (!snapshotHelper.includes(token)) throw new Error('Logical restore snapshot helper missing: ' + token);
 }
 

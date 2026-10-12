@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildSnapshotBoundQuery, parseExportedSnapshotOutput } from '../src/server/logical-restore-snapshot.mjs';
+import { buildExportedSnapshotSql, buildSnapshotBoundQuery, parseExportedSnapshotOutput } from '../src/server/logical-restore-snapshot.mjs';
 
 const exported = parseExportedSnapshotOutput(
   'BEGIN\n2026-10-12T00:38:45.123Z|00000003-000001A0-1\n',
@@ -10,6 +10,11 @@ assert.equal(exported.snapshotId, '00000003-000001A0-1');
 assert.throws(() => parseExportedSnapshotOutput('BEGIN\n(no snapshot)\n'), /logical_snapshot_export_not_created/);
 assert.throws(() => buildSnapshotBoundQuery('invalid snapshot', 'select 1'), /logical_snapshot_id_invalid/);
 assert.throws(() => buildSnapshotBoundQuery('00000003-000001A0-1', '  '), /logical_snapshot_query_empty/);
+
+const exportSql = buildExportedSnapshotSql();
+assert.match(exportSql, /^BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE;/);
+assert.match(exportSql, /pg_export_snapshot\(\)/);
+assert.match(exportSql, /YYYY-MM-DD/);
 
 const query = buildSnapshotBoundQuery(
   '00000003-000001A0-1',

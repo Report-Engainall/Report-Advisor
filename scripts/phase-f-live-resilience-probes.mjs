@@ -7,7 +7,7 @@ import crypto from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
 import dns from 'node:dns/promises';
 import { retryTransientPostgresConnection } from '../src/server/resilience-db-retry.mjs';
-import { buildSnapshotBoundQuery, parseExportedSnapshotOutput } from '../src/server/logical-restore-snapshot.mjs';
+import { buildExportedSnapshotSql, buildSnapshotBoundQuery, parseExportedSnapshotOutput } from '../src/server/logical-restore-snapshot.mjs';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
 // Use the Docker Official Images mirror in Amazon ECR Public to avoid Docker Hub's
@@ -261,10 +261,7 @@ function startExportedSnapshot(databaseUrl) {
       }
     });
     child.stdin.once('error', (error) => failStart(new Error('logical_snapshot_export_stdin_failed:' + error.message)));
-    child.stdin.write(
-      "BEGIN ISOLATION LEVEL REPEATABLE READ;\n" +
-      "SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"') || '|' || pg_export_snapshot();\n",
-    );
+    child.stdin.write(buildExportedSnapshotSql());
   });
 }
 
@@ -360,7 +357,7 @@ function runDockerPgDump(databaseUrl, outputPath, snapshotId) {
     '-e', 'SNAPSHOT_ID=' + snapshotId,
     postgresClientImage,
     'sh', '-lc',
-    'pg_dump "$PGURI" --snapshot="$SNAPSHOT_ID" --schema=public --data-only ' + volatileExcludeArgs + ' --no-owner --no-privileges --format=plain --file=' + containerPath,
+    'pg_dump "$PGURI" --serializable-deferrable --snapshot="$SNAPSHOT_ID" --schema=public --data-only ' + volatileExcludeArgs + ' --no-owner --no-privileges --format=plain --file=' + containerPath,
   ];
   return retryTransientPostgresConnection(
     () => runCommand('docker', args),

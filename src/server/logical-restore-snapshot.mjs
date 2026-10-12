@@ -26,3 +26,11 @@ export function buildSnapshotBoundQuery(snapshotId, sql) {
     '',
   ].join('\n');
 }
+
+export function buildExportedSnapshotSql() {
+  return [
+    'BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE;',
+    "SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"') || '|' || pg_export_snapshot();",
+    '',
+  ].join('\n');
+}
