@@ -1,3 +1,19 @@
+# LIVE RESUME — 2026-10-12 / WORKSPACE LANDING ROUTE FIX
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED.
+Implementation commit: 75f64f4b631b0da07fd9171eb6ef293798c79c34
+PRODUCT_COMPLETE = NO.
+
+First new product failure recovered from current-head predecessor browser run 38192806591: `E2E-WORKSPACE-001` failed because saved default landing selection did not redirect from `/` after returning from workspace settings. Root cause was AppShell's permanent `landingAppliedRef` guard, set on the first root visit even when the default path was still `/`. Commit 75f64f4b631b0da07fd9171eb6ef293798c79c34 removes this guard. New exact-head validation is pending.
+
+The same run's governed real-source matrix remains 23/48 with 25 NOT_PROVEN. Diagnostic output scanned 66 source jobs and showed the certified report tenant did not equal the matrix actor's current tenant. Keep tenant isolation, real-source provenance and 48/48 thresholds strict; investigate the source/actor selection from the actual allowed tenants rather than weakening proof.
+
+Predecessor-only passes: Product Build 38192806316; Quality 38192806342; Session Handoff 38192806576; Phase-F 38192806466; Final Certification 38192806550; Device-Independent Browser E2E 38192806255. Full Product Browser E2E 38192806591 FAILED, so predecessor certification does not mean product completion. Do not merge.
+
+NEXT: inspect exact-head runs and browser evidence after 75f64f4b631b0da07fd9171eb6ef293798c79c34, fix only the first new proven failure, and retain 48/48 strict real-source verification.
+---
 # LIVE RESUME — 2026-10-12 / SNAPSHOT IMPORT TRANSACTION FIX
 
 Repository: Report-Engainall/Report-Advisor
