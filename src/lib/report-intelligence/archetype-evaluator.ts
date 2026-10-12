@@ -52,6 +52,24 @@ function columnKey(report: RuleReport, field: string): string | null {
     salesQty: ['net_sales', 'netsales', 'sales', 'sales_qty', 'صافيالمبيعات'],
   };
   const aliases = legacyAliases[field] ?? [];
+  const rowKeys = [...new Set((report.canonicalRows ?? []).flatMap((row) =>
+    row?.data && typeof row.data === 'object' ? Object.keys(row.data) : [],
+  ))];
+  const findStoredKey = (candidate: string): string | null =>
+    rowKeys.find((key) => key === candidate || norm(key) === norm(candidate)) ?? null;
+
+  // The evaluator must only read keys that actually exist in persisted canonical
+  // rows. Analysis metadata often contains a mapped field like "invoice_date"
+  // while the stored row still uses its source key ("date"); never return a
+  // mapped-only alias and silently turn an available measure into an empty one.
+  const exactRowKey = findStoredKey(field);
+  if (exactRowKey) return exactRowKey;
+
+  for (const alias of aliases) {
+    const existing = rowKeys.find((key) => norm(key) === norm(alias));
+    if (existing) return existing;
+  }
+
   const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
   for (const dataset of datasets) {
     if (!dataset || typeof dataset !== 'object') continue;
@@ -61,33 +79,33 @@ function columnKey(report: RuleReport, field: string): string | null {
     for (const column of columns) {
       const mappedField = text(column.mappedField);
       const columnName = text(column.name);
-      if (norm(mappedField) === norm(field)) return mappedField || columnName;
-      if (
-        aliases.some((alias) => norm(mappedField) === norm(alias) || norm(columnName) === norm(alias))
-      ) return mappedField || columnName;
-      if (matchCanonicalField(mappedField) === field || matchCanonicalField(columnName) === field) {
-        return mappedField || columnName;
-      }
+      const metadataMatchesField =
+        norm(mappedField) === norm(field) ||
+        aliases.some((alias) => norm(mappedField) === norm(alias) || norm(columnName) === norm(alias)) ||
+        matchCanonicalField(mappedField) === field ||
+        matchCanonicalField(columnName) === field;
+      if (!metadataMatchesField) continue;
+
+      // Prefer the source-name key when it exists. A mappedField is only an
+      // instruction for semantic matching; it is not evidence that a same-named
+      // property was actually written into canonical_dataset_records.data.
+      const storedSourceName = columnName ? findStoredKey(columnName) : null;
+      if (storedSourceName && matchCanonicalField(columnName) === field) return storedSourceName;
+      const storedMappedName = mappedField ? findStoredKey(mappedField) : null;
+      if (storedMappedName) return storedMappedName;
+      if (storedSourceName) return storedSourceName;
     }
   }
 
-  // Real canonical imports may carry authoritative field keys in row data while
-  // source-analysis metadata omits dataset column descriptors. Use those keys
-  // as the evidence-bound fallback; never synthesize a field that is absent.
-  const rowKeys = new Set<string>();
-  for (const row of report.canonicalRows ?? []) {
-    if (!row?.data || typeof row.data !== 'object') continue;
-    for (const key of Object.keys(row.data)) rowKeys.add(key);
-  }
+  // Metadata may omit column descriptors entirely. Match only the authoritative
+  // keys found in the stored source rows; never manufacture missing fields.
   for (const key of rowKeys) {
-    if (norm(key) === norm(field)) return key;
     if (aliases.some((alias) => norm(key) === norm(alias))) return key;
     if (matchCanonicalField(key) === field) return key;
   }
 
   return null;
 }
-
 function rawColumnKey(report: RuleReport, aliases: string[]): string | null {
   const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
   for (const dataset of datasets) {

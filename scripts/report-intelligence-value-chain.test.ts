@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { deriveReportIntelligence } from '../src/lib/report-intelligence/report-smart-insights.ts';
 import { applyArchetypeRuleSet } from '../src/lib/report-intelligence/archetype-evaluator.ts';
 import { getReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
+import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-schema.ts';
 
 const result = deriveReportIntelligence({
   specialty: 'inventory',
@@ -92,3 +93,42 @@ assert.ok(trendEvidence.includes('periodGranularity=week'),
 assert.ok(trendEvidence.some((item) => item.startsWith('observedPeriods=') && Number(item.split('=')[1]) >= 2),
   'trend must expose the count of observed periods used in the comparison');
 console.log('PASS: short-window trend uses honest weekly/day granularity and exposes its evidence.');
+
+
+// Reproduce the live source shape: analysis metadata maps "date" to "invoice_date",
+// but the persisted canonical row contains "date", not an invented invoice_date key.
+// The real source also exposes its local net amount under the Arabic business header.
+assert.equal(matchCanonicalField('مبلغ الصافي بالمحلي'), 'netAmount',
+  'the real invoice net-amount header must map to the unambiguous canonical money field');
+const mappedMetadataRows = Array.from({ length: 20 }, (_, index) => ({
+  row_number: index + 1,
+  data: {
+    date: '2026-09-' + String(index + 1).padStart(2, '0'),
+    'مبلغ الصافي بالمحلي': index < 10 ? 100 : 200,
+  },
+}));
+const mappedMetadataResult = applyArchetypeRuleSet(trendProfile, {
+  specialty: 'sales',
+  rowCount: mappedMetadataRows.length,
+  sourceAnalysis: {
+    datasets: [{
+      columns: [
+        { name: 'date', mappedField: 'invoice_date' },
+        { name: 'مبلغ الصافي بالمحلي', mappedField: null },
+      ],
+    }],
+  },
+  canonicalRows: mappedMetadataRows,
+}, trendBase);
+assert.ok(mappedMetadataResult.findings.some((finding) => finding.id === 'archetype:sales.over-time:trend'),
+  'mapped metadata must not hide a trend when the real source row has date and net amount');
+assert.ok(mappedMetadataResult.signals.some((signal) => signal.id === 'model:sales.over-time'),
+  'mapped source-key regression must retain the specialized model signal');
+assert.ok(mappedMetadataResult.recommendations.some((item) => item.id === 'rec:archetype:sales.over-time'),
+  'mapped source-key regression must retain the specialized recommendation');
+const mappedEvidence = mappedMetadataResult.findings.find((finding) => finding.id === 'archetype:sales.over-time:trend')?.evidence ?? [];
+assert.ok(mappedEvidence.includes('dateField=date'),
+  'trend evidence must identify the persisted source date key, not metadata-only invoice_date');
+assert.ok(mappedEvidence.includes('valueField=مبلغ الصافي بالمحلي'),
+  'trend evidence must identify the source-backed Arabic amount key');
+console.log('PASS: mapped analysis fields resolve to real persisted row keys and preserve source-backed trend output.');

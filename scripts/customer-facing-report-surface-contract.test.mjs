@@ -18,6 +18,12 @@ assert.ok(reports.includes('<SourceContextNavigation jobId={primarySmartReport.j
 assert.ok(reports.includes('return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;'));
 assert.ok(!reports.includes('{report.sourcePath}</div>'));
 assert.ok(!reports.includes('title={report.sourcePath}>{report.sourcePath}'));
+assert.ok(reports.includes('data-testid="smart-report-catalog-tools"'), 'Smart report catalog must expose its real search/filter control surface');
+assert.ok(reports.includes('aria-label="بحث في التقارير الذكية"'), 'Smart report search must be accessible');
+assert.ok(reports.includes("const SMART_REPORT_CATALOG_PAGE_SIZE = 9;"), 'Catalog must show a compact local page instead of flooding the screen with every report at once');
+assert.ok(reports.includes('visibleSmartReports.map((report, reportIndex)'), 'Visible cards must be driven by filtered local results');
+assert.ok(reports.includes('data-testid="smart-report-local-pagination"'), 'Catalog must provide accessible local previous/next controls');
+assert.ok(reports.includes('title={report.sourceHash}>{report.sourceHash.slice(0, 24)}…</div>'), 'Compact cards must retain the source fingerprint in place of an unavailable period claim');
 assert.ok(!reports.includes('report.archetypeId +'));
 assert.ok(surface.includes('الأرقام التي تهم القرار'));
 assert.ok(surface.includes('ماذا يعني التقرير للإدارة؟'));

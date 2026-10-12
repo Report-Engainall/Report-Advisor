@@ -37,7 +37,7 @@ const definitions:FieldDefinition[]=[
 {field:'sellingPrice',aliases:['سعر البيع','السعر البيعي','Selling Price','Sales Price'],type:'currency'},
 {field:'grossAmount',aliases:['الإجمالي','إجمالي القيمة','المبلغ الإجمالي','Gross Amount','Total'],type:'currency'},
 {field:'discount',aliases:['الخصم','قيمة الخصم','Discount'],type:'currency'},
-{field:'netAmount',aliases:['الصافي','صافي القيمة','المبلغ الصافي','Net Amount','Net Sales','net_sales','sales_amount','purchase_amount','net_local_amount'],type:'currency'},
+{field:'netAmount',aliases:['الصافي','صافي القيمة','المبلغ الصافي','مبلغ الصافي بالمحلي','Net Amount','Net Sales','net_sales','sales_amount','purchase_amount','net_local_amount'],type:'currency'},
 {field:'cost',aliases:['التكلفة','تكلفة المبيعات','متوسط التكلفة','Cost','Cost of Sales','Average Cost'],type:'currency'},
 {field:'profit',aliases:['الربح','إجمالي الربح','الربح الإجمالي','Profit','Gross Profit'],type:'currency'},
 {field:'currency',aliases:['العملة','Currency'],type:'text'},
