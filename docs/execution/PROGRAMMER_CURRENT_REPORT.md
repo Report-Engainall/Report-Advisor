@@ -1,3 +1,36 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / WORKSPACE LANDING ROUTE FIX
+
+REPORT_FOR_HEAD = 75f64f4b631b0da07fd9171eb6ef293798c79c34
+UPDATED_AT = 2026-10-12T16:01:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from live GitHub state, fix the first evidenced product failure, persist a truthful checkpoint, and continue exact-head browser/runtime verification.
+WHAT_I_ACTUALLY_DID = Removed the one-shot landingAppliedRef gate from src/App.tsx so a saved, visible defaultLandingPath is applied whenever navigation returns to /. The edit is committed at 75f64f4b631b0da07fd9171eb6ef293798c79c34. This is a narrow behavioral fix; no test criteria or trust boundaries were weakened.
+
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38192806591 on predecessor fbab01a7b361995cf3f52fdee09ce8957c4087b7 failed E2E-WORKSPACE-001: Workspace personalization browser probe failed with WORKSPACE_LANDING_REDIRECT_FAILED:/. The browser authenticated, exercised 32 routes (32 passed), and reported exactly one browser finding before the separate source matrix gate failed.
+ROOT_CAUSE = AppShell set landingAppliedRef.current = true on the first root visit even when the default landing route was '/', so later returning to '/' after changing saved workspace preferences could never apply the new preference. Removing that permanent one-shot guard allows the location-based effect to handle subsequent root visits; test this on the new exact code head.
+
+WHAT_IS_PROVEN = On predecessor fbab01a7b361995cf3f52fdee09ce8957c4087b7, Product Build Gate 38192806316 PASS; Quality 38192806342 PASS; Session Handoff 38192806576 PASS; Phase-F Live Resilience 38192806466 PASS; Final Certification Gate 38192806550 PASS; Device-Independent Browser E2E 38192806255 PASS. Those results are exact for the predecessor only and are not proof for 75f64f4b631b0da07fd9171eb6ef293798c79c34. The latest browser run artifact for the predecessor is https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192806591.
+
+FIRST OTHER RELEASE BLOCKER = The same browser run's governed real-source matrix returned 23/48, 25 NOT_PROVEN. Diagnostics scanned 66 source jobs and flagged the chosen actor tenant as different from the certified report tenant; the report has a READY passport. The matrix must keep its real-source/non-synthetic filters and 48/48 fail-closed threshold. Do not fabricate missing source fields or relabel test fixtures as real data.
+
+WHAT_IS_NOT_PROVEN = New-head build/quality/handoff/Phase-F/browser/certification results after 75f64f4b631b0da07fd9171eb6ef293798c79c34; repeatability of the landing-route fix in Chromium; 48/48 governed real-source archetype coverage; complete cross-screen source identity/readback after re-entry; production deployment provenance and live production journey.
+NEXT_EXACT_ACTION = Read exact-head workflow runs for 75f64f4b631b0da07fd9171eb6ef293798c79c34; inspect the new Full Product Browser E2E result/screenshot; correct only the next evidenced failure. Preserve the 48/48 evidence threshold. Do not merge or claim PRODUCT_COMPLETE before the exact-head browser and production proofs pass.
+SESSION HANDOFF = READY
+
+Evidence links:
+- Code fix: https://github.com/Report-Engainall/Report-Advisor/commit/75f64f4b631b0da07fd9171eb6ef293798c79c34
+- Failing predecessor browser evidence: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192806591
+- Predecessor Product Build Gate: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192806316
+- Predecessor Quality: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192806342
+- Predecessor Session Handoff: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192806576
+- Predecessor Phase-F: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192806466
+- Predecessor Final Certification: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192806550
+---
 # CURRENT EXECUTION REPORT — 2026-10-12 / SNAPSHOT IMPORT SEMANTICS FIX
 
 REPORT_FOR_HEAD = eed9657cd82648d5f5b3167f49165f5765fda45c
