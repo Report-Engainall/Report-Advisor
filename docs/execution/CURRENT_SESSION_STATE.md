@@ -1,3 +1,19 @@
+## LIVE RESUME — 2026-10-12 / SNAPSHOT IMPORT TRANSACTION FIX
+
+CURRENT_EXACT_HEAD = eed9657cd82648d5f5b3167f49165f5765fda45c
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = LIVE_RESTORE_SEMANTIC_FIX_AND_CONTRACT_SYNTAX_FIX_COMMITTED; VALIDATION_PENDING
+NEXT_EXACT_ACTION = Publish the docs-only checkpoint child; verify branch and readback; inspect fresh exact-head Product Build Gate, Quality/Lint, Phase-F live restore, full authenticated browser/real-source matrix and Final Certification.
+UPDATED_AT = 2026-10-12T01:39:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+Latest live failure on head 97e335 (Phase-F run 38192305923) proves that pg_dump cannot import a supplied snapshot if --serializable-deferrable makes the importing transaction READ ONLY DEFERRABLE. Commit eed9657cd82648d5f5b3167f49165f5765fda45c removes that flag only from the snapshot-importing pg_dump call; the source exporter remains SERIALIZABLE READ ONLY DEFERRABLE and both source count and dump use the same exported snapshot id with resolved querySource. Restore parity remains fail-closed. It also fixes a malformed escaped backtick in scripts/check-phase10-backup-restore-contract.mjs, the cause of latest Lint/Final Certification parse error (quality run 38192306027; final run 38192305869).
+
+Preceding head 97e335 Product Build Gate PASS (run 38192305935); critical asset budget measured 925.6KB vs unchanged 950KB on earlier published head; Session Handoff and other security/runtime contract jobs passed. These are not new-head proof.
+Latest completed real source matrix remains 23/48; 25 NOT_PROVEN. Old Full Product Browser E2E run 38192306046 was pending on 97e335 and is not evidence for eed9657cd82648d5f5b3167f49165f5765fda45c.
+---
 ## LIVE RESUME — 2026-10-12 / PHASE-10 SINGLE-SNAPSHOT CONTRACT
 
 CURRENT_EXACT_HEAD = 94d75b29125d5fc208a1e3e085e28641733b6fd5

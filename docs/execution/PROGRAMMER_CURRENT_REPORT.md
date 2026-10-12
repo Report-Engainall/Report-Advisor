@@ -1,3 +1,28 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / SNAPSHOT IMPORT SEMANTICS FIX
+
+REPORT_FOR_HEAD = eed9657cd82648d5f5b3167f49165f5765fda45c
+UPDATED_AT = 2026-10-12T01:39:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+ROOT CAUSE 1 — LIVE RESTORE = Phase-F run 38192305923 on head 97e335 reached actual pg_dump and failed: “a snapshot-importing transaction must not be READ ONLY DEFERRABLE”. The --serializable-deferrable flag is incompatible with pg_dump importing the already exported snapshot. Commit eed9657cd82648d5f5b3167f49165f5765fda45c removes that flag from the importer, keeps the safe SERIALIZABLE READ ONLY DEFERRABLE exporter, and retains one common snapshot id for row counts and dump. Strict restore parity remains fail-closed.
+
+ROOT CAUSE 2 — LINT = Quality run 38192306027 and Final Certification 38192305869 had a parsing error from an escaped backtick in scripts/check-phase10-backup-restore-contract.mjs at line 50. Commit eed9657cd82648d5f5b3167f49165f5765fda45c fixes this syntax to use a conventional quoted message.
+
+WHAT_IS_PROVEN = Build was PASS on preceding head 97e335 (run 38192305935). Critical bundle on previous build was 925.6KB against fixed 950KB. Live Phase-F now got far enough to exercise the actual restore, revealing the incompatible flag; successful restore is not yet proven. Real-source matrix remains 23/48 with 25 NOT_PROVEN.
+NEXT_ACTION = Publish docs-only child; re-read branch/PR/reports; inspect exact-head Build, Quality/Lint, actual Phase-F restore, full authenticated browser journey + strict real-source matrix, and Final Certification. No merge or PRODUCT_COMPLETE until all gates and source evidence pass.
+SESSION HANDOFF = READY
+
+Evidence:
+- Phase-F live restore error: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192305923
+- Quality Lint + readiness fail: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192306027
+- Final Certification parse fail: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192305869
+- Product Build Gate on prior head: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38192305935
+- Last completed real source matrix 23/48: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480095
+---
 # CURRENT EXECUTION REPORT — 2026-10-12 / PHASE-10 CONTRACT MIGRATION TO SHARED SNAPSHOT
 
 REPORT_FOR_HEAD = 94d75b29125d5fc208a1e3e085e28641733b6fd5

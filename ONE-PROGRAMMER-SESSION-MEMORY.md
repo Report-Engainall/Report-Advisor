@@ -1,3 +1,21 @@
+# LIVE RESUME — 2026-10-12 / SNAPSHOT IMPORT TRANSACTION FIX
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912 OPEN / NOT MERGED.
+Code commit: eed9657cd82648d5f5b3167f49165f5765fda45c
+PRODUCT_COMPLETE = NO.
+
+Exact-head live Phase-F on 97e335 run 38192305923 reached the real backup/restore probe and failed with PostgreSQL:
+"pg_dump: ERROR: a snapshot-importing transaction must not be READ ONLY DEFERRABLE"
+at SET TRANSACTION SNAPSHOT. Root cause: pg_dump cannot import a supplied snapshot while itself configured --serializable-deferrable. New commit eed9657cd82648d5f5b3167f49165f5765fda45c removes the incompatible flag from pg_dump but keeps the exporter transaction SERIALIZABLE READ ONLY DEFERRABLE, exports pg_export_snapshot(), runs both source row counts and pg_dump on the same snapshot id/querySource, and keeps strict restored-target row parity. Existing Phase-10/runtime contracts now assert this semantic rule and explicitly reject the incompatible flag. No restore/data validation has been loosened.
+
+The same run's Quality and Final Certification failed lint parsing in scripts/check-phase10-backup-restore-contract.mjs because an escaped template-literal backtick had been written into the JS source; commit eed9657cd82648d5f5b3167f49165f5765fda45c replaces the malformed throw with ordinary string concatenation. Previous branch Build Gate was PASS; previous critical assets 925.6KB vs fixed 950KB. New commit needs fresh exact-head validation.
+
+Other blockers: last complete authenticated product browser evidence on old head returned 23/48 real-source archetypes; 25 remain NOT_PROVEN due missing required fields in qualifying real records. Full Product Browser E2E run 38192306046 was pending on old head 97e335; do not attribute its status to the new commit.
+
+NEXT EXACT ACTION: add this docs-only checkpoint child to eed9657cd82648d5f5b3167f49165f5765fda45c, advance the branch with expected old head 97e335, read back PR/ref/files, then inspect fresh build, lint/quality, Phase-F live restore, authenticated browser matrix, and final certification. Do not merge or claim product complete.
+---
 # LIVE RESUME — 2026-10-12 / UPDATE PHASE-10 CONTRACT FOR SHARED SNAPSHOT
 
 PR #912 OPEN / NOT MERGED. Branch: fix/source-bound-generic-intelligence-20261009. Latest code commit: 94d75b29125d5fc208a1e3e085e28641733b6fd5. PRODUCT_COMPLETE=NO.
