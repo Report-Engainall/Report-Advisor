@@ -1,3 +1,20 @@
+## LIVE RESUME — 2026-10-12 / WORKSPACE LANDING ROUTE FIX
+
+CURRENT_EXACT_HEAD = 75f64f4b631b0da07fd9171eb6ef293798c79c34
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = WORKSPACE_LANDING_ROUTE_FIX_COMMITTED; EXACT_HEAD_VALIDATION_PENDING
+UPDATED_AT = 2026-10-12T16:01:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+NEXT_EXACT_ACTION = Inspect new exact-head Product Build Gate, Quality, Session Handoff, Phase-F Live Resilience, Full Product Browser E2E artifact, and Final Certification for 75f64f4b631b0da07fd9171eb6ef293798c79c34; fix only the next evidenced failure. Keep the 48/48 real-source gate fail-closed.
+
+The first proven browser failure on predecessor fbab01a7b361995cf3f52fdee09ce8957c4087b7 was `E2E-WORKSPACE-001 / WORKSPACE_LANDING_REDIRECT_FAILED:/` in run 38192806591. AppShell's one-shot landingAppliedRef latched on the first root visit before any non-root preference could be applied. Commit 75f64f4b631b0da07fd9171eb6ef293798c79c34 removes the permanent latch so revisiting / applies the persisted default route. Validation on the new exact head is pending.
+
+Other blocker on predecessor run 38192806591: governed real-source coverage was 23/48, with 25 NOT_PROVEN; diagnostic source scan saw 66 jobs and a target/report tenant different from the matrix actor. Do not relax tenant boundaries or the source coverage threshold. Existing predecessor passes (build 38192806316, Quality 38192806342, handoff 38192806576, Phase-F 38192806466, certification 38192806550) are not new-head proof.
+
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-10-11/REPORT-20261012-0042-WORKSPACE-LANDING-AND-SOURCE-MATRIX.md`.
+---
 ## LIVE RESUME — 2026-10-12 / SNAPSHOT IMPORT TRANSACTION FIX
 
 CURRENT_EXACT_HEAD = eed9657cd82648d5f5b3167f49165f5765fda45c
