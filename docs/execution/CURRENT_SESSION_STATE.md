@@ -5,12 +5,12 @@ CODE_CHECKPOINT = 6798db8af5653e7b91e786c38d50fae279fccfa0
 FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = GENERIC_STRUCTURED_TEXT_SIGNAL_FIX_PRESENT; HANDOFF_REBASELINE_AND_EXACT_HEAD_TESTS_PENDING
-UPDATED_AT = 2026-10-12T18:35:00Z
+ACTION_STATUS = HANDOFF_REBASELINED; EXACT_HEAD_RUNTIME_AND_BROWSER_PROOF_PENDING
+UPDATED_AT = 2026-10-12T19:00:00Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Verify Handoff on the new documentation checkpoint; read generic-file analysis and Full Product Browser E2E results on 6798db8af5653e7b91e786c38d50fae279fccfa0; verify exact-head build, quality, Phase-F, final certification and Smart Report refresh readback.
+NEXT_EXACT_ACTION = Verify Session Handoff and Final Certification on the new checkpoint; rerun only the failed handoff/certification jobs if supported; then obtain terminal exact-head generic-file test and authenticated browser refresh-readback. Production parity remains unproven.
 
 ## Universal analysis invariant
 
