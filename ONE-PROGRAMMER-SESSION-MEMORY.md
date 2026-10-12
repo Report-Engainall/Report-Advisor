@@ -30,3 +30,11 @@ Exact-head runs at the last read:
 Previous PASS at 8d8f4eb… for quality, build, handoff, Phase-F and final certification is predecessor-only and must not be reused as current-head proof.
 
 Production last known SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Live production parity remains NOT PROVEN. Resume with run 38290775363, inspect the telemetry-contract step and route refresh result, then repair any remaining exact evidenced failure. Do not merge or deploy until exact-head release gates and production readback pass.
+
+
+## EXECUTION REBASELINE — 2026-10-12 19:00 UTC
+
+- Source/code checkpoint remains `6798db8af5653e7b91e786c38d50fae279fccfa0`; this is the verified generic structured-table text-signal change.
+- Rebased `docs/execution/CURRENT_SESSION_STATE.md` in commit `9ce3efad1c5a0a5d526b0c96fd7cff7df1043926` and `docs/execution/PROGRAMMER_CURRENT_REPORT.md` in commit `a2a5963de0f26b2e76393535670add0dbca5f5cf` so the current report references the state checkpoint and records that exact-head certification/browser evidence remains pending.
+- This is documentation repair only, not product code or browser proof. Re-read the final branch HEAD and run the Session Handoff Contract; inspect certification failure logs and current browser workflow status before retrying anything. Never infer product PASS from a handoff fix.
+- `PRODUCT_COMPLETE = NO`; `PRODUCTION_PROVEN = NOT_PROVEN`; `DO_NOT_MERGE = true` until authenticated browser, persistence readback, exact-head gates, and production parity are proven.
