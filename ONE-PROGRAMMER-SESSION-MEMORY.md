@@ -1,3 +1,13 @@
+# LIVE RESUME — 2026-10-12 / RESOLVED SOURCE URI FIX
+
+PR #912 is OPEN / NOT MERGED. Branch: fix/source-bound-generic-intelligence-20261009. Latest code commit: 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0. PRODUCT_COMPLETE=NO.
+
+Latest Phase-F/Quality evidence on branch head 07bdaea exposed the next real issue after static contracts passed: Phase-F source contract rejects passing the original runnerSource URI into pg_dump. The count query and exported snapshot use querySource, resolved through the Transaction Pooler; pg_dump also needs to use that exact resolved URI so its snapshot ID is consumed against the same source endpoint. Commit 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0 changes only the call to runDockerPgDump(querySource, backupPath, exportedSnapshot.snapshotId); all snapshot flags, template invariants and fail-closed equality remain.
+
+Other blockers unchanged: live restore on corrected code pending; the initial critical asset budget on old published head decreased from 951.1KB to 925.6KB / 950KB after lazy loading; latest complete real-source coverage is still 23/48 with 25 NOT_PROVEN. Do not claim complete. Next: add docs-only checkpoint, move branch, read back, and inspect fresh Phase-F, build, quality, browser and final certification runs.
+
+---
+
 # LIVE RESUME — 2026-10-12 / SNAPSHOT HELPER CONTRACT FIX
 
 PR #912 remains OPEN / NOT MERGED. Branch: fix/source-bound-generic-intelligence-20261009. Code commit: 6d2dbbeae07e3641bfd2ce20d9f080245a505108. PRODUCT_COMPLETE=NO.

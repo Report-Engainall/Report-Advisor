@@ -1,3 +1,18 @@
+## LIVE RESUME — 2026-10-12 / RESOLVED SOURCE URI FIX
+
+CURRENT_EXACT_HEAD = 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = QUERY_SOURCE_BINDING_FIX_COMMITTED; VALIDATION_PENDING
+NEXT_EXACT_ACTION = Publish docs-only checkpoint child; verify ref/readback; rerun and inspect exact-head Phase-F live restore, build, quality, authenticated browser/source matrix and final certification.
+UPDATED_AT = 2026-10-12T01:29:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+The latest quality run on 07bda identified a real contract failure: Phase-F source snapshot must use the resolved querySource URI. Count/source snapshot already used querySource but pg_dump still passed runnerSource. Commit 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0 fixes that call to use querySource too. Static contract and restore parity remain strict. Earlier contract run on 07bda was testing the source-helper alignment fix. No live restore proof exists on the fixed head yet.
+
+---
+
 ## LIVE RESUME — 2026-10-12 / SNAPSHOT HELPER CONTRACT FIX
 
 CURRENT_EXACT_HEAD = 6d2dbbeae07e3641bfd2ce20d9f080245a505108

@@ -1,3 +1,21 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / QUERY SOURCE BINDING FIX
+
+REPORT_FOR_HEAD = 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0
+UPDATED_AT = 2026-10-12T01:29:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_CHANGED = In scripts/phase-f-live-resilience-probes.mjs, pg_dump now uses the resolved querySource Transaction Pooler URI, matching the source count query and exported snapshot rather than the original runnerSource URI. Commit: 67b80874d51fa0687cc0d7160e28bf6b4f7ff1d0.
+ROOT CAUSE = Quality step “Phase 10 backup/restore contract” failed with “Phase-F source snapshot must use the resolved querySource URI.” Snapshot counts were bound to querySource, but the dump call was not.
+WHAT_IS_PROVEN = Prior helper/source contract fix now places the pg_export_snapshot SQL assertion in the helper and verifies the probe calls buildExportedSnapshotSql(). Existing fail-closed row parity was not changed. The critical bundle budget passed on older head at 925.6KB / 950KB. Live restore on latest code remains unproven; latest complete source matrix is still 23/48.
+NEXT_ACTION = Publish this state/report checkpoint and read back GitHub; review fresh exact-head Phase-F first, then build, quality, browser/source matrix and certification. No merge/product completion without 48/48 real source evidence and live proof.
+SESSION HANDOFF = READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / SNAPSHOT HELPER CONTRACT FIX
 
 REPORT_FOR_HEAD = 6d2dbbeae07e3641bfd2ce20d9f080245a505108
