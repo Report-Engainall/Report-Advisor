@@ -1,4 +1,5 @@
 import type { Dataset } from './types.js';
+import { parseNumber } from './normalizer.js';
 import {
   deriveReportIntelligence,
   type BusinessFinding,
@@ -108,8 +109,14 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     row[column.name] ?? row[column.mappedField ?? ''];
   const numericValue = (value: unknown): number | null => {
     if (value === null || value === undefined || String(value).trim() === '') return null;
-    const parsed = typeof value === 'number' ? value : Number(String(value).replace(/,/g, '').trim());
-    return Number.isFinite(parsed) ? parsed : null;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    const raw = String(value).trim();
+    // The parser normally cleans numeric cells, but persisted/partial datasets can
+    // retain locale-formatted strings. Use the shared Arabic/Western number parser
+    // rather than turning those valid source values into missing measurements.
+    const plain = Number(raw);
+    if (Number.isFinite(plain)) return plain;
+    return parseNumber(raw);
   };
   const numberLabel = (value: number) => value.toLocaleString('ar-YE', { maximumFractionDigits: 2 });
   const find = (...aliases: string[]) => dataset.columns.find((column) => {

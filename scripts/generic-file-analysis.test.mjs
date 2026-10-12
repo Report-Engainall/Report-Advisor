@@ -59,6 +59,30 @@ async function main() {
       assert.notEqual(intelligence.findings[0]?.title, 'ملف نشاط العملاء', item.format + ' generic table finding must remain domain-neutral');
     }
   }
+  // Locale-formatted Arabic numbers must remain measurable even if a persisted
+  // generic dataset retains string values instead of adapter-cleaned numbers.
+  const parsedArabicNumbers = await parseFile(
+    buffer('metric_label,amount_value\nA,١٬٢٣٤٫٥\nB,٢٬٠٠٠٫٠'),
+    'arabic-numeric-values.csv',
+    'csv',
+  );
+  assert.equal(parsedArabicNumbers.length, 1, 'Arabic numeric CSV must parse');
+  const arabicSource = parsedArabicNumbers[0];
+  const rawArabicValues = {
+    ...arabicSource,
+    columns: arabicSource.columns.map((column) =>
+      column.name === 'amount_value' ? { ...column, dataType: 'decimal' } : column),
+    rows: [
+      { ...arabicSource.rows[0], amount_value: '١٬٢٣٤٫٥' },
+      { ...arabicSource.rows[1], amount_value: '٢٬٠٠٠٫٠' },
+    ],
+  };
+  const arabicGeneric = buildGenericFileIntelligence(rawArabicValues, 'csv');
+  const arabicMetric = arabicGeneric.guidance.inspect.find((line) => line.includes('المقياس «amount_value»'));
+  const expectedArabicSum = (3234.5).toLocaleString('ar-YE', { maximumFractionDigits: 2 });
+  assert.ok(arabicMetric?.includes('قيم رقمية 2/2'), 'Arabic-Indic numeric strings must not be lost from generic analysis');
+  assert.ok(arabicMetric?.includes('المجموع الحسابي ' + expectedArabicSum), 'Arabic decimal/thousands separators must produce the correct source total');
+
   // A semantic mapper may guess that "name" means customer_name. The raw
   // source header is generic, so that guess must not authorize specialization.
   const genericMappedDataset = await parseFile(
