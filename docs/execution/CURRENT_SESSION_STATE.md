@@ -1,16 +1,16 @@
 ## LIVE RESUME — 2026-10-12 / UNIVERSAL FILE ANALYSIS ACCEPTANCE
 
-CURRENT_EXACT_HEAD = a14e7f5ca0eb545234f4d0d79ac4b5f846383d17
-CODE_CHECKPOINT = a14e7f5ca0eb545234f4d0d79ac4b5f846383d17
+CURRENT_EXACT_HEAD = aa95891ee1eaa7939d6a16fa9092423a0c0728c1
+CODE_CHECKPOINT = aa95891ee1eaa7939d6a16fa9092423a0c0728c1
 FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = UNIVERSAL_ANALYSIS_AND_LOCALE_NUMERIC_FIX_COMMITTED; EXACT_HEAD_GATES_RUNNING
-UPDATED_AT = 2026-10-12T18:01:00.287Z
+ACTION_STATUS = UNIVERSAL_GENERIC_TEST_MOVED_BEFORE_BOUNDED_SPECIALIST_DIAGNOSTIC; ROUTE_FAILURE_INVESTIGATION_PENDING
+UPDATED_AT = 2026-10-12T18:15:21.400Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Inspect Full Product Browser E2E 38287728412 at exact head, verify generic file analysis + persisted smart report, then check Build/Quality/Handoff/Phase-F/Final Certification. Deploy only after PASS.
+NEXT_EXACT_ACTION = Let E2E 38287728412 finish and inspect its browser failure artifact; verify the generic-file regression on head aa95891ee1eaa7939d6a16fa9092423a0c0728c1; fix only the evidenced route cause; then read all exact-head gates.
 
 Product acceptance is arbitrary supported-file analysis, not 48 report categories. Generic extraction/findings/signals/recommendations remain mandatory for an unknown/unclassified supported file. The 48 archetypes are optional specialization when actual source fields/evidence fit.
 
