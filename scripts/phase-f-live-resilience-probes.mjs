@@ -578,7 +578,7 @@ SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
       }
 
       backupStartedAt = Date.now();
-      runDockerPgDump(runnerSource, backupPath, exportedSnapshot.snapshotId);
+      runDockerPgDump(querySource, backupPath, exportedSnapshot.snapshotId);
       backupCompletedAt = Date.now();
     } catch (error) {
       throw new Error('logical_backup_exported_snapshot_failed:' + error);
