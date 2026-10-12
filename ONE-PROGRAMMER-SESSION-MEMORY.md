@@ -1,3 +1,21 @@
+# LIVE RESUME — 2026-10-12 / EXPORTED-SNAPSHOT RESTORE + ENTRY-BUNDLE REFINEMENT
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Implementation commit: 84724e2c38ea10c7c8af5b51bf713d34b1b47e33 — https://github.com/Report-Engainall/Report-Advisor/commit/84724e2c38ea10c7c8af5b51bf713d34b1b47e33
+PRODUCT_COMPLETE = NO; do not merge or deploy until exact-head evidence passes.
+
+Live baseline was 4c87cbd04a8168b16dac3677a6161940da456b13. The exact-head Full Product Browser E2E run 38188480095 passed authenticated Chromium steps 17 and 18 (routes/auth and business journey/smart report), but failed the governed real-source archetype matrix at 23/48 and then correctly failed the evidence closure gate. Its uploaded artifact is https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480095. Matrix diagnostics report 66 source jobs scanned, 23 supported archetypes, 25 with no eligible real source because required fields are absent, and identify target job 8dbafdf8-f769-4c4f-97a5-22eac8b47d41 / “تقارير ارصدة المخزون.pdf”; the actor tenant differs from that target tenant. Do not convert NOT_PROVEN to PASS or count synthetic fixtures as real sources.
+
+The same baseline had Product Build Gate PASS (run 38188480543), Session Handoff Contract PASS (38188480368), and multiple runtime/tenant E2E checks PASS. Quality run 38188480382 and Final Certification Gate run 38188480386 failed only the existing critical-asset budget: 951.1KB actual against the strict 950KB limit. Production regression evidence run 38188480451 was also blocked by that same perf budget. Keep the threshold; defer nonessential CommandPalette, ProductJourneyNav, and DeterministicIntelligenceAssistant chunks via React.lazy/Suspense so the initial entry payload excludes work the user has not opened/needed.
+
+Phase-F live run 38188480021 failed logical restore row-count parity while health, tenant canary and rollback-forward-fix checks passed. Its artifact showed the source changed between independent count reads while pg_dump was running (e.g. products 4636→4637, audit_logs 24809→24815, order_outbox_events 117→118, sales_invoices 517→516); restored counts tracked the dump snapshot. The repair uses one long-lived PostgreSQL REPEATABLE READ transaction exporting pg_export_snapshot(), measures source counts with SET TRANSACTION SNAPSHOT, and passes the exact same snapshot ID to pg_dump --snapshot. Post-dump counts remain diagnostics only; target must equal the imported source snapshot. This is an implementation checkpoint; the new exact-head validation is still pending.
+
+Files changed in implementation commit: scripts/phase-f-live-resilience-probes.mjs; src/server/logical-restore-snapshot.mjs (new); scripts/logical-restore-snapshot.test.mjs (new); scripts/check-operational-resilience-contract.mjs; package.json; .github/workflows/full-product-browser-e2e.yml; src/App.tsx. The workflow pull_request path filter now includes the files changed by this checkpoint. No shared GitHub Actions concurrency lock was introduced, because different workflow files share only one pending concurrency slot and could cancel/overwrite each other’s staging proofs.
+
+NEXT EXACT ACTION: update the branch atomically with the docs-only checkpoint child commit, then inspect fresh runs on the new branch head: Product Build Gate, Quality/performance budget, Session Handoff, Phase-F restore, Full Product Browser E2E and final certification. Resolve each exact failure and retain 48/48 real-source proof as a strict gate.
+---
 # LIVE RESUME — 2026-10-12 / COHERENT ARCHETYPE CONTRACT FIX
 
 Repository: Report-Engainall/Report-Advisor

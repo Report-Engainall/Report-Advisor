@@ -1,3 +1,20 @@
+## LIVE RESUME — 2026-10-12 / EXPORTED SNAPSHOT + INITIAL BUNDLE BUDGET
+
+CURRENT_EXACT_HEAD = 84724e2c38ea10c7c8af5b51bf713d34b1b47e33
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = CODE_COMMITTED_VALIDATION_PENDING
+NEXT_EXACT_ACTION = Advance the branch atomically with this documentation-only child checkpoint; then validate build, strict performance budget, shared-snapshot Phase-F restore, full authenticated Chromium E2E, source-matrix evidence and final certification on the new exact head.
+UPDATED_AT = 2026-10-12T01:10:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+Implementation commit: 84724e2c38ea10c7c8af5b51bf713d34b1b47e33 (parent baseline 4c87cbd04a8168b16dac3677a6161940da456b13).
+Changes: export one PostgreSQL snapshot for both table-count manifest and pg_dump; retain fail-closed exact row parity and record later source drift only as diagnostics; add pure helper and contract test; lazy-load global adviser, journey navigation and command palette; make the Full Product Browser E2E pull_request path filter include the exact modified code/test files.
+Evidence baseline before these changes: Product Build Gate PASS run 38188480543; Session Handoff PASS run 38188480368; Quality FAIL run 38188480382 due critical assets 951.1KB > 950KB; Phase-F FAIL run 38188480021 due source drift during independently measured count/dump; Full Product Browser E2E run 38188480095: route/auth and smart-report business journey passed, governed real-source matrix failed 23/48 (25 not proven), closure correctly failed.
+Validation state of implementation commit: NOT YET RUN on the implementation commit. No claim is made that the new snapshot fix or the bundle budget has passed.
+PR state: OPEN / NOT MERGED.
+---
 ## LIVE RESUME — 2026-10-12 / ARCHETYPE RUNTIME FIXTURE COHERENCE
 
 REPOSITORY = Report-Engainall/Report-Advisor

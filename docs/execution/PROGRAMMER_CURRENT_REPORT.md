@@ -1,3 +1,29 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / EXPORTED SNAPSHOT + INITIAL BUNDLE BUDGET
+
+REPORT_FOR_HEAD = 84724e2c38ea10c7c8af5b51bf713d34b1b47e33
+UPDATED_AT = 2026-10-12T01:10:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from the live PR head, fix the first evidenced restore and performance failures, keep the report/file lineage intact, and continue the actual product proof without relying on the user’s device.
+WHAT_I_ACTUALLY_DID = Committed a source-count/dump single-snapshot implementation, strict contract test and guard, a workflow trigger-path repair, and lazy-loaded three noncritical UI components behind Suspense. Implementation commit: https://github.com/Report-Engainall/Report-Advisor/commit/84724e2c38ea10c7c8af5b51bf713d34b1b47e33.
+WHAT_IS_PROVEN = Baseline run 38188480095 proves authenticated Chromium route/auth and business/smart-report journey passed; the real-source matrix then failed with supported=23/48 and notProven=25. Run 38188480021 proves source row counts changed during separate count/dump operations. Run 38188480382 proves the quality blocker is the strict initial asset budget: 951.1KB versus 950KB. The code changes are committed but their new exact-head results are not yet available.
+FIRST_ACTIVE_FAILURE = The latest complete Full Product Browser E2E on baseline 4c87cbd04a8168b16dac3677a6161940da456b13 failed step 19: governed real-source 48-archetype matrix (23/48); step 20 then failed closed. Next independent release blockers on that baseline are Phase-F count parity under live write drift and critical asset budget by 1.1KB.
+ROOT_CAUSE = Phase-F compared source counts taken before and after pg_dump, but pg_dump itself uses a consistent snapshot, so concurrent staging writes made neither independent count vector necessarily represent that dump snapshot. The initial entry bundle also statically imported CommandPalette, ProductJourneyNav and DeterministicIntelligenceAssistant even when they were not in use. Real-source matrix output shows 25 archetypes lack at least one required field in eligible governed corpus records; this is not evidence to relax required fields or synthesize proof.
+NEXT_EXACT_ACTION = Atomically advance the branch to a documentation-only child commit, then run and inspect exact-head Product Build Gate, Quality, Session Handoff, Phase-F restore and authenticated full-browser proof; preserve the 48/48 real-source gate and repair source coverage using genuine eligible business reports.
+SESSION HANDOFF = READY
+
+## Exact-head links
+- PR #912: https://github.com/Report-Engainall/Report-Advisor/pull/912
+- Baseline authenticated Full Product Browser E2E, 23/48 real-source matrix: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480095
+- Baseline Phase-F restore row-count mismatch: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480021
+- Baseline Quality critical-asset budget failure: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480382
+- Baseline Final Certification Gate failure: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480386
+
+---
 # CURRENT EXECUTION REPORT — 2026-10-12 / COHERENT ARCHETYPE RUNTIME FIXTURE
 
 REPORT_FOR_HEAD = ef9e837f5ff50976cfc37a182f8e31e73e5e44ea
