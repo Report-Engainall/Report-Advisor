@@ -44,7 +44,48 @@ for (const profile of archetypes) {
   if (getReportArchetypeByNumber(profile.number)?.id !== profile.id) fail('Number lookup mismatch for ' + profile.id);
 }
 
-const sampleRows = [{ data: { netAmount: 100, documentDate: '2026-01-01', productCode: 'SKU-1', customerCode: 'C-1', supplierCode: 'S-1', currentStock: 10, salesQty: 4, cost: 60 } }];
+const runtimeDimensions = [
+  'productCode','productName','category','brand','unit','warehouse','fromWarehouse','toWarehouse',
+  'customerCode','customerName','supplierCode','supplierName','salesRep','documentNo','transactionType',
+  'accountCode','accountName','currency','paymentMethod','paymentTerms','status','region','branchCode','branchName',
+];
+const runtimeMeasures = [
+  'openingBalance','openingStock','inbound','outbound','salesQty','purchaseQty','currentStock','adjustmentQty',
+  'returnQty','requestedQty','fulfilledQty','orderedQty','receivedQty','quantity','unitPrice','sellingPrice',
+  'grossAmount','discount','netAmount','cost','profit','paidAmount','targetAmount','leadTimeDays','debit','credit',
+  'asset','liability','equity',
+];
+const runtimeFields = [...new Set([
+  ...runtimeDimensions,
+  ...runtimeMeasures,
+  'documentDate','dueDate',
+  ...archetypes.flatMap((profile) => [...profile.requiredFields, ...profile.optionalFields]),
+])];
+const runtimeValue = (field, index) => {
+  if (field === 'documentDate' || field === 'dueDate') {
+    return '2026-' + String(index + 1).padStart(2, '0') + '-15';
+  }
+  if (field === 'netAmount' || field === 'grossAmount' || field === 'salesQty' || field === 'purchaseQty') {
+    return index < 6 ? 100 : 200;
+  }
+  if (field === 'cost') return index < 6 ? 60 : 120;
+  if (field === 'discount') return index % 3 === 0 ? 5 : 10;
+  if (field === 'currentStock' || field === 'openingStock' || field === 'openingBalance') return 24 - index;
+  if (field === 'targetAmount') return index < 6 ? 125 : 220;
+  if (field === 'paidAmount') return index < 6 ? 80 : 140;
+  if (field === 'returnQty' || field === 'adjustmentQty') return index % 4 === 0 ? 2 : 1;
+  if (field === 'profit') return index < 6 ? 40 : 80;
+  if (field === 'unitPrice' || field === 'sellingPrice') return 10 + index;
+  if (field === 'debit' || field === 'credit' || field === 'asset' || field === 'liability' || field === 'equity') return 1000 + index * 100;
+  if (field === 'leadTimeDays') return 3 + (index % 5);
+  if (/(Code|Name|sku|product|customer|supplier|warehouse|category|brand|unit|currency|payment|transaction|representative|salesRep|documentNo|status|region|branch|accountName)/i.test(field)) {
+    return field + '-' + String(index + 1).padStart(3, '0');
+  }
+  return 2 + index;
+};
+const sampleRows = Array.from({ length: 12 }, (_, index) => ({
+  data: Object.fromEntries(runtimeFields.map((field) => [field, runtimeValue(field, index)])),
+}));
 
 for (const profile of archetypes) {
   const availableFields = [...new Set(['productCode','productName','category','brand','unit','warehouse','fromWarehouse','toWarehouse','openingBalance','openingStock','inbound','outbound','salesQty','purchaseQty','currentStock','adjustmentQty','returnQty','requestedQty','fulfilledQty','orderedQty','receivedQty','customerCode','customerName','supplierCode','supplierName','salesRep','documentNo','documentDate','transactionType','accountCode','accountName','quantity','unitPrice','sellingPrice','grossAmount','discount','netAmount','cost','profit','currency','paymentMethod','paymentTerms','paidAmount','targetAmount','dueDate','leadTimeDays','debit','credit','asset','liability','equity', ...profile.requiredFields])];
@@ -52,7 +93,7 @@ for (const profile of archetypes) {
     archetypeId: profile.id,
     report: {
       specialty: profile.adapterSpecialty,
-      rowCount: 12,
+      rowCount: sampleRows.length,
       canonicalRows: sampleRows,
       sourceAnalysis: { datasets: [{ columns: availableFields.map((mappedField) => ({ name: mappedField, mappedField })) }] },
     },
