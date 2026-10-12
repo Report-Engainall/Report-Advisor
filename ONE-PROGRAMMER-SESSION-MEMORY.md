@@ -3,27 +3,28 @@
 Repository: Report-Engainall/Report-Advisor
 Feature branch: fix/source-bound-generic-intelligence-20261009
 PR #912: OPEN / NOT MERGED.
-Exact source checkpoint: 26fe15a99cc92d86d4bb517807792c2670acd58c
+Exact source/workflow checkpoint: 39b9e4778f115b473243c456c25d14c2ef42f45e
 Staging branch: checkpoint/2026-10-12-ui-governance-9c395ba
 PRODUCT_COMPLETE = NO.
 DO_NOT_MERGE = true.
 
-CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md — exact source checkpoint 26fe15a99cc92d86d4bb517807792c2670acd58c.
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md — exact source/workflow checkpoint 39b9e4778f115b473243c456c25d14c2ef42f45e.
 
-PRODUCT RULE: The platform must analyse any supported uploaded file without requiring it to match one of 48 specialist archetypes. Generic extraction, facts, metrics, signals, recommendations, evidence boundaries and durable source-bound report results are the baseline. Specialist archetypes add optional domain analysis when the source genuinely matches. The real-source 48-profile matrix is a specialty coverage diagnostic, not a generic upload acceptance gate.
+PRODUCT REQUIREMENT: Analyse any file format supported by the application. Generic extraction and analysis is the required default: source-grounded facts, measurements, findings, signals, recommendations and limitations. One of 48 specialist profiles may enrich the generic layer only when the source fits. No specialty match must never suppress generic results.
 
-Changes at 26fe15a99cc92d86d4bb517807792c2670acd58c:
-- .github/workflows/full-product-browser-e2e.yml: reclassifies the 48-archetype matrix as an optional diagnostic; the blocking browser proof now requires only the authenticated browser journey and smart-report business journey. It runs the shared generic-file-analysis.test.mjs explicitly and logs specialty coverage separately.
-- scripts/real-48-source-matrix-preflight.mjs: when explicitly run with REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY=1, writes truthful NOT_PROVEN coverage diagnostics without returning a process failure merely because fewer than 48 specialty profiles were found. With no diagnostic flag, existing strict exit-code behavior remains.
-- scripts/generic-file-analysis.test.mjs: adds an unfamiliar structured CSV test proving Universal Intelligence returns generic signals, findings, recommendation, and summary with no matched specialist.
-- scripts/real-48-source-matrix-contract.test.mjs: contract checks ensure the universal workflow no longer requires 48 real-source archetypes and that the optional matrix still records its coverage status. The full browser workflow invokes this contract.
+Implemented:
+- Full Product Browser E2E now treats the governed 48-archetype real-source matrix as a separate diagnostic, not as the acceptance criteria for generic-file analysis. Authenticated Chromium route proof and the persisted smart-report business journey remain mandatory.
+- The matrix step has continue-on-error and explicitly sets REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY=1. Undercoverage writes honest NOT_PROVEN diagnostics and exits 0 only in that scoped mode. The normal strict behavior remains on unflagged invocation. The follow-up coverage logger emits the measured count and confirms it is not a generic-analysis gate.
+- The blocking browser-evidence list now includes only artifacts/e2e-browser/result.json and artifacts/e2e-business/result.json; it still fails on missing result file, wrong exact head, non-PASS, or blocked findings.
+- scripts/generic-file-analysis.test.mjs adds a structured CSV with unfamiliar headers and verifies universal report analysis has no archetype while still exposing the generic structure signal, finding, recommendation and summary.
+- scripts/real-48-source-matrix-contract.test.mjs guards this separation; the browser workflow invokes this contract and runs generic-file-analysis.test.mjs directly.
 
-Prior verified evidence on predecessor 79a34bc8ec78c45bf3de9ce30915fcb2f723475a: Build PASS, Quality PASS, Handoff PASS, Phase-F PASS, Final Certification PASS. Full browser route/authentication and business/smart-report journey PASS. The same E2E's separate real-source matrix ended NOT_PROVEN at 18/48 because some specialist archetypes lacked eligible real-source inputs. This is not a failure of the universal generic file engine. See https://github.com/Report-Engainall/Report-Advisor/actions/runs/38282981740. Fresh exact-head gates on 26fe15a99cc92d86d4bb517807792c2670acd58c are not yet proven.
+Predecessor only: head 79a34bc8ec78c45bf3de9ce30915fcb2f723475a passed Build, Quality, Handoff, Phase-F and Final Certification; authenticated Chromium route and smart-report journey passed. The old matrix gate then failed with 18/48 specialist real-source coverage. See https://github.com/Report-Engainall/Report-Advisor/actions/runs/38282981740. That failure shows incomplete specialty coverage, not that arbitrary generic files cannot be analysed. Fresh exact-head gates on 39b9e4778f115b473243c456c25d14c2ef42f45e are still pending.
 
-The matrix bug remains corrected: canonical import is selected by a persisted committed-row anchor scoped to exact tenant and source hash, and mismatch conditions have regression tests. Do not invent real source evidence or label test fixtures as live corpus.
+The canonical source import repair remains: source rows are chosen through persisted commit anchors bound by tenant + source hash + row ID; source-eligible coverage is not fabricated. Netlify CLI and Playwright setup both avoid re-installing the app's entire dependency tree.
 
-UI refinement remains scoped to source-bound generic intelligence, source hash/lineage, signals/recommendations, upload/KPI surfaces, and the explicit dark executive hero. Screenshot proof of the latest style requires a fresh E2E artifact.
+UI work remains scoped to dark executive hero contrast and consistent ink/indigo/brass styling for generic intelligence, source lineage, signals, recommendations, upload and KPI surfaces. Latest style screenshot still needs validation on fresh artifact.
 
-Production: Netlify's current published SHA remains 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Do not claim production parity until verified after deployment and a live browser check.
+Last known Netlify production SHA = 858ef8e3e5bc5bf74430555eadfb9e6767be348b; production parity is not proven.
 
-NEXT: Promote this documented checkpoint into PR #912; inspect exact-head build, quality, handoff, Phase-F, browser E2E and certification. Confirm that generic-file tests and the actual authenticated report succeed independent of optional specialty matrix coverage.
+NEXT: Promote checkpoint; verify exact-head Build/Quality/Handoff/Phase-F/Full Product Browser E2E/Final Certification; inspect generic output independently of specialist diagnostic; then verify production deployment and live browser parity.
