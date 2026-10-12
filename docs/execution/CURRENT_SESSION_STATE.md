@@ -1,25 +1,24 @@
-## LIVE RESUME — 2026-10-12 / UNIVERSAL FILE ANALYSIS BASELINE
+## LIVE RESUME — 2026-10-12 / UNIVERSAL FILE ANALYSIS ACCEPTANCE
 
-CURRENT_EXACT_HEAD = 26fe15a99cc92d86d4bb517807792c2670acd58c
-CODE_CHECKPOINT = 26fe15a99cc92d86d4bb517807792c2670acd58c
+CURRENT_EXACT_HEAD = 39b9e4778f115b473243c456c25d14c2ef42f45e
+CODE_CHECKPOINT = 39b9e4778f115b473243c456c25d14c2ef42f45e
 FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = UNIVERSAL_GENERIC_ANALYSIS_SEPARATED_FROM_OPTIONAL_SPECIALIST_COVERAGE; EXACT_HEAD_VALIDATION_REQUIRED
-UPDATED_AT = 2026-10-12T17:38:11.378Z
+ACTION_STATUS = UNIVERSAL_GENERIC_ANALYSIS_SEPARATED_FROM_SPECIALIST_DIAGNOSTIC; NEW_EXACT_HEAD_CI_REQUIRED
+UPDATED_AT = 2026-10-12T17:40:23.077Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Promote checkpoint and inspect exact-head Build, Quality, Session Handoff, Phase-F, Full Product Browser E2E and Final Certification; verify generic unclassified-file regression and real authenticated report journey.
+NEXT_EXACT_ACTION = Fast-forward documented checkpoint to PR #912, then read exact-head Build, Quality, Session Handoff, Phase-F, Full Product Browser E2E and Final Certification; verify generic tests and browser/report artifacts independently of the specialist matrix.
 
-PRODUCT ACCEPTANCE RULE: Analyse any supported uploaded file. The shared generic intelligence engine is the mandatory baseline. Matching one of the 48 specialist archetypes is optional and must not be required for generic facts/signals/recommendations or persisted source-bound report results. Specialist coverage remains explicitly measured in a separate diagnostic.
+Product acceptance is arbitrary supported-file analysis, not 48 report categories. Generic extraction/findings/signals/recommendations remain mandatory for an unknown/unclassified supported file. The 48 archetypes are optional specialization when actual source fields/evidence fit.
 
-Code at 26fe15a99cc92d86d4bb517807792c2670acd58c:
-- Workflow moves 48-archetype real-source coverage to optional diagnostics and leaves authenticated Chromium + smart-report business journey as blocking browser acceptance. The generic-file test is executed explicitly.
-- The matrix script responds to REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY=1 by writing honest PASS/NOT_PROVEN diagnostic output and not failing solely for specialty undercoverage. Without that flag it still enforces the strict specialized coverage result.
-- Generic regression covers an unknown/unclassified CSV with no applicable archetype and requires generic source-derived signals/findings/recommendation/summary.
-- Workflow contract assertions guard against accidentally making 48/48 a requirement for universal file analysis.
-- Canonical import anchor fix and isolated Netlify/Playwright setup remain.
+Source/workflow code at 39b9e4778f115b473243c456c25d14c2ef42f45e:
+- Browser E2E requires authenticated route and actual business/smart-report journey. The 48-real-source matrix still executes and reports its count/status, but uses explicit REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY=1 with continue-on-error. Undercoverage remains NOT_PROVEN in the artifact but no longer makes generic analysis fail.
+- Universal fail-closed checks browser route proof and smart-report journey JSON only; source hashes/exact head and blocked findings stay enforced.
+- Dedicated generic test proves an unclassified structured CSV returns generic signal, finding, recommendation and summary even with no matching archetype.
+- Workflow and matrix contract checks enforce this product-scope separation. Without diagnostic env, direct specialist matrix calls retain their strict undercoverage exit.
 
-Predecessor proof on 79a34bc8ec78c45bf3de9ce30915fcb2f723475a: Build, Quality, Handoff, Phase-F and Certification PASS; authenticated browser route and business/smart-report journey PASS; separate source matrix NOT_PROVEN 18/48. That last result no longer blocks generic product acceptance but remains a genuine limitation of specialist coverage.
+On predecessor 79a34bc8ec78c45bf3de9ce30915fcb2f723475a, Build, Quality, Handoff, Phase-F, Final Certification and authenticated browser/smart-report flow passed; source matrix 18/48 was NOT_PROVEN and caused the previous combined gate to fail. See run 38282981740. That is a specialty coverage diagnostic, not a universal generic analysis blocker. No predecessor PASS is transferred to 39b9e4778f115b473243c456c25d14c2ef42f45e.
 
-The latest known production SHA remains 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Exact-head CI for 26fe15a99cc92d86d4bb517807792c2670acd58c and production deployment/readback are pending. PRODUCT_COMPLETE remains NO.
+Still pending: fresh exact-head CI, verification that the new generic regression runs/passes, review of generic analysis + persisted source-bound browser proof artifact, current-head screenshot proof, and production deployment parity. Production was last verified at 858ef8e3e5bc5bf74430555eadfb9e6767be348b; do not claim the current feature is live.
