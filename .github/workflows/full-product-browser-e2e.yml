@@ -300,13 +300,19 @@ jobs:
             echo "E2E_ACTOR_MODE=ephemeral-run-scoped" >> "$GITHUB_ENV"
           fi
 
-      - name: Install deterministic Netlify CLI
+      - name: Install deterministic Netlify CLI in an isolated tool prefix
         shell: bash
         run: |
           set -euo pipefail
-          npm install --no-save --package-lock=false netlify-cli@27.10.2
-          test -x node_modules/.bin/netlify
-          npx --no-install netlify --version
+          # Do not run npm install inside the application workspace: that re-resolves
+          # the app's entire devDependency tree, and can fail on unrelated versions.
+          cli_root="${RUNNER_TEMP}/report-advisor-netlify-cli"
+          mkdir -p "$cli_root"
+          npm install --prefix "$cli_root" --no-save --package-lock=false netlify-cli@27.10.2
+          cli_bin="$cli_root/node_modules/.bin"
+          test -x "$cli_bin/netlify"
+          echo "$cli_bin" >> "$GITHUB_PATH"
+          "$cli_bin/netlify" --version
       - name: Start exact Netlify preview with serverless API
         env:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
@@ -319,7 +325,9 @@ jobs:
           set -euo pipefail
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           mkdir -p artifacts/e2e-browser artifacts/e2e-business
-          nohup npx --no-install netlify dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
+          cli="${RUNNER_TEMP}/report-advisor-netlify-cli/node_modules/.bin/netlify"
+          test -x "$cli"
+          nohup "$cli" dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
           echo $! > artifacts/e2e-browser/preview.pid
           for attempt in $(seq 1 90); do
             if curl -fsS http://127.0.0.1:4173/ >/tmp/report-advisor-preview.html; then
