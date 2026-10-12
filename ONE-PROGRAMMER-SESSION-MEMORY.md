@@ -1,3 +1,23 @@
+# LIVE RESUME — 2026-10-12 / SAFE SHARED SNAPSHOT + QUEUED EXACT-HEAD PROOFS
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Current implementation head to validate: d0558fe80dfb969c3aefa44735cc2f0a4861b78a
+PRODUCT_COMPLETE = NO.
+
+Baseline (4c87cbd) real-source matrix: 23/48; 25 archetypes NOT_PROVEN due required fields absent from eligible governed real reports. Do not convert synthetic fixture data to real proof.
+Baseline quality gate: critical assets 951.1KB vs strict 950KB. After lazy loading CommandPalette, ProductJourneyNav, and DeterministicIntelligenceAssistant, build critical asset footprint measured 925.6KB on published head 008b65c1; threshold was unchanged.
+Baseline Phase-F restore mismatch was caused by separate source count reads before/after pg_dump during active Staging writes, e.g. products 4636→4637 and audit_logs 24809→24815, while restore matched one internal dump snapshot.
+Latest code path: commit 84724e2 adds shared PostgreSQL exported snapshot and lazy-loads UI; 41ef788 restores the exact table-exclusion expression; 637556f exports snapshot using SERIALIZABLE READ ONLY DEFERRABLE, passes the same snapshot id to count importer and pg_dump, keeps --serializable-deferrable, and adds corresponding unit/contract checks; d0558fe80dfb969c3aefa44735cc2f0a4861b78a changes Full Product Browser E2E concurrency to cancel-in-progress=false so an active proof run is not canceled when a new exact-head proof is queued.
+Local helper test passed: Logical restore shared-snapshot contract: PASS. This does not prove live database restore.
+
+On published head 008b65c1, Product Build Gate passed (38190886442), critical asset budget passed at 925.6KB, Session Handoff passed (38190886319), Evidence Passport Gate passed (38190886575). Overall Quality run 38190886408 failed its resilience contract; Phase-F 38190886377 failed static operational invariant before live restore; Final Certification 38190886365 failed the same static checks. The corrections are committed at d0558fe80dfb969c3aefa44735cc2f0a4861b78a, but new exact-head validations have not run yet.
+
+Full Product Browser E2E run 38190886463 remains active on 008b65c1. It was observed advancing from browser tooling install to “Real Chromium business journey and smart report proof”, so do not cancel it or claim it passed. Its last completed baseline real-source matrix evidence is still 23/48. The latest workflow changes cancel-in-progress to false; future synchronized-head proof should queue without cancelling an existing active run.
+
+NEXT EXACT ACTION: advance PR branch to this documentation-only child of d0558fe80dfb969c3aefa44735cc2f0a4861b78a, verify the live branch/PR and all four files by readback, then inspect fresh exact-head build, quality, Phase-F live restore, authenticated browser journey/real-source matrix, and final certification.
+---
 # LIVE RESUME — 2026-10-12 / EXPORTED-SNAPSHOT RESTORE + ENTRY-BUNDLE REFINEMENT
 
 Repository: Report-Engainall/Report-Advisor

@@ -1,3 +1,19 @@
+## LIVE RESUME — 2026-10-12 / SAFE SHARED SNAPSHOT + PRESERVED BROWSER PROOF
+
+CURRENT_EXACT_HEAD = d0558fe80dfb969c3aefa44735cc2f0a4861b78a
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = IMPLEMENTED_UNIT_TESTED_EXACT_HEAD_VALIDATION_PENDING
+NEXT_EXACT_ACTION = Publish this docs-only child after implementation commit d0558fe80dfb969c3aefa44735cc2f0a4861b78a; re-read state and PR; validate exact-head build, quality, Phase-F live restore, authenticated full-browser journey/source matrix and final certification.
+UPDATED_AT = 2026-10-12T01:20:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+Latest implementation sequence: 84724e2 shared count/dump snapshot + lazy UI chunks; 41ef788 restored existing exclusion-table contract; 637556f moved snapshot export to SERIALIZABLE READ ONLY DEFERRABLE, preserved --serializable-deferrable, and added exact tests; d0558fe80dfb969c3aefa44735cc2f0a4861b78a sets Full Product Browser E2E cancel-in-progress=false to preserve active evidence jobs across head updates.
+Published 008b results are baseline-only: Build PASS run 38190886442; asset budget PASS at 925.6KB versus fixed 950KB; Quality overall FAIL due static operational resilience contract (38190886408); Phase-F fails static invariant before running live restore (38190886377); Final Certification fails static invariants (38190886365); Session Handoff PASS run 38190886319; Evidence Passport Gate PASS run 38190886575. Helper test passed locally. No fresh exact-head result exists yet.
+Full Product Browser E2E 38190886463 is active at step 18, real Chromium business journey/smart report proof; do not transfer status or cancel.
+Real source matrix remains NOT_PROVEN for 25 archetypes, 23/48 currently supported. No fake-source PASS.
+---
 ## LIVE RESUME — 2026-10-12 / EXPORTED SNAPSHOT + INITIAL BUNDLE BUDGET
 
 CURRENT_EXACT_HEAD = 84724e2c38ea10c7c8af5b51bf713d34b1b47e33

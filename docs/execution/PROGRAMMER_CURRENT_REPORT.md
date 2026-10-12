@@ -1,3 +1,29 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / PRESERVED LIVE PROOF + SNAPSHOT RESTORE
+
+REPORT_FOR_HEAD = d0558fe80dfb969c3aefa44735cc2f0a4861b78a
+UPDATED_AT = 2026-10-12T01:20:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_WAS_ASKED_TO_DO = Resume on current PR, repair evidenced release blockers, prove exact file lineage, and improve the interface without requiring the user's device.
+WHAT_I_ACTUALLY_DID = Committed the shared PostgreSQL snapshot restore fix, unit and static checks, lazy-loaded noncritical interface components to bring critical asset size under the unchanged budget, restored the fail-closed table exclusion contract and safe serializable-deferrable dump behavior, and changed browser workflow concurrency to preserve active proof runs. Latest implementation commit: https://github.com/Report-Engainall/Report-Advisor/commit/d0558fe80dfb969c3aefa44735cc2f0a4861b78a.
+WHAT_IS_PROVEN = On published head 008b65c1, Product Build Gate PASS. The critical asset budget passed at 925.6KB vs 950KB after lazy loading. Helper unit contract passed locally. Session Handoff and Evidence Passport Gate passed. The new live restore implementation is not yet tested.
+FIRST_ACTIVE_FAILURE = Phase-F run 38190886377 failed its local operational runtime contract before touching live restore because the modified dump omitted the required exclude expression; Final Certification 38190886365 also found --serializable-deferrable absent. These were corrected in code commits 41ef788 and 637556f.
+ROOT_CAUSE = Source row counts were captured on separate live snapshots around a pg_dump using its own snapshot, so concurrent Staging writes made count vectors incomparable. Corrected process pins source counts and pg_dump to the same exported snapshot from SERIALIZABLE READ ONLY DEFERRABLE, while retaining exact restore parity checks.
+NEXT_EXACT_ACTION = Advance to this report child without cancelling active browser run 38190886463; verify ref and readback; then inspect exact-head build, Quality, Phase-F live restore, full authenticated browser proof, 48-archetype real-source coverage and final certification.
+SESSION HANDOFF = READY
+
+## Evidence links
+- Build PASS on previous published head: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38190886442
+- Quality FAIL on resilience contract, but asset budget PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38190886408
+- Phase-F static contract fail before live restore: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38190886377
+- Final Certification static contract fail: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38190886365
+- Active full browser run on prior head: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38190886463
+- Last completed real-source matrix 23/48: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188480095
+---
 # CURRENT EXECUTION REPORT — 2026-10-12 / EXPORTED SNAPSHOT + INITIAL BUNDLE BUDGET
 
 REPORT_FOR_HEAD = 84724e2c38ea10c7c8af5b51bf713d34b1b47e33
