@@ -1,25 +1,40 @@
-## LIVE RESUME — 2026-10-12 / UNIVERSAL FILE ANALYSIS ACCEPTANCE
+## LIVE RESUME — 2026-10-12 / BROWSER PAGE-TELEMETRY REPAIR
 
-CURRENT_EXACT_HEAD = aa95891ee1eaa7939d6a16fa9092423a0c0728c1
-CODE_CHECKPOINT = aa95891ee1eaa7939d6a16fa9092423a0c0728c1
+CURRENT_EXACT_HEAD = 38b157a3d0e2dbfae658082ea2ce45891cd4cdb8
+CODE_CHECKPOINT = 38b157a3d0e2dbfae658082ea2ce45891cd4cdb8
 FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = UNIVERSAL_GENERIC_TEST_MOVED_BEFORE_BOUNDED_SPECIALIST_DIAGNOSTIC; ROUTE_FAILURE_INVESTIGATION_PENDING
-UPDATED_AT = 2026-10-12T18:15:21.400Z
+ACTION_STATUS = PAGE_SCOPED_BROWSER_TELEMETRY_COMMITTED; EXACT_HEAD_E2E_PENDING
+UPDATED_AT = 2026-10-12T18:27:00Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Let E2E 38287728412 finish and inspect its browser failure artifact; verify the generic-file regression on head aa95891ee1eaa7939d6a16fa9092423a0c0728c1; fix only the evidenced route cause; then read all exact-head gates.
+NEXT_EXACT_ACTION = Inspect Full Product Browser E2E run 38290775363 on code head 38b157a3d0e2dbfae658082ea2ce45891cd4cdb8; verify the new page-scoped telemetry contract; fix the first remaining actual failure and then read all exact-head release gates.
 
-Product acceptance is arbitrary supported-file analysis, not 48 report categories. Generic extraction/findings/signals/recommendations remain mandatory for an unknown/unclassified supported file. The 48 archetypes are optional specialization when actual source fields/evidence fit.
+## Product invariant
 
-Source/workflow code at 39b9e4778f115b473243c456c25d14c2ef42f45e:
-- Browser E2E requires authenticated route and actual business/smart-report journey. The 48-real-source matrix still executes and reports its count/status, but uses explicit REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY=1 with continue-on-error. Undercoverage remains NOT_PROVEN in the artifact but no longer makes generic analysis fail.
-- Universal fail-closed checks browser route proof and smart-report journey JSON only; source hashes/exact head and blocked findings stay enforced.
-- Dedicated generic test proves an unclassified structured CSV returns generic signal, finding, recommendation and summary even with no matching archetype.
-- Workflow and matrix contract checks enforce this product-scope separation. Without diagnostic env, direct specialist matrix calls retain their strict undercoverage exit.
+Analyze any supported uploaded business file through generic, source-bound intelligence even if none of the 48 optional specialist profiles matches. Do not gate generic facts, findings, signals, recommendations or limitations on archetype classification. No invented facts, impacts, confidence, benchmark or outcomes. Preserve company + reportJobId + sourceHash through report, evidence, decision and work surfaces.
 
-On predecessor 79a34bc8ec78c45bf3de9ce30915fcb2f723475a, Build, Quality, Handoff, Phase-F, Final Certification and authenticated browser/smart-report flow passed; source matrix 18/48 was NOT_PROVEN and caused the previous combined gate to fail. See run 38282981740. That is a specialty coverage diagnostic, not a universal generic analysis blocker. No predecessor PASS is transferred to 39b9e4778f115b473243c456c25d14c2ef42f45e.
+## Current change on 38b157a3d0e2dbfae658082ea2ce45891cd4cdb8
 
-Still pending: fresh exact-head CI, verification that the new generic regression runs/passes, review of generic analysis + persisted source-bound browser proof artifact, current-head screenshot proof, and production deployment parity. Production was last verified at 858ef8e3e5bc5bf74430555eadfb9e6767be348b; do not claim the current feature is live.
+- `scripts/run-full-product-browser-e2e.mjs`: request-pending state and request counts are now scoped per Playwright page through a WeakMap instead of shared global telemetry. Smart Report refresh readback clears settled first-render background requests and starts a new page-local baseline before reload.
+- New `scripts/check-browser-e2e-page-telemetry-contract.mjs` checks that per-page scope remains in place.
+- `.github/workflows/full-product-browser-e2e.yml` executes the telemetry contract before Chromium route proof.
+- Commit: https://github.com/Report-Engainall/Report-Advisor/commit/38b157a3d0e2dbfae658082ea2ce45891cd4cdb8
+
+## Established browser evidence on predecessor a14e7f5ca0eb545234f4d0d79ac4b5f846383d17
+
+Run 38287728412: auth PASS, tenant PASS, 31/32 route checks PASS, zero HTTP/network route failures, initial Smart Report shows 18,127 characters, required decision-chain markers and all six cards, and source job/hash matching is present. Smart Report refresh readback was NOT_PROVEN due one outstanding business_intelligence_decisions request; the same run's business journey and smart report proof passed, and generic file intelligence test printed GENERIC FILE ANALYSIS PASS. Artifact: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38287728412/artifacts/11764164698.
+
+Diagnosis: the browser harness shared pending request state across distinct pages and reused it on refresh. Supabase edge logs show successful HTTP 200 for the decision query; no matching PostgreSQL timeout was found. The new code scopes tracker state per page and refresh; the new exact-head run must verify whether the symptom is closed or a true slow query remains.
+
+## Exact-head runs after code commit
+
+- Product Build Gate: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38290775338 — in progress at last read.
+- Full Product Browser E2E: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38290775363 — queued at last read.
+- Storage tenant isolation: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38290775383 — PASS.
+
+Predecessor 8d8f4eb… had Build, Quality, Handoff, Phase-F and Final Certification PASS, but those results are not current-head evidence.
+
+Production last observed SHA: 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Production parity is unproven. PR #912 is OPEN / NOT MERGED. Do not declare PRODUCT_COMPLETE or deploy until route refresh/readback and all exact-head release gates pass.
