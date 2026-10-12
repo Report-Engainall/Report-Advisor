@@ -440,6 +440,7 @@ jobs:
       - name: Diagnose optional real-source coverage for 48 specialist archetypes
         id: real-source-matrix
         # Specialist coverage is a diagnostic capability report, not a prerequisite for generic analysis of supported files.
+        continue-on-error: true
         if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
