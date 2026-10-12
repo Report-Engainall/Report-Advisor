@@ -351,7 +351,7 @@ function runDockerPgDump(databaseUrl, outputPath, snapshotId) {
   // rows that depend on Supabase-managed Auth instead of counting them as parity
   // data and then accidentally writing them into the restore target.
   const volatileExcludeArgs = [...VOLATILE_RESTORE_TABLES]
-    .map((tableName) => '--exclude-table-data=' + tableName)
+    .map((tableName) => `--exclude-table-data=${tableName}`)
     .join(' ');
   const args = [
     'run', '--rm', '--network', 'host',
