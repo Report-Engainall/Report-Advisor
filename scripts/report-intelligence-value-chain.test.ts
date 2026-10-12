@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { deriveReportIntelligence } from '../src/lib/report-intelligence/report-smart-insights.ts';
+import { applyArchetypeRuleSet } from '../src/lib/report-intelligence/archetype-evaluator.ts';
+import { getReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
 
 const result = deriveReportIntelligence({
   specialty: 'inventory',
@@ -35,3 +37,58 @@ assert.ok(recommendation?.expectedOutcome.length, 'recommendation must define ex
 assert.ok(recommendation?.evidence.length, 'recommendation must retain evidence');
 
 console.log('PASS: advisor value chain exposes WHY → SO WHAT → IMPACT → OWNER → EXPECTED OUTCOME with source evidence.');
+
+
+// A genuine invoice extract may cover several weeks but less than two calendar months.
+// Keep its source-derived trend available at an honest weekly grain and parse day-first
+// hyphenated dates consistently with the application's imported date conventions.
+const shortWindowRows = Array.from({ length: 20 }, (_, index) => ({
+  row_number: index + 1,
+  data: {
+    documentDate: String(index + 1).padStart(2, '0') + '-09-2026',
+    netAmount: index < 10 ? 100 : 200,
+  },
+}));
+const trendProfile = getReportArchetype('sales.over-time');
+assert.ok(trendProfile, 'sales-over-time profile must remain registered');
+const trendBase = {
+  findings: [],
+  risks: [],
+  opportunities: [],
+  signals: [],
+  recommendations: [],
+  advisorBrief: {
+    topFinding: null,
+    recommendedAction: '',
+    headline: '',
+    ownerHint: '',
+    expectedOutcome: '',
+    measurement: '',
+    proofRequirement: '',
+  },
+};
+const trendResult = applyArchetypeRuleSet(trendProfile, {
+  specialty: 'sales',
+  rowCount: shortWindowRows.length,
+  sourceAnalysis: {
+    datasets: [{
+      columns: [
+        { name: 'documentDate', mappedField: 'documentDate' },
+        { name: 'netAmount', mappedField: 'netAmount' },
+      ],
+    }],
+  },
+  canonicalRows: shortWindowRows,
+}, trendBase);
+assert.ok(trendResult.findings.some((finding) => finding.id === 'archetype:sales.over-time:trend'),
+  'a 20-day source with multiple weeks must produce a source-derived trend finding');
+assert.ok(trendResult.signals.some((signal) => signal.id === 'model:sales.over-time'),
+  'short-window trend must publish its model signal');
+assert.ok(trendResult.recommendations.some((item) => item.id === 'rec:archetype:sales.over-time'),
+  'short-window trend must remain connected to an explicit recommendation');
+const trendEvidence = trendResult.findings.find((finding) => finding.id === 'archetype:sales.over-time:trend')?.evidence ?? [];
+assert.ok(trendEvidence.includes('periodGranularity=week'),
+  'trend must disclose that its comparison grain is weekly when monthly periods are unavailable');
+assert.ok(trendEvidence.some((item) => item.startsWith('observedPeriods=') && Number(item.split('=')[1]) >= 2),
+  'trend must expose the count of observed periods used in the comparison');
+console.log('PASS: short-window trend uses honest weekly/day granularity and exposes its evidence.');

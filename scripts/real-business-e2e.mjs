@@ -544,9 +544,33 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
   const afterRefreshText = (await page.locator('body').innerText()).trim();
   assert.ok(afterRefreshText.includes(sourceHash), 'Smart Report fingerprint must survive browser refresh');
   assert.ok(afterRefreshText.includes(String(importResult.sourcePath ?? '')), 'Smart Report source path must survive browser refresh');
+  await genericCard.waitFor({ state: 'visible', timeout: 30000 });
   const lineageAfterRefresh = await genericCard.locator('[data-testid="generic-intelligence-source-lineage"]').innerText();
   assert.ok(lineageAfterRefresh.includes(reportJob.id), 'Report job lineage must survive browser refresh');
+  assert.ok(lineageAfterRefresh.includes(String(importResult.sourcePath ?? '')), 'Source path lineage must survive browser refresh');
   assert.ok(lineageAfterRefresh.includes(sourceHash), 'Source hash lineage must survive browser refresh');
+
+  // Generic analysis is recomputed on read from durable canonical rows. The stored
+  // renderedOutput blob need not embed genericIntelligence; capture real UI readback.
+  const signalsAfterRefreshText = await genericCard.locator('[aria-label="كل إشارات التحليل العام"]').innerText();
+  const recommendationsAfterRefreshText = await genericCard.locator('[aria-label="كل توصيات التحليل العام"]').innerText();
+  const signalCountAfterRefresh = Number(signalsAfterRefreshText.match(/كل الإشارات \((\d+)\)/)?.[1] ?? 0);
+  const recommendationCountAfterRefresh = Number(recommendationsAfterRefreshText.match(/كل التوصيات \((\d+)\)/)?.[1] ?? 0);
+  assert.ok(signalCountAfterRefresh > 0, 'GENERIC_INTELLIGENCE_SIGNALS_EMPTY_AFTER_REFRESH:' + label);
+  assert.ok(recommendationCountAfterRefresh > 0, 'GENERIC_INTELLIGENCE_RECOMMENDATIONS_EMPTY_AFTER_REFRESH:' + label);
+  assert.equal(signalCountAfterRefresh, signalCount, 'GENERIC_INTELLIGENCE_SIGNAL_COUNT_CHANGED_AFTER_REFRESH:' + label);
+  assert.equal(recommendationCountAfterRefresh, recommendationCount, 'GENERIC_INTELLIGENCE_RECOMMENDATION_COUNT_CHANGED_AFTER_REFRESH:' + label);
+  const genericSurfaceProof = {
+    mode: 'RECOMPUTED_FROM_DURABLE_CANONICAL_ROWS',
+    sourceBoundAfterRefresh: true,
+    reportJobId: String(reportJob.id),
+    sourcePath: String(importResult.sourcePath ?? ''),
+    sourceHash,
+    signalCountBeforeRefresh: signalCount,
+    signalCountAfterRefresh,
+    recommendationCountBeforeRefresh: recommendationCount,
+    recommendationCountAfterRefresh,
+  };
   assert.ok(
     afterRefreshText.includes('EVIDENCE PASSPORT'),
     'Smart Report evidence passport must survive browser refresh'
@@ -587,7 +611,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     stageCount: tasks.length,
   });
 
-  return reportJob;
+  return { ...reportJob, genericSurfaceProof };
 }
 
 const CURRENT_REPORT_SOURCE_PATH = REAL_SMART_REPORT_SOURCE_PATH;
@@ -1609,8 +1633,10 @@ try {
     sourcePath: freshReport.source_path,
     sourceHash: freshReport.source_hash,
     uploadedRows: freshUploadRows.length,
-    genericSignalCount: freshReport.evidence?.renderedOutput?.genericIntelligence?.signals?.length ?? null,
-    genericRecommendationCount: freshReport.evidence?.renderedOutput?.genericIntelligence?.recommendations?.length ?? null,
+    genericSignalCount: freshReport.genericSurfaceProof.signalCountAfterRefresh,
+    genericRecommendationCount: freshReport.genericSurfaceProof.recommendationCountAfterRefresh,
+    genericReadbackMode: freshReport.genericSurfaceProof.mode,
+    genericSourceBoundAfterRefresh: freshReport.genericSurfaceProof.sourceBoundAfterRefresh,
     evidenceState: freshReport.evidence?.renderedOutput?.evidenceStatus ?? null,
   };
   evidence.steps.push({
@@ -1674,8 +1700,10 @@ try {
     sourcePath: freshXlsxReport.source_path,
     sourceHash: freshXlsxReport.source_hash,
     uploadedRows: freshXlsxRows.length,
-    genericSignalCount: freshXlsxReport.evidence?.renderedOutput?.genericIntelligence?.signals?.length ?? null,
-    genericRecommendationCount: freshXlsxReport.evidence?.renderedOutput?.genericIntelligence?.recommendations?.length ?? null,
+    genericSignalCount: freshXlsxReport.genericSurfaceProof.signalCountAfterRefresh,
+    genericRecommendationCount: freshXlsxReport.genericSurfaceProof.recommendationCountAfterRefresh,
+    genericReadbackMode: freshXlsxReport.genericSurfaceProof.mode,
+    genericSourceBoundAfterRefresh: freshXlsxReport.genericSurfaceProof.sourceBoundAfterRefresh,
     evidenceState: freshXlsxReport.evidence?.renderedOutput?.evidenceStatus ?? null,
   };
   evidence.steps.push({

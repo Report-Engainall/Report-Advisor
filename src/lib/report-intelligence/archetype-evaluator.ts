@@ -125,24 +125,89 @@ function groupTop(rows: Array<{ data?: Record<string, unknown> | null }>, dimens
 }
 
 function dateValue(rows: Array<{ data?: Record<string, unknown> | null }>, dateKey: string, valueKey: string) {
-  const monthly = new Map<string, number>();
+  type DatedValue = { day: string; month: string; value: number };
+  const datedValues: DatedValue[] = [];
+
+  const sourceDate = (raw: string): string | null => {
+    const value = raw.trim();
+    const iso = value.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[T\s].*)?$/);
+    const dmy = value.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?:[T\s].*)?$/);
+    let year: number;
+    let month: number;
+    let day: number;
+    if (iso) {
+      year = Number(iso[1]);
+      month = Number(iso[2]);
+      day = Number(iso[3]);
+    } else if (dmy) {
+      day = Number(dmy[1]);
+      month = Number(dmy[2]);
+      year = Number(dmy[3]);
+      if (dmy[3].length === 2) year += 2000;
+    } else {
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return null;
+      year = parsed.getUTCFullYear();
+      month = parsed.getUTCMonth() + 1;
+      day = parsed.getUTCDate();
+    }
+
+    if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() + 1 !== month || parsed.getUTCDate() !== day) return null;
+    return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+  };
+
   for (const row of rows) {
     const raw = text(row.data?.[dateKey]);
     const value = num(row.data?.[valueKey]);
-    const parsed = raw ? new Date(raw) : null;
-    if (!parsed || Number.isNaN(parsed.getTime()) || value == null) continue;
-    const month = parsed.getUTCFullYear() + '-' + String(parsed.getUTCMonth() + 1).padStart(2, '0');
-    monthly.set(month, (monthly.get(month) ?? 0) + value);
+    const day = raw ? sourceDate(raw) : null;
+    if (!day || value == null) continue;
+    datedValues.push({ day, month: day.slice(0, 7), value });
   }
-  const points = [...monthly.entries()].sort(([a], [b]) => a.localeCompare(b));
-  if (points.length < 2) return null;
+
+  if (datedValues.length < 2) return null;
+
+  const groupBy = (keyOf: (item: DatedValue) => string) => {
+    const grouped = new Map<string, number>();
+    for (const item of datedValues) {
+      const key = keyOf(item);
+      grouped.set(key, (grouped.get(key) ?? 0) + item.value);
+    }
+    return [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
+  };
+
+  const weeklyKey = (item: DatedValue) => {
+    const date = new Date(item.day + 'T00:00:00.000Z');
+    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+    const weekYear = date.getUTCFullYear();
+    const yearStart = new Date(Date.UTC(weekYear, 0, 1));
+    const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return weekYear + '-W' + String(week).padStart(2, '0');
+  };
+
+  const monthly = groupBy((item) => item.month);
+  let points = monthly;
+  let granularity: 'month' | 'week' | 'day' = 'month';
+  if (monthly.length < 2) {
+    const weekly = groupBy(weeklyKey);
+    if (weekly.length >= 2) {
+      points = weekly;
+      granularity = 'week';
+    } else {
+      const daily = groupBy((item) => item.day);
+      if (daily.length < 3) return null;
+      points = daily;
+      granularity = 'day';
+    }
+  }
+
   const previous = points[points.length - 2];
   const latest = points[points.length - 1];
   const delta = latest[1] - previous[1];
   const pct = previous[1] === 0 ? null : (delta / Math.abs(previous[1])) * 100;
-  return { previous, latest, delta, pct };
+  return { previous, latest, delta, pct, granularity, pointCount: points.length };
 }
-
 function primaryDimension(profile: RuleProfile): string | null {
   const candidates = [
     ['customerCode', 'customer'],
@@ -259,7 +324,7 @@ export function applyArchetypeRuleSet(
           unit: 'فرق الفترة',
           dimensionLabel: 'الفترة',
           dimensionValue: trend.latest[0],
-          evidence: ['dateField=' + dateKey, 'valueField=' + amountKey, 'previousPeriod=' + trend.previous[0], 'latestPeriod=' + trend.latest[0]],
+          evidence: ['dateField=' + dateKey, 'valueField=' + amountKey, 'periodGranularity=' + trend.granularity, 'observedPeriods=' + trend.pointCount, 'previousPeriod=' + trend.previous[0], 'latestPeriod=' + trend.latest[0]],
           limitation: 'هذا تفكيك وصفي للفترة ولا يثبت السبب أو الاستدامة.',
           action: profile.recommendationFocus[0] || 'راجع المحركات التي غيّرت النتيجة قبل اعتماد قرار.',
         };

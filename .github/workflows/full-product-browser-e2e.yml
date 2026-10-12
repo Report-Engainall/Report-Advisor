@@ -209,6 +209,7 @@ jobs:
           npm run test:pdf-visual-line-fallback
           npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
+          npm run test:report-intelligence-value-chain
           npm run test:report-smart-evidence-boundary
           npm run test:customer-facing-report-surface
           npm run test:smart-report-complete-intelligence-surface

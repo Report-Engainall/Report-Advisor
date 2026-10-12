@@ -93,6 +93,11 @@ assert.ok(realBusinessE2E.includes('fresh-generic-xlsx-upload'), 'Browser journe
 assert.ok(realBusinessE2E.includes("async function waitForAuthoritativeImportCompletion(page, companyId, marker, format = 'csv')"), 'Import completion lookup must resolve CSV and XLSX filenames consistently');
 assert.ok(realBusinessE2E.includes('waitForAuthoritativeImportCompletion(page, companyId, marker, format)'), 'Shared import flow must pass the actual extension to durable job discovery');
 assert.ok(realBusinessE2E.includes('fresh-xlsx-upload-to-generic-intelligence-save-readback-refresh'), 'Fresh XLSX must prove generic intelligence survives persisted readback and refresh');
+assert.ok(realBusinessE2E.includes("mode: 'RECOMPUTED_FROM_DURABLE_CANONICAL_ROWS'"), 'Generic post-refresh proof must state that intelligence is recomputed from persisted source rows instead of falsely claiming a separately serialized result');
+assert.ok(realBusinessE2E.includes('signalCountAfterRefresh'), 'Generic signal count must be asserted again after refresh');
+assert.ok(realBusinessE2E.includes('recommendationCountAfterRefresh'), 'Generic recommendation count must be asserted again after refresh');
+assert.ok(realBusinessE2E.includes('genericSignalCount: freshReport.genericSurfaceProof.signalCountAfterRefresh'), 'Artifacts must record the actual refreshed UI signal count');
+assert.ok(realBusinessE2E.includes('genericRecommendationCount: freshReport.genericSurfaceProof.recommendationCountAfterRefresh'), 'Artifacts must record the actual refreshed UI recommendation count');
 assert.ok(!realBusinessE2E.includes("scripts/real-48-archetype-proof.mjs"), 'Single-tenant 48-archetype diagnostic must not fail an otherwise completed customer journey');
 assert.ok(fullProductBrowserWorkflow.includes('name: Prove governed real-source 48 archetype matrix'), 'The governed multi-tenant source matrix must run as its own gate');
 assert.ok(fullProductBrowserWorkflow.includes("scripts/real-48-source-matrix-preflight.mjs"), 'Real-source matrix must execute the governed source preflight');
