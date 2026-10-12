@@ -1,19 +1,17 @@
-## LIVE RESUME — 2026-10-12 / SOURCE PROVENANCE GUARD AND EXECUTIVE POLISH
+## LIVE RESUME — 2026-10-12 / TENANT-SCOPED SOURCE MATRIX
 
-CURRENT_EXACT_HEAD = bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19
+CURRENT_EXACT_HEAD = a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = SHARED_REAL_SOURCE_PROVENANCE_GUARD_AND_UI_POLISH_COMMITTED; EXACT_HEAD_VALIDATION_PENDING
-UPDATED_AT = 2026-10-12T16:24:00Z
+ACTION_STATUS = SOURCE_PROVENANCE_GUARD_AND_TENANT_SCOPING_COMMITTED; EXACT_HEAD_VALIDATION_PENDING
+UPDATED_AT = 2026-10-12T16:31:00Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
-NEXT_EXACT_ACTION = Inspect fresh exact-head Build, Quality, Session Handoff, Phase-F, Full Product Browser E2E and Final Certification for bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19. Verify real-source provenance unit tests and the full real-source matrix; repair only the next proven failure.
+NEXT_EXACT_ACTION = Read exact-head Build, Quality, Handoff, Phase-F, Full Product Browser E2E and Final Certification for a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2; examine the current real-source matrix artifact and fix only the next proven failure.
 
-Fix 1: commit 75f64f4b631b0da07fd9171eb6ef293798c79c34 removed the one-shot landingAppliedRef latch in src/App.tsx. The "Real Chromium route and authenticated browser proof" step passed on run 38275049594 (code head 75f64f4...), as did the following real Chromium business journey/smart-report step. The entire Full Product Browser E2E was still running at its real-source-matrix gate at last read, so this is not yet complete exact-head release proof.
+The landing-route fix at 75f64f4... is browser-step proven on Full Product Browser E2E run 38275049594: the authenticated Chromium route/personalization probe and business journey/smart-report step passed. The overall run failed closed at the matrix with 23/48 supported, 25 NOT_PROVEN. Build run 38275049565 passed on that predecessor only.
 
-Fix 2 on current head bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19: shared scripts/real-source-provenance.mjs and a node regression test now reject repository fixture paths/explicit synthetic records; both scripts/real-48-source-matrix-preflight.mjs and scripts/refresh-governed-real-corpus-passports.mjs use the exact report job source_path when deciding whether a file is eligible evidence. The E2E workflow invokes the regression test. A limited indigo/ink/brass visual pass is appended to src/index.css; semantic status colors are untouched.
+At current code head a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2, matrix passport discovery and report-job discovery now include company_id in each SQL filter, and target file diagnostics select only file_records belonging to the target report job's tenant. The parent commit bf7268bb... adds shared real-source provenance filters used by both matrix certification and passport refresh, and a regression test step. The UI polish is a limited ink/indigo/brass treatment of executive/import surfaces.
 
-Blocking truth: predecessor run 38192806591 was 23/48 supported, 25/48 NOT_PROVEN, and several records cited tests/fixtures/realistic-reports, a test-fixture directory by README declaration. Expect truthful coverage to drop when those are excluded. Do not fabricate data or weaken the strict 48/48 acceptance threshold.
-
-Exact-head results after bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19: pending at checkpoint. PR #912 stays open, merge prohibited until authenticated real-source and production evidence is proven.
+Do not confuse the registry's 48-archetype runtime PASS with 48/48 real-source proof. Prior 23/48 evidence contained paths beneath tests/fixtures/realistic-reports. Those are test fixtures and are now excluded. Expect truthful supported coverage to change. The published Netlify source marker is 858ef8e3e5bc5bf74430555eadfb9e6767be348b, which does not prove current branch deployment. PR remains open; PRODUCT_COMPLETE=NO.
 ---

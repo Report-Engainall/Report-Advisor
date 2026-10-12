@@ -1,3 +1,29 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / TENANT-SCOPED SOURCE-MATRIX QUERY FIX
+
+REPORT_FOR_HEAD = a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2
+UPDATED_AT = 2026-10-12T16:31:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from live GitHub state, fix evidenced real-user journey failures, maintain truthful evidence provenance, improve the interface, and keep the execution checkpoint recoverable.
+
+WHAT_I_ACTUALLY_DID = Removed AppShell's one-shot default-route latch in commit 75f64f4b631b0da07fd9171eb6ef293798c79c34. Added shared real-source provenance policy and regression test, applied it to both certification and passport refresh, and adjusted executive/import color surfaces in commit bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19. In commit a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2, constrained the archetype matrix's passport and report-job discovery by company_id in the SQL request instead of globally limiting 5,000 records and filtering in memory; also constrained target file diagnostics by the target job's company_id. This avoids cross-tenant scans hiding records or mixing same-hash file records.
+
+FIRST_FAILURE_PROVED = Full Product Browser E2E run 38275049594 on code head 75f64f4b631b0da07fd9171eb6ef293798c79c34 passed build, canonical regressions, server proof, authenticated Chromium route/browser proof, and the business journey/smart-report proof; it then failed the strict real-source matrix at 23/48 (25 NOT_PROVEN). The exact log line reports sourceJobsScanned=66 and targetVisibleToActorTenant=false. Target file diagnostics returned same-named/same-hash file rows for multiple companies because that diagnostic query was not company-scoped. The tested workflow closed fail-closed with REAL_SOURCE_ARCHETYPE_COVERAGE=23/48; it did not pass certification.
+
+ROOT_CAUSE_AND_FIX = The real-source preflight queried up to 5,000 evidence passports and completed jobs globally (service-role access), then filtered the returned page in memory by each company. That makes a tenant's rows depend on cross-tenant global ordering/limits and can silently omit records. The target-file diagnostic selected only by file_hash, so same-hash records from another company were returned too. Commit a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2 makes both matrix queries tenant-scoped at request time and scopes diagnostic file lookup to the target job's own company_id. The shared source provenance classifier in ancestor bf7268bb... also rejects repository fixture paths and explicit synthetic fixture records in both matrix selection and passport refresh.
+
+WHAT_IS_PROVEN = GitHub reads confirm current code commit a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2; PR #912 remains open/unmerged. On predecessor 75f64f4..., Product Build Gate run 38275049565 passed and Full Product Browser E2E run 38275049594 passed the Chromium route/authenticated browser and business/smart-report steps. That full run failed the release criteria precisely at real-source coverage 23/48. A Session Handoff Contract run passed on predecessor docs checkpoint 2f8c40656be001c4e813345f481043c8d3c654ec (run 38276732218), but this newest code commit requires its own freshly saved checkpoint and exact-head validation. Links: https://github.com/Report-Engainall/Report-Advisor/commit/a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38275049594 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38275049565 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38276732218 .
+
+WHAT_IS_NOT_PROVEN = Exact-head build/quality, handoff after this code commit, Phase-F restore/resilience, full browser run on current code, current corrected 48/48 eligible real-source matrix, final certification and production deployment/readback. The live Netlify home currently embeds source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b, not this code head, so it cannot prove this branch is deployed.
+
+NEXT_EXACT_ACTION = Read the fresh exact-head Action logs and the next full browser matrix result. If real source coverage still fails, identify each NOT_PROVEN archetype and the exact missing field/evidence from its artifact; source eligible data for it or retain NOT_PROVEN. Keep SQL tenant scoping and real-source provenance checks strict. Do not merge or state PRODUCT_COMPLETE until full exact-head gates and production provenance pass.
+
+SESSION HANDOFF = READY
+---
 # CURRENT EXECUTION REPORT — 2026-10-12 / SOURCE PROVENANCE AND EXECUTIVE VISUAL REFINEMENT
 
 REPORT_FOR_HEAD = bf7268bb6e4b1397b1e1335be5fb1bf81c7d3b19
