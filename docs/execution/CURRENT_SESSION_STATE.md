@@ -1,22 +1,20 @@
-## LIVE RESUME — 2026-10-12 / SOURCE-BOUND UI REFINEMENT
+## LIVE RESUME — 2026-10-12 / EXECUTIVE HERO CONTRAST REPAIR
 
-CURRENT_EXACT_HEAD = 9c395ba1e7b4a2794bf93123e243ea7a9197f041
-CODE_CHECKPOINT = 9c395ba1e7b4a2794bf93123e243ea7a9197f041
+CURRENT_EXACT_HEAD = e9f73a17eb98e0946570b4213b3e5a6202761a94
+CODE_CHECKPOINT = e9f73a17eb98e0946570b4213b3e5a6202761a94
 BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = SOURCE_BOUND_UI_REFINEMENT_COMMITTED; GOVERNANCE_TOKEN_REPAIR_STAGED; EXACT_HEAD_VALIDATION_REQUIRED
-UPDATED_AT = 2026-10-12T16:34:16.903Z
+ACTION_STATUS = EXECUTIVE_HERO_CONTRAST_FIX_COMMITTED; GOVERNANCE_MEMORY_AND_REPORT_UPDATED; EXACT_HEAD_VALIDATION_REQUIRED
+UPDATED_AT = 2026-10-12T17:02:05.670Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Inspect exact-head Build, Quality, Handoff, Phase-F, Full Product Browser E2E and Final Certification results for 9c395ba1e7b4a2794bf93123e243ea7a9197f041 and its latest docs-only checkpoint; fix the first proven failing step without weakening tests.
+NEXT_EXACT_ACTION = Promote this documented checkpoint, then inspect exact-head Product Build, Quality, Session Handoff, Phase-F, Full Product Browser E2E and Final Certification for e9f73a17eb98e0946570b4213b3e5a6202761a94; correct the first proven failure without weakening a gate.
 
-The application/source change at 9c395ba1e7b4a2794bf93123e243ea7a9197f041 is a presentation-only refinement in src/index.css: coherent ink/indigo/brass treatment for the generic intelligence surface, source hash/lineage, real signals and recommendations, upload dropzone, KPI tiles, mobile spacing and reduced-motion behavior. Semantic trust/status colors and analysis/evidence logic remain unchanged.
+The source-only code commit e9f73a17eb98e0946570b4213b3e5a6202761a94 fixes the real screenshot defect where white text in `#executive-layer` was rendered over a near-white surface. The new CSS explicitly fixes the dark ink/indigo gradient, text contrast, stat panels, source metadata and primary action links. The previous commit 9c395ba1e7b4a2794bf93123e243ea7a9197f041 provides scoped styling for generic intelligence, source lineage, findings/recommendations, uploads and KPIs.
 
-The prior handoff failure at run 38278139508 on 9c395ba1e7b4a2794bf93123e243ea7a9197f041 is explained by the previous report being anchored at a6351f3b72f7e4007f9ba8f4264cc33d3a3b46e2 while src/index.css changed. The canonical report is now re-anchored to 9c395ba1e7b4a2794bf93123e243ea7a9197f041, and the memory includes the required CURRENT RESUME POINTER and NEXT tokens without changing the contracts.
+On predecessor f9704efebef1153c22216a2d245fe18c5fffe339, Build run 38280995158, Handoff 38280995120, Data Quality 38280995179, and Final Certification 38280994746 passed. Full Product Browser E2E 38280994997, Quality 38280995069 and Phase-F 38280995051 were in progress at last read. These must be read again for e9f73a17eb98e0946570b4213b3e5a6202761a94; no predecessor PASS transfers to new source code.
 
-Exact-head actions at last read: Quality 38278139220 IN_PROGRESS; Full Product Browser E2E 38278139222 IN_PROGRESS; Data Quality Runtime 38278139722 IN_PROGRESS; Build 38278139591 QUEUED; Phase-F 38278139348 QUEUED; Final Certification 38278139311 QUEUED. These results must be re-read after the docs-only checkpoint is promoted; predecessor results are not current-head proof.
+The last completed full source-bound browser result on 9c395ba… passed the route/authenticated report journey and persistence/readback across tested report surfaces. It found the report 8dbafdf8-f769-4c4f-97a5-22eac8b47d41 had 254 source and 254 canonical rows, quality 98 and TRUSTED state, but evidence state AWAITING_EVIDENCE_SNAPSHOT. New user upload CSV and XLSX paths persisted/read back after refresh while remaining excluded from real-source proof.
 
-A predecessor full authenticated journey passed route and smart-report browser steps but failed strict real-source eligibility at 23/48 supported and 25 NOT_PROVEN. Do not relabel test fixtures as production data or weaken the full source matrix. Cross-screen persistence/readback of reportJobId + sourceHash after refresh/re-login, full eligible-source coverage, and production deployment provenance remain NOT PROVEN. The latest production SHA in the prior record is 858ef8e3e5bc5bf74430555eadfb9e6767be348b; it does not prove this branch is deployed.
-
-Later commits in this checkpoint are execution documentation/archive only; application source remains at 9c395ba1e7b4a2794bf93123e243ea7a9197f041. PRODUCT_COMPLETE remains NO.
+The real-source matrix on that same source head failed closed at 12/48 supported and 36 NOT_PROVEN: 30 archetypes had NO_ELIGIBLE_REAL_SOURCE and six had insufficient canonical rows (four below six, two below twelve). Keep requirements strict and source fixture exclusion intact. The last known production SHA is 858ef8e3e5bc5bf74430555eadfb9e6767be348b; production parity remains NOT PROVEN. PR #912 remains open and PRODUCT_COMPLETE = NO.
