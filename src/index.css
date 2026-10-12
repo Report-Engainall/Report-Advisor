@@ -2015,3 +2015,37 @@ body{background:#f4f6fa;color:#0f172a}}
 }
 
 
+
+
+/* SOURCE-BOUND EXECUTIVE POLISH — 2026-10-12
+   Ink/indigo surfaces with brass as a restrained focus accent. Status colors
+   remain semantic and unchanged; this is presentation-only. */
+@layer base { ::selection { background: rgba(99,102,241,.18); color: #1e1b4b; } }
+@layer components {
+  .ag-main .ag-command-hero {
+    background:
+      radial-gradient(circle at 12% 15%,rgba(214,161,30,.13),transparent 24rem),
+      radial-gradient(circle at 86% 8%,rgba(99,102,241,.22),transparent 26rem),
+      linear-gradient(135deg,#0a0f1c 0%,#111827 52%,#25235a 100%) !important;
+    border-color: rgba(165,180,252,.20) !important;
+  }
+  .ag-main .ag-command-hero::before {
+    border-color: rgba(214,161,30,.20);
+    box-shadow: 0 0 0 2.5rem rgba(214,161,30,.025),0 0 0 5rem rgba(99,102,241,.025);
+  }
+  .ag-main .ag-operational-hero,.ag-main .ag-exec-hero { background: linear-gradient(145deg,#fff 0%,#f5f6ff 70%,#fff8e8 100%); }
+  .ag-main .ag-metric-tile { background: linear-gradient(145deg,#fff,#f6f7ff); }
+  .ag-main .ag-metric-tile::after { background: rgba(99,102,241,.085); }
+  .ag-main .ag-page-kicker { color: #4f46e5; }
+  .ag-main .ag-page-kicker-dot { background: #d6a11e; box-shadow: 0 0 0 4px rgba(214,161,30,.14); }
+  .ag-main .ag-kpi-card { border-color: #dbe2ff; }
+  .ag-main .ag-kpi-card .metric-value { color: #0f172a; }
+  .ag-main .ag-kpi-card:hover { border-color: #a5b4fc; }
+  .ag-main .ag-import-dropzone {
+    border-color: #c7d2fe;
+    background: radial-gradient(circle at 50% 15%,rgba(99,102,241,.10),transparent 13rem),linear-gradient(145deg,#fff,#f6f7ff);
+  }
+  .ag-main .ag-import-dropzone:hover { border-color: #818cf8; background: linear-gradient(145deg,#fff,#eff2ff); }
+  .ag-main .recharts-cartesian-grid-horizontal line,.ag-main .recharts-cartesian-grid-vertical line { stroke: #e1e6f0; }
+  .ag-main .recharts-legend-item-text { color: #64748b !important; }
+}

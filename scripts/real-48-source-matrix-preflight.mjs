@@ -1,5 +1,6 @@
 ﻿import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
 import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-schema.ts';
+import { isGovernedRealFileRecord } from './real-source-provenance.mjs';
 
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || 'https://fnqbvfuwbdpwvhcgzksl.supabase.co').replace(/\/$/, '');
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
@@ -12,47 +13,6 @@ const REAL_48_CERTIFIED_COMPANY_ID = process.env.REAL_48_CERTIFIED_COMPANY_ID ||
 const REAL_48_CERTIFIED_SOURCE_PATH = process.env.REAL_48_CERTIFIED_SOURCE_PATH || process.env.REAL_SMART_REPORT_SOURCE_PATH || 'تقارير ادارية.xlsx';
 const REAL_48_CERTIFIED_SOURCE_HASH = process.env.REAL_48_CERTIFIED_SOURCE_HASH || process.env.REAL_SMART_REPORT_SOURCE_HASH || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 const targetJobId = REAL_48_CERTIFIED_JOB_ID;
-function isRepositoryFixturePath(value) {
-  const candidate = String(value ?? '').trim().replaceAll(String.fromCharCode(92), '/');
-  return /(?:^|\/)(?:tests?|__tests__|fixtures?|__fixtures__|mocks?|samples?|examples?)(?:\/|$)/i.test(candidate);
-}
-
-function isGovernedRealFileRecord(record) {
-  const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};
-  const reportCorpus = metadata.report_corpus === true || String(metadata.report_corpus ?? '').toLowerCase() === 'true';
-  const fixtureType = String(metadata.fixture_type ?? '').trim().toLowerCase();
-  const catalogId = String(metadata.catalog_id ?? '').trim().toLowerCase();
-  const provenancePaths = [
-    record?.file_name,
-    metadata.source_path,
-    metadata.sourcePath,
-    metadata.original_path,
-    metadata.upload_path,
-    metadata.repo_path,
-    metadata.fixture_path,
-    metadata.origin_path,
-  ];
-  const carriesFixturePath = provenancePaths.some(isRepositoryFixturePath);
-  const explicitFixture = /(?:synthetic|fixture|e2e|test|mock)/i.test(fixtureType)
-    || catalogId === 'report-intelligence.48';
-  return reportCorpus && !explicitFixture && !carriesFixturePath;
-}
-
-const fixtureProbe = {
-  file_name: 'invoice.pdf',
-  metadata: { report_corpus: true, source_path: 'tests/fixtures/realistic-reports/invoice.pdf' },
-};
-const realUploadProbe = {
-  file_name: 'invoice.pdf',
-  metadata: { report_corpus: 'true', source_path: 'uploads/tenant/invoice.pdf' },
-};
-if (isGovernedRealFileRecord(fixtureProbe)) {
-  throw new Error('REAL_48_SOURCE_PROVENANCE_CONTRACT_FAIL: repository fixture accepted as real');
-}
-if (!isGovernedRealFileRecord(realUploadProbe)) {
-  throw new Error('REAL_48_SOURCE_PROVENANCE_CONTRACT_FAIL: eligible upload rejected');
-}
-
 if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED');
 const outFile = process.env.E2E_REPORT_DIR
   ? process.env.E2E_REPORT_DIR + '/real-48-source-matrix-preflight.json'
@@ -331,7 +291,7 @@ for (const companyId of configuredTenantIds) {
       'id,company_id,file_name,file_hash,metadata',
       { limit: 20 },
     );
-    const governedRealSource = fileRecords.find(isGovernedRealFileRecord);
+    const governedRealSource = fileRecords.find((record) => isGovernedRealFileRecord(record, job.source_path));
     if (!governedRealSource) continue;
 
     const renderedImportId = typeof rendered.importId === 'string' ? rendered.importId.trim() : '';
