@@ -1,3 +1,32 @@
+# LIVE RESUME — 2026-10-12 / CODE CHECKPOINT d7a93d27cb6a04a58f6f4d4746f9d170432b3000
+
+Exact code head under test = d7a93d27cb6a04a58f6f4d4746f9d170432b3000
+Code commit = https://github.com/Report-Engainall/Report-Advisor/commit/d7a93d27cb6a04a58f6f4d4746f9d170432b3000
+Repository = Report-Engainall/Report-Advisor
+Branch = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Base main = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO. Do not merge or deploy.
+
+Latest committed code changes:
+- Adaptive trend periods: prefer month-to-month where available, fall back to weekly periods, then daily only with at least three distinct days. Evidence identifies the period grain and count; day-first hyphenated dates are parsed unambiguously.
+- Expanded report-intelligence-value-chain test for a genuine 20-day / multi-week source and added the test to release-core and the full browser workflow.
+- Fresh CSV/XLSX business-browser proof now reads the actual generic signal/recommendation counts after refresh, asserts they remain stable and positive, and binds them to the exact reportJobId/sourcePath/sourceHash. Its evidence mode is RECOMPUTED_FROM_DURABLE_CANONICAL_ROWS, not a false claim that the recomputed generic payload is separately serialized in renderedOutput.
+- The 48/48 governed real-source requirement remains unchanged. Missing fields cannot be invented and synthetic fixtures cannot count as real sources.
+
+Current exact-head workflow status snapshot:
+- Session Handoff Contract https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895950: FAIL because the state/report/memory had not yet been updated for the six changed code paths. The checker was not weakened. This is a governance handoff issue and is being reconciled in this checkpoint.
+- Product Build https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895848: IN_PROGRESS at last read.
+- Quality https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895666: IN_PROGRESS at last read.
+- Full Product Browser E2E https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895938: QUEUED at last read.
+- Phase-F https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895726: IN_PROGRESS at last read.
+- Final Certification https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895884: IN_PROGRESS at last read.
+The parent-head Full Product Browser run 38184886341 on 26334116ce713eea1a6c16a6b644057c5490a2cc passed authenticated browser journey and fresh CSV/XLSX source-linked readback but failed the 48/48 governed matrix at 21/48. Do not transfer that outcome to d7a93d27cb6a04a58f6f4d4746f9d170432b3000 or call the new matrix successful until a new artifact proves it.
+
+One next action: confirm this handoff checkpoint is persisted and read back, then inspect exact-head Product Build/Quality and the new Full Product Browser artifact. Keep PR #912 open, do not deploy production, and do not mark PRODUCT_COMPLETE.
+
+---
+
 # LIVE RESUME — 2026-10-12 / UI VISUAL POLISH CANDIDATE 6157cecb98aabb2a205e630f519e2439499b3275
 
 Exact code/UI head = 6157cecb98aabb2a205e630f519e2439499b3275

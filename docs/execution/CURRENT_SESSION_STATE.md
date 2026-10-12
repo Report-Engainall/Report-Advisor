@@ -1,3 +1,35 @@
+## LIVE RESUME — 2026-10-12 / SHORT-WINDOW TREND + SOURCE-BOUND READBACK CHECKPOINT
+
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PR_STATE = OPEN / NOT MERGED
+CURRENT_EXACT_HEAD = d7a93d27cb6a04a58f6f4d4746f9d170432b3000
+CODE_HEAD_UNDER_TEST = d7a93d27cb6a04a58f6f4d4746f9d170432b3000
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/d7a93d27cb6a04a58f6f4d4746f9d170432b3000
+CURRENT_BASE_MAIN = fa1ab4cbade9b01685507aa966c10f700a03f576
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12
+
+ACTION_STATUS = SOURCE-BOUND TREND FIX AND GENERIC READBACK PROOF COMMITTED; EXACT-HEAD TESTS IN PROGRESS; HANDOFF CHECKPOINT BEING RECONCILED
+
+CHANGES = src/lib/report-intelligence/archetype-evaluator.ts; scripts/report-intelligence-value-chain.test.ts; scripts/real-business-e2e.mjs; scripts/customer-facing-report-surface-contract.test.mjs; package.json; .github/workflows/full-product-browser-e2e.yml
+CHANGE_SUMMARY = Adaptive month/week/day comparison for evidence-backed short-window trends, day-first date parsing, explicit trend-grain provenance, generic intelligence signal/recommendation count readback from the actual customer surface after refresh, and registration of its regression test in release/browser gates.
+HANDOFF_FAILURE = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895950 — FAIL on d7a93d27cb6a04a58f6f4d4746f9d170432b3000; the checker listed exactly the six code paths above as unreported. The checker itself was not weakened. This is a stale session/report reference and must pass again after the current checkpoint files are committed.
+
+LIVE_RUNS_ON_CODE_HEAD =
+- PRODUCT BUILD = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895848 — IN_PROGRESS at last read
+- QUALITY = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895666 — IN_PROGRESS at last read
+- FULL PRODUCT BROWSER E2E = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895938 — QUEUED at last read
+- PHASE-F LIVE RESILIENCE = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895726 — IN_PROGRESS at last read
+- FINAL CERTIFICATION = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38186895884 — IN_PROGRESS at last read
+The earlier exact-head E2E run 38184886341 belongs to parent code head 26334116ce713eea1a6c16a6b644057c5490a2cc, not this code head. Its governed source matrix reported 21/48; that result must not be transferred to d7a93d27cb6a04a58f6f4d4746f9d170432b3000, because the trend evaluator changed here and the matrix must rerun.
+
+NEXT_EXACT_ACTION = Commit this governance checkpoint to the same PR branch, re-read it from the new head, confirm Session Handoff passes, then inspect Product Build/Quality and the new Full Product Browser E2E artifact. Keep the governed real-source matrix strict at 48/48; don't fabricate missing fields or relabel synthetic fixtures as real.
+
+---
+
 ## LIVE RESUME — 2026-10-12 / EXECUTIVE INTELLIGENCE VISUAL POLISH CHECKPOINT
 
 REPOSITORY = Report-Engainall/Report-Advisor
