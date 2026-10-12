@@ -31,8 +31,9 @@ if (!/runDockerPgDump\(querySource, backupPath, exportedSnapshot\.snapshotId\)/.
   throw new Error('Phase-F pg_dump must use the resolved querySource URI and the same exported snapshot id');
 }
 if (!/function runDockerPgDump\(databaseUrl, outputPath, snapshotId\)/.test(phaseFProbe)
-  || !/pg_dump "\$PGURI" --serializable-deferrable --snapshot="\$SNAPSHOT_ID"/.test(phaseFProbe)) {
-  throw new Error('Phase-F logical dump must preserve serializable-deferrable and the exported snapshot binding');
+  || !/pg_dump "\$PGURI" --snapshot="\$SNAPSHOT_ID"/.test(phaseFProbe)
+  || /pg_dump "\$PGURI" --serializable-deferrable --snapshot="\$SNAPSHOT_ID"/.test(phaseFProbe)) {
+  throw new Error('Phase-F pg_dump must import the shared snapshot without READ ONLY DEFERRABLE; the exporter itself must remain SERIALIZABLE READ ONLY DEFERRABLE');
 }
 if (!/sourceCountsAfter = parseTableCounts\(runDockerPsql\(querySource, countSql\)\)/.test(phaseFProbe)
   || !/source_snapshot_strategy: 'postgres-exported-snapshot-shared-with-pg-dump'/.test(phaseFProbe)) {
@@ -47,7 +48,7 @@ for (const token of [
   'pg_export_snapshot()',
   'SET TRANSACTION SNAPSHOT',
 ]) {
-  if (!phaseFSnapshotHelper.includes(token)) throw new Error(\`Phase-F exported snapshot helper invariant missing: \${token}\`);
+  if (!phaseFSnapshotHelper.includes(token)) throw new Error('Phase-F exported snapshot helper invariant missing: ' + token);
 }
 if (!/const directPort = parsed\.port \|\| '5432';/.test(phaseFProbe) || !/directPort === '5432'/.test(phaseFProbe)) {
   throw new Error('Phase-F direct Supabase source fallback must treat an omitted port as the default 5432');
