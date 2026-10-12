@@ -2049,3 +2049,216 @@ body{background:#f4f6fa;color:#0f172a}}
   .ag-main .recharts-cartesian-grid-horizontal line,.ag-main .recharts-cartesian-grid-vertical line { stroke: #e1e6f0; }
   .ag-main .recharts-legend-item-text { color: #64748b !important; }
 }
+
+
+/* REPORT ADVISOR — SOURCE-BOUND INTELLIGENCE EXPERIENCE / OCT 2026 */
+/* One coherent editorial system for evidence, findings and recommendations.
+   Evidence statuses keep their semantic colors; only neutral surfaces change. */
+@layer components {
+  .ag-smart-report-surface {
+    color: #111827;
+    isolation: isolate;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #d9dfed !important;
+    border-radius: 24px !important;
+    background:
+      radial-gradient(circle at 96% 0%, rgba(99,102,241,.055), transparent 20rem),
+      linear-gradient(180deg, #fff 0%, #fcfcff 100%) !important;
+    box-shadow: 0 24px 64px -48px rgba(15,23,42,.48), inset 0 1px 0 rgba(255,255,255,.95) !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"]::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    inset-inline: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #d6a11e 0%, #818cf8 42%, #4338ca 100%);
+    pointer-events: none;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .card-header {
+    padding: 20px 22px !important;
+    border-bottom: 1px solid #edf0f6 !important;
+    background: linear-gradient(180deg, rgba(248,250,255,.96), rgba(255,255,255,.94)) !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .card-body {
+    padding: 22px !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-source-lineage"] {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(165,180,252,.22) !important;
+    border-radius: 16px !important;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(99,102,241,.2), transparent 15rem),
+      linear-gradient(135deg,#0b1020 0%,#151b32 70%,#242451 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 14px 32px -26px rgba(15,23,42,.7);
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-source-lineage"] > div:first-child {
+    color: #eef2ff !important;
+    font-size: 11px !important;
+    letter-spacing: .01em;
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-source-lineage"] dt {
+    color: #a5b4fc !important;
+    font-size: 10px !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-source-lineage"] dd {
+    color: #f8fafc !important;
+    font-size: 11px !important;
+    line-height: 1.75 !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-source-lineage"] dd.font-mono {
+    color: #e0e7ff !important;
+    overflow-wrap: anywhere;
+  }
+  .ag-smart-report-surface [aria-label="كل إشارات التحليل العام"],
+  .ag-smart-report-surface [aria-label="كل توصيات التحليل العام"] {
+    display: grid;
+    gap: 12px;
+  }
+  .ag-smart-report-surface [aria-label="كل إشارات التحليل العام"] > article {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dde3ef !important;
+    border-radius: 17px !important;
+    background: linear-gradient(145deg,#fff 0%,#fbfcff 100%) !important;
+    box-shadow: 0 14px 34px -30px rgba(15,23,42,.48) !important;
+    padding: 18px !important;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  .ag-smart-report-surface [aria-label="كل إشارات التحليل العام"] > article::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg,#d6a11e,#818cf8);
+    opacity: .9;
+  }
+  .ag-smart-report-surface [aria-label="كل إشارات التحليل العام"] > article:hover {
+    border-color: #c7d2fe !important;
+    box-shadow: 0 22px 44px -34px rgba(67,56,202,.28) !important;
+    transform: translateY(-1px);
+  }
+  .ag-smart-report-surface [aria-label="كل توصيات التحليل العام"] > article {
+    border: 1px solid #d9def1 !important;
+    border-radius: 17px !important;
+    background:
+      radial-gradient(circle at 100% 0%,rgba(99,102,241,.055),transparent 16rem),
+      linear-gradient(145deg,#fff,#f9faff) !important;
+    padding: 18px !important;
+    box-shadow: 0 14px 34px -30px rgba(67,56,202,.30) !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-unavailable"] {
+    border-radius: 18px !important;
+    box-shadow: 0 12px 30px -26px rgba(15,23,42,.3);
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-analysis-scope"] {
+    border-radius: 15px !important;
+    line-height: 1.8;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .section-kicker {
+    font-size: 9px !important;
+    letter-spacing: .13em !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] h2,
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] h3 {
+    letter-spacing: -.015em;
+    text-wrap: pretty;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] details > summary {
+    border-radius: 12px;
+    outline-offset: 3px;
+    transition: background-color .16s ease, color .16s ease;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] details > summary:hover {
+    color: #3730a3;
+    background: #f5f6ff;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .font-mono {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.015em;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .bg-ink-50 {
+    background: #f7f8fc !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .border-ink-100 {
+    border-color: #e8ebf3 !important;
+  }
+  .ag-smart-report-surface .ag-journey-track {
+    border-color: #d8deeb !important;
+    background: rgba(255,255,255,.94) !important;
+    box-shadow: 0 14px 32px -28px rgba(15,23,42,.46) !important;
+    backdrop-filter: blur(14px);
+  }
+  .ag-smart-report-surface .ag-journey-link-active {
+    background: linear-gradient(135deg,#101626,#302f70) !important;
+    border-color: #4443a0 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.09),0 10px 22px -17px rgba(49,46,129,.7) !important;
+  }
+  .ag-main .ag-import-dropzone {
+    min-height: 210px;
+    border-style: dashed !important;
+    border-width: 1.5px !important;
+    border-radius: 22px !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9),0 18px 38px -34px rgba(67,56,202,.4);
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  .ag-main .ag-import-dropzone:focus-within,
+  .ag-main .ag-import-dropzone:hover {
+    border-color: #818cf8 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.95),0 0 0 4px rgba(99,102,241,.07),0 22px 42px -34px rgba(67,56,202,.45);
+    transform: translateY(-1px);
+  }
+  .ag-main .ag-kpi-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 17px !important;
+    box-shadow: 0 14px 34px -30px rgba(15,23,42,.35);
+  }
+  .ag-main .ag-kpi-card::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    width: 38%;
+    height: 1px;
+    background: linear-gradient(90deg,transparent,rgba(99,102,241,.22));
+    pointer-events: none;
+  }
+}
+@media (max-width: 767px) {
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] {
+    border-radius: 18px !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .card-header {
+    padding: 15px !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-file-intelligence"] .card-body {
+    padding: 15px !important;
+  }
+  .ag-smart-report-surface [aria-label="كل إشارات التحليل العام"] > article,
+  .ag-smart-report-surface [aria-label="كل توصيات التحليل العام"] > article {
+    padding: 14px !important;
+    border-radius: 14px !important;
+  }
+  .ag-smart-report-surface [data-testid="generic-intelligence-source-lineage"] {
+    border-radius: 14px !important;
+  }
+  .ag-main .ag-import-dropzone {
+    min-height: 170px;
+    border-radius: 17px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ag-smart-report-surface [aria-label="كل إشارات التحليل العام"] > article,
+  .ag-main .ag-import-dropzone {
+    transition: none !important;
+    transform: none !important;
+  }
+}
