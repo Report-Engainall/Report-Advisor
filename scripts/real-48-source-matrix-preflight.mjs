@@ -96,9 +96,13 @@ async function buildSelectionDiagnostics(actorCompanyId) {
     serviceRestSelect('report_execution_jobs', { id: targetJobId }, 'id,company_id,status,source_path,source_hash,completed_at', { limit: 2 }),
     serviceRestSelect('report_evidence_passports', { report_execution_job_id: targetJobId }, 'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash,verification_status,decision_readiness', { order: 'created_at.desc', limit: 10 }),
     (async () => {
-      const jobs = await serviceRestSelect('report_execution_jobs', { id: targetJobId }, 'source_hash', { limit: 2 });
-      const sourceHash = String(jobs[0]?.source_hash || '');
-      return sourceHash ? serviceRestSelect('file_records', { file_hash: sourceHash }, 'id,company_id,file_name,file_hash,metadata', { limit: 20 }) : [];
+      const jobs = await serviceRestSelect('report_execution_jobs', { id: targetJobId }, 'company_id,source_hash', { limit: 2 });
+      const targetJob = jobs[0];
+      const sourceHash = String(targetJob?.source_hash || '');
+      const companyId = String(targetJob?.company_id || '');
+      return sourceHash && companyId
+        ? serviceRestSelect('file_records', { company_id: companyId, file_hash: sourceHash }, 'id,company_id,file_name,file_hash,metadata', { limit: 20 })
+        : [];
     })(),
     serviceRestSelect('report_execution_jobs', { company_id: actorCompanyId, status: 'completed' }, 'id,company_id,status,source_path,source_hash,completed_at', { limit: 1000 }),
     serviceRestSelect('report_evidence_passports', { company_id: actorCompanyId, verification_status: 'VERIFIED', decision_readiness: 'READY' }, 'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash', { limit: 500 }),
@@ -252,20 +256,21 @@ const sourceRecords = [];
 const sourceRowsCache = new Map();
 
 for (const companyId of configuredTenantIds) {
-  const passports = (await evidenceSelect(
+  // Bound large service-role reads to the target tenant at query time.
+  const passports = await evidenceSelect(
     'report_evidence_passports',
-    { verification_status: 'VERIFIED', decision_readiness: 'READY' },
+    { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
     'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash',
     { limit: 5000 },
-  )).filter((row) => String(row.company_id) === String(companyId));
+  );
   const verifiedJobIds = new Set(passports.map((row) => String(row.report_execution_job_id)));
 
-  const jobs = (await evidenceSelect(
+  const jobs = await evidenceSelect(
     'report_execution_jobs',
-    { status: 'completed' },
+    { company_id: companyId, status: 'completed' },
     'id,company_id,source_path,source_hash,evidence,completed_at',
     { order: 'completed_at.desc', limit: 5000 },
-  )).filter((row) => String(row.company_id) === String(companyId));
+  );
 
   for (const passport of passports) {
     const job = jobs.find((item) => String(item.id) === String(passport.report_execution_job_id));
