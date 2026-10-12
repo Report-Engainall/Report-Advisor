@@ -3,13 +3,13 @@
 Repository: Report-Engainall/Report-Advisor
 Branch: fix/source-bound-generic-intelligence-20261009
 PR #912: OPEN / NOT MERGED.
-Code checkpoint: 38b157a3d0e2dbfae658082ea2ce45891cd4cdb8
+Code checkpoint: 6798db8af5653e7b91e786c38d50fae279fccfa0
 PRODUCT_COMPLETE = NO.
 DO_NOT_MERGE = true.
 
-CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md — code checkpoint 38b157a3d0e2dbfae658082ea2ce45891cd4cdb8.
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md — code checkpoint 6798db8af5653e7b91e786c38d50fae279fccfa0.
 
-NEXT: After the Quality failure on checkpoint a554b939cdde045eb4ccadc08789e446a315f53b, verify this exact uppercase token in the new memory readback, then inspect current-head Quality and Full Product Browser E2E run 38290929481 for the page-scoped telemetry contract and Smart Report refresh-readback result.
+NEXT: Validate the structured-table text-signal enhancement on 6798db8af5653e7b91e786c38d50fae279fccfa0; inspect Full Product Browser E2E and route refresh-readback; restore Handoff by recording its exact current diff and then read every exact-head gate.
 
 Product acceptance is any supported uploaded file analyzed by source-bound generic intelligence. None of the 48 specialist archetypes is a required match; specialty analysis enriches only when evidence fits. The 48-profile real-source matrix is a diagnostic and must never block generic file analysis.
 
