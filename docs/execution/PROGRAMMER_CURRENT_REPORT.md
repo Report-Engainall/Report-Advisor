@@ -1,3 +1,33 @@
+# CURRENT EXECUTION REPORT — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
+
+REPORT_FOR_HEAD = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+UPDATED_AT = 2026-10-13
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/session-handoff-after-squash-20261013
+PR = Documentation-only handoff repair for PR #914 squash merge; current branch will be linked after creation.
+BASE_MAIN_HEAD = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+MERGED_TOKEN_SYNC_COMMIT = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = false only after exact-head Session Handoff and required quality gates pass; merge by normal merge method to preserve ancestry.
+
+WHAT_I_WAS_ASKED_TO_DO = Continue from the live GitHub state, fix the first confirmed blocker, keep governance contracts strict, and save a precise resume point with actual code/test/production states distinguished.
+
+WHAT_I_ACTUALLY_DID = Merged PR #914 at 5ca8ffceae0693d510c349732a2cce52f62ab1a8 after its candidate head 17063a81e3a674be963fb6b6b7776033ddecc55b passed Product Build Gate run 38310513149, Quality run 38310513321, Final Certification Gate run 38310513437, Session Handoff Contract run 38310513177, and data-quality-runtime run 38310513320. The candidate's full commit-check summary was 42 success, 3 neutral, 1 skipped, zero failures. Read back main SHA and PR state from GitHub. On new main, Session Handoff Contract run 38310884756 failed: "REPORT_FOR_HEAD is not an ancestor of HEAD." The cause was squash merge: current execution report still pointed to branch commit 198777e8f138799f7326a131c0c56ec8cb8e6cc7, which is not part of main ancestry after the squash merge. This follow-up only refreshes execution checkpoints and preserves prior reports; it re-anchors REPORT_FOR_HEAD to the main merge SHA 5ca8ffceae0693d510c349732a2cce52f62ab1a8, which is an ancestor of the repair branch, and must be merged with a normal merge commit.
+ 
+FIRST_ACTIVE_FAILURE = Handoff run 38310884756 failed because REPORT_FOR_HEAD 198777e8f138799f7326a131c0c56ec8cb8e6cc7 is not an ancestor of main HEAD 5ca8ffceae0693d510c349732a2cce52f62ab1a8. Independently, Deploy Netlify Production run 38310884816 failed because NETLIFY_AUTH_TOKEN is missing; NETLIFY_SITE_ID was blank. Phase-F run 38310884566 was in progress at checkpoint capture.
+ 
+ROOT_CAUSE = A squash merge dropped ancestry of the candidate branch commit used by the persistent execution report, and the handoff contract properly refused the stale report. The safe repair is documentation-only with base REPORT_FOR_HEAD 5ca8ffceae0693d510c349732a2cce52f62ab1a8, preserving the strict ancestry check, and then a merge commit rather than squash. Separately, Netlify publish cannot run because authorized GitHub Actions deployment credentials are absent from repository secrets. The merged Vercel workflow change synchronizes the existing operational token into Vercel before manual deployment, but it has not been executed, so live token repair is not yet proven.
+ 
+WHAT_IS_PROVEN = Current main ref after PR #914 merge was 5ca8ffceae0693d510c349732a2cce52f62ab1a8. PR #914 is closed/merged. Candidate SHA 17063a81e3a674be963fb6b6b7776033ddecc55b exact-head Build PASS (38310513149), Quality PASS (38310513321), Final Certification PASS (38310513437), Session Handoff PASS (38310513177), data-quality-runtime PASS (38310513320), and 42/46 check runs successful/neutral/skipped with zero failures. The modified workflow was read back from GitHub before merge and confirmed to stream the secret through a mode-600 temporary file, not echo it, and update Vercel production before env pull/build. Main's post-merge Handoff failure is explicitly recorded, not ignored.
+ 
+WHAT_IS_NOT_PROVEN = Session Handoff PASS after this checkpoint repair and merge; successful manual Vercel deployment of main with token sync; post-deploy health endpoint identity SHA and deployment ID; Netlify production deploy to current main; Phase-F 4/4 pass; production parity and PRODUCT_COMPLETE. Existing browser E2E pass run 38294294413 is only on prior product-code SHA 6dbc16ea1f762cb78b398c741d925c52275017fe and is not proof of new deployment behavior.
+ 
+NEXT_EXACT_ACTION = Create the handoff repair PR from this branch and verify Session Handoff Contract on the exact head. Once green, merge using the normal merge method to preserve 5ca8ffceae0693d510c349732a2cce52f62ab1a8 ancestry. Next release action after that is to execute the manual Vercel production deployment and read its authenticated health response; Netlify additionally needs its authorized NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID configured.
+ 
+SESSION HANDOFF = READY
+ 
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-13 / VERCEL TOKEN-SYNC FIX
 
 REPORT_FOR_HEAD = 198777e8f138799f7326a131c0c56ec8cb8e6cc7

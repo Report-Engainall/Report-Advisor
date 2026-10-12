@@ -1,3 +1,36 @@
+# LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
+
+Repository: Report-Engainall/Report-Advisor
+CURRENT CODE CHECKPOINT = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+MAIN MERGE COMMIT = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
+BRANCH = fix/session-handoff-after-squash-20261013
+PR #914 = MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/914
+PRODUCT_COMPLETE = NO
+MERGE_STATE = PR #914 merged; current checkpoint branch repairs the persistent Session Handoff Contract and must be merged with a merge commit, not squash.
+
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md
+
+IMPLEMENTED = PR #914 added a guarded deployment step to .github/workflows/vercel-production-deploy.yml. It copies the existing GitHub Actions RESILIENCE_OPERATIONAL_TOKEN secret into Vercel production as a sensitive variable before pulling/building, using a mode-600 temporary file and cleanup trap without printing the secret.
+INTEGRATED = YES — merge commit 5ca8ffceae0693d510c349732a2cce52f62ab1a8.
+READBACK-PROVEN = YES — main ref, PR #914 status/merge SHA, workflow, and PR exact-head check runs were re-read from GitHub.
+TESTED = PR #914 candidate 17063a81e3a674be963fb6b6b7776033ddecc55b: Product Build Gate run 38310513149 PASS; Quality run 38310513321 PASS; Final Certification Gate run 38310513437 PASS; Session Handoff Contract run 38310513177 PASS; data-quality-runtime run 38310513320 PASS. Its 46 check-runs summarized 42 success, 3 neutral, 1 skipped, zero failures.
+FIRST_ACTIVE_FAILURE = Post-merge Session Handoff Contract run 38310884756 failed on main commit 5ca8ffceae0693d510c349732a2cce52f62ab1a8: "REPORT_FOR_HEAD is not an ancestor of HEAD." The prior execution report referred to 198777e8f138799f7326a131c0c56ec8cb8e6cc7, a PR branch commit that became unreachable from main after PR #914 was squash-merged. This is a genuine ancestry-contract failure, not an application test failure.
+ROOT_CAUSE = The squash merge of PR #914 produced 5ca8ffceae0693d510c349732a2cce52f62ab1a8 as a child of the former main ec0547c7cc26a828c0e4bf8ba0279664461a7269 and did not preserve the candidate branch commits 198777…/17063… as ancestors. The current report still named 198777… as REPORT_FOR_HEAD, so the strict handoff contract correctly failed.
+FIX = Re-anchor this documentation-only checkpoint at 5ca8ffceae0693d510c349732a2cce52f62ab1a8, keep all prior report sections unchanged below, and merge this follow-up using a normal merge commit so 5ca8ffceae0693d510c349732a2cce52f62ab1a8 remains an ancestor. Do not weaken the contract or squash this repair.
+NETLIFY_PRODUCTION = BLOCKED — post-merge Deploy Netlify Production run 38310884816 failed at "Deploy production to Netlify" with "Missing NETLIFY_AUTH_TOKEN repository secret"; NETLIFY_SITE_ID is also blank. The current published Netlify deploy was last verified at old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+PHASE_F = IN_PROGRESS at checkpoint capture — run 38310884566. Do not claim PASS until it completes and the exact live probes prove the expected deployment identity.
+VERCEL_PRODUCTION = TOKEN-SYNC PATCH MERGED, NOT YET DEPLOY-VERIFIED — the Vercel project env inventory had RESILIENCE_OPERATIONAL_TOKEN with a sensitive type but empty value before merge. The new step exists in the manual-only Vercel deploy workflow; there is no proof it has executed or fixed live health until a deployment run returns exact SHA/ID.
+BROWSER_PROVEN = Prior authenticated Chromium Full Product Browser E2E PASS applies to merge SHA 6dbc16ea1f762cb78b398c741d925c52275017fe: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294413. No new UI code changed in PR #914.
+PRODUCTION_PROVEN = PARTIAL — the Vercel homepage was HTTP 200 and source-bound to the pre-fix main SHA; operational health after executing the token-sync deployment remains unproven. Netlify parity is not proven.
+NEXT_EXACT_ACTION = Open and verify the documentation-only handoff repair, require Session Handoff Contract PASS on its exact head, then merge with merge_method=merge (never squash) to preserve report ancestry. Do not call PRODUCT_COMPLETE until Vercel deploy/health, Netlify deployment, and Phase-F all pass.
+
+SESSION HANDOFF = READY
+
+---
+
+
+---
+
 # LIVE RESUME — 2026-10-13 / VERCEL PRODUCTION TOKEN SYNC
 
 Repository: Report-Engainall/Report-Advisor
