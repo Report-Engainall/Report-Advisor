@@ -108,13 +108,18 @@ async function main() {
   // Universal file analysis is the product baseline; the optional specialist catalog
   // must not be required for useful, source-bound findings on an unfamiliar table.
   const unclassifiedDatasetList = await parseFile(
-    buffer('record_key,observation_text,amount_value\nA-01,Review pending,100\nB-02,Completed,250\nC-03,Discrepancy,75'),
+    buffer('record_key,observation_text,amount_value\nA-01,Review pending,100\nB-02,Completed,250\nC-03,Critical stock shortage,75'),
     'unclassified-operational-data.csv',
     'csv',
   );
   assert.equal(unclassifiedDatasetList.length, 1, 'unclassified supported CSV should parse without a specialty');
   const unclassifiedDataset = unclassifiedDatasetList[0];
   const unclassifiedGeneric = buildGenericFileIntelligence(unclassifiedDataset, 'csv');
+  assert.ok(unclassifiedGeneric.signals.some((signal) => signal.id === 'generic:file:risk-language'), 'structured tables must preserve source text risk signals alongside numeric profiling');
+  assert.ok(unclassifiedGeneric.signals.some((signal) => signal.id === 'generic:file:action-language'), 'structured tables must preserve source text action signals alongside numeric profiling');
+  assert.ok(unclassifiedGeneric.recommendations.some((item) => item.id === 'generic:file:review'), 'structured tables must retain a recommendation tied to text-derived signals');
+  assert.ok(unclassifiedGeneric.findings.some((finding) => finding.id === 'generic:file:content-profile'), 'structured tables must expose the general content finding alongside table findings');
+  assert.ok(unclassifiedGeneric.guidance.inspect.some((line) => line.includes('Critical stock shortage')), 'risk-language evidence from table cells must remain visible in guidance');
   const universalWithoutSpecialty = buildUniversalReportIntelligence({
     sourcePath: 'unclassified-operational-data.csv',
     sourceHash: 'sha256:' + 'c'.repeat(64),
