@@ -1,3 +1,15 @@
+# LIVE RESUME — 2026-10-12 / SNAPSHOT HELPER CONTRACT FIX
+
+PR #912 remains OPEN / NOT MERGED. Branch: fix/source-bound-generic-intelligence-20261009. Code commit: 6d2dbbeae07e3641bfd2ce20d9f080245a505108. PRODUCT_COMPLETE=NO.
+
+The latest Phase-F run 38191738163 failed before database operations: the static contract checked for pg_export_snapshot() inside the probe file, but SQL belongs in src/server/logical-restore-snapshot.mjs. Commit 6d2dbbeae07e3641bfd2ce20d9f080245a505108 corrects the source-location check: the probe must call buildExportedSnapshotSql() and pass --snapshot, while the helper check retains pg_export_snapshot() and SERIALIZABLE READ ONLY DEFERRABLE. No integrity guard was removed.
+
+The snapshot solution binds the source count query and pg_dump to the same PostgreSQL exported snapshot, preserving strict restore parity. The command keeps --serializable-deferrable and the established --data-only exclusion template. Prior published initial assets dropped from 951.1KB to 925.6KB against unchanged 950KB budget after lazy-loaded command/journey/adviser components. The last complete real-source matrix remains 23/48 with 25 NOT_PROVEN due absent required fields in eligible records. Old browser run 38190886463 is on an older head and cannot prove the latest one.
+
+NEXT: publish a documentation-only child of 6d2dbbeae07e3641bfd2ce20d9f080245a505108, verify readback, then inspect new Phase-F, Build, Quality, full authenticated browser/source matrix, and final certification results on the exact new head.
+
+---
+
 # LIVE RESUME — 2026-10-12 / STRICT SNAPSHOT RESTORE CONTRACT
 
 Repository: Report-Engainall/Report-Advisor

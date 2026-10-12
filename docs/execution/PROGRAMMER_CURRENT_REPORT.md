@@ -1,3 +1,21 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / SNAPSHOT HELPER CONTRACT FIX
+
+REPORT_FOR_HEAD = 6d2dbbeae07e3641bfd2ce20d9f080245a505108
+UPDATED_AT = 2026-10-12T01:26:00Z
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_CHANGED = Static contract location correction in scripts/check-operational-resilience-contract.mjs. Probe is checked for buildExportedSnapshotSql() and --snapshot binding; SQL helper remains checked for pg_export_snapshot() and SERIALIZABLE READ ONLY DEFERRABLE. Code commit: 6d2dbbeae07e3641bfd2ce20d9f080245a505108.
+FIRST_FAILURE = Phase-F run 38191738163 failed before any live DB operation because the contract looked for pg_export_snapshot() in the probe script although the SQL is owned by src/server/logical-restore-snapshot.mjs.
+WHAT_IS_PROVEN = Earlier published head 008b built successfully and reached 925.6KB initial critical assets under the unchanged 950KB cap. This does not prove the snapshot restore fix. Last completed real-source matrix remains 23/48, with 25 NOT_PROVEN. No live restore on the corrected code is yet proven.
+NEXT_ACTION = Publish docs checkpoint, then inspect exact-head Phase-F, Build, Quality, authenticated browser/source matrix and final certification. Do not merge or claim complete before all required gates pass.
+SESSION HANDOFF = READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / RESTORE CONTRACT CORRECTION
 
 REPORT_FOR_HEAD = cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64

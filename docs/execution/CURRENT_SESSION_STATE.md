@@ -1,3 +1,18 @@
+## LIVE RESUME — 2026-10-12 / SNAPSHOT HELPER CONTRACT FIX
+
+CURRENT_EXACT_HEAD = 6d2dbbeae07e3641bfd2ce20d9f080245a505108
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+ACTION_STATUS = STATIC_CONTRACT_LOCATION_FIXED; EXACT_HEAD_VALIDATION_PENDING
+NEXT_EXACT_ACTION = Publish this documentation-only child; verify branch and readback; inspect new exact-head Phase-F live restore, Build, Quality, authenticated browser/source matrix, and final certification.
+UPDATED_AT = 2026-10-12T01:26:00Z
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+The preceding head fd329230 failed Phase-F run 38191738163 at static contract checks because pg_export_snapshot() was expected in the probe file instead of its helper. Commit 6d2dbbeae07e3641bfd2ce20d9f080245a505108 now asserts buildExportedSnapshotSql() and --snapshot in the probe, and preserves the helper-specific check for pg_export_snapshot() / SERIALIZABLE READ ONLY DEFERRABLE. No checks were relaxed. Live restore remains unproven. Latest completed governed source matrix remains 23/48; 25 are NOT_PROVEN.
+
+---
+
 ## LIVE RESUME — 2026-10-12 / PG_DUMP TEMPLATE CONTRACT CORRECTION
 
 CURRENT_EXACT_HEAD = cb038f3b0a39c1c4ba895b8e3aedaad57ad1da64
