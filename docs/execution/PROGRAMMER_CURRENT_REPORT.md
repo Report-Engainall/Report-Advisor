@@ -1,3 +1,33 @@
+# CURRENT EXECUTION REPORT — 2026-10-13 / VERCEL TOKEN-SYNC FIX
+
+REPORT_FOR_HEAD = 198777e8f138799f7326a131c0c56ec8cb8e6cc7
+UPDATED_AT = 2026-10-13
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/vercel-operational-token-sync-20261013
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/914 (OPEN / NOT MERGED)
+BASE_MAIN_HEAD = ec0547c7cc26a828c0e4bf8ba0279664461a7269
+CODE_COMMIT = 198777e8f138799f7326a131c0c56ec8cb8e6cc7
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true — pending exact-head checks and operational proof.
+
+WHAT_I_WAS_ASKED_TO_DO = Resume from the live GitHub state, close the first evidenced deployment blocker with a real change, run relevant checks, preserve fail-closed behavior, and save an exact resumable checkpoint without rewriting history.
+
+WHAT_I_ACTUALLY_DID = Read PR #912/main/Actions and the current Vercel/Netlify deployments; verified the current versioned Vercel URL serves HTTP 200 with Arabic RTL and source SHA ec0547c7cc26a828c0e4bf8ba0279664461a7269; called the public /api/health and /api/tenant-canary endpoints and received 503 operational_token_not_configured. Read Phase-F run 38294294464 job logs and Netlify deploy run 38294294516 logs. Identified that .github/workflows/vercel-production-deploy.yml passed the GitHub Actions secret only to the final probe but did not synchronize it into Vercel production before environment pull/build. Committed a focused workflow fix on fix/vercel-operational-token-sync-20261013 at 198777e8f138799f7326a131c0c56ec8cb8e6cc7: the existing secret is streamed through a mode-600 temporary file with cleanup trap to `vercel env update RESILIENCE_OPERATIONAL_TOKEN production --sensitive --yes`. The runtime guard remains unchanged. Opened PR #914. Re-read the modified workflow from GitHub and verified the sync step occurs before `vercel pull` and does not echo the secret.
+
+FIRST_ACTIVE_FAILURE = Current production /api/health and /api/tenant-canary each return HTTP 503 with operational_token_not_configured. In parallel, Phase-F run 38294294464 (1/4 probes passed) and Netlify deploy run 38294294516 (failed before publish due blank credentials) are confirmed release blockers. After PR creation, Session Handoff Contract run 38310330833 failed because the workflow edit was not yet recorded: "stale report; unreported files: .github/workflows/vercel-production-deploy.yml".
+
+ROOT_CAUSE = The deployment workflow verified using RESILIENCE_OPERATIONAL_TOKEN from GitHub Actions but never put that token into Vercel's production environment; consequently the deployed server function failed closed. Separately, Netlify requires NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID, both blank in the failed deploy step. Phase-F main-target health/canary/rollback routes do not provide the required deployment identity/function payload. These are live environment/deployment blockers, not evidence of a generic file-analysis defect.
+
+WHAT_IS_PROVEN = Main SHA ec0547c7cc26a828c0e4bf8ba0279664461a7269 and Vercel production deployment dpl_2LmWMxKU5q3wCSt99iFkd5wK52Nw were read live. Homepage HTTP 200 includes RTL Arabic app metadata and source SHA ec0547c7cc26a828c0e4bf8ba0279664461a7269. The two checked operational endpoints return 503. Netlify's ready but stale deployment remains 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Phase-F log proves backup/restore PASS (RPO 62.72s, RTO 11.27s), with health/canary/rollback failures. Previous merge SHA 6dbc16ea1f762cb78b398c741d925c52275017fe passed build run 38294294535, quality 38294294479, final certification 38294294431, handoff 38294294421, and authenticated browser E2E 38294294413. Those results apply to that merge SHA only.
+
+WHAT_IS_NOT_PROVEN = Passing build/quality/certification on final updated PR head; successful execution of the new Vercel environment-sync step in the manual deploy; live /api/health returning matching deployment SHA/ID after redeploy; Netlify at current source; all four Phase-F probes passing. No token was exposed or manually rotated, no runtime guard was weakened, and no claim of product completion is made.
+
+NEXT_EXACT_ACTION = Check exact-head PR #914 runs after the checkpoint update. After all required checks pass, merge the workflow fix and run its existing workflow_dispatch production deploy; require /api/health to return HTTP 200 with deployment_id and deployment_sha matching the expected deployed SHA. Then restore the authorized Netlify deployment secrets and publish exact main SHA; fix Phase-F URLs and require 4/4 passing probes.
+
+SESSION HANDOFF = READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / POST-MERGE RELEASE REBASELINE
 
 REPORT_FOR_HEAD = 6dbc16ea1f762cb78b398c741d925c52275017fe

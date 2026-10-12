@@ -1,3 +1,33 @@
+## LIVE RESUME — 2026-10-13 / VERCEL TOKEN-SYNC REPAIR
+
+CURRENT_EXACT_HEAD = 198777e8f138799f7326a131c0c56ec8cb8e6cc7
+CODE_CHECKPOINT = 198777e8f138799f7326a131c0c56ec8cb8e6cc7
+LIVE_MAIN_HEAD_AT_REBASELINE = ec0547c7cc26a828c0e4bf8ba0279664461a7269
+BRANCH = fix/vercel-operational-token-sync-20261013
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/914
+PR_STATE = OPEN
+MERGE_STATE = NOT_MERGED
+ACTION_STATUS = VERCEL_OPERATIONAL_TOKEN_SYNC_PATCHED_IN_PR; EXACT_HEAD_CI_LAUNCHED; SESSION_HANDOFF_REPAIR_RECORDED; VERCEL_LIVE_API_BLOCKED_TOKEN; NETLIFY_DEPLOY_BLOCKED_MISSING_GITHUB_SECRETS; PHASE_F_NOT_READY
+UPDATED_AT = 2026-10-13
+PRODUCT_COMPLETE = NO
+IMPLEMENTED = YES_IN_PR — .github/workflows/vercel-production-deploy.yml syncs RESILIENCE_OPERATIONAL_TOKEN from GitHub Actions secret into Vercel production before pulling/building, with secret-only non-interactive update and temporary-file cleanup.
+INTEGRATED = NO — PR #914 open.
+PERSISTED = NOT_APPLICABLE_TO_THIS_DEPLOYMENT-WORKFLOW_CHANGE
+UI-EXPOSED = NO_UI_CODE_CHANGED — current main's homepage is Arabic RTL at SHA ec0547c…
+READBACK-PROVEN = YES — workflow re-read from feature branch; commit 198777e8f138799f7326a131c0c56ec8cb8e6cc7 is recorded in programmer report.
+BROWSER-PROVEN = PRIOR MAIN CODE SHA ONLY — authenticated Chromium E2E run 38294294413 passed on merge SHA 6dbc16ea1f762cb78b398c741d925c52275017fe; not rerun for this workflow PR.
+PRODUCTION_DEPLOYMENT = VERCEL_READY — current deployment dpl_2LmWMxKU5q3wCSt99iFkd5wK52Nw at SHA ec0547c7cc26a828c0e4bf8ba0279664461a7269; homepage HTTP 200 and RTL/source SHA confirmed.
+PRODUCTION_PROVEN = PARTIAL — /api/health and /api/tenant-canary return 503 operational_token_not_configured on the current live Vercel deployment; no post-fix redeploy yet.
+NETLIFY_PRODUCTION = BLOCKED — GitHub Actions run 38294294516 failed because NETLIFY_AUTH_TOKEN is missing and NETLIFY_SITE_ID is blank. Production deploy SHA remains 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+PHASE_F_LIVE_RESILIENCE = NOT_READY — run 38294294464 has health 404 / DEPLOYMENT_SHA_MISSING, tenant-canary fetch failure, rollback returning SPA HTML; backup/restore probe passed. Total 1/4.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38310330833 failed on code head 198777e8f138799f7326a131c0c56ec8cb8e6cc7: stale report because .github/workflows/vercel-production-deploy.yml was not included in the execution report. This checkpoint update records that exact change; the gate itself is not weakened.
+ROOT_CAUSE = The Vercel manual deploy workflow did not publish the operational token from the existing Actions secret into the Vercel runtime before build. Production auth therefore fails closed. Netlify and Phase-F also have separate environment/target blockers.
+CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
+NEXT_EXACT_ACTION = Read the exact PR head and SHA-bound CI after this checkpoint update; resolve any new contract failures. If the workflow checks pass, use the existing manual-deploy mechanism and prove the live health identity before claiming the token issue is fixed. Add authorized Netlify deploy secrets before attempting a Netlify release.
+SESSION HANDOFF = READY
+
+---
+
 ## LIVE RESUME — 2026-10-12 / POST-MERGE RELEASE STATE
 
 CURRENT_EXACT_HEAD = 6dbc16ea1f762cb78b398c741d925c52275017fe
