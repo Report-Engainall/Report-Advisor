@@ -1,24 +1,25 @@
-## LIVE RESUME — 2026-10-12 / CANONICAL SOURCE AND BROWSER TOOLING CLOSURE
+## LIVE RESUME — 2026-10-12 / UNIVERSAL FILE ANALYSIS BASELINE
 
-CURRENT_EXACT_HEAD = 6f7b815c720d1ab27f7e2c6ebc15d22f316780c4
-CODE_CHECKPOINT = 6f7b815c720d1ab27f7e2c6ebc15d22f316780c4
-BRANCH = fix/source-bound-generic-intelligence-20261009
+CURRENT_EXACT_HEAD = 26fe15a99cc92d86d4bb517807792c2670acd58c
+CODE_CHECKPOINT = 26fe15a99cc92d86d4bb517807792c2670acd58c
+FEATURE_BRANCH = fix/source-bound-generic-intelligence-20261009
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
-ACTION_STATUS = CANONICAL_IMPORT_ANCHOR_AND_BOTH_NETLIFY_INSTALL_SITES_REPAIRED; NEXT_EXACT_HEAD_VALIDATION_REQUIRED
-UPDATED_AT = 2026-10-12T17:21:46.496Z
+ACTION_STATUS = UNIVERSAL_GENERIC_ANALYSIS_SEPARATED_FROM_OPTIONAL_SPECIALIST_COVERAGE; EXACT_HEAD_VALIDATION_REQUIRED
+UPDATED_AT = 2026-10-12T17:38:11.378Z
 PRODUCT_COMPLETE = NO
 DO_NOT_MERGE = true
 CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-NEXT_EXACT_ACTION = Wait for the current E2E attempt on predecessor 79a34bc8… to finish; then promote the documented checkpoint and verify exact-head browser tooling, authenticated Chromium, smart-report flow, matrix output and all release gates.
+NEXT_EXACT_ACTION = Promote checkpoint and inspect exact-head Build, Quality, Session Handoff, Phase-F, Full Product Browser E2E and Final Certification; verify generic unclassified-file regression and real authenticated report journey.
 
-Code changes:
-- Matrix canonical row selection resolves via canonical_import_commits for exact company_id + source_hash and validates anchor record ID/company/hash before accepting import_job_id. Matrix proof records both import IDs and the anchor.
-- Full Product Browser E2E's initial Netlify CLI install runs under RUNNER_TEMP; this code commit also removes the second in-root Netlify CLI reinstall inside browser tooling setup and uses the existing local Playwright binary instead. New head needs exact-head CI proof for both steps.
+PRODUCT ACCEPTANCE RULE: Analyse any supported uploaded file. The shared generic intelligence engine is the mandatory baseline. Matching one of the 48 specialist archetypes is optional and must not be required for generic facts/signals/recommendations or persisted source-bound report results. Specialist coverage remains explicitly measured in a separate diagnostic.
 
-First failure proven: E2E run 38281581401 on 717fcf… failed the first Netlify CLI install with ETARGET @typescript-eslint/visitor-keys@8.71.2 due npm re-resolution of app dependencies. In run 38282981740 on predecessor 79a34…, the first isolated install, preview startup, dynamic source context, 48 archetype engine runtime and open-report resume/readback passed; at last read the browser-tool install was in progress. Source inspection found the duplicate in-root npm install in that later step; it is removed at 6f7b815c720d1ab27f7e2c6ebc15d22f316780c4. Do not claim the currently active predecessor run includes this fix.
+Code at 26fe15a99cc92d86d4bb517807792c2670acd58c:
+- Workflow moves 48-archetype real-source coverage to optional diagnostics and leaves authenticated Chromium + smart-report business journey as blocking browser acceptance. The generic-file test is executed explicitly.
+- The matrix script responds to REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY=1 by writing honest PASS/NOT_PROVEN diagnostic output and not failing solely for specialty undercoverage. Without that flag it still enforces the strict specialized coverage result.
+- Generic regression covers an unknown/unclassified CSV with no applicable archetype and requires generic source-derived signals/findings/recommendation/summary.
+- Workflow contract assertions guard against accidentally making 48/48 a requirement for universal file analysis.
+- Canonical import anchor fix and isolated Netlify/Playwright setup remain.
 
-On predecessor 79a34bc8… Build 38282981415 PASS, Quality 38282981594 PASS, Handoff 38282976396 PASS, Final Certification 38282976590 PASS. Phase-F 38282981435 was active after preview provenance passed. The latest E2E 38282981740 was active before Chromium browser steps. These must be rerun/read for 6f7b815c720d1ab27f7e2c6ebc15d22f316780c4.
+Predecessor proof on 79a34bc8ec78c45bf3de9ce30915fcb2f723475a: Build, Quality, Handoff, Phase-F and Certification PASS; authenticated browser route and business/smart-report journey PASS; separate source matrix NOT_PROVEN 18/48. That last result no longer blocks generic product acceptance but remains a genuine limitation of specialist coverage.
 
-The same source-matrix root cause remains fixed: report import 0c6a6a22-c308-4bef-8ca9-55b29fa3bdf5 showed 610 processed but zero valid/canonical rows, while persisted commit 8da99f16-eaaf-407b-8d85-89ad87dbc870 anchors row 49f463c3-ee4c-446b-9412-1699de65ce94 to valid import 88810977-7704-4b1d-b808-384a99c6d91d, 610 canonical rows, same tenant and hash. Queries were read-only.
-
-Previous real-source matrix was 12/48; 30 archetypes had no eligible real sources, six candidates had no canonical sample. The anchor fix cannot create the missing real-source evidence; keep 48/48 gate strict. UI contrast styles exist but the new screenshot is not proven. Latest known production SHA is 858ef8e3e5bc5bf74430555eadfb9e6767be348b and production parity remains NOT PROVEN.
+The latest known production SHA remains 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Exact-head CI for 26fe15a99cc92d86d4bb517807792c2670acd58c and production deployment/readback are pending. PRODUCT_COMPLETE remains NO.
