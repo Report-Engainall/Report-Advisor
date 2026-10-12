@@ -1,3 +1,33 @@
+# LIVE RESUME — 2026-10-13 / VERCEL PRODUCTION DEPLOY BOOTSTRAP
+
+Repository: Report-Engainall/Report-Advisor
+BASE_HEAD = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+BRANCH = fix/bootstrap-vercel-resilience-deploy-20261013
+RELATED PRODUCT PR #912 = MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md
+
+LIVE EVIDENCE:
+- Main SHA 0c9e0aaf4442a270446af87e20146f2af9cbf8e3: Product Build Gate 38311437890, Quality 38311437834, Final Certification 38311437897, Session Handoff 38311437854, storage tenant isolation 38311437844, and Execution Enforcement 38311437941 passed on this base SHA.
+- Vercel homepage is HTTP 200, Arabic RTL, source-bound to 0c9e0aaf4442a270446af87e20146f2af9cbf8e3. /api/health and /api/tenant-canary return HTTP 503 `operational_token_not_configured`; Vercel env metadata identifies the production `RESILIENCE_OPERATIONAL_TOKEN` as an empty sensitive value.
+- The existing guarded Vercel workflow safely syncs the existing GitHub Actions secret, builds/deploys the exact SHA, then requires matching `deployment_sha` and `deployment_id`, but had only `workflow_dispatch`.
+- Netlify Production run 38311437862 is blocked by missing `NETLIFY_AUTH_TOKEN` and blank `NETLIFY_SITE_ID`. Phase-F run 38311437866 failed health/rollback provenance and tenant-canary probes. Product completion is NOT claimed.
+
+IMPLEMENTED IN CANDIDATE:
+- Add a main-branch, path-filtered push trigger to `.github/workflows/vercel-production-deploy.yml` alongside manual dispatch. A merge changing this workflow activates the existing guarded Vercel token-sync/deployment path once; unrelated main commits do not retrigger it.
+- Update the three persistent execution files and preserve their previous history. No product analyzer, UI, credentials, RLS rules, or test thresholds changed.
+
+CHANGED_FILES = .github/workflows/vercel-production-deploy.yml; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+TESTED = NOT_YET_TESTED_ON_CANDIDATE. Base SHA passes above are not transferred.
+READBACK-PROVEN = Baseline main ref, workflow, current Vercel deployment identity, exact-head checks, and the current HTTP 503 response were read live.
+BROWSER-PROVEN = Prior authenticated Chromium proof on product-code SHA 6dbc16ea1f762cb78b398c741d925c52275017fe: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294413. No new browser proof is implied.
+PRODUCTION-PROVEN = NOT_PROVEN: correct homepage source identity, but operational endpoint still blocked until deployment bootstrap executes.
+OPEN_BLOCKER = Candidate exact-head gates; then verify the deployment workflow and live health identity. Phase-F targets and Netlify credentials remain separate blockers.
+NEXT_EXACT_ACTION = Verify this candidate PR's exact-head Build/Quality/Handoff checks; only if green, merge this guarded bootstrap, then read the triggered Vercel deploy and require live health HTTP 200 with matching SHA and deployment ID.
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+
+---
+
 # LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
 
 Repository: Report-Engainall/Report-Advisor

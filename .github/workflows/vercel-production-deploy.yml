@@ -1,9 +1,14 @@
 name: vercel-production-deploy
 
-# Vercel is already linked to GitHub and automatically deploys the main branch.
-# Keep this workflow as an explicit emergency/manual deployment path only.
+# Vercel remains linked to GitHub for normal main deployments.
+# A change to this workflow on main bootstraps its guarded token-sync/deploy path once.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/vercel-production-deploy.yml'
 
 permissions:
   contents: read

@@ -1,3 +1,30 @@
+# CURRENT EXECUTION REPORT — 2026-10-13 / VERCEL PRODUCTION DEPLOY BOOTSTRAP
+
+REPORT_FOR_HEAD = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+BASE_HEAD = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+UPDATED_AT = 2026-10-13
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/bootstrap-vercel-resilience-deploy-20261013
+RELATED PRODUCT PR #912 = CLOSED / MERGED
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until exact-head candidate checks pass; this is a deployment bootstrap, not product certification.
+
+WHAT_I_ACTUALLY_DID = Re-read live main, PR status, current-head Actions, Vercel deployment identity, the existing token-sync workflow, and live operational endpoints. Main 0c9e0aaf4442a270446af87e20146f2af9cbf8e3 passed Build 38311437890, Quality 38311437834, Final Certification 38311437897, Handoff 38311437854, tenant isolation 38311437844 and enforcement 38311437941. Vercel homepage returned HTTP 200 with Arabic RTL and source SHA 0c9e0aaf4442a270446af87e20146f2af9cbf8e3, but /api/health and /api/tenant-canary returned HTTP 503 operational_token_not_configured. The guarded .github/workflows/vercel-production-deploy.yml already safely syncs the existing RESILIENCE_OPERATIONAL_TOKEN secret, deploys the exact SHA, and checks deployment_sha plus deployment_id, but was manual-only. Added a path-filtered push trigger for main when that workflow file changes, so merging the change launches the existing guarded flow once without the user's device or a paid browser. Updated the three persistent execution records and preserved prior history.
+
+FIRST_ACTIVE_FAILURE = Live Vercel health 503 operational_token_not_configured. Independent failures: Phase-F run 38311437866 has health/rollback DEPLOYMENT_SHA_MISSING and tenant-canary fetch failure; Netlify production run 38311437862 has missing NETLIFY_AUTH_TOKEN and blank NETLIFY_SITE_ID.
+ROOT_CAUSE = Existing operational-token synchronization had no automatic trigger and was not proven executed; Git-integrated deployment served the right homepage source but operational APIs failed closed.
+WHAT_IS_IMPLEMENTED = Trigger-only workflow change and current checkpoint updates. No app logic or safety checks were changed.
+WHAT_IS_NOT_PROVEN = Candidate CI, triggered deployment, live health SHA/ID parity, all Phase-F probes, Netlify publishing, or product completion.
+BASELINE_TEST_EVIDENCE = Build 38311437890 PASS; Quality 38311437834 PASS; Final Certification 38311437897 PASS; Handoff 38311437854 PASS; tenant isolation 38311437844 PASS; enforcement 38311437941 PASS — all on 0c9e0aaf4442a270446af87e20146f2af9cbf8e3, not candidate.
+BROWSER_PROVEN = Prior authenticated Chromium E2E at product-code SHA 6dbc16ea1f762cb78b398c741d925c52275017fe: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294413; this workflow-only patch does not rerun browser proof.
+PRODUCTION_PROVEN = NOT_PROVEN — correct homepage SHA, operational endpoints blocked.
+CHANGED_FILES = .github/workflows/vercel-production-deploy.yml; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+NEXT_EXACT_ACTION = Create/read the PR; require exact-head Build/Quality/Handoff checks. If green, merge this bootstrap and read its triggered Vercel deployment plus authenticated health SHA/ID. Phase-F target repair and Netlify credentials remain.
+
+HANDOFF_COVERAGE = .github/workflows/vercel-production-deploy.yml; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
 
 REPORT_FOR_HEAD = 5ca8ffceae0693d510c349732a2cce52f62ab1a8

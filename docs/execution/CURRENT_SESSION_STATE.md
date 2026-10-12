@@ -1,3 +1,24 @@
+## LIVE RESUME — 2026-10-13 / VERCEL PRODUCTION DEPLOY BOOTSTRAP
+
+BASE_HEAD = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+BRANCH = fix/bootstrap-vercel-resilience-deploy-20261013
+REPOSITORY = Report-Engainall/Report-Advisor
+PRODUCT_COMPLETE = NO
+IMPLEMENTED = CANDIDATE — `.github/workflows/vercel-production-deploy.yml` gains a path-filtered main push trigger plus existing manual dispatch.
+ROOT_CAUSE = Vercel production health/canary return HTTP 503 `operational_token_not_configured`; production env metadata shows the sensitive operational token empty. The existing workflow's safe token-sync/deploy flow was manual-only.
+BASELINE_TESTS = Build 38311437890 PASS; Quality 38311437834 PASS; Final Certification 38311437897 PASS; Session Handoff 38311437854 PASS; storage tenant isolation 38311437844 PASS; Execution Enforcement 38311437941 PASS — all on base SHA 0c9e0aaf4442a270446af87e20146f2af9cbf8e3, not this candidate.
+OTHER_BLOCKERS = Phase-F run 38311437866 FAIL; Netlify deploy run 38311437862 FAIL because `NETLIFY_AUTH_TOKEN` is missing and `NETLIFY_SITE_ID` is blank.
+PERSISTED = No business/report database write.
+UI-EXPOSED = No UI/analyzer code changed.
+BROWSER-PROVEN = Prior authenticated Chromium proof only on product-code SHA 6dbc16ea1f762cb78b398c741d925c52275017fe, run 38294294413.
+PRODUCTION-PROVEN = NOT_PROVEN — homepage source parity yes, operational endpoints no.
+CHANGED_FILES = .github/workflows/vercel-production-deploy.yml; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+NEXT_EXACT_ACTION = Verify exact candidate PR checks; if green, merge the guarded bootstrap and verify Vercel's triggered deployment plus exact-SHA/ID health response. Then repair Phase-F targets and the separate Netlify credentials.
+CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+
+---
+
 ## LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
 
 CURRENT_EXACT_HEAD = 5ca8ffceae0693d510c349732a2cce52f62ab1a8
