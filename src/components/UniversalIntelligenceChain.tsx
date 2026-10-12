@@ -3,7 +3,7 @@ import type { UniversalIntelligenceResult, UniversalIntelligenceStageStatus } fr
 
 function statusMeta(status: UniversalIntelligenceStageStatus) {
   if (status === 'VERIFIED' || status === 'TRUSTED') {
-    return { label: status === 'VERIFIED' ? 'مثبت' : 'موثوق', className: 'border-emerald-200 bg-emerald-50 text-emerald-900', icon: CheckCircle2 };
+    return { label: status === 'VERIFIED' ? 'مثبت' : 'موثوق', className: 'border-primary-200 bg-primary-50 text-primary-900', icon: CheckCircle2 };
   }
   if (status === 'DERIVED') {
     return { label: 'مشتق', className: 'border-primary-200 bg-primary-50 text-primary-900', icon: Lightbulb };
@@ -24,7 +24,7 @@ function statusMeta(status: UniversalIntelligenceStageStatus) {
 }
 
 function stageConnector(status: UniversalIntelligenceStageStatus) {
-  if (status === 'VERIFIED' || status === 'TRUSTED') return 'bg-emerald-300';
+  if (status === 'VERIFIED' || status === 'TRUSTED') return 'bg-primary-300';
   if (status === 'DERIVED' || status === 'PROPOSED') return 'bg-primary-300';
   return 'bg-ink-200';
 }
@@ -32,13 +32,13 @@ function stageConnector(status: UniversalIntelligenceStageStatus) {
 export function UniversalIntelligenceChain({ result }: { result: UniversalIntelligenceResult }) {
   const strongest = result.intelligence.advisorBrief.headline || result.intelligence.summary;
   const archetypeLabel = result.archetype?.title
-    ? result.archetype.title
+    ? result.archetype.title + (result.archetypeState === 'REVIEW_REQUIRED' ? ' · يحتاج مراجعة' : '')
     : result.archetypeState === 'REVIEW_REQUIRED'
       ? 'النمط يحتاج مراجعة'
       : 'نمط عام / غير محدد';
 
   return (
-    <section dir="rtl" className="space-y-4 rounded-[22px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+    <section dir="rtl" className="space-y-4 rounded-[22px] border border-ink-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)] p-5 shadow-[0_18px_48px_-40px_rgba(15,23,42,.65)] ring-1 ring-indigo-950/[.025] lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="section-kicker">UNIVERSAL BUSINESS INTELLIGENCE</div>
@@ -59,7 +59,7 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
         </div>
       </div>
 
-      <div className="rounded-2xl border border-ink-200 bg-ink-950 p-4 text-white">
+      <div className="rounded-2xl border border-indigo-300/15 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,.26),transparent_40%),linear-gradient(135deg,#090f1e_0%,#141c32_64%,#212348_100%)] p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.06)]">
         <div className="text-[9px] font-black tracking-[.14em] text-primary-200">EXECUTIVE SIGNAL</div>
         <div className="mt-1 text-base font-black leading-7">{strongest}</div>
         <div className="mt-2 text-[11px] leading-5 text-ink-200">
@@ -72,7 +72,7 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
           const meta = statusMeta(item.status);
           const Icon = meta.icon;
           return (
-            <div key={item.key} className="relative rounded-2xl border border-ink-200 bg-ink-50/50 p-4">
+            <div key={item.key} className="relative rounded-2xl border border-indigo-100/80 bg-[linear-gradient(150deg,#ffffff_0%,#f7f8ff_100%)] p-4 shadow-[0_12px_32px_-28px_rgba(15,23,42,.42)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
               {index < result.stages.length - 1 && (
                 <span aria-hidden className={'hidden xl:block absolute -left-[13px] top-10 h-px w-3 ' + stageConnector(item.status)} />
               )}
@@ -92,7 +92,7 @@ export function UniversalIntelligenceChain({ result }: { result: UniversalIntell
               <div className="mt-1 text-[10px] leading-5 text-ink-600">{item.detail}</div>
               {item.evidence.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {item.evidence.slice(0, 3).map((evidence) => (
+                  {item.evidence.map((evidence) => (
                     <span key={evidence} className="rounded-lg border border-ink-200 bg-white px-2 py-1 text-[9px] text-ink-500">
                       {evidence}
                     </span>

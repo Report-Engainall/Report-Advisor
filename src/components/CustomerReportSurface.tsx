@@ -5,6 +5,8 @@ import { parseNumber } from '@/lib/file-engine/normalizer';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
+import { GenericFileIntelligenceCard } from '@/components/GenericFileIntelligenceCard';
+import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 
 const SPECIALTY_LABELS: Record<string, string> = {
   sales: 'المبيعات',
@@ -277,15 +279,17 @@ export function CustomerReportSurface({
     : [];
 
   return (
-    <div dir="rtl" className="report-page space-y-5 animate-fade-in pb-12">
-      <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0d1424] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.9)] lg:p-7">
+    <div dir="rtl" className="report-page space-y-6 animate-fade-in pb-12">
+      <section className="relative isolate overflow-hidden rounded-[28px] border border-indigo-200/15 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,.24),transparent_34%),linear-gradient(135deg,#090f1e_0%,#111a2e_56%,#1d2140_100%)] p-5 text-white shadow-[0_30px_85px_-42px_rgba(15,23,42,.95)] ring-1 ring-white/5 lg:p-7">
         <div className="pointer-events-none absolute -left-12 -top-16 h-44 w-44 rounded-full bg-amber-400/10 blur-3xl" />
         <div className="pointer-events-none absolute -right-16 bottom-0 h-52 w-52 rounded-full bg-indigo-500/15 blur-3xl" />
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.16em] text-amber-200">
             <FileText size={14} /> الأغبري · مستشار الأعمال
             <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 tracking-normal text-slate-300">مصدر محدد</span>
+            <span className="rounded-full border border-indigo-300/25 bg-indigo-300/10 px-2.5 py-1 tracking-normal text-indigo-100">SOURCE-BOUND DOMAIN ANALYSIS</span>
           </div>
+          <p className="mt-2 text-[10px] leading-5 text-slate-300">هذه الشاشة مربوطة مباشرة بنتيجة التقرير؛ تُعرض المؤشرات ضمن سياق المصدر نفسه ولا تُستبدل ببيانات افتراضية.</p>
           <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
               <h1 className="text-2xl font-black tracking-tight lg:text-4xl">{displayTitle}</h1>
@@ -297,10 +301,14 @@ export function CustomerReportSurface({
             </div>
           </div>
           <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-3.5"><div className="text-[9px] text-slate-400">سجلات التقرير</div><div className="mt-1 text-xl font-black">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-3.5"><div className="text-[9px] text-slate-400">جودة المصدر</div><div className="mt-1 text-xl font-black">{report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-3.5"><div className="text-[9px] text-slate-400">الثقة</div><div className="mt-1 text-xl font-black">{friendlyState(report.trustState ?? report.sourceTrustState)}</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-3.5"><div className="text-[9px] text-slate-400">حالة القرار</div><div className="mt-1 text-xl font-black">{friendlyState(report.renderedOutput.decisionStatus)}</div></div>
+            <div className="rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.05)] transition-colors hover:border-indigo-200/25"><div className="text-[9px] text-slate-400">سجلات التقرير</div><div className="mt-1 text-xl font-black">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div></div>
+            <div className="rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.05)] transition-colors hover:border-indigo-200/25"><div className="text-[9px] text-slate-400">جودة المصدر</div><div className="mt-1 text-xl font-black">{report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
+            <div className="rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.05)] transition-colors hover:border-indigo-200/25"><div className="text-[9px] text-slate-400">الثقة</div><div className="mt-1 text-xl font-black">{friendlyState(report.trustState ?? report.sourceTrustState)}</div></div>
+            <div className="rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.05)] transition-colors hover:border-indigo-200/25"><div className="text-[9px] text-slate-400">حالة القرار</div><div className="mt-1 text-xl font-black">{friendlyState(report.renderedOutput.decisionStatus)}</div></div>
+          </div>
+          <div className="mt-3 rounded-xl border border-amber-200/25 bg-white/[0.04] p-3">
+            <div className="text-[9px] font-bold text-slate-400">بصمة المصدر SHA-256</div>
+            <div data-testid="customer-report-source-hash" className="mt-1 break-all font-mono text-[10px] leading-5 text-amber-100">{report.sourceHash}</div>
           </div>
         </div>
       </section>
@@ -312,12 +320,12 @@ export function CustomerReportSurface({
       )}
 
       <section className="grid gap-4 xl:grid-cols-[1.35fr_.65fr]">
-        <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
+        <div className="rounded-[22px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)] p-5 shadow-[0_12px_35px_-28px_rgba(15,23,42,.45)] ring-1 ring-slate-950/[.02] transition-shadow hover:shadow-md lg:p-6">
           <div className="flex items-center gap-2 text-[10px] font-black tracking-[.12em] text-indigo-700"><Sparkles size={15} /> القراءة التنفيذية</div>
           <h2 className="mt-2 text-xl font-black text-slate-950">ماذا يعني التقرير للإدارة؟</h2>
           <p className="mt-2 text-sm leading-7 text-slate-600">{advisor?.headline ?? 'لا توجد خلاصة استشارية مثبتة بعد؛ يعرض النظام ما يمكن إثباته فقط ولا يملأ الفراغ بتخمين.'}</p>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div className="text-[9px] font-black text-slate-400">أهم نتيجة</div><div className="mt-1 text-sm font-black text-slate-950">{advisor?.topFinding?.title ?? 'لا توجد نتيجة مثبتة'}</div><p className="mt-1 text-[10px] leading-5 text-slate-600">{advisor?.topFinding?.statement ?? 'لا توجد قراءة كافية من المصدر الحالي.'}</p></div>
+            <div className="rounded-2xl border border-slate-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f8faff_100%)] p-4 shadow-[0_8px_22px_-20px_rgba(15,23,42,.4)] transition-colors hover:border-indigo-200"><div className="text-[9px] font-black text-slate-400">أهم نتيجة</div><div className="mt-1 text-sm font-black text-slate-950">{advisor?.topFinding?.title ?? 'لا توجد نتيجة مثبتة'}</div><p className="mt-1 text-[10px] leading-5 text-slate-600">{advisor?.topFinding?.statement ?? 'لا توجد قراءة كافية من المصدر الحالي.'}</p></div>
             <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4"><div className="flex items-center gap-1 text-[9px] font-black text-amber-800"><AlertTriangle size={12}/> أهم خطر</div><div className="mt-1 text-sm font-black text-amber-950">{advisor?.topRisk?.title ?? 'لا يوجد خطر مثبت'}</div><p className="mt-1 text-[10px] leading-5 text-amber-900">{advisor?.topRisk?.statement ?? 'لا يوجد خطر يمكن إثباته من البيانات الحالية.'}</p></div>
             <div className="rounded-2xl border border-indigo-200 bg-indigo-50/70 p-4"><div className="text-[9px] font-black text-indigo-800">الخطوة التالية</div><div className="mt-1 text-sm font-black text-slate-950">{topRecommendation?.title ?? advisor?.recommendedAction ?? 'تحقق من الدليل'}</div><p className="mt-1 text-[10px] leading-5 text-slate-600">{topRecommendation?.action ?? advisor?.expectedOutcome ?? 'لا يوجد إجراء مؤهل قبل اكتمال الإثبات.'}</p></div>
           </div>
@@ -326,7 +334,7 @@ export function CustomerReportSurface({
         <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2 text-[10px] font-black tracking-[.12em] text-slate-500"><ShieldCheck size={15} />الثقة</div>
           <h2 className="mt-2 text-xl font-black text-slate-950">هل يصلح التقرير لاتخاذ قرار؟</h2>
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="mt-4 rounded-2xl border border-slate-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f8faff_100%)] p-4 shadow-[0_8px_22px_-20px_rgba(15,23,42,.4)] transition-colors hover:border-indigo-200">
             <div className="text-[9px] text-slate-400">حالة الإثبات</div>
             <div className="mt-1 text-lg font-black text-slate-950">{friendlyState(report.reportVerificationState ?? report.evidenceStatus)}</div>
             <div className="mt-1 text-[10px] leading-5 text-slate-600">لا تتحول القراءة إلى توصية تنفيذية عندما يكون المصدر غير مكتمل أو غير موثق.</div>
@@ -338,7 +346,7 @@ export function CustomerReportSurface({
         </div>
       </section>
 
-      <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
+      <section className="rounded-[22px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)] p-5 shadow-[0_12px_35px_-28px_rgba(15,23,42,.45)] ring-1 ring-slate-950/[.02] transition-shadow hover:shadow-md lg:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div><div className="text-[10px] font-black tracking-[.12em] text-indigo-700">المؤشرات التجارية</div><h2 className="mt-1 text-xl font-black text-slate-950">الأرقام التي تهم القرار</h2><p className="mt-1 text-[10px] text-slate-500">تُعرض بأسماء أعمال مفهومة بدل أسماء الأعمدة الخام.</p></div>
           <div className="text-[10px] font-bold text-slate-400">{metrics.length} مؤشرات رئيسية</div>
@@ -358,7 +366,7 @@ export function CustomerReportSurface({
             </div>
           </div>
           {metrics.slice(0, 3).map(({ mappedField, value }, index) => (
-            <div key={(mappedField ?? 'field') + index} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div key={(mappedField ?? 'field') + index} className="rounded-2xl border border-slate-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f8faff_100%)] p-4 shadow-[0_8px_22px_-20px_rgba(15,23,42,.4)] transition-colors hover:border-indigo-200">
               <div className="text-[10px] font-bold text-slate-500">{compactFieldLabel(mappedField ?? '')}</div>
               <div className="mt-2 text-2xl font-black tabular-nums text-slate-950">{/amount|total|sales|purchase|profit|value|balance|cost|revenue|مبلغ|إجمالي|مبيعات|مشتريات|ربح|قيمة|رصيد|تكلفة/i.test(mappedField ?? '') ? formatCurrency(value) : formatNumber(value)}</div>
             </div>
@@ -368,6 +376,20 @@ export function CustomerReportSurface({
       </section>
 
       <BusinessDataExplorer report={report} />
+
+      <section aria-label="التحليل العام للمصدر" data-testid="customer-report-general-intelligence">
+        <GenericFileIntelligenceCard
+          intelligence={report.genericIntelligence}
+          format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
+          sourcePath={report.sourcePath}
+          sourceHash={report.sourceHash}
+          reportJobId={report.jobId}
+          analysisScope={report.canonicalAnalysisScope}
+          analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}
+        />
+      </section>
+
+      <ReportIntelligencePanel report={report} />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -419,7 +441,7 @@ export function CustomerReportSurface({
             ))}
           </div>
           {contributors.length ? (
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="mt-5 rounded-2xl border border-slate-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f8faff_100%)] p-4 shadow-[0_8px_22px_-20px_rgba(15,23,42,.4)] transition-colors hover:border-indigo-200">
               <div className="text-[10px] font-black text-slate-500">أبرز المساهمين بالقيمة</div>
               <div className="mt-3 space-y-2">
                 {contributors.map((row, index) => (

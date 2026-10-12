@@ -4,13 +4,22 @@
 name: Full Product Browser E2E
 
 on:
+  # PR branches use pull_request below; don't run a second staging browser pass on the same feature-branch push.
+# Keep active authenticated evidence jobs alive while a corrected head queues behind them.
   push:
+    branches: [main]
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/resolve-e2e-report-context.mjs'
       - 'scripts/provision-e2e-actors.mjs'
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/real-48-source-matrix-preflight.mjs'
+      - 'scripts/real-source-provenance.mjs'
+      - 'scripts/real-source-provenance.test.mjs'
+      - 'scripts/generic-file-analysis.test.mjs'
+      - 'scripts/customer-facing-report-surface-contract.test.mjs'
+      - 'scripts/real-48-source-matrix-contract.test.mjs'
       - 'scripts/phase-f-live-resilience-probes.mjs'
       - 'scripts/rehydrate-legacy-corpus.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
@@ -72,9 +81,21 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'src/App.tsx'
+      - 'scripts/phase-f-live-resilience-probes.mjs'
+      - 'src/server/logical-restore-snapshot.mjs'
+      - 'scripts/logical-restore-snapshot.test.mjs'
+      - 'scripts/check-operational-resilience-contract.mjs'
+      - 'package.json'
       - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/resolve-e2e-report-context.mjs'
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/real-48-source-matrix-preflight.mjs'
+      - 'scripts/real-source-provenance.mjs'
+      - 'scripts/real-source-provenance.test.mjs'
+      - 'scripts/generic-file-analysis.test.mjs'
+      - 'scripts/customer-facing-report-surface-contract.test.mjs'
+      - 'scripts/real-48-source-matrix-contract.test.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/pages/**'
@@ -101,9 +122,12 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+# Both browser workflows authenticate against the same staging project.
+# Serialize them by PR/ref so they do not overload Supabase Auth concurrently.
+# Only serialize duplicate runs of this workflow; do not evict another proof workflow.
 concurrency:
-  group: full-product-browser-e2e-${{ github.event.pull_request.head.sha || github.sha }}
-  cancel-in-progress: true
+  group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -180,6 +204,9 @@ jobs:
       - name: Install application dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Validate governed real-source provenance rules
+        run: node scripts/real-source-provenance.test.mjs
+
       - name: Build exact SHA
         env:
           VITE_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
@@ -202,7 +229,9 @@ jobs:
           npm run test:pdf-visual-line-fallback
           npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
+          npm run test:report-intelligence-value-chain
           npm run test:report-smart-evidence-boundary
+          npm run test:customer-facing-report-surface
           npm run test:smart-report-complete-intelligence-surface
           npm run test:report-evidence-passport-contract
           npm run test:document-intelligence-lines
@@ -218,6 +247,7 @@ jobs:
           npm run test:business-replay
           npm run test:benchmark-fail-closed
           npm run test:48-archetype-runtime
+          node scripts/real-48-source-matrix-contract.test.mjs
       - name: Prepare rerunnable E2E actor credentials
         env:
           SECRET_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
@@ -277,13 +307,19 @@ jobs:
             echo "E2E_ACTOR_MODE=ephemeral-run-scoped" >> "$GITHUB_ENV"
           fi
 
-      - name: Install deterministic Netlify CLI
+      - name: Install deterministic Netlify CLI in an isolated tool prefix
         shell: bash
         run: |
           set -euo pipefail
-          npm install --no-save --package-lock=false netlify-cli@27.10.2
-          test -x node_modules/.bin/netlify
-          npx --no-install netlify --version
+          # Do not run npm install inside the application workspace: that re-resolves
+          # the app's entire devDependency tree, and can fail on unrelated versions.
+          cli_root="${RUNNER_TEMP}/report-advisor-netlify-cli"
+          mkdir -p "$cli_root"
+          npm install --prefix "$cli_root" --no-save --package-lock=false netlify-cli@27.10.2
+          cli_bin="$cli_root/node_modules/.bin"
+          test -x "$cli_bin/netlify"
+          echo "$cli_bin" >> "$GITHUB_PATH"
+          "$cli_bin/netlify" --version
       - name: Start exact Netlify preview with serverless API
         env:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
@@ -296,7 +332,9 @@ jobs:
           set -euo pipefail
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           mkdir -p artifacts/e2e-browser artifacts/e2e-business
-          nohup npx --no-install netlify dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
+          cli="${RUNNER_TEMP}/report-advisor-netlify-cli/node_modules/.bin/netlify"
+          test -x "$cli"
+          nohup "$cli" dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
           echo $! > artifacts/e2e-browser/preview.pid
           for attempt in $(seq 1 90); do
             if curl -fsS http://127.0.0.1:4173/ >/tmp/report-advisor-preview.html; then
@@ -308,7 +346,16 @@ jobs:
           cat artifacts/e2e-browser/preview.log
           exit 1
 
+      - name: Resolve dynamic source-bound report context
+        id: resolve-report-context
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REAL_SMART_REPORT_COMPANY_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
+          E2E_REPORT_CONTEXT_TIMEOUT_MS: '12000'
+        run: node scripts/resolve-e2e-report-context.mjs
       - name: Provision rerunnable E2E actors with bounded recovery
+        if: ${{ steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
@@ -325,6 +372,7 @@ jobs:
           node scripts/provision-e2e-actors.mjs
 
       - name: Refresh governed real-corpus evidence passports
+        if: ${{ steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
@@ -346,83 +394,159 @@ jobs:
           set -euo pipefail
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-48-archetype-runtime-contract.mjs
 
-      - name: Resume and prove the real open report
-        if: ${{ always() }}
+      - name: Resume and prove the resolved open report
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
-          OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
-          OPEN_REPORT_EXPECTED_ROWS: '0'
-          OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
+          # Resume the real XLSX report in the same company that User C owns by default.
+          # Separate PDF extraction is covered by the parser regression gate; the legacy PDF job
+          # inspected during repair has completed import metadata (0 rows) that correctly fails
+          # IMPORT_JOB_COMPLETED_ROW_MISMATCH instead of being treated as a valid recovery.
+          OPEN_REPORT_TEST_USER_EMAIL: ${{ env.TEST_USER_C_EMAIL }}
+          OPEN_REPORT_TEST_USER_PASSWORD: ${{ env.TEST_USER_C_PASSWORD }}
         run: node scripts/resume-open-report-server-proof.mjs
-      - name: Install deterministic browser tooling
-        if: ${{ always() }}
+      - name: Verify isolated Netlify CLI and install deterministic browser tooling
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
-          npm install --no-save --package-lock=false netlify-cli@27.10.2
+          cli_root="${RUNNER_TEMP}/report-advisor-netlify-cli"
+          cli_bin="$cli_root/node_modules/.bin"
+          test -x "$cli_bin/netlify"
+          test -x node_modules/.bin/playwright
           test "$(node -p "require('playwright/package.json').version")" = "1.63.0"
-          test "$(node -p "require('netlify-cli/package.json').version")" = "27.10.2"
-          npx playwright install --with-deps chromium
-          npx playwright --version
+          test "$(node -p "require('$cli_root/node_modules/netlify-cli/package.json').version")" = "27.10.2"
+          ./node_modules/.bin/playwright install --with-deps chromium
+          ./node_modules/.bin/playwright --version
+
+      - name: Verify page-scoped browser request accounting
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
+        run: node scripts/check-browser-e2e-page-telemetry-contract.mjs
 
       - name: Real Chromium route and authenticated browser proof
-        if: ${{ always() }}
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
           E2E_REPORT_DIR: artifacts/e2e-browser
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          CURRENT_REPORT_SOURCE_PATH: 'تقارير ادارية.xlsx'
-          CURRENT_REPORT_SOURCE_HASH: 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313'
-          CURRENT_REPORT_ROW_COUNT: '332'
-          REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
         run: node scripts/run-full-product-browser-e2e.mjs
 
       - name: Real Chromium business journey and smart report proof
-        if: ${{ always() }}
+        id: business-e2e
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
           E2E_REPORT_DIR: artifacts/e2e-business
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/real-business-e2e.mjs
 
-      - name: Report real-source 48 archetype coverage (non-blocking)
+      - name: Validate generic file intelligence across supported formats
+        if: ${{ always() }}
+        run: node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/generic-file-analysis.test.mjs
+
+      - name: Diagnose optional real-source coverage for 48 specialist archetypes
+        id: real-source-matrix
+        # Specialist coverage is a diagnostic capability report, not a prerequisite for generic analysis of supported files.
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
+          REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY: '1'
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           REAL_48_TEST_USER_EMAIL: ${{ env.TEST_USER_B_EMAIL }}
           REAL_48_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
-          REAL_48_TARGET_JOB_ID: 16709d80-e012-40ef-9c12-6fd8255897f8
-          REAL_SMART_REPORT_COMPANY_ID: 99e33354-cc45-4317-8eb3-0d486b6c5932
         shell: bash
         run: |
-          set +e
-          test -n "${TEST_USER_B_EMAIL}" && test -n "${TEST_USER_B_PASSWORD}"
-          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
-          rc=$?
-          echo "REAL_SOURCE_48_COVERAGE_IS_NON_BLOCKING=true" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_EXIT_CODE=$rc" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_GATE=DIAGNOSTIC_ONLY" >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          matrix_file='artifacts/e2e-business/real-48-source-matrix-preflight.json'
+          mkdir -p artifacts/e2e-business
+          matrix_exit=0
+          matrix_reason=''
+          if [[ -z "${TEST_USER_B_EMAIL:-}" || -z "${TEST_USER_B_PASSWORD:-}" || -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]]; then
+            matrix_exit=78
+            matrix_reason='SPECIALIST_CREDENTIALS_MISSING'
+          else
+            set +e
+            timeout --signal=TERM --kill-after=15s 240s node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
+            matrix_exit=$?
+            set -e
+            if [ "$matrix_exit" -eq 124 ] || [ "$matrix_exit" -eq 137 ]; then
+              matrix_reason='SPECIALIST_PREFLIGHT_TIMEOUT'
+            elif [ "$matrix_exit" -ne 0 ]; then
+              matrix_reason='SPECIALIST_PREFLIGHT_EXECUTION_FAILED'
+            fi
+          fi
+
+          if [ "$matrix_exit" -ne 0 ]; then
+            echo "OPTIONAL_SPECIALIST_MATRIX_EXECUTION_ERROR reason=$matrix_reason exit=$matrix_exit"
+            # Keep a truthful diagnostic artifact even when the optional tool itself
+            # cannot run. Do not convert an execution error into a coverage PASS.
+            if [ ! -s "$matrix_file" ]; then
+              EXACT_HEAD="$EXACT_HEAD" MATRIX_EXIT_CODE="$matrix_exit" MATRIX_ERROR_REASON="$matrix_reason" node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
+          fs.writeFileSync(path, JSON.stringify({
+            exactHead: process.env.EXACT_HEAD,
+            status: 'NOT_PROVEN',
+            summary: { totalArchetypes: 48, supported: 0, notProven: 48 },
+            diagnostics: {
+              failureCode: process.env.MATRIX_ERROR_REASON || 'SPECIALIST_MATRIX_EXECUTION_FAILED',
+              exitCode: Number(process.env.MATRIX_EXIT_CODE || 1),
+              fallbackArtifact: true,
+            },
+            note: 'Optional specialist coverage did not execute; universal generic-file analysis is tested independently.',
+          }, null, 2) + '\n');
+          NODE
+            fi
+          fi
           exit 0
 
-      - name: Fail closed on browser evidence
+      - name: Report optional specialist coverage (does not gate generic file analysis)
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const file = 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
+          if (!fs.existsSync(file)) {
+            console.warn('SPECIALIST_COVERAGE=NOT_REPORTED; generic file-analysis proof is evaluated separately.');
+            process.exit(0);
+          }
+          try {
+            const result = JSON.parse(fs.readFileSync(file, 'utf8'));
+            const supported = Number(result.summary?.supported);
+            const total = Number(result.summary?.totalArchetypes);
+            if (result.exactHead !== process.env.EXACT_HEAD || total !== 48 || !Number.isInteger(supported) || supported < 0 || supported > total) {
+              console.warn('SPECIALIST_COVERAGE=INVALID_DIAGNOSTIC; inspect artifact; generic file-analysis proof remains independent.');
+              process.exit(0);
+            }
+            console.log('OPTIONAL_SPECIALIST_COVERAGE=' + supported + '/' + total + ' STATUS=' + result.status + ' NOT_A_GENERIC_ANALYSIS_GATE=true');
+          } catch {
+            console.warn('SPECIALIST_COVERAGE=UNREADABLE_DIAGNOSTIC; inspect artifact; generic file-analysis proof remains independent.');
+          }
+          NODE
+
+      - name: Fail closed on universal browser evidence
         if: ${{ always() }}
         shell: bash
         run: |
           set -euo pipefail
           node <<'NODE'
           const fs = require('node:fs');
-          const files = ['artifacts/e2e-browser/result.json', 'artifacts/e2e-business/result.json'];
+          const files = [
+            'artifacts/e2e-browser/result.json',
+            'artifacts/e2e-business/result.json',
+          ];
           const failures = [];
           for (const file of files) {
             if (!fs.existsSync(file)) {
@@ -440,10 +564,10 @@ jobs:
             if (blocked.length) failures.push(file + ': UNRESOLVED_BROWSER_FINDINGS=' + blocked.length);
           }
           if (failures.length) {
-            console.error(failures.join('\n'));
+            console.error(failures.join('\\n'));
             process.exit(1);
           }
-          console.log('BROWSER_PROOF_GATE=PASS');
+          console.log('UNIVERSAL_BROWSER_PROOF_GATE=PASS');
           NODE
 
       - name: Upload browser proof artifacts

@@ -50,9 +50,31 @@ function pushTrigger(text) {
   if (!match) return { present: false, config: '' };
   const start = match.index + match[0].length;
   const rest = text.slice(start);
-  const nextTopLevel = rest.search(/^\S/m);
-  const block = nextTopLevel >= 0 ? rest.slice(0, nextTopLevel) : rest;
+  // Workflow trigger siblings share two-space indentation. Stop before the next
+  // sibling so pull_request.paths cannot be mistaken for a push path filter.
+  const nextTrigger = rest.search(/^ {2}[A-Za-z0-9_-]+:[ \t]*(?:\r?$|\{)/m);
+  const block = nextTrigger >= 0 ? rest.slice(0, nextTrigger) : rest;
   return { present: true, config: block };
+}
+
+const pushTriggerRegression = [
+  'name: parser-regression',
+  'on:',
+  '  push:',
+  '    branches: [main]',
+  '  pull_request:',
+  '    branches: [main]',
+  '    paths:',
+  "      - 'src/**'",
+  '  workflow_dispatch:',
+].join('\n');
+const parsedPushRegression = pushTrigger(pushTriggerRegression);
+if (
+  !parsedPushRegression.present ||
+  !/branches\s*:\s*\[main\]/.test(parsedPushRegression.config) ||
+  /paths\s*:/.test(parsedPushRegression.config)
+) {
+  throw new Error('Push-trigger parser must isolate sibling pull_request path filters from canonical main push checks');
 }
 
 const pushWorkflows = [];

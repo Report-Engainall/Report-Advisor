@@ -116,8 +116,7 @@ export async function commitImportBatch(
   };
   if (repairExistingSource) rpcArgs.p_repair = true;
 
-  const { data, error } = await activeClient.rpc(
-    'import_commit_batch',
+  const { data, error } = await activeClient.rpc(repairExistingSource ? 'import_repair_commit_batch' : 'import_commit_batch',
     rpcArgs,
   );
   if (error) throw error;

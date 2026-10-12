@@ -1,4 +1,5 @@
 import process from 'node:process';
+import { isGovernedRealFileRecord } from './real-source-provenance.mjs';
 
 const SUPABASE_URL = process.env.REPORT_ADVISOR_SUPABASE_URL;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -26,14 +27,6 @@ async function rest(path, init = {}) {
   return body;
 }
 
-function isGovernedReal(metadata) {
-  const value = metadata && typeof metadata === 'object' ? metadata : {};
-  const corpus = value.report_corpus === true || String(value.report_corpus ?? '').toLowerCase() === 'true';
-  const fixtureType = String(value.fixture_type ?? '').trim().toLowerCase();
-  const catalogId = String(value.catalog_id ?? '').trim().toLowerCase();
-  return corpus && fixtureType !== 'synthetic-realistic' && catalogId !== 'report-intelligence.48';
-}
-
 const configuredTenantIds = [...new Set(
   String(process.env.E2E_CORPUS_TENANT_IDS || process.env.E2E_CORPUS_TENANT_ID || '')
     .split(',')
@@ -59,19 +52,47 @@ for (const tenantId of targetTenantIds) {
     '&select=id,file_name,file_hash,status,metadata' +
     '&order=created_at.asc&limit=500'
   );
-  const governedFiles = (files || []).filter(file => isGovernedReal(file.metadata));
+  // Discover jobs for candidate report-corpus hashes, then apply the shared
+  // provenance rule against each exact job source_path before refreshing evidence.
+  const candidateFiles = (files || []).filter(file =>
+    (file?.metadata?.report_corpus === true || String(file?.metadata?.report_corpus ?? '').toLowerCase() === 'true')
+      && String(file?.file_hash || '').trim()
+  );
+  const candidateHashes = new Set(candidateFiles.map(file => String(file.file_hash || '').trim()).filter(Boolean));
+  const jobsByHash = new Map();
 
-  for (const file of governedFiles) {
-    const jobs = await rest(
-      '/rest/v1/report_execution_jobs?company_id=eq.' + encodeURIComponent(company.id) +
-      '&source_hash=eq.' + encodeURIComponent(String(file.file_hash || '')) +
-      '&status=eq.completed' +
-      '&checkpoint-%3E%3Estage=eq.rendered' +
-      '&select=id,company_id,source_path,source_hash,status,checkpoint,evidence' +
-      '&order=updated_at.desc&limit=50'
-    );
+  // Batch tenant-scoped job discovery; the former per-file query caused repeated scans and statement timeouts.
+  if (candidateHashes.size > 0) {
+    const pageSize = 200;
+    let offset = 0;
+    while (true) {
+      const page = await rest(
+        '/rest/v1/report_execution_jobs?company_id=eq.' + encodeURIComponent(company.id) +
+        '&status=eq.completed' +
+        '&checkpoint-%3E%3Estage=eq.rendered' +
+        '&select=id,company_id,source_path,source_hash,status,checkpoint' +
+        '&order=created_at.desc,id.asc&limit=' + pageSize + '&offset=' + offset
+      );
+      const jobs = Array.isArray(page) ? page : [];
+      for (const job of jobs) {
+        const sourceHash = String(job.source_hash || '').trim();
+        if (!candidateHashes.has(sourceHash)) continue;
+        const matching = jobsByHash.get(sourceHash) ?? [];
+        matching.push(job);
+        jobsByHash.set(sourceHash, matching);
+      }
+      if (jobs.length < pageSize) break;
+      offset += pageSize;
+      if (offset > 10000) throw new Error('REAL_CORPUS_RENDERED_JOB_SCAN_BOUND_EXCEEDED:' + company.id);
+    }
+  }
 
-    for (const job of jobs || []) {
+  const governedFileIds = new Set();
+  for (const file of candidateFiles) {
+    const jobs = jobsByHash.get(String(file.file_hash || '').trim()) ?? [];
+    for (const job of jobs) {
+      if (!isGovernedRealFileRecord(file, job.source_path)) continue;
+      governedFileIds.add(String(file.id));
       try {
         const refreshed = await rest('/rest/v1/rpc/refresh_report_evidence_passport', {
           method: 'POST',
@@ -108,7 +129,7 @@ for (const tenantId of targetTenantIds) {
   tenantResults.push({
     tenantId: company.id,
     tenantName: company.name,
-    governedRealFiles: governedFiles.length,
+    governedRealFiles: governedFileIds.size,
     renderedCompletedJobsVisited: results.filter(row => row.tenantId === company.id).length,
   });
 }const ready = results.filter(row => row.status === 'REFRESHED' && row.verificationStatus === 'VERIFIED' && row.decisionReadiness === 'READY');

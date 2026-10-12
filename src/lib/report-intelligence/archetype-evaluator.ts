@@ -52,6 +52,24 @@ function columnKey(report: RuleReport, field: string): string | null {
     salesQty: ['net_sales', 'netsales', 'sales', 'sales_qty', 'صافيالمبيعات'],
   };
   const aliases = legacyAliases[field] ?? [];
+  const rowKeys = [...new Set((report.canonicalRows ?? []).flatMap((row) =>
+    row?.data && typeof row.data === 'object' ? Object.keys(row.data) : [],
+  ))];
+  const findStoredKey = (candidate: string): string | null =>
+    rowKeys.find((key) => key === candidate || norm(key) === norm(candidate)) ?? null;
+
+  // The evaluator must only read keys that actually exist in persisted canonical
+  // rows. Analysis metadata often contains a mapped field like "invoice_date"
+  // while the stored row still uses its source key ("date"); never return a
+  // mapped-only alias and silently turn an available measure into an empty one.
+  const exactRowKey = findStoredKey(field);
+  if (exactRowKey) return exactRowKey;
+
+  for (const alias of aliases) {
+    const existing = rowKeys.find((key) => norm(key) === norm(alias));
+    if (existing) return existing;
+  }
+
   const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
   for (const dataset of datasets) {
     if (!dataset || typeof dataset !== 'object') continue;
@@ -61,33 +79,33 @@ function columnKey(report: RuleReport, field: string): string | null {
     for (const column of columns) {
       const mappedField = text(column.mappedField);
       const columnName = text(column.name);
-      if (norm(mappedField) === norm(field)) return mappedField || columnName;
-      if (
-        aliases.some((alias) => norm(mappedField) === norm(alias) || norm(columnName) === norm(alias))
-      ) return mappedField || columnName;
-      if (matchCanonicalField(mappedField) === field || matchCanonicalField(columnName) === field) {
-        return mappedField || columnName;
-      }
+      const metadataMatchesField =
+        norm(mappedField) === norm(field) ||
+        aliases.some((alias) => norm(mappedField) === norm(alias) || norm(columnName) === norm(alias)) ||
+        matchCanonicalField(mappedField) === field ||
+        matchCanonicalField(columnName) === field;
+      if (!metadataMatchesField) continue;
+
+      // Prefer the source-name key when it exists. A mappedField is only an
+      // instruction for semantic matching; it is not evidence that a same-named
+      // property was actually written into canonical_dataset_records.data.
+      const storedSourceName = columnName ? findStoredKey(columnName) : null;
+      if (storedSourceName && matchCanonicalField(columnName) === field) return storedSourceName;
+      const storedMappedName = mappedField ? findStoredKey(mappedField) : null;
+      if (storedMappedName) return storedMappedName;
+      if (storedSourceName) return storedSourceName;
     }
   }
 
-  // Real canonical imports may carry authoritative field keys in row data while
-  // source-analysis metadata omits dataset column descriptors. Use those keys
-  // as the evidence-bound fallback; never synthesize a field that is absent.
-  const rowKeys = new Set<string>();
-  for (const row of report.canonicalRows ?? []) {
-    if (!row?.data || typeof row.data !== 'object') continue;
-    for (const key of Object.keys(row.data)) rowKeys.add(key);
-  }
+  // Metadata may omit column descriptors entirely. Match only the authoritative
+  // keys found in the stored source rows; never manufacture missing fields.
   for (const key of rowKeys) {
-    if (norm(key) === norm(field)) return key;
     if (aliases.some((alias) => norm(key) === norm(alias))) return key;
     if (matchCanonicalField(key) === field) return key;
   }
 
   return null;
 }
-
 function rawColumnKey(report: RuleReport, aliases: string[]): string | null {
   const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
   for (const dataset of datasets) {
@@ -125,24 +143,89 @@ function groupTop(rows: Array<{ data?: Record<string, unknown> | null }>, dimens
 }
 
 function dateValue(rows: Array<{ data?: Record<string, unknown> | null }>, dateKey: string, valueKey: string) {
-  const monthly = new Map<string, number>();
+  type DatedValue = { day: string; month: string; value: number };
+  const datedValues: DatedValue[] = [];
+
+  const sourceDate = (raw: string): string | null => {
+    const value = raw.trim();
+    const iso = value.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[T\s].*)?$/);
+    const dmy = value.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?:[T\s].*)?$/);
+    let year: number;
+    let month: number;
+    let day: number;
+    if (iso) {
+      year = Number(iso[1]);
+      month = Number(iso[2]);
+      day = Number(iso[3]);
+    } else if (dmy) {
+      day = Number(dmy[1]);
+      month = Number(dmy[2]);
+      year = Number(dmy[3]);
+      if (dmy[3].length === 2) year += 2000;
+    } else {
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return null;
+      year = parsed.getUTCFullYear();
+      month = parsed.getUTCMonth() + 1;
+      day = parsed.getUTCDate();
+    }
+
+    if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() + 1 !== month || parsed.getUTCDate() !== day) return null;
+    return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+  };
+
   for (const row of rows) {
     const raw = text(row.data?.[dateKey]);
     const value = num(row.data?.[valueKey]);
-    const parsed = raw ? new Date(raw) : null;
-    if (!parsed || Number.isNaN(parsed.getTime()) || value == null) continue;
-    const month = parsed.getUTCFullYear() + '-' + String(parsed.getUTCMonth() + 1).padStart(2, '0');
-    monthly.set(month, (monthly.get(month) ?? 0) + value);
+    const day = raw ? sourceDate(raw) : null;
+    if (!day || value == null) continue;
+    datedValues.push({ day, month: day.slice(0, 7), value });
   }
-  const points = [...monthly.entries()].sort(([a], [b]) => a.localeCompare(b));
-  if (points.length < 2) return null;
+
+  if (datedValues.length < 2) return null;
+
+  const groupBy = (keyOf: (item: DatedValue) => string) => {
+    const grouped = new Map<string, number>();
+    for (const item of datedValues) {
+      const key = keyOf(item);
+      grouped.set(key, (grouped.get(key) ?? 0) + item.value);
+    }
+    return [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
+  };
+
+  const weeklyKey = (item: DatedValue) => {
+    const date = new Date(item.day + 'T00:00:00.000Z');
+    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+    const weekYear = date.getUTCFullYear();
+    const yearStart = new Date(Date.UTC(weekYear, 0, 1));
+    const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return weekYear + '-W' + String(week).padStart(2, '0');
+  };
+
+  const monthly = groupBy((item) => item.month);
+  let points = monthly;
+  let granularity: 'month' | 'week' | 'day' = 'month';
+  if (monthly.length < 2) {
+    const weekly = groupBy(weeklyKey);
+    if (weekly.length >= 2) {
+      points = weekly;
+      granularity = 'week';
+    } else {
+      const daily = groupBy((item) => item.day);
+      if (daily.length < 3) return null;
+      points = daily;
+      granularity = 'day';
+    }
+  }
+
   const previous = points[points.length - 2];
   const latest = points[points.length - 1];
   const delta = latest[1] - previous[1];
   const pct = previous[1] === 0 ? null : (delta / Math.abs(previous[1])) * 100;
-  return { previous, latest, delta, pct };
+  return { previous, latest, delta, pct, granularity, pointCount: points.length };
 }
-
 function primaryDimension(profile: RuleProfile): string | null {
   const candidates = [
     ['customerCode', 'customer'],
@@ -259,7 +342,7 @@ export function applyArchetypeRuleSet(
           unit: 'فرق الفترة',
           dimensionLabel: 'الفترة',
           dimensionValue: trend.latest[0],
-          evidence: ['dateField=' + dateKey, 'valueField=' + amountKey, 'previousPeriod=' + trend.previous[0], 'latestPeriod=' + trend.latest[0]],
+          evidence: ['dateField=' + dateKey, 'valueField=' + amountKey, 'periodGranularity=' + trend.granularity, 'observedPeriods=' + trend.pointCount, 'previousPeriod=' + trend.previous[0], 'latestPeriod=' + trend.latest[0]],
           limitation: 'هذا تفكيك وصفي للفترة ولا يثبت السبب أو الاستدامة.',
           action: profile.recommendationFocus[0] || 'راجع المحركات التي غيّرت النتيجة قبل اعتماد قرار.',
         };

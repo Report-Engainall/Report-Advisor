@@ -316,6 +316,7 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">السجلات: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الثقة: {stateLabel(report.trustState ?? report.sourceTrustState)}</span>
+            <span data-testid="source-bound-report-source-hash" className="max-w-full break-all rounded-full border border-amber-200/30 bg-amber-200/10 px-3 py-1 font-mono text-[9px] text-amber-100">SHA-256: {report.sourceHash}</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -1174,53 +1175,77 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
 }
 
 export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { mode: SourceBoundReportMode; jobId: string; expectedSourceHash?: string | null }) {
+  const normalizedJobId = jobId.trim();
+  const normalizedSourceHash = expectedSourceHash?.trim() ?? '';
+  const requestContextKey = JSON.stringify([normalizedJobId, normalizedSourceHash]);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorContextKey, setErrorContextKey] = useState<string | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
 
-  const loadReport = useCallback(async () => {
+  const loadReport = useCallback(async (signal: AbortSignal) => {
     setLoading(true);
     setError(null);
+    setErrorContextKey(null);
+    setReport(null);
     try {
-      const hash = expectedSourceHash?.trim() ?? '';
-      const next = await fetchSmartReport(jobId, hash);
-      if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
-      if (expectedSourceHash && next.sourceHash !== expectedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+      const next = await fetchSmartReport(
+        normalizedJobId,
+        normalizedSourceHash,
+        { signal },
+      );
+      if (signal.aborted) return;
+      if (!next || next.jobId !== normalizedJobId) throw new Error('REPORT_SOURCE_NOT_FOUND');
+      if (normalizedSourceHash && next.sourceHash !== normalizedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
       setReport(next);
     } catch (cause) {
+      if (signal.aborted) return;
       setError(cause instanceof Error ? cause.message : String(cause));
+      setErrorContextKey(requestContextKey);
     } finally {
-      setLoading(false);
+      if (!signal.aborted) setLoading(false);
     }
-  }, [jobId, expectedSourceHash]);
+  }, [normalizedJobId, normalizedSourceHash, requestContextKey]);
 
   useEffect(() => {
-    let active = true;
-    const hash = expectedSourceHash?.trim() ?? '';
-    void fetchSmartReport(jobId, hash).then((next) => {
-      if (!active) return;
-      if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
-      if (hash && next.sourceHash !== hash) throw new Error('INVALID_REPORT_CONTEXT');
-      setReport(next);
-    }).catch((cause) => {
-      if (active) setError(cause instanceof Error ? cause.message : String(cause));
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, [jobId, expectedSourceHash]);
+    const controller = new AbortController();
+    // A changed job/hash or explicit retry invalidates the previous request.
+    void loadReport(controller.signal);
+    return () => controller.abort();
+  }, [loadReport, retryVersion]);
+
+  const retryReport = () => {
+    setLoading(true);
+    setError(null);
+    setErrorContextKey(null);
+    setReport(null);
+    setRetryVersion((value) => value + 1);
+  };
+
+  const reportContextMatches = Boolean(
+    report &&
+    report.jobId === normalizedJobId &&
+    (!normalizedSourceHash || report.sourceHash === normalizedSourceHash)
+  );
 
   const body = useMemo(() => {
-    if (!report) return null;
+    if (!reportContextMatches || !report) return null;
     if (mode === 'executive') return <ExecutiveMode report={report}/>;
     if (mode === 'trust') return <TrustMode report={report}/>;
     if (mode === 'decision') return <DecisionMode report={report}/>;
     return <WorkMode report={report}/>;
-  }, [mode, report]);
+  }, [mode, report, reportContextMatches]);
 
-  if (loading) return <div dir="rtl"><LoadingState message="جارٍ تحميل النتيجة المصدرية..." /></div>;
-  if (error) return <div dir="rtl"><ErrorState message={error} onRetry={() => void loadReport()} /></div>;
-  if (!report) return null;
+  if (loading || (!reportContextMatches && errorContextKey !== requestContextKey)) {
+    return <div dir="rtl"><LoadingState message="جارٍ تحميل النتيجة المصدرية..." /></div>;
+  }
+  if (error && errorContextKey === requestContextKey) {
+    return <div dir="rtl"><ErrorState message={error} onRetry={retryReport} /></div>;
+  }
+  if (!reportContextMatches || !report) {
+    return <div dir="rtl"><ErrorState message="INVALID_REPORT_CONTEXT" onRetry={retryReport} /></div>;
+  }
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">

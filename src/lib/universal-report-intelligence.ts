@@ -1,6 +1,7 @@
 import type { CanonicalField } from './report-intelligence/canonical-schema';
 import { matchCanonicalField } from './report-intelligence/canonical-schema';
 import { applyArchetypeRuleSet } from './report-intelligence/archetype-evaluator';
+import { composeIntelligenceLayers } from './report-intelligence/compose-intelligence-layers';
 import { detectReportArchetype, getReportArchetype, type ArchetypeProfile } from './report-intelligence/archetype-registry';
 import { buildAdvisoryPacket, type AdvisoryPacket } from './report-intelligence/report-advisory-orchestrator';
 import {
@@ -56,10 +57,15 @@ type UniversalReportInput = Parameters<typeof deriveReportIntelligence>[0] & {
   sourceHash?: string | null;
   reportJobId?: string | null;
   archetypeId?: string | null;
+  archetypeHintId?: string | null;
   tenantId?: string | null;
   evidenceSnapshotId?: string | null;
   evidencePassportId?: string | null;
   availableFields?: CanonicalField[];
+  // Optional shape-specific analysis computed from the same source rows shown in preview.
+  previewIntelligence?: ReportIntelligence;
+  // Source-agnostic analysis of the same source rows, always retained alongside any applicable specialty.
+  generalIntelligence?: ReportIntelligence;
 };
 
 function text(value: unknown): string {
@@ -138,13 +144,16 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
   const fields = canonicalFields(input);
   const stats = fieldStats(input);
   const exactArchetype = text(input.archetypeId) ? getReportArchetype(text(input.archetypeId)) : null;
+  const hintedArchetype = text(input.archetypeHintId) ? getReportArchetype(text(input.archetypeHintId)) : null;
   const detection = exactArchetype
     ? { profile: exactArchetype, state: 'SUPPORTED', reason: 'EXACT_RUNTIME_ARCHETYPE' }
-    : detectReportArchetype({
-        sourcePath: input.sourcePath ?? null,
-        specialty: input.specialty ?? null,
-        availableFields: fields,
-      });
+    : hintedArchetype
+      ? { profile: hintedArchetype, state: 'REVIEW_REQUIRED', reason: 'SOURCE_SHAPE_HINT_REQUIRES_CANONICAL_VALIDATION' }
+      : detectReportArchetype({
+          sourcePath: input.sourcePath ?? null,
+          specialty: input.specialty ?? null,
+          availableFields: fields,
+        });
   const effectiveSpecialty = input.specialty ?? detection.profile?.adapterSpecialty ?? null;
   const base = deriveReportIntelligence({ ...input, specialty: effectiveSpecialty });
 
@@ -157,6 +166,10 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
       base,
     );
   }
+  // Keep the executive preview and decision chain on the same report-intelligence object.
+  // This is especially important when the source shape has a specialized, source-bound analysis.
+  if (input.previewIntelligence) intelligence = input.previewIntelligence;
+  if (input.generalIntelligence) intelligence = composeIntelligenceLayers(input.generalIntelligence, intelligence);
 
   const provenance = {
     tenantId: input.tenantId ?? 'preview',

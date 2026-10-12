@@ -9,7 +9,8 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence } from '@/lib/report-intelligence/report-smart-insights';
+import { inferReportSpecialty, normalizeReportHeader } from '@/lib/file-engine/specialty-inference';
+import { deriveReportIntelligence, type BusinessFinding, type ReportIntelligence, type ReportRecommendation, type ReportSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { buildUniversalReportIntelligence } from '@/lib/universal-report-intelligence';
 import { buildGenericFileIntelligence } from '@/lib/file-engine/generic-intelligence';
 import { UniversalIntelligenceChain } from '@/components/UniversalIntelligenceChain';
@@ -22,24 +23,8 @@ function fileIcon(format: FileFormat) {
   return <FileText size={18}/>;
 }
 
-function inferSpecialty(dataset: Dataset): 'inventory' | 'sales' | 'purchases' | 'receivables' | 'payments' | undefined {
-  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\\s_./-]+/g, '');
-  const fields = new Set([
-    ...dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
-    ...dataset.columns.map((column) => normalize(column.name)),
-  ]);
-  const has = (...aliases: string[]) => aliases.some((alias) => fields.has(alias) || [...fields].some((field) => field.includes(alias)));
-  if (has('current_stock', 'currentstock', 'stockout_days', 'stockoutdays', 'daily_sales_rate', 'dailysalesrate', 'salesqty') || (has('currentstock', 'الرصيدالحالي', 'المخزونالحالي') && has('productcode', 'salesqty', 'warehouse'))) return 'inventory';
-  if (has('supplier_name', 'suppliername', 'المورد') && has('total', 'net_amount', 'netamount')) return 'purchases';
-  if (has('balance', 'الرصيدالمستحق', 'المتبقي') && (has('paid_amount', 'paidamount', 'paid', 'المدفوع') || has('credit', 'دائن'))) return 'receivables';
-  if (has('paid_amount', 'paidamount', 'paid', 'المدفوع') && !has('total', 'net_amount', 'netamount')) return 'payments';
-  if (has('customer_name', 'customername', 'customer', 'client', 'العميل') && has('total', 'net_amount', 'netamount', 'salesqty')) return 'sales';
-  if (has('sales_qty', 'salesqty', 'كميةالمبيعات') && (has('product_name', 'productname', 'product', 'item', 'productcode', 'sku') || has('warehouse', 'المستودع'))) return 'inventory';
-  return undefined;
-}
-
 function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
-  const specialty = inferSpecialty(dataset);
+  const specialty = inferReportSpecialty(dataset);
   const base = deriveReportIntelligence({
     specialty,
     rowCount: dataset.rowCount,
@@ -47,10 +32,9 @@ function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
     canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
   });
 
-  const normalize = (value: string) => value.toLowerCase().normalize('NFKC').replace(/[\s_./-]+/g, '');
+  const normalize = normalizeReportHeader;
   const normalizedHeaders = new Set(dataset.columns.map((column) => normalize(column.name)));
   const inventoryShape = normalizedHeaders.has('currentstock') && normalizedHeaders.has('salesqty');
-  if (!inventoryShape) return base;
   const findColumn = (...aliases: string[]) => dataset.columns.find((column) => {
     const keys = [column.mappedField ?? '', column.name].map(normalize);
     return aliases.some((alias) => keys.some((key) => key.includes(normalize(alias))));
@@ -59,6 +43,204 @@ function buildPreviewIntelligence(dataset: Dataset): ReportIntelligence {
     if (!column) return undefined;
     return row[column.name] ?? row[column.mappedField ?? ''];
   };
+
+  // Detect a customer portfolio table by its observed columns, not its filename.
+  const customerNameColumn = findColumn('customer_name', 'customername', 'اسم العميل', 'العميل', 'customer', 'client');
+  const totalColumn = findColumn('total', 'الإجمالي الكلي', 'grand total', 'total amount');
+  const customerStatusColumn = findColumn('customer_status', 'حالة الزبون', 'حالة العميل', 'customer status');
+  const abcColumn = findColumn('abc_classification', 'تصنيف الأهمية', 'تصنيف الاهمية', 'abc class');
+  const riskIndicatorColumn = findColumn('risk_indicator', 'مؤشر المخاطر والفرص', 'مؤشر المخاطر', 'risk indicator');
+  const monthDefinitions = [
+    { label: 'يناير', keys: ['monthly_sales_jan', 'يناير', 'january', 'jan'] },
+    { label: 'فبراير', keys: ['monthly_sales_feb', 'فبراير', 'february', 'feb'] },
+    { label: 'مارس', keys: ['monthly_sales_mar', 'مارس', 'march', 'mar'] },
+    { label: 'أبريل', keys: ['monthly_sales_apr', 'أبريل', 'ابريل', 'april', 'apr'] },
+    { label: 'مايو', keys: ['monthly_sales_may', 'مايو', 'may'] },
+    { label: 'يونيو', keys: ['monthly_sales_jun', 'يونيو', 'june', 'jun'] },
+    { label: 'يوليو', keys: ['monthly_sales_jul', 'يوليو', 'july', 'jul'] },
+    { label: 'أغسطس', keys: ['monthly_sales_aug', 'أغسطس', 'اغسطس', 'august', 'aug'] },
+    { label: 'سبتمبر', keys: ['monthly_sales_sep', 'سبتمبر', 'september', 'sep'] },
+    { label: 'أكتوبر', keys: ['monthly_sales_oct', 'أكتوبر', 'اكتوبر', 'october', 'oct'] },
+    { label: 'نوفمبر', keys: ['monthly_sales_nov', 'نوفمبر', 'november', 'nov'] },
+    { label: 'ديسمبر', keys: ['monthly_sales_dec', 'ديسمبر', 'december', 'dec'] },
+  ];
+  const monthColumns = monthDefinitions
+    .map((month) => ({ ...month, column: findColumn(...month.keys) }))
+    .filter((month) => Boolean(month.column)) as Array<{ label: string; keys: string[]; column: typeof dataset.columns[number] }>;
+  const portfolioShape = Boolean(customerNameColumn && customerStatusColumn && (totalColumn || monthColumns.length >= 3));
+
+  if (portfolioShape && customerNameColumn && customerStatusColumn) {
+    const numericValue = (row: Record<string, unknown>, column: typeof dataset.columns[number] | undefined): number | null => {
+      const raw = valueOf(row, column);
+      if (raw === null || raw === undefined || String(raw).trim() === '') return null;
+      const parsed = typeof raw === 'number' ? raw : Number(String(raw).replace(/,/g, '').trim());
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+    const numberLabel = (value: number) => value.toLocaleString('ar-YE', { maximumFractionDigits: 2 });
+    const textValue = (row: Record<string, unknown>, column: typeof dataset.columns[number] | undefined) => String(valueOf(row, column) ?? '').trim();
+    const normalizedValue = (value: string) => normalize(value).replace(/[إأآ]/g, 'ا').replace(/ى/g, 'ي');
+    const customers = dataset.rows.map((row, index) => {
+      const monthValues = monthColumns.map((month) => numericValue(row, month.column));
+      const monthlyTotal = monthValues.some((value) => value !== null)
+        ? monthValues.reduce<number>((sum, value) => sum + (value ?? 0), 0)
+        : null;
+      const statedTotal = numericValue(row, totalColumn);
+      return {
+        index,
+        name: textValue(row, customerNameColumn) || 'عميل بلا اسم',
+        status: textValue(row, customerStatusColumn),
+        tier: textValue(row, abcColumn),
+        risk: textValue(row, riskIndicatorColumn),
+        total: statedTotal ?? monthlyTotal ?? 0,
+        statedTotal,
+        monthlyTotal,
+        monthValues,
+      };
+    }).filter((customer) => customer.name !== 'عميل بلا اسم');
+    type CustomerRecord = (typeof customers)[number];
+    const isStopped = (customer: CustomerRecord) => normalizedValue(customer.status).includes(normalizedValue('منقطع'));
+    const isVip = (customer: CustomerRecord) =>
+      normalizedValue(customer.tier).includes(normalizedValue('الفئة أ'))
+      || normalizedValue(customer.tier).includes('vip')
+      || normalizedValue(customer.risk).includes('vip')
+      || normalizedValue(customer.risk).includes(normalizedValue('خطر انقطاع'));
+    const stopped = customers.filter(isStopped);
+    const stoppedVip = stopped.filter(isVip);
+    const monthStats = monthColumns.map((month, index) => {
+      const observed = customers.map((customer) => customer.monthValues[index]);
+      return {
+        label: month.label,
+        total: observed.reduce<number>((sum, value) => sum + (value ?? 0), 0),
+        activeCustomers: observed.filter((value) => value !== null && value > 0).length,
+      };
+    });
+    const totalPortfolioValue = customers.reduce((sum, customer) => sum + customer.total, 0);
+    const rowsWithMonthlyAndStatedTotal = customers.filter((customer) => customer.statedTotal !== null && customer.monthlyTotal !== null);
+    const inconsistentTotals = rowsWithMonthlyAndStatedTotal.filter((customer) =>
+      Math.abs((customer.statedTotal ?? 0) - (customer.monthlyTotal ?? 0)) > Math.max(1, Math.abs(customer.statedTotal ?? 0) * 0.01),
+    );
+    const topCustomers = [...customers].sort((a, b) => b.total - a.total).slice(0, 5);
+    const latestMonth = monthStats[monthStats.length - 1];
+    const previousMonth = monthStats.length > 1 ? monthStats[monthStats.length - 2] : undefined;
+    const latestChange = previousMonth && latestMonth && previousMonth.total !== 0
+      ? ((latestMonth.total - previousMonth.total) / Math.abs(previousMonth.total)) * 100
+      : null;
+    const stoppedValue = (stoppedVip.length ? stoppedVip : stopped).reduce((sum, customer) => sum + customer.total, 0);
+    const targetGroup = stoppedVip.length ? stoppedVip : stopped;
+    const portfolioFinding: BusinessFinding = {
+      id: 'preview:customer-portfolio:interruption',
+      kind: stopped.length ? 'RISK' : 'FINDING',
+      priority: stoppedVip.length ? 'high' : stopped.length ? 'medium' : 'low',
+      title: stoppedVip.length ? 'عملاء مهمون مصنّفون في المصدر كمنقطعين' : 'نشاط العملاء حسب حالة المصدر',
+      statement: stoppedVip.length
+        ? 'يسجل المصدر ' + stoppedVip.length.toLocaleString('ar-YE') + ' عميلًا من الفئة المهمة/الموسومة VIP بحالة انقطاع، بإجمالي مصدرّي ' + numberLabel(stoppedValue) + ' دون افتراض عملة.'
+        : 'يحتوي المصدر ' + customers.length.toLocaleString('ar-YE') + ' سجل عميل، منها ' + stopped.length.toLocaleString('ar-YE') + ' سجلًا تحمل حالة «منقطع» كما وردت في الملف.',
+      value: targetGroup.length,
+      unit: 'customers',
+      dimensionLabel: 'حالة العميل',
+      dimensionValue: 'منقطع',
+      evidence: targetGroup.slice(0, 5).map((customer) =>
+        customer.name + ' · الحالة: ' + customer.status + ' · الإجمالي: ' + numberLabel(customer.total) + ' · التصنيف: ' + (customer.tier || 'غير متاح'),
+      ),
+      limitation: 'الحالة ومؤشر المخاطر منقولان من الملف؛ يجب التحقق من آخر فاتورة/تاريخ شراء قبل اعتبار العميل متسربًا فعليًا أو اعتماد إجراء مالي.',
+      action: 'راجع آخر تعامل للعملاء الأعلى قيمة والموسومين بالانقطاع، وثبّت سبب الحالة قبل تكليف المبيعات بإجراء استعادة.',
+    };
+    const monthEvidence = monthStats.map((month) =>
+      month.label + ': إجمالي ' + numberLabel(month.total) + ' · عملاء لديهم شراء ' + month.activeCustomers.toLocaleString('ar-YE'),
+    );
+    const portfolioInspect = [
+      'سجلات العملاء: ' + customers.length.toLocaleString('ar-YE'),
+      'حالة منقطع في المصدر: ' + stopped.length.toLocaleString('ar-YE') + ' (' + (customers.length ? numberLabel(stopped.length / customers.length * 100) : '0') + '%)',
+      'عملاء منقطعون وموسومون VIP/فئة أ: ' + stoppedVip.length.toLocaleString('ar-YE'),
+      'قيمة الإجمالي المصدرية: ' + numberLabel(totalPortfolioValue) + ' (العملة غير مفترضة)',
+      ...monthEvidence,
+      'فحص الاتساق: قورن الإجمالي مع مجموع الأشهر في ' + rowsWithMonthlyAndStatedTotal.length.toLocaleString('ar-YE') + ' سجلًا؛ ' + inconsistentTotals.length.toLocaleString('ar-YE') + ' فرق يتجاوز 1%',
+      'أعلى العملاء قيمة: ' + topCustomers.map((customer) => customer.name + ' (' + numberLabel(customer.total) + ')').join(' · '),
+      ...(latestChange !== null && previousMonth && latestMonth ? ['التغير بين ' + previousMonth.label + ' و' + latestMonth.label + ': ' + (latestChange >= 0 ? '+' : '') + numberLabel(latestChange) + '% من إجمالي قيم الشهرين'] : []),
+    ];
+    const recommendedAction = stoppedVip.length
+      ? 'ابدأ بالعملاء الأعلى قيمة ضمن مجموعة «منقطع»/VIP: تحقق من آخر تاريخ شراء وسبب التوقف، ثم سجّل نتيجة التواصل والشراء الجديد لكل عميل. لا تعتمد استرداد الإيراد قبل قياسه.'
+      : stopped.length
+        ? 'راجع سجلات العملاء المصنفة «منقطع» وتحقق من آخر تعامل وتاريخ الانقطاع قبل اعتماد أي إجراء.'
+        : 'راجع اتجاه الشراء الشهري وقائمة أعلى العملاء قيمة، وثبّت خط أساس قبل اعتماد إجراء.';
+    const proofRequirement = 'كل الأعداد والقيم مشتقة من ' + dataset.name + ' (' + dataset.rowCount.toLocaleString('ar-YE') + ' صفًا). الحالة والفئة تؤخذان من المصدر؛ لا تُفترض العملة أو أسباب الانقطاع أو نتيجة الاستعادة.';
+    const portfolioEvidence = [
+      'customerRows=' + customers.length,
+      'stoppedCustomers=' + stopped.length,
+      'stoppedVip=' + stoppedVip.length,
+      'sourceFlaggedTotal=' + numberLabel(stoppedValue) + ' (currency unspecified)',
+      ...monthEvidence.slice(-2),
+      ...portfolioFinding.evidence.slice(0, 3),
+    ];
+    const portfolioSignal: ReportSignal = {
+      id: 'preview:customer-portfolio:interruption',
+      severity: stoppedVip.length ? 'high' : stopped.length ? 'medium' : latestChange !== null && latestChange < -20 ? 'medium' : 'info',
+      title: stoppedVip.length ? 'عملاء مهمون مصنّفون في المصدر كمنقطعين' : stopped.length ? 'عملاء بحالة انقطاع واردة في المصدر' : latestChange !== null ? 'تغير مشتريات العملاء عبر الأشهر' : 'ملخص محفظة العملاء من المصدر',
+      message: stopped.length ? portfolioFinding.statement : latestChange !== null && previousMonth && latestMonth
+        ? 'تغير إجمالي الشراء من ' + previousMonth.label + ' إلى ' + latestMonth.label + ' بنسبة ' + (latestChange >= 0 ? '+' : '') + numberLabel(latestChange) + '% وفق أعمدة المصدر.'
+        : portfolioFinding.statement,
+      evidence: portfolioEvidence,
+      affectedRows: stoppedVip.length || stopped.length || customers.length,
+      soWhat: recommendedAction,
+      impact: 'القيم وصف للمصدر وليست إثباتًا لخسارة مالية أو قيمة قابلة للاستعادة؛ الأثر الفعلي يتطلب قياسًا بعد الإجراء.',
+      ownerHint: 'مدير المبيعات / مسؤول حسابات العملاء',
+      priority: stoppedVip.length ? 'P1' : stopped.length ? 'P2' : latestChange !== null && latestChange < -20 ? 'P2' : 'P3',
+      priorityReason: stoppedVip.length
+        ? ['المصدر يصنف عملاء مهمين بحالة منقطع', 'يلزم التحقق من آخر شراء وسبب الحالة قبل الاعتماد']
+        : stopped.length
+          ? ['المصدر يتضمن حالات منقطع', 'يلزم مراجعة الحالة مع دليل التعامل الأخير']
+          : ['الإشارة مشتقة من قيم الأشهر كما وردت في المصدر'],
+    };
+    const portfolioRecommendation: ReportRecommendation = {
+      id: 'rec:' + portfolioSignal.id,
+      status: 'PROPOSED',
+      priority: stoppedVip.length ? 'high' : stopped.length ? 'medium' : 'low',
+      title: stoppedVip.length ? 'مراجعة العملاء المهمين المصنفين كمنقطعين' : stopped.length ? 'التحقق من حالات انقطاع العملاء' : 'مراجعة تغير مشتريات العملاء',
+      action: recommendedAction,
+      why: portfolioSignal.message,
+      evidence: portfolioEvidence,
+      ownerHint: 'مدير المبيعات / مسؤول حسابات العملاء',
+      impact: portfolioSignal.impact,
+      expectedOutcome: 'توثيق حالة كل عميل تمت مراجعته وقياس قيمة الشراء المستعادة فعليًا؛ لا يُعد التواصل وحده نتيجة محققة.',
+      whyNow: stoppedVip.length ? 'لأن المصدر يضع عملاء من الفئة المهمة ضمن حالة الانقطاع، ويستحق ذلك تحققًا مباشرًا.' : 'لتثبيت خط أساس موثق قبل اعتماد أي تغيير.',
+      measurement: 'عدد العملاء المنقطعين الذين تمت مراجعتهم، وعدد من عادوا للشراء، وقيمة مشترياتهم الجديدة مقارنة بخط الأساس.',
+      risk: 'قد لا تعكس الحالة آخر تعامل؛ لا يُثبت المصدر سبب الانقطاع أو الاستعادة الفعلية.',
+      blocker: 'تحقق من آخر تاريخ شراء وسبب الحالة قبل اعتماد قرار استعادة أو أثر مالي.',
+      limitation: 'الأشهر أعمدة فترية وليست سجل فواتير مؤرخًا؛ لا تُفترض العملة أو السببية أو نتيجة الاستعادة.',
+    };
+    return {
+      ...base,
+      businessQuestion: stopped.length
+        ? 'من العملاء الأعلى قيمةً والمصنّفون في المصدر كمنقطعين، وكيف تغير إجمالي الشراء عبر الأشهر؟'
+        : 'كيف تغير إجمالي الشراء عبر الأشهر، ومن أعلى العملاء قيمةً وفق المصدر؟',
+      summary: 'تم تحليل ' + customers.length.toLocaleString('ar-YE') + ' سجل عميل و' + monthColumns.length + ' أعمدة شهرية. رُصد ' + stopped.length.toLocaleString('ar-YE') + ' سجلًا بحالة «منقطع»، منها ' + stoppedVip.length.toLocaleString('ar-YE') + ' مصنّفًا ضمن فئة مهمة/VIP. قيمة الإجمالي حسب عمود المصدر: ' + numberLabel(totalPortfolioValue) + '.',
+      signals: [portfolioSignal],
+      recommendations: [portfolioRecommendation],
+      findings: [portfolioFinding, ...base.findings.filter((finding) => finding.id !== portfolioFinding.id)],
+      risks: stopped.length ? [portfolioFinding, ...base.risks.filter((finding) => finding.id !== portfolioFinding.id)] : base.risks,
+      advisorBrief: {
+        ...base.advisorBrief,
+        health: stoppedVip.length ? 'REVIEW_REQUIRED' : stopped.length ? 'ATTENTION' : 'HEALTHY',
+        headline: portfolioFinding.statement,
+        topFinding: portfolioFinding,
+        topRisk: stopped.length ? portfolioFinding : base.advisorBrief.topRisk,
+        recommendedAction,
+        ownerHint: 'مدير المبيعات / مسؤول حسابات العملاء',
+        expectedOutcome: 'توثيق حالة كل عميل تمت مراجعته وقياس قيمة الشراء المستعادة فعليًا؛ لا يُعد التواصل وحده نتيجة محققة.',
+        measurement: 'عدد العملاء المنقطعين الذين تمت مراجعتهم، وعدد من عادوا للشراء، وقيمة مشترياتهم الجديدة مقارنة بخط الأساس.',
+        proofRequirement,
+      },
+      guidance: {
+        ...base.guidance,
+        focus: stoppedVip.length ? 'مراجعة انقطاع العملاء المهمين' : 'نشاط العملاء وقيمة الشراء الشهرية',
+        inspect: portfolioInspect,
+        ownerHint: 'مدير المبيعات / مسؤول حسابات العملاء',
+        boundary: 'التصنيفات حالات واردة في المصدر وليست إثباتًا لسبب الانقطاع. لا توجد عملة محددة أو أثر استعادة مثبت دون دليل بعد الإجراء.',
+      },
+    };
+  }
+
+  if (!inventoryShape) return base;
 
   const stockColumn = findColumn('currentStock', 'current_stock', 'stock', 'الرصيدالحالي', 'الرصيد', 'المخزونالحالي');
   const salesColumn = findColumn('salesQty', 'sales_qty', 'sales', 'كميةالمبيعات', 'صافيالمبيعات');
@@ -235,16 +417,20 @@ export function ExternalFileAnalysisPage() {
 
   const dataset = datasets[active] ?? null;
   const intelligence = useMemo(() => dataset ? buildPreviewIntelligence(dataset) : null, [dataset]);
-  const specialty = useMemo(() => dataset ? inferSpecialty(dataset) : undefined, [dataset]);
+  const specialty = useMemo(() => dataset ? inferReportSpecialty(dataset) : undefined, [dataset]);
+  const customerPortfolio = Boolean(intelligence?.findings.some((finding) => finding.id === 'preview:customer-portfolio:interruption'));
+  const genericIntelligence = useMemo(() => dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format]);
   const universalIntelligence = useMemo(() => dataset ? buildUniversalReportIntelligence({
     specialty: specialty ?? null,
+    archetypeHintId: customerPortfolio ? 'customers.activity' : undefined,
+    previewIntelligence: customerPortfolio ? intelligence ?? undefined : undefined,
+    generalIntelligence: genericIntelligence ?? undefined,
     rowCount: dataset.rowCount,
     sourceAnalysis: { datasets: [dataset] },
     canonicalRows: dataset.rows.map((data, index) => ({ row_number: index + 1, data })),
     sourcePath: file?.name ?? dataset.name,
     sourceHash: file?.hash ?? null,
-  }) : null, [dataset, file, specialty]);
-  const genericIntelligence = useMemo(() => !specialty && dataset ? buildGenericFileIntelligence(dataset, file?.format ?? 'unknown') : null, [dataset, file?.format, specialty]);
+  }) : null, [dataset, file, specialty, customerPortfolio, intelligence, genericIntelligence]);
   const summary = useMemo(() => dataset ? {
     mapped: dataset.columns.filter(c => !!c.mappedField).length,
     unmapped: dataset.columns.filter(c => !c.mappedField).length,
@@ -283,7 +469,7 @@ export function ExternalFileAnalysisPage() {
       </div>
     </CardBody></Card>}
     {file && intelligence && <PreviewIntelligenceCard intelligence={intelligence} />}
-    {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} />}
+    {file && genericIntelligence && <GenericFileIntelligenceCard intelligence={genericIntelligence} format={file.format} sourcePath={file.name} sourceHash={file.hash} />}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {file && universalIntelligence && <Card className="overflow-hidden border-primary-100 bg-[linear-gradient(135deg,rgba(247,245,255,.98),rgba(255,255,255,.98)_55%,rgba(255,249,236,.98))]">
       <CardBody>
@@ -319,11 +505,11 @@ export function ExternalFileAnalysisPage() {
         </div>
       </CardBody>
     </Card>}
-    {file && universalIntelligence && <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+    {file && universalIntelligence && <details open className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4">
         <div className="flex items-center justify-between gap-4">
-          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل والدليل الفني متاحان للمراجعة دون إغراق النتيجة التنفيذية.</div></div>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح التفاصيل</span>
+          <div><div className="section-kicker">تفاصيل التحليل</div><div className="mt-1 text-base font-black text-ink-950">كيف وصل النظام إلى هذه النتيجة؟</div><div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل مع الإشارات والأدلة ظاهر مباشرة، ويمكن طيّه بعد المراجعة.</div></div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">ظاهر الآن · اضغط للطي</span>
         </div>
       </summary>
       <div className="border-t border-ink-100 p-3 lg:p-4"><UniversalIntelligenceChain result={universalIntelligence}/></div>

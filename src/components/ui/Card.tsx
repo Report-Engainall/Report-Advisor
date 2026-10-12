@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type HTMLAttributes, type ReactNode } from 'react';
 
 export type CardVariant =
   | 'standard'
@@ -12,7 +12,7 @@ export type CardVariant =
   | 'quality'
   | 'alert';
 
-interface CardProps {
+interface CardProps extends Omit<HTMLAttributes<HTMLElement>, 'children' | 'className' | 'onClick'> {
   children: ReactNode;
   className?: string;
   hover?: boolean;
@@ -20,10 +20,11 @@ interface CardProps {
   variant?: CardVariant;
 }
 
-export function Card({ children, className = '', hover = false, onClick, variant = 'standard' }: CardProps) {
+export function Card({ children, className = '', hover = false, onClick, variant = 'standard', ...attributes }: CardProps) {
   const interactive = Boolean(onClick || hover);
   return (
     <section
+      {...attributes}
       onClick={onClick}
       className={'card ag-card ag-card-' + variant + (interactive ? ' ag-card-interactive' : '') + (hover ? ' card-hover cursor-pointer ' : ' ') + className}
     >

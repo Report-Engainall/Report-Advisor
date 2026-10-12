@@ -14,6 +14,11 @@ on:
 permissions:
   contents: read
 
+# Preserve only the latest live evidence-gate run for this PR; this job queries Staging.
+concurrency:
+  group: report-evidence-passport-gate-live-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   live-gate-proof:
     runs-on: ubuntu-latest

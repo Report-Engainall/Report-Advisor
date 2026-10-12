@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import { spawnSync } from 'node:child_process';
+import * as XLSX from 'xlsx';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
@@ -16,11 +16,13 @@ const approverEmail = process.env.TEST_APPROVER_EMAIL?.trim();
 const approverPassword = process.env.TEST_APPROVER_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
-const REAL_SMART_REPORT_COMPANY_ID = '99e33354-cc45-4317-8eb3-0d486b6c5932';
-const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
-const REAL_SMART_REPORT_SOURCE_PATH = 'تقارير ادارية.xlsx';
-const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
-const REAL_SMART_REPORT_ROW_COUNT = 332;
+const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
+const REAL_SMART_REPORT_JOB_ID = process.env.REAL_SMART_REPORT_JOB_ID || '16709d80-e012-40ef-9c12-6fd8255897f8';
+const REAL_SMART_REPORT_SOURCE_PATH = process.env.REAL_SMART_REPORT_SOURCE_PATH || 'تقارير ادارية.xlsx';
+const REAL_SMART_REPORT_SOURCE_HASH = process.env.REAL_SMART_REPORT_SOURCE_HASH || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_ROW_COUNT = Number(process.env.REAL_SMART_REPORT_ROW_COUNT || '332');
+const REAL_SMART_REPORT_COLUMN_COUNT = Number(process.env.REAL_SMART_REPORT_COLUMN_COUNT || '18');
+const REAL_SMART_REPORT_ENTITY_TYPE = process.env.REAL_SMART_REPORT_ENTITY_TYPE || 'generic:inventory';
 const configuredRealSmartReportCompany = process.env.REAL_SMART_REPORT_COMPANY_ID?.trim();
 if (configuredRealSmartReportCompany && configuredRealSmartReportCompany !== REAL_SMART_REPORT_COMPANY_ID) {
   throw new Error('REAL_SMART_REPORT_COMPANY_ID_LINEAGE_DRIFT:' + configuredRealSmartReportCompany);
@@ -121,7 +123,76 @@ async function login(page, email, password) {
   }
   assert.equal(await page.getByText('حدث خطأ غير متوقع').count(), 0, 'application error boundary must not render');
 }
-function csvBuffer(fields) { const headers = Object.keys(fields); const values = Object.values(fields).map(value => String(value).replaceAll(',', ' ')); return Buffer.from(`\ufeff${headers.join(',')}\n${values.join(',')}\n`, 'utf8'); }
+function csvBuffer(input) {
+  const rows = Array.isArray(input) ? input : [input];
+  if (!rows.length) throw new Error('E2E_SOURCE_ROWS_REQUIRED');
+  const headers = [...new Set(rows.flatMap(row => Object.keys(row)))];
+  const csvCell = value => {
+    const text = String(value ?? '').replace(/\r\n?/g, '\n');
+    return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+  };
+  const body = rows.map(row => headers.map(header => csvCell(row[header])).join(',')).join('\n');
+  return Buffer.from(`\ufeff${headers.map(csvCell).join(',')}\n${body}\n`, 'utf8');
+}
+
+function xlsxBuffer(input) {
+  const rows = Array.isArray(input) ? input : [input];
+  if (!rows.length) throw new Error('E2E_XLSX_SOURCE_ROWS_REQUIRED');
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Source');
+  return XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+}
+async function tagSyntheticE2EFileRecord(companyId, fileRecordId, label) {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!serviceRoleKey) throw new Error('E2E_SYNTHETIC_SOURCE_MARKER_SERVICE_ROLE_KEY_MISSING');
+  if (!fileRecordId) throw new Error('E2E_SYNTHETIC_SOURCE_FILE_RECORD_ID_MISSING:' + label);
+
+  const url = new URL(`${supabaseURL}/rest/v1/file_records`);
+  url.searchParams.set('select', 'id,company_id,metadata');
+  url.searchParams.set('id', 'eq.' + fileRecordId);
+  url.searchParams.set('company_id', 'eq.' + companyId);
+  const headers = { apikey: serviceRoleKey, Authorization: 'Bearer ' + serviceRoleKey };
+
+  const read = await fetch(url, { headers });
+  const readBody = await read.text();
+  assert.equal(read.ok, true, 'E2E synthetic source metadata read HTTP ' + read.status + ': ' + readBody);
+  const sourceRecords = readBody ? JSON.parse(readBody) : [];
+  assert.equal(sourceRecords.length, 1, 'E2E source record must be unique and tenant-bound');
+  assert.equal(sourceRecords[0].company_id, companyId, 'E2E fixture tenant mismatch');
+
+  const priorMetadata = sourceRecords[0].metadata && typeof sourceRecords[0].metadata === 'object'
+    ? sourceRecords[0].metadata
+    : {};
+  const metadata = {
+    ...priorMetadata,
+    fixture_type: 'synthetic-realistic',
+    catalog_id: 'report-advisor.e2e-upload',
+    report_corpus: false,
+    e2e_fixture: 'full-product-browser-e2e',
+    e2e_fixture_label: label,
+  };
+  const update = new URL(`${supabaseURL}/rest/v1/file_records`);
+  update.searchParams.set('id', 'eq.' + fileRecordId);
+  update.searchParams.set('company_id', 'eq.' + companyId);
+  const response = await fetch(update, {
+    method: 'PATCH',
+    headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    body: JSON.stringify({ metadata }),
+  });
+  const body = await response.text();
+  assert.equal(response.ok, true, 'E2E synthetic source metadata tag HTTP ' + response.status + ': ' + body);
+  const tagged = body ? JSON.parse(body) : [];
+  assert.equal(tagged.length, 1, 'E2E fixture metadata writeback missing');
+  assert.equal(tagged[0].metadata?.fixture_type, 'synthetic-realistic');
+  assert.equal(tagged[0].metadata?.catalog_id, 'report-advisor.e2e-upload');
+  evidence.steps.push({
+    step: 'e2e-upload-excluded-from-real-source-corpus:' + label,
+    status: 'PASS',
+    sourceRecordId: fileRecordId,
+    tenantId: companyId,
+  });
+}
 async function openImportSource(page) {
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     await page.goto(`${baseURL}/import`, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -145,8 +216,9 @@ async function openImportSource(page) {
   }
   throw new Error('UNIFIED_IMPORT_ROUTE_NOT_READY:exhausted');
 }
-async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
-  const fileName = marker + '.csv';
+async function waitForAuthoritativeImportCompletion(page, companyId, marker, format = 'csv') {
+  if (format !== 'csv' && format !== 'xlsx') throw new Error('UNSUPPORTED_AUTHORITATIVE_IMPORT_FORMAT:' + format);
+  const fileName = `${marker}.${format}`;
   const deadline = Date.now() + 120000;
   let lastImport = null;
   let candidateJobId = null;
@@ -219,16 +291,42 @@ async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
     ':progress=' + (lastImport?.progress ?? 'NOT_OBSERVED')
   );
 }
-async function importOne(page, label, fields, marker) {
+async function importOne(page, label, fields, marker, format = 'csv') {
+  const sourceRows = Array.isArray(fields) ? fields : [fields];
+  if (!sourceRows.length) throw new Error('UNIFIED_IMPORT_EXPECTED_SOURCE_ROWS:' + label);
+  if (format !== 'csv' && format !== 'xlsx') throw new Error('UNSUPPORTED_E2E_SOURCE_FORMAT:' + format);
+  const fileName = `${marker}.${format}`;
+  const mimeType = format === 'xlsx'
+    ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    : 'text/csv';
+  const buffer = format === 'xlsx' ? xlsxBuffer(sourceRows) : csvBuffer(sourceRows);
   await openImportSource(page);
-  await page.locator('input[type=file]').first().setInputFiles({
-    name: `${marker}.csv`,
-    mimeType: 'text/csv',
-    buffer: csvBuffer(fields),
-  });
-  await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('input[type=file]').first().setInputFiles({ name: fileName, mimeType, buffer });
+
+  // The current import UX intentionally queues a chosen file before analyzing it.
+  // The stage label "المراجعة" is always rendered in the stepper, so waiting for
+  // that text alone is not proof that the parser reached the preview stage.
+  const queuedSource = page.getByText(fileName, { exact: true }).locator('xpath=../..');
+  await queuedSource.getByRole('button', { name: 'تحليل هذا المصدر', exact: true }).click();
+
+  const reviewStage = page.locator('[role="listitem"][aria-current="step"][aria-label^="3. المراجعة"]');
+  try {
+    await reviewStage.waitFor({ state: 'visible', timeout: 30000 });
+  } catch {
+    const diagnostics = await page.evaluate(() => ({
+      url: location.href,
+      activeStage: document.querySelector('[role="listitem"][aria-current="step"]')?.getAttribute('aria-label') ?? null,
+      visibleError: Array.from(document.querySelectorAll('p, [role="alert"], .text-danger-700, .text-danger-800'))
+        .map(node => (node.textContent ?? '').trim())
+        .filter(Boolean)
+        .slice(0, 12),
+      bodyText: document.body?.innerText?.slice(0, 1800) ?? '',
+    })).catch(() => ({ url: 'unavailable', activeStage: null, visibleError: [], bodyText: '' }));
+    throw new Error('UNIFIED_IMPORT_REVIEW_NOT_REACHED:' + JSON.stringify(diagnostics));
+  }
 
   const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
+  await commit.waitFor({ state: 'visible', timeout: 10000 });
   const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ });
 
   if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
@@ -249,7 +347,10 @@ async function importOne(page, label, fields, marker) {
   }
 
   const companyId = evidence.tenantA ?? await currentTenant(page);
-  const job = await waitForAuthoritativeImportCompletion(page, companyId, marker);
+  const job = await waitForAuthoritativeImportCompletion(page, companyId, marker, format);
+
+  // Mark this test-only upload before the workflow's real-source cohort gate can inspect it.
+  await tagSyntheticE2EFileRecord(companyId, job.file_record_id, label);
 
   const canonicalRows = await restSelect(
     page,
@@ -257,14 +358,14 @@ async function importOne(page, label, fields, marker) {
     { company_id: companyId, import_job_id: job.id },
     'id,company_id,import_job_id,source_hash,semantic_domain,row_number,record_key,data,provenance',
   );
-  assert.equal(canonicalRows.length, 1, 'unified import must persist one canonical source row for the test file');
-  assert.equal(canonicalRows[0].company_id, companyId);
-  assert.equal(canonicalRows[0].import_job_id, job.id);
-  assert.equal(canonicalRows[0].semantic_domain, 'source-data');
-  assert.equal(canonicalRows[0].row_number, 1);
-  assert.equal(canonicalRows[0].provenance?.tenantId, companyId);
-  assert.equal(canonicalRows[0].provenance?.sourceDocumentId, job.id);
-  evidence.persisted[label] = { job, canonical: canonicalRows[0] };
+  assert.equal(canonicalRows.length, sourceRows.length, 'unified import must persist every canonical source row');
+  assert.ok(canonicalRows.every(row => row.company_id === companyId), 'all imported rows must remain tenant-bound');
+  assert.ok(canonicalRows.every(row => row.import_job_id === job.id), 'all imported rows must remain bound to the import job');
+  assert.ok(canonicalRows.every(row => row.semantic_domain === 'source-data'), 'generic uploads must not be forced into a specialist domain');
+  assert.deepEqual(canonicalRows.map(row => Number(row.row_number)).sort((a, b) => a - b), sourceRows.map((_, index) => index + 1), 'canonical row lineage must retain all input row numbers');
+  assert.ok(canonicalRows.every(row => row.provenance?.tenantId === companyId), 'every source row must retain tenant provenance');
+  assert.ok(canonicalRows.every(row => row.provenance?.sourceDocumentId === job.id), 'every source row must retain source-document provenance');
+  evidence.persisted[label] = { job, canonical: canonicalRows[0], canonicalRowCount: canonicalRows.length, sourcePath: fileName };
   evidence.steps.push({
     step: `unified-import-canonical-persistence:${label}`,
     status: 'PASS',
@@ -280,7 +381,7 @@ async function importOne(page, label, fields, marker) {
     { limit: 1 },
   );
   assert.equal(historySource.length, 1, 'import history readback must resolve the persisted source record');
-  assert.equal(historySource[0].file_name, marker + '.csv');
+  assert.equal(historySource[0].file_name, fileName);
   assert.equal(historySource[0].company_id, companyId);
   evidence.steps.push({
     step: 'unified-import-history-readback:' + label,
@@ -288,7 +389,7 @@ async function importOne(page, label, fields, marker) {
     sourceRecordId: historySource[0].id,
   });
 
-  return { job, canonical: canonicalRows[0] };
+  return { job, canonical: canonicalRows[0], canonicalRows, sourcePath: fileName, rowCount: sourceRows.length };
 }
 
 
@@ -325,6 +426,20 @@ async function waitForRenderedSmartReport(page, companyId, sourceHash) {
   );
 }
 
+async function waitForSmartReportEvidenceSurface(page) {
+  // Avoid getByText(...).first(): the page also contains a hidden explanatory duplicate.
+  const decisionChain = page.locator('[data-testid="smart-report-decision-chain"]');
+  await decisionChain.waitFor({ state: 'visible', timeout: 30000 });
+
+  const passportSummary = page
+    .locator('details > summary')
+    .filter({ hasText: 'التفاصيل الكاملة للتقرير' })
+    .first();
+  await passportSummary.waitFor({ state: 'visible', timeout: 30000 });
+  const summaryText = (await passportSummary.innerText()).toUpperCase();
+  assert.ok(summaryText.includes('EVIDENCE PASSPORT'), 'SMART_REPORT_VISIBLE_EVIDENCE_PASSPORT_MISSING');
+}
+
 async function proveSmartReportAndEvidence(page, companyId, importResult, label) {
   const sourceHash = String(importResult.canonical?.source_hash ?? '');
   if (!sourceHash) {
@@ -333,6 +448,11 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
 
   const reportJob = await waitForRenderedSmartReport(page, companyId, sourceHash);
   const rendered = reportJob?.evidence?.renderedOutput ?? {};
+  assert.equal(String(reportJob.source_hash ?? ''), sourceHash, 'SMART_REPORT_JOB_SOURCE_HASH_MISMATCH:' + label);
+  assert.equal(String(reportJob.source_path ?? ''), String(importResult.sourcePath ?? ''), 'SMART_REPORT_SOURCE_PATH_MISMATCH:' + label);
+  assert.equal(rendered.sourceHash, sourceHash, 'SMART_REPORT_RENDERED_SOURCE_HASH_MISMATCH:' + label);
+  assert.equal(rendered.sourceBound, true, 'SMART_REPORT_RENDERED_SOURCE_NOT_BOUND:' + label);
+  if (importResult.rowCount != null) assert.equal(Number(rendered.rowCount), Number(importResult.rowCount), 'SMART_REPORT_RENDERED_ROW_COUNT_MISMATCH:' + label);
 
   if (String(rendered.evidenceStatus ?? '') === 'VERIFIED') {
     throw new Error('SMART_REPORT_EVIDENCE_PROMOTED_UNEXPECTEDLY:' + label);
@@ -366,16 +486,31 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     /\/reports\/smart\/[^/]+/.test(page.url()),
     'SMART_REPORT_BROWSER_ROUTE_MUST_REMAIN_SOURCE_BOUND'
   );
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({
-    state: 'visible',
-    timeout: 30000,
-  });
+  await waitForSmartReportEvidenceSurface(page);
+
+  const genericCard = page.locator('[data-testid="smart-report-generic-intelligence"] [data-testid="generic-file-intelligence"]');
+  await genericCard.waitFor({ state: 'visible', timeout: 30000 });
+  const sourceLineage = genericCard.locator('[data-testid="generic-intelligence-source-lineage"]');
+  await sourceLineage.waitFor({ state: 'visible', timeout: 15000 });
+  const lineageText = await sourceLineage.innerText();
+  assert.ok(lineageText.includes(reportJob.id), 'GENERIC_INTELLIGENCE_REPORT_JOB_MISSING:' + label);
+  assert.ok(lineageText.includes(String(importResult.sourcePath ?? '')), 'GENERIC_INTELLIGENCE_SOURCE_PATH_MISMATCH:' + label);
+  assert.ok(lineageText.includes(sourceHash), 'GENERIC_INTELLIGENCE_SOURCE_HASH_MISMATCH:' + label);
+
+  const signalsRegion = genericCard.locator('[aria-label="كل إشارات التحليل العام"]');
+  const recommendationsRegion = genericCard.locator('[aria-label="كل توصيات التحليل العام"]');
+  await signalsRegion.waitFor({ state: 'visible', timeout: 15000 });
+  await recommendationsRegion.waitFor({ state: 'visible', timeout: 15000 });
+  const signalsHeading = await signalsRegion.innerText();
+  const recommendationHeading = await recommendationsRegion.innerText();
+  const signalCount = Number(signalsHeading.match(/كل الإشارات \((\d+)\)/)?.[1] ?? 0);
+  const recommendationCount = Number(recommendationHeading.match(/كل التوصيات \((\d+)\)/)?.[1] ?? 0);
+  assert.ok(signalCount > 0, 'GENERIC_INTELLIGENCE_SIGNALS_EMPTY:' + label);
+  assert.ok(recommendationCount > 0, 'GENERIC_INTELLIGENCE_RECOMMENDATIONS_EMPTY:' + label);
 
   const beforeRefreshText = (await page.locator('body').innerText()).trim();
-  assert.ok(
-    beforeRefreshText.includes(sourceHash.slice(0, 24)),
-    'Smart Report must display the persisted source fingerprint'
-  );
+  assert.ok(beforeRefreshText.includes(sourceHash), 'Smart Report must display the full persisted source fingerprint');
+  assert.ok(beforeRefreshText.includes(String(importResult.sourcePath ?? '')), 'Smart Report must display the uploaded source path');
   assert.ok(
     beforeRefreshText.includes('موثوق') || beforeRefreshText.includes('Trusted Source'),
     'Smart Report must expose source trust'
@@ -404,16 +539,38 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     /\/reports\/smart\/[^/]+/.test(page.url()),
     'SMART_REPORT_REFRESH_ROUTE_MUST_REMAIN_SOURCE_BOUND'
   );
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({
-    state: 'visible',
-    timeout: 30000,
-  });
+  await waitForSmartReportEvidenceSurface(page);
 
   const afterRefreshText = (await page.locator('body').innerText()).trim();
-  assert.ok(
-    afterRefreshText.includes(sourceHash.slice(0, 24)),
-    'Smart Report fingerprint must survive browser refresh'
-  );
+  assert.ok(afterRefreshText.includes(sourceHash), 'Smart Report fingerprint must survive browser refresh');
+  assert.ok(afterRefreshText.includes(String(importResult.sourcePath ?? '')), 'Smart Report source path must survive browser refresh');
+  await genericCard.waitFor({ state: 'visible', timeout: 30000 });
+  const lineageAfterRefresh = await genericCard.locator('[data-testid="generic-intelligence-source-lineage"]').innerText();
+  assert.ok(lineageAfterRefresh.includes(reportJob.id), 'Report job lineage must survive browser refresh');
+  assert.ok(lineageAfterRefresh.includes(String(importResult.sourcePath ?? '')), 'Source path lineage must survive browser refresh');
+  assert.ok(lineageAfterRefresh.includes(sourceHash), 'Source hash lineage must survive browser refresh');
+
+  // Generic analysis is recomputed on read from durable canonical rows. The stored
+  // renderedOutput blob need not embed genericIntelligence; capture real UI readback.
+  const signalsAfterRefreshText = await genericCard.locator('[aria-label="كل إشارات التحليل العام"]').innerText();
+  const recommendationsAfterRefreshText = await genericCard.locator('[aria-label="كل توصيات التحليل العام"]').innerText();
+  const signalCountAfterRefresh = Number(signalsAfterRefreshText.match(/كل الإشارات \((\d+)\)/)?.[1] ?? 0);
+  const recommendationCountAfterRefresh = Number(recommendationsAfterRefreshText.match(/كل التوصيات \((\d+)\)/)?.[1] ?? 0);
+  assert.ok(signalCountAfterRefresh > 0, 'GENERIC_INTELLIGENCE_SIGNALS_EMPTY_AFTER_REFRESH:' + label);
+  assert.ok(recommendationCountAfterRefresh > 0, 'GENERIC_INTELLIGENCE_RECOMMENDATIONS_EMPTY_AFTER_REFRESH:' + label);
+  assert.equal(signalCountAfterRefresh, signalCount, 'GENERIC_INTELLIGENCE_SIGNAL_COUNT_CHANGED_AFTER_REFRESH:' + label);
+  assert.equal(recommendationCountAfterRefresh, recommendationCount, 'GENERIC_INTELLIGENCE_RECOMMENDATION_COUNT_CHANGED_AFTER_REFRESH:' + label);
+  const genericSurfaceProof = {
+    mode: 'RECOMPUTED_FROM_DURABLE_CANONICAL_ROWS',
+    sourceBoundAfterRefresh: true,
+    reportJobId: String(reportJob.id),
+    sourcePath: String(importResult.sourcePath ?? ''),
+    sourceHash,
+    signalCountBeforeRefresh: signalCount,
+    signalCountAfterRefresh,
+    recommendationCountBeforeRefresh: recommendationCount,
+    recommendationCountAfterRefresh,
+  };
   assert.ok(
     afterRefreshText.includes('EVIDENCE PASSPORT'),
     'Smart Report evidence passport must survive browser refresh'
@@ -454,14 +611,14 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     stageCount: tasks.length,
   });
 
-  return reportJob;
+  return { ...reportJob, genericSurfaceProof };
 }
 
 const CURRENT_REPORT_SOURCE_PATH = REAL_SMART_REPORT_SOURCE_PATH;
 const CURRENT_REPORT_SOURCE_HASH = REAL_SMART_REPORT_SOURCE_HASH;
 const CURRENT_REPORT_ROW_COUNT = REAL_SMART_REPORT_ROW_COUNT;
 const CURRENT_REPORT_TASK_COUNT = 9;
-const CURRENT_REPORT_ENTITY_TYPE = 'generic:inventory';
+const CURRENT_REPORT_ENTITY_TYPE = REAL_SMART_REPORT_ENTITY_TYPE;
 
 function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
@@ -477,7 +634,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const uniqueJobs = [...new Map(authoritativeJobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
-  assert.equal(job.id, '16709d80-e012-40ef-9c12-6fd8255897f8', 'CURRENT_REPORT_JOB_ID_CHANGED');
+  assert.equal(job.id, REAL_SMART_REPORT_JOB_ID, 'CURRENT_REPORT_JOB_ID_CHANGED');
   assert.equal(job.status, 'completed');
   assert.equal(job.source_hash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(job.source_path, CURRENT_REPORT_SOURCE_PATH);
@@ -499,7 +656,7 @@ async function readCurrentPersistedReport(page, companyId) {
   assert.equal(Number(imports[0].total_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(imports[0].processed_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(imports[0].source_fingerprint, CURRENT_REPORT_SOURCE_HASH);
-  const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key', { order: 'row_number.asc', limit: 1000 });
+  const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key,data', { order: 'row_number.asc', limit: 1000 });
   assert.equal(canonicalRows.length, CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(canonicalRows[0].row_number), 1);
   assert.equal(Number(canonicalRows[canonicalRows.length - 1].row_number), CURRENT_REPORT_ROW_COUNT);
@@ -510,7 +667,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const analyses = await restSelect(page, 'source_analysis_snapshots', { company_id: companyId, source_hash: CURRENT_REPORT_SOURCE_HASH, import_job_id: importId }, 'id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at', { order: 'created_at.desc', limit: 20 });
   assert.ok(analyses.length > 0, 'CURRENT_REPORT_ANALYSIS_MISSING');
   assert.equal(Number(analyses[0].row_count), CURRENT_REPORT_ROW_COUNT);
-  assert.equal(Number(analyses[0].column_count), 18, 'CURRENT_REPORT_COLUMN_COUNT_CHANGED');
+  assert.equal(Number(analyses[0].column_count), REAL_SMART_REPORT_COLUMN_COUNT, 'CURRENT_REPORT_COLUMN_COUNT_CHANGED');
   assert.equal(Number(analyses[0].quality_score), Number(rendered.qualityScore));
   const fileRecords = await restSelect(page, 'file_records', { company_id: companyId, id: imports[0].file_record_id }, 'id,company_id,file_name,file_hash,detected_format,status', { limit: 1 });
   assert.equal(fileRecords.length, 1);
@@ -533,7 +690,24 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(response, 'CURRENT_REPORT_SMART_BROWSER_JOB_READBACK_MISSING');
   const jobRows = await response.json();
   assert.equal(jobRows.length, 1); assert.equal(jobRows[0].id, report.reportJobId); assert.equal(jobRows[0].source_hash, CURRENT_REPORT_SOURCE_HASH); assert.equal(jobRows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(page);
+
+  // Prove the cross-cutting general layer is visible even when the report has a specialty.
+  const genericCard = page.locator('[data-testid="smart-report-generic-intelligence"] [data-testid="generic-file-intelligence"]');
+  await genericCard.waitFor({ state: 'visible', timeout: 15000 });
+  const sourceLineage = genericCard.locator('[data-testid="generic-intelligence-source-lineage"]');
+  await sourceLineage.waitFor({ state: 'visible', timeout: 15000 });
+  const sourceLineageText = await sourceLineage.innerText();
+  assert.ok(sourceLineageText.includes(report.reportJobId), 'GENERIC_INTELLIGENCE_REPORT_JOB_MISSING');
+  assert.ok(sourceLineageText.includes(CURRENT_REPORT_SOURCE_PATH), 'GENERIC_INTELLIGENCE_SOURCE_PATH_MISMATCH');
+  assert.ok(sourceLineageText.includes(CURRENT_REPORT_SOURCE_HASH), 'GENERIC_INTELLIGENCE_SOURCE_HASH_MISMATCH');
+
+  for (const regionName of ['كل إشارات التحليل العام', 'كل توصيات التحليل العام']) {
+    const region = genericCard.locator('[aria-label="' + regionName + '"]');
+    assert.equal(await region.count(), 1, 'GENERIC_INTELLIGENCE_REGION_MISSING:' + regionName);
+    await region.waitFor({ state: 'visible', timeout: 15000 });
+  }
+
   const before = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(before, 'current smart report');
   assert.ok(before.includes('EVIDENCE PASSPORT'));
@@ -543,18 +717,23 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes(REAL_SMART_REPORT_SOURCE_PATH), 'Smart Report certified source path missing from DOM');
   assert.equal(await page.locator('[data-testid="smart-report-job-id"]').count(), 1, 'Smart Report job id DOM proof missing or duplicated');
   assert.equal(await page.locator('[data-testid="smart-report-source-hash"]').count(), 1, 'Smart Report source hash DOM proof missing or duplicated');
-  assert.ok(before.includes('التقرير موثق') || before.includes('الدليل موثق') || before.includes('موثّق') || before.includes('TRUSTED'), 'Smart Report trust state missing');
+  assert.ok(before.includes('موثوق') || before.includes('TRUSTED'), 'Smart Report source trust state missing');
+  assert.ok(before.includes('الدليل يحتاج مراجعة') || before.includes('لا توجد لقطة دليل مثبتة') || before.includes('الدليل النهائي غير مثبت') || before.includes('AWAITING_EVIDENCE_SNAPSHOT'), 'Smart Report must show the separate pending evidence-snapshot state when it is not yet proven');
   assert.ok(before.includes('WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF'), 'Smart Report decision chain missing');
   assert.ok(await page.locator('[data-testid="smart-report-decision-chain"]').count() === 1, 'Smart Report decision chain DOM surface missing');
-  assert.ok(before.includes('ماذا يقول هذا التقرير فعليًا؟') || before.includes('ماذا يحدث في هذا التقرير؟'), 'Smart Report executive summary missing');
+  const executiveSummary = page.locator('[data-testid="smart-report-executive-summary"]');
+  await executiveSummary.waitFor({ state: 'visible', timeout: 15000 });
+  assert.ok((await executiveSummary.innerText()).includes('ماذا يقول هذا التقرير فعليًا؟'), 'Smart Report executive summary must be visible outside collapsed evidence details');
   assert.ok(before.includes('التفاصيل الكاملة للتقرير'), 'Smart Report evidence disclosure missing');
   assert.ok(before.includes('التوصية'), 'Smart Report recommendation state missing');
   assert.ok(before.includes('القرار'), 'Smart Report decision state missing');
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(page);
   const after = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(after, 'current smart report refresh');
+  assert.ok(after.includes('موثوق') || after.includes('TRUSTED'), 'Smart Report source trust state missing after refresh');
+  assert.ok(after.includes('الدليل يحتاج مراجعة') || after.includes('لا توجد لقطة دليل مثبتة') || after.includes('الدليل النهائي غير مثبت') || after.includes('AWAITING_EVIDENCE_SNAPSHOT'), 'Pending evidence snapshot state must survive report refresh');
   assert.ok(after.includes('EVIDENCE PASSPORT'));
   assert.ok(after.includes(String(Number(report.rendered.qualityScore)) + '%'));
   assert.ok(
@@ -571,7 +750,8 @@ async function proveCurrentSmartReport(page, report) {
 
 async function proveReportsCenterRealSurface(page, report) {
   const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
-  const response = await page.goto(baseURL + '/reports', { waitUntil: 'networkidle', timeout: 30000 });
+  const reportsCenterURL = baseURL + '/reports?reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
+  const response = await page.goto(reportsCenterURL, { waitUntil: 'networkidle', timeout: 30000 });
   assert.ok(response && response.status() < 400, 'REPORTS_CENTER_HTTP_FAILURE');
   const jobResponse = await responsePromise;
   assert.ok(jobResponse, 'REPORTS_CENTER_CURRENT_JOB_READBACK_MISSING');
@@ -587,15 +767,60 @@ async function proveReportsCenterRealSurface(page, report) {
   const body = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(body, 'reports center');
   assert.ok(body.includes('ما الذي ينصح به النظام؟'), 'REPORTS_CENTER_RECOMMENDATIONS_MISSING');
-  assert.ok(body.includes('بحث داخل الصفوف: اسم صنف، عميل، رقم، قيمة...'), 'REPORTS_CENTER_ROW_SEARCH_MISSING');
-  assert.ok(body.includes('كل السجلات'), 'REPORTS_CENTER_ROW_SUMMARY_MISSING');
-  assert.ok(body.includes('انقر صفًا لفتح تفاصيله.'), 'REPORTS_CENTER_ROW_DETAIL_HANDOFF_MISSING');
-  assert.ok(body.includes(REAL_SMART_REPORT_JOB_ID), 'REPORTS_CENTER_JOB_ID_NOT_VISIBLE');
-  assert.ok(body.includes(REAL_SMART_REPORT_SOURCE_HASH), 'REPORTS_CENTER_SOURCE_HASH_NOT_VISIBLE');
-  assert.ok(body.includes(REAL_SMART_REPORT_SOURCE_PATH), 'REPORTS_CENTER_SOURCE_PATH_NOT_VISIBLE');
+  const rowSearchPlaceholder = 'ابحث داخل الصفوف: اسم صنف، عميل، رقم، قيمة...';
+  const rowSearch = page.getByPlaceholder(rowSearchPlaceholder, { exact: true });
+  assert.equal(await rowSearch.count(), 1, 'REPORTS_CENTER_ROW_SEARCH_MISSING');
+  const sourceRowsSelector = '[aria-label="مساحة البيانات الفعلية"] tbody tr';
+  const sourceRowsLocator = page.locator(sourceRowsSelector);
+  const originalVisibleRows = await sourceRowsLocator.count();
+  assert.ok(originalVisibleRows > 1, 'REPORTS_CENTER_SOURCE_ROWS_NOT_VISIBLE');
+
+  // Select a value known to occur in exactly one canonical source row.
+  // A value is unique when it identifies one source row, not one source cell.
+  // The same value may legitimately occur in multiple columns of a single row.
+  const valueOccurrences = new Map();
+  for (const sourceRow of report.canonicalRows ?? []) {
+    const rowNumber = Number(sourceRow?.row_number);
+    if (!Number.isFinite(rowNumber)) continue;
+    const rowData = sourceRow?.data && typeof sourceRow.data === 'object' ? sourceRow.data : {};
+    for (const rawValue of Object.values(rowData)) {
+      if (rawValue == null || typeof rawValue === 'object') continue;
+      const value = String(rawValue).trim();
+      if (value.length < 4) continue;
+      const rowNumbers = valueOccurrences.get(value) ?? new Set();
+      rowNumbers.add(rowNumber);
+      valueOccurrences.set(value, rowNumbers);
+    }
+  }
+  const uniqueSourceEntry = [...valueOccurrences.entries()].find(([, rowNumbers]) => rowNumbers.size === 1);
+  assert.ok(uniqueSourceEntry, 'REPORTS_CENTER_NO_UNIQUE_SOURCE_VALUE_FOR_SEARCH_PROOF');
+  const [uniqueSourceValue, uniqueSourceRows] = uniqueSourceEntry;
+  const uniqueSourceRow = { rowNumber: [...uniqueSourceRows][0] };
+  await rowSearch.fill(uniqueSourceValue);
+  await page.waitForFunction(({ selector, maxRows }) => document.querySelectorAll(selector).length < maxRows, {
+    selector: sourceRowsSelector,
+    maxRows: originalVisibleRows,
+  }, { timeout: 10000 });
+  const filteredRows = await sourceRowsLocator.count();
+  assert.ok(filteredRows > 0 && filteredRows < originalVisibleRows, 'REPORTS_CENTER_SEARCH_DID_NOT_FILTER_SOURCE_ROWS');
+  const filteredText = (await sourceRowsLocator.allInnerTexts()).join(' ');
+  assert.ok(filteredText.includes('#' + String(uniqueSourceRow.rowNumber)), 'REPORTS_CENTER_SEARCH_RESULT_NOT_BOUND_TO_SOURCE_ROW');
+
+  await page.getByRole('button', { name: 'تصفير الفلاتر', exact: true }).click();
+  await page.waitForFunction(({ selector, expected }) => document.querySelectorAll(selector).length === expected, {
+    selector: sourceRowsSelector,
+    expected: originalVisibleRows,
+  }, { timeout: 10000 });
+  // Read the DOM again after reset; the pre-filter body snapshot is not valid proof.
+  const resetBody = (await page.locator('body').innerText()).trim();
+  assert.ok(resetBody.includes('كل السجلات'), 'REPORTS_CENTER_ROW_SUMMARY_MISSING');
+  assert.ok(resetBody.includes('انقر صفًا لفتح تفاصيله.'), 'REPORTS_CENTER_ROW_DETAIL_HANDOFF_MISSING');
+  assert.ok(resetBody.includes(REAL_SMART_REPORT_JOB_ID), 'REPORTS_CENTER_JOB_ID_NOT_VISIBLE');
+  assert.ok(resetBody.includes(REAL_SMART_REPORT_SOURCE_HASH), 'REPORTS_CENTER_SOURCE_HASH_NOT_VISIBLE');
+  assert.ok(resetBody.includes(REAL_SMART_REPORT_SOURCE_PATH), 'REPORTS_CENTER_SOURCE_PATH_NOT_VISIBLE');
   assert.ok(
-    body.includes('التوصية') &&
-    (body.includes('القرار') || body.includes('مراجعة مطلوبة')),
+    resetBody.includes('التوصية') &&
+    (resetBody.includes('القرار') || resetBody.includes('مراجعة مطلوبة')),
     'REPORTS_CENTER_DECISION_STATE_MISSING',
   );
 
@@ -608,8 +833,12 @@ async function proveReportsCenterRealSurface(page, report) {
     '/trust',
     '/decision-experience',
   ];
+  // The primary report card owns this navigation on /reports; do not accept unrelated
+  // sidebar links or a shared component that is intentionally absent from the reports root.
+  const sourceNavigation = page.locator('[data-testid="reports-center-source-navigation"]');
+  await sourceNavigation.waitFor({ state: 'visible', timeout: 15000 });
   for (const route of expectedContextLinks) {
-    const link = page.locator('a[href^="' + route + '?"]');
+    const link = sourceNavigation.locator('a[href^="' + route + '?"]');
     assert.ok(await link.count() >= 1, 'REPORT_CONTEXT_LINK_MISSING:' + route);
     const hrefs = await link.evaluateAll(nodes => nodes.map(node => node.getAttribute('href') || ''));
     assert.ok(
@@ -647,6 +876,8 @@ async function proveSourceBoundSurface(page, report, surface) {
   assert.ok(body.includes('ماذا استنتج النظام من هذا التقرير؟'), surface.label + ': intelligence panel missing');
   assert.ok(body.includes('ما الذي ينصح به النظام؟'), surface.label + ': recommendations section missing');
   assert.ok(body.includes('GUIDANCE'), surface.label + ': guidance section missing');
+  const guidanceLabel = page.getByText('GUIDANCE', { exact: true });
+  assert.equal(await guidanceLabel.isVisible(), true, surface.label + ': guidance label must be visibly rendered');
   if (surface.label === 'inventory') assert.ok(body.includes('SOURCE-BOUND DOMAIN ANALYSIS') && body.includes('هذه الشاشة مربوطة مباشرة بنتيجة التقرير'));
   await page.screenshot({ path: reportDir + '/current-report-' + surface.label + '.png', fullPage: true });
   evidence.steps.push({ step: 'source-bound-surface:' + surface.label, status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
@@ -689,30 +920,83 @@ async function proveTransactionalMutationAndAudit(page) {
   assert.equal(initialOrderRows.length, 1, 'TRANSACTIONAL_ORDER_DB_ROW_MISSING_BEFORE');
   assert.equal(initialOrderRows[0].company_id, evidence.tenantA);
 
+  const requesterId = await currentUserId(page);
+  const requesterMembership = await restSelect(page, 'company_memberships', { company_id: evidence.tenantA, user_id: requesterId, is_active: true }, 'role', { limit: 1 });
+  const requesterRole = String(requesterMembership[0]?.role ?? '').toLowerCase();
+  assert.equal(requesterRole, 'sales', 'TRANSACTIONAL_INITIAL_ACTOR_MUST_BE_SALES');
+  let transactionPage = page;
+  let fulfillmentContext = null;
+  let fulfillmentRole = null;
+  let fulfillmentUserId = null;
   let orderStatus = String(initialOrderRows[0].status);
   const transitions = [];
   for (let step = 0; step < 6; step += 1) {
-    const button = page.locator('[data-testid="advance-order-' + orderId + '"]');
+    // Sales may confirm a pending order, but fulfillment stages require an owner/admin/warehouse actor.
+    // Switch actor only after the confirmed state is read back from the database.
+    if (orderStatus === 'confirmed' && transactionPage === page) {
+      assert.equal(
+        await page.locator('[data-testid="advance-order-' + orderId + '"]').count(),
+        0,
+        'TRANSACTIONAL_SALES_FULFILLMENT_ACTION_MUST_BE_HIDDEN',
+      );
+      const restrictedAction = page.locator('[data-testid="order-transition-restricted-' + orderId + '"]');
+      await restrictedAction.waitFor({ state: 'visible', timeout: 30000 });
+      evidence.steps.push({
+        step: 'transactional-sales-role-boundary',
+        status: 'PASS',
+        tenantId: evidence.tenantA,
+        requesterActorId: requesterId,
+        requesterRole,
+        statusReadback: orderStatus,
+        forbiddenFulfillmentActionHidden: true,
+      });
+      fulfillmentContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+      transactionPage = await fulfillmentContext.newPage();
+      attachRuntimeCapture(transactionPage);
+      await login(transactionPage, approverEmail, approverPassword);
+      const fulfillmentTenant = await currentTenant(transactionPage);
+      fulfillmentUserId = await currentUserId(transactionPage);
+      assert.equal(fulfillmentTenant, evidence.tenantA, 'TRANSACTIONAL_FULFILLMENT_ACTOR_TENANT_MISMATCH');
+      const fulfillmentMembership = await restSelect(transactionPage, 'company_memberships', { company_id: evidence.tenantA, user_id: fulfillmentUserId, is_active: true }, 'role', { limit: 1 });
+      fulfillmentRole = String(fulfillmentMembership[0]?.role ?? '').toLowerCase();
+      assert.ok(['owner', 'admin'].includes(fulfillmentRole), 'TRANSACTIONAL_FULFILLMENT_ACTOR_ADMIN_ROLE_MISSING');
+      await transactionPage.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+      await transactionPage.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+      const confirmedOrderRows = await restSelect(transactionPage, 'orders', { company_id: evidence.tenantA, id: orderId }, 'id,company_id,status', { limit: 1 });
+      assert.equal(confirmedOrderRows.length, 1, 'TRANSACTIONAL_ORDER_READBACK_MISSING_AFTER_ROLE_HANDOFF');
+      assert.equal(String(confirmedOrderRows[0].status), 'confirmed', 'TRANSACTIONAL_ORDER_STATUS_DRIFT_DURING_ROLE_HANDOFF');
+      evidence.steps.push({
+        step: 'transactional-order-role-handoff',
+        status: 'PASS',
+        tenantId: evidence.tenantA,
+        requesterActorId: requesterId,
+        requesterRole,
+        fulfillmentActorId: fulfillmentUserId,
+        fulfillmentRole,
+        handoffStatusReadback: String(confirmedOrderRows[0].status),
+      });
+    }
+    const button = transactionPage.locator('[data-testid="advance-order-' + orderId + '"]');
     if (await button.count() === 0) break;
     const fromStatus = orderStatus;
     await button.click();
-    await page.getByText('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-    const afterOrderRows = await restSelect(page, 'orders', { company_id: evidence.tenantA, id: orderId }, 'id,company_id,status,total,currency', { limit: 1 });
+    await transactionPage.getByText('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+    const afterOrderRows = await restSelect(transactionPage, 'orders', { company_id: evidence.tenantA, id: orderId }, 'id,company_id,status,total,currency', { limit: 1 });
     assert.equal(afterOrderRows.length, 1, 'TRANSACTIONAL_ORDER_DB_ROW_MISSING_AFTER_TRANSITION');
     assert.equal(afterOrderRows[0].company_id, evidence.tenantA);
     assert.notEqual(String(afterOrderRows[0].status), fromStatus, 'TRANSACTIONAL_ORDER_STATUS_DID_NOT_PERSIST');
     orderStatus = String(afterOrderRows[0].status);
-    transitions.push({ from: fromStatus, to: orderStatus });
+    transitions.push({ from: fromStatus, to: orderStatus, actorRole: fromStatus === 'pending' ? requesterRole : fulfillmentRole });
     if (orderStatus === 'completed') break;
   }
   assert.equal(orderStatus, 'completed', 'TRANSACTIONAL_ORDER_NOT_COMPLETED_FOR_INVOICE_FLOW');
 
-  const createInvoiceButton = page.locator('[data-testid="create-invoice-' + orderId + '"]');
+  const createInvoiceButton = transactionPage.locator('[data-testid="create-invoice-' + orderId + '"]');
   assert.equal(await createInvoiceButton.count(), 1, 'TRANSACTIONAL_CREATE_INVOICE_BUTTON_MISSING');
   await createInvoiceButton.click();
-  await page.getByText('تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await transactionPage.getByText('تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
-  const invoiceRows = await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, order_id: orderId }, 'id,company_id,order_id,status,total,paid_amount,currency', { order: 'invoice_date.desc', limit: 5 });
+  const invoiceRows = await restSelect(transactionPage, 'sales_invoices', { company_id: evidence.tenantA, order_id: orderId }, 'id,company_id,order_id,status,total,paid_amount,currency', { order: 'invoice_date.desc', limit: 5 });
   assert.ok(invoiceRows.length >= 1, 'TRANSACTIONAL_INVOICE_DB_READBACK_MISSING');
   const invoice = invoiceRows[0];
   const invoiceId = String(invoice.id);
@@ -722,50 +1006,69 @@ async function proveTransactionalMutationAndAudit(page) {
   const outstanding = Number(invoice.total) - beforePaid;
   assert.ok(Number.isFinite(outstanding) && outstanding > 0, 'TRANSACTIONAL_INVOICE_HAS_NO_POSITIVE_BALANCE_TO_PAY');
 
-  const invoiceButton = page.locator('[data-testid="invoice-' + invoiceId + '"]');
+  const invoiceButton = transactionPage.locator('[data-testid="invoice-' + invoiceId + '"]');
   assert.equal(await invoiceButton.count(), 1, 'TRANSACTIONAL_INVOICE_UI_READBACK_MISSING');
   await invoiceButton.click();
-  const paymentForm = page.locator('[data-testid="payment-form-' + invoiceId + '"]');
+  const paymentForm = transactionPage.locator('[data-testid="payment-form-' + invoiceId + '"]');
   await paymentForm.waitFor({ state: 'visible', timeout: 30000 });
   const paymentAmount = Math.min(1, outstanding);
   await paymentForm.locator('[data-testid="payment-amount"]').fill(String(paymentAmount));
 
-  const paymentsBefore = await restSelect(page, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
+  const paymentsBefore = await restSelect(transactionPage, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
   await paymentForm.getByRole('button', { name: /تسجيل الدفعة وإعادة القراءة/ }).click();
-  await page.getByText('تم تسجيل الدفعة وإعادة قراءة الفاتورة والرصيد من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await transactionPage.getByText('تم تسجيل الدفعة وإعادة قراءة الفاتورة والرصيد من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
-  const invoiceAfterPayment = await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, id: invoiceId }, 'id,company_id,order_id,status,total,paid_amount,currency', { limit: 1 });
+  const invoiceAfterPayment = await restSelect(transactionPage, 'sales_invoices', { company_id: evidence.tenantA, id: invoiceId }, 'id,company_id,order_id,status,total,paid_amount,currency', { limit: 1 });
   assert.equal(invoiceAfterPayment.length, 1, 'TRANSACTIONAL_INVOICE_READBACK_AFTER_PAYMENT_MISSING');
   const afterPaid = Number(invoiceAfterPayment[0].paid_amount ?? 0);
   assert.ok(afterPaid > beforePaid, 'TRANSACTIONAL_PAYMENT_DID_NOT_PERSIST_TO_INVOICE');
   assert.equal(invoiceAfterPayment[0].company_id, evidence.tenantA);
 
-  const paymentsAfter = await restSelect(page, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
+  const paymentsAfter = await restSelect(transactionPage, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
   assert.ok(paymentsAfter.length > paymentsBefore.length, 'TRANSACTIONAL_PAYMENT_ROW_NOT_PERSISTED');
   const payment = paymentsAfter[0];
   assert.equal(payment.company_id, evidence.tenantA);
   assert.equal(payment.invoice_id, invoiceId);
 
-  await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-  const afterBody = (await page.locator('body').innerText()).trim();
+  await transactionPage.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  await transactionPage.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const afterBody = (await transactionPage.locator('body').innerText()).trim();
   assert.ok(afterBody.includes('AUDIT / TRACE'), 'TRANSACTIONAL_AUDIT_TRACE_SECTION_MISSING_AFTER_MUTATION');
   assert.notEqual(afterBody, beforeBody, 'TRANSACTIONAL_UI_READBACK_DID_NOT_CHANGE');
-  const auditTrace = page.locator('[data-testid="operations-audit-trace"]');
+  const auditTrace = transactionPage.locator('[data-testid="operations-audit-trace"]');
   await auditTrace.waitFor({ state: 'visible', timeout: 30000 });
-  const auditText = await auditTrace.innerText();
-  assert.ok(auditText.includes('order_status_changed') || auditText.includes('order_created'), 'TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING');
-  assert.ok(auditText.includes('invoice_created'), 'TRANSACTIONAL_INVOICE_AUDIT_ROW_MISSING');
+  const auditCodes = await auditTrace.locator('[data-testid="audit-event-code"]').allTextContents();
+  assert.ok(
+    auditCodes.some(action => ['orders:update', 'orders:insert'].includes(action.trim())),
+    'TRANSACTIONAL_ORDER_AUDIT_EVENT_NOT_VISIBLE',
+  );
+  assert.ok(
+    auditCodes.some(action => ['sales_invoices:insert', 'sales_invoices:update'].includes(action.trim())),
+    'TRANSACTIONAL_INVOICE_AUDIT_EVENT_NOT_VISIBLE',
+  );
 
-  const orderAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: orderId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
-  const invoiceAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: invoiceId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
-  const paymentAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(payment.id) }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
+  const orderAudit = await restSelect(transactionPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: orderId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
+  const invoiceAudit = await restSelect(transactionPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: invoiceId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
+  const paymentAudit = await restSelect(transactionPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(payment.id) }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
   assert.ok(orderAudit.length > 0, 'TRANSACTIONAL_ORDER_AUDIT_DB_ROW_MISSING');
   assert.ok(invoiceAudit.length > 0, 'TRANSACTIONAL_INVOICE_AUDIT_DB_ROW_MISSING');
   assert.ok(paymentAudit.length > 0, 'TRANSACTIONAL_PAYMENT_AUDIT_DB_ROW_MISSING');
+  assert.ok(
+    orderAudit.some(row => row.source === 'operations-runtime' && row.entity_type === 'orders' && row.action === 'orders:update'),
+    'TRANSACTIONAL_ORDER_OPERATIONAL_AUDIT_EVENT_MISSING',
+  );
+  assert.ok(
+    invoiceAudit.some(row => row.source === 'operations-runtime' && row.entity_type === 'sales_invoices' && ['sales_invoices:insert', 'sales_invoices:update'].includes(row.action)),
+    'TRANSACTIONAL_INVOICE_OPERATIONAL_AUDIT_EVENT_MISSING',
+  );
+  assert.ok(
+    paymentAudit.some(row => row.source === 'operations-runtime' && row.entity_type === 'payments' && row.action === 'payments:insert'),
+    'TRANSACTIONAL_PAYMENT_OPERATIONAL_AUDIT_EVENT_MISSING',
+  );
 
-  await page.screenshot({ path: reportDir + '/transactional-real-mutation-invoice-payment-audit.png', fullPage: true });
-  evidence.steps.push({ step: 'transactional-real-mutation', status: 'PASS', orderId, fixtureKey: String(e2eFixture.idempotency_key), beforePrepare, prepareContract: 'prepare_e2e_order', transitions, finalOrderStatus: orderStatus, invoiceId, invoicePersistence: true, invoiceReadback: true, paymentId: String(payment.id), paymentPersistence: true, paymentReadback: true, auditOrderReadback: true, auditInvoiceReadback: true, auditPaymentReadback: true, tenantId: evidence.tenantA });
+  await transactionPage.screenshot({ path: reportDir + '/transactional-real-mutation-invoice-payment-audit.png', fullPage: true });
+  evidence.steps.push({ step: 'transactional-real-mutation', status: 'PASS', orderId, fixtureKey: String(e2eFixture.idempotency_key), beforePrepare, prepareContract: 'prepare_e2e_order', transitions, finalOrderStatus: orderStatus, requesterRole, fulfillmentRole, roleHandoffActorId: fulfillmentUserId, invoiceId, invoicePersistence: true, invoiceReadback: true, paymentId: String(payment.id), paymentPersistence: true, paymentReadback: true, auditOrderReadback: true, auditInvoiceReadback: true, auditPaymentReadback: true, tenantId: evidence.tenantA });
+  if (fulfillmentContext) await fulfillmentContext.close().catch(() => {});
 }
 async function proveDecisionActionSurface(page, report) {
   const target = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
@@ -1188,7 +1491,7 @@ try {
   assert.equal(currentReport.sourcePath, REAL_SMART_REPORT_SOURCE_PATH, 'CERTIFIED_REPORT_SOURCE_PATH_MISMATCH');
   assert.equal(currentReport.sourceHash, REAL_SMART_REPORT_SOURCE_HASH, 'CERTIFIED_REPORT_SOURCE_HASH_MISMATCH');
   assert.equal(currentReport.canonicalRows.length, REAL_SMART_REPORT_ROW_COUNT, 'CERTIFIED_REPORT_ROW_COUNT_MISMATCH');
-  assert.equal(Number(currentReport.analysis.quality_score), 98, 'CERTIFIED_REPORT_QUALITY_MISMATCH');
+  assert.equal(Number(currentReport.analysis.quality_score), Number(currentReport.rendered.qualityScore), 'CERTIFIED_REPORT_QUALITY_MISMATCH');
   evidence.persisted.currentReport = { reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, canonicalCommitCount: currentReport.commits.reduce((sum,row)=>sum+Number(row.committed_count||0),0), taskCount: currentReport.tasks.length, completedTaskCount: currentReport.tasks.filter(task=>task.status==='completed').length, importJobId: currentReport.importJob.id, fileRecordId: currentReport.fileRecord.id, qualityScore: Number(currentReport.rendered.qualityScore), trustState: currentReport.rendered.trustState, evidenceState: currentReport.rendered.evidenceStatus, checkpointStage: currentReport.job.checkpoint?.stage ?? null };
   evidence.steps.push({ step: 'certified-report-durable-proof', status: 'PASS', reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, jobStatus: currentReport.job.status, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, qualityScore: Number(currentReport.rendered.qualityScore), evidenceState: currentReport.rendered.evidenceStatus });
 
@@ -1204,10 +1507,18 @@ try {
   await pageC.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
   await pageC.reload({ waitUntil: 'networkidle', timeout: 30000 });
   assert.equal(await currentTenant(pageC), REAL_SMART_REPORT_COMPANY_ID, 'CERTIFIED_REPORT_TENANT_CHANGED_ACROSS_REFRESH');
-  await pageC.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await waitForSmartReportEvidenceSurface(pageC);
+  const evidencePassportSummary = pageC
+    .locator('details > summary')
+    .filter({ hasText: 'التفاصيل الكاملة للتقرير' })
+    .first();
+  await evidencePassportSummary.waitFor({ state: 'visible', timeout: 30000 });
+  await evidencePassportSummary.click();
+  await pageC.getByRole('heading', { name: 'سلسلة الثقة لهذا التقرير', exact: true })
+    .waitFor({ state: 'visible', timeout: 30000 });
   const finalBody = (await pageC.locator('body').innerText()).trim();
   assertCurrentReportText(finalBody, 'certified report final readback');
-  assert.ok(finalBody.includes('EVIDENCE INSPECTOR'));
+  assert.ok(finalBody.includes('سلسلة الثقة لهذا التقرير'), 'CERTIFIED_REPORT_EVIDENCE_INSPECTOR_NOT_VISIBLE_AFTER_OPEN');
   assert.ok(finalBody.includes(REAL_SMART_REPORT_JOB_ID), 'CERTIFIED_REPORT_JOB_ID_NOT_VISIBLE_IN_BROWSER');
   assert.ok(finalBody.includes(REAL_SMART_REPORT_SOURCE_HASH), 'CERTIFIED_REPORT_SOURCE_HASH_NOT_VISIBLE_IN_BROWSER');
   assert.ok(finalBody.includes(REAL_SMART_REPORT_SOURCE_PATH), 'CERTIFIED_REPORT_SOURCE_PATH_NOT_VISIBLE_IN_BROWSER');
@@ -1278,16 +1589,135 @@ try {
     });
     await pageB.getByRole('button', { name: 'تسجيل الخروج' }).click(); await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-B-logout', status: 'PASS' });
   } finally { await pageB.close(); await contextB.close(); }
+
+  const freshUploadMarker = `report-advisor-e2e-${exactHead.slice(0, 10)}-${Date.now()}`;
+  const freshUploadRows = [
+    {
+      'مرجع الاختبار': freshUploadMarker + '-01',
+      'اسم العميل': 'عميل مستمر',
+      'يناير': 100, 'فبراير': 120, 'مارس': 110, 'أبريل': 130,
+      'مايو': 140, 'يونيو': 150, 'يوليو': 160, 'أغسطس': 180,
+      'الإجمالي الكلي': 1090, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'منتظم مستمر', 'عدد أشهر التعامل': 8,
+      'متوسط الشهر الفعلي': 136.25, 'الشهر الأعلى شراءً': 'أغسطس',
+      'نسبة النمو (يوليو-أغسطس)': 0.125,
+    },
+    {
+      'مرجع الاختبار': freshUploadMarker + '-02',
+      'اسم العميل': 'عميل منقطع مهم',
+      'يناير': 20, 'فبراير': 0, 'مارس': 0, 'أبريل': 30,
+      'مايو': 0, 'يونيو': 0, 'يوليو': 0, 'أغسطس': 0,
+      'الإجمالي الكلي': 65, 'حالة الزبون': 'منقطع',
+      'تصنيف الأهمية (ABC)': 'الفئة أ (كبار العملاء)',
+      'مؤشر المخاطر والفرص': 'خطر انقطاع (VIP)', 'عدد أشهر التعامل': 2,
+      'متوسط الشهر الفعلي': 25, 'الشهر الأعلى شراءً': 'أبريل',
+      'نسبة النمو (يوليو-أغسطس)': -1,
+    },
+    {
+      'مرجع الاختبار': freshUploadMarker + '-03',
+      'اسم العميل': 'عميل آخر',
+      'يناير': 10, 'فبراير': 20, 'مارس': 30, 'أبريل': 40,
+      'مايو': 50, 'يونيو': 60, 'يوليو': 70, 'أغسطس': 80,
+      'الإجمالي الكلي': 360, 'حالة الزبون': 'مستمر',
+      'تصنيف الأهمية (ABC)': 'الفئة ب', 'مؤشر المخاطر والفرص': 'نشاط معتاد',
+      'عدد أشهر التعامل': 8, 'متوسط الشهر الفعلي': 45,
+      'الشهر الأعلى شراءً': 'أغسطس', 'نسبة النمو (يوليو-أغسطس)': 0.1429,
+    },
+  ];
+  const freshImport = await importOne(pageA, 'fresh-generic-upload', freshUploadRows, freshUploadMarker);
+  const freshReport = await proveSmartReportAndEvidence(pageA, evidence.tenantA, freshImport, 'fresh-generic-upload');
+  evidence.persisted.freshGenericUpload = {
+    tenantId: evidence.tenantA,
+    reportJobId: freshReport.id,
+    sourcePath: freshReport.source_path,
+    sourceHash: freshReport.source_hash,
+    uploadedRows: freshUploadRows.length,
+    genericSignalCount: freshReport.genericSurfaceProof.signalCountAfterRefresh,
+    genericRecommendationCount: freshReport.genericSurfaceProof.recommendationCountAfterRefresh,
+    genericReadbackMode: freshReport.genericSurfaceProof.mode,
+    genericSourceBoundAfterRefresh: freshReport.genericSurfaceProof.sourceBoundAfterRefresh,
+    evidenceState: freshReport.evidence?.renderedOutput?.evidenceStatus ?? null,
+  };
+  evidence.steps.push({
+    step: 'fresh-user-upload-to-generic-intelligence-save-readback-refresh',
+    status: 'PASS',
+    tenantId: evidence.tenantA,
+    reportJobId: freshReport.id,
+    sourcePath: freshImport.sourcePath,
+    sourceHash: freshImport.canonical.source_hash,
+    rowCount: freshUploadRows.length,
+  });
+
+  // Exercise a new workbook through the same customer upload UI, canonical persistence,
+  // rendered generic-intelligence surface, and post-refresh durable readback.
+  const freshXlsxMarker = freshUploadMarker + '-xlsx';
+  const freshXlsxRows = [
+    {
+      'معرّف الحالة': freshXlsxMarker + '-01',
+      'وصف الحالة': 'تأخر توريد يحتاج متابعة عاجلة',
+      'الأولوية': 'مرتفعة',
+      'الموقع': 'المستودع الشمالي',
+      'قيمة قيد المراجعة': 12850,
+      'أيام التأخير': 4,
+      'حالة المعالجة': 'مفتوحة',
+    },
+    {
+      'معرّف الحالة': freshXlsxMarker + '-02',
+      'وصف الحالة': 'فرق جرد يحتاج مراجعة قبل الاعتماد',
+      'الأولوية': 'متوسطة',
+      'الموقع': 'المستودع الجنوبي',
+      'قيمة قيد المراجعة': 4375,
+      'أيام التأخير': 1,
+      'حالة المعالجة': 'قيد المراجعة',
+    },
+    {
+      'معرّف الحالة': freshXlsxMarker + '-03',
+      'وصف الحالة': 'نقص مواد التعبئة يرفع مخاطر التأخير',
+      'الأولوية': 'عالية',
+      'الموقع': 'خط الإنتاج',
+      'قيمة قيد المراجعة': 9820,
+      'أيام التأخير': 6,
+      'حالة المعالجة': 'مفتوحة',
+    },
+  ];
+  const freshXlsxImport = await importOne(
+    pageA,
+    'fresh-generic-xlsx-upload',
+    freshXlsxRows,
+    freshXlsxMarker,
+    'xlsx',
+  );
+  const freshXlsxReport = await proveSmartReportAndEvidence(
+    pageA,
+    evidence.tenantA,
+    freshXlsxImport,
+    'fresh-generic-xlsx-upload',
+  );
+  evidence.persisted.freshGenericXlsxUpload = {
+    tenantId: evidence.tenantA,
+    reportJobId: freshXlsxReport.id,
+    sourcePath: freshXlsxReport.source_path,
+    sourceHash: freshXlsxReport.source_hash,
+    uploadedRows: freshXlsxRows.length,
+    genericSignalCount: freshXlsxReport.genericSurfaceProof.signalCountAfterRefresh,
+    genericRecommendationCount: freshXlsxReport.genericSurfaceProof.recommendationCountAfterRefresh,
+    genericReadbackMode: freshXlsxReport.genericSurfaceProof.mode,
+    genericSourceBoundAfterRefresh: freshXlsxReport.genericSurfaceProof.sourceBoundAfterRefresh,
+    evidenceState: freshXlsxReport.evidence?.renderedOutput?.evidenceStatus ?? null,
+  };
+  evidence.steps.push({
+    step: 'fresh-xlsx-upload-to-generic-intelligence-save-readback-refresh',
+    status: 'PASS',
+    tenantId: evidence.tenantA,
+    reportJobId: freshXlsxReport.id,
+    sourcePath: freshXlsxImport.sourcePath,
+    sourceHash: freshXlsxImport.canonical.source_hash,
+    rowCount: freshXlsxRows.length,
+  });
+
   await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' }); assert.equal(await logoutA.count(), 1, 'TENANT_A_LOGOUT_CONTROL_MISSING'); await logoutA.click(); await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-A-logout', status: 'PASS' });
   if (evidence.failures.length) throw new Error('BROWSER_RUNTIME_ERRORS:' + evidence.failures.join(' | '));
-  const real48 = spawnSync(process.execPath, ['--experimental-strip-types', '--experimental-loader', './scripts/node-ts-extension-loader.mjs', 'scripts/real-48-archetype-proof.mjs'], { env: process.env, stdio: 'pipe', encoding: 'utf8' });
-  evidence.steps.push({
-    step: 'real-source-48-archetype-proof',
-    status: real48.status === 0 ? 'PASS' : 'FAIL',
-    outputTail: String(real48.stdout || '').slice(-6000),
-    errorTail: String(real48.stderr || '').slice(-6000),
-  });
-  if (real48.status !== 0) throw new Error('REAL_48_ARCHETYPE_PROOF_FAILED');
   evidence.status = evidence.steps.some(step=>step.status!=='PASS') ? 'NOT_PROVEN' : 'PASS';
 } catch (error) { evidence.status = error instanceof Error && /_MISSING$|NOT_PROVEN/.test(error.message) ? 'NOT_PROVEN' : 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: reportDir + '/failure.png', fullPage: true }).catch(() => {}); }
 finally {

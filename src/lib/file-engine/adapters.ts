@@ -50,7 +50,8 @@ function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<R
     }
 
     if (!mappedField) {
-      qualityIssues.push('لم يتم تعريف العمود');
+      // Missing semantic mapping is a review state, not a data-quality defect.
+      // Preserve the original field and let generic table intelligence analyze it.
       requiresReview = true;
     }
 

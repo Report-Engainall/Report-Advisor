@@ -131,6 +131,14 @@ const smartReportPagePath = fileURLToPath(new URL('../src/pages/SmartReportPage.
 const smartReportPage = fs.readFileSync(smartReportPagePath, 'utf8');
 assert.match(smartReportPage, /key === 'evidenceStatus' \? \(report\.evidenceStatus/, 'smart report status surface must use canonical evidence status instead of stale rendered output');
 assert.match(smartReportPage, /stateLabel\(report\.evidenceStatus\)/, 'evidence inspector must use canonical report verification state');
+assert.match(smartReportPage, /AWAITING_EVIDENCE_SNAPSHOT:\s*'بانتظار لقطة الدليل'/, 'pending evidence snapshot must be exposed with an explicit Arabic waiting label');
+assert.match(smartReportPage, /PENDING_EVIDENCE:\s*'بانتظار الدليل'/, 'uncommitted evidence must be exposed with an explicit Arabic waiting label');
+const truthStateSectionIndex = smartReportPage.indexOf('ما الذي ثبت وما الذي لم يُثبت');
+const evidencePassportDisclosureIndex = smartReportPage.indexOf('EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل');
+assert.ok(
+  truthStateSectionIndex >= 0 && evidencePassportDisclosureIndex > truthStateSectionIndex,
+  'truth-state decision summary must be rendered before the collapsed detailed evidence disclosure',
+);
 assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\s*\/>/, 'smart report must mount the intelligence panel');
 assert.match(smartReportPage, /<SmartReportAdvisorySurface report=\{report\}\s*\/>/, 'smart report must mount the advisory surface');
 

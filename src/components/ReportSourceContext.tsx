@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, CheckCircle2, CircleAlert, ShieldCheck } from 'lucide-react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchSmartReport, fetchSmartReportCatalog, fetchSmartReportCatalogPage, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useReportContext } from '@/components/ReportContext';
 import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
@@ -18,6 +18,35 @@ const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
 };
 
 const REPORT_CONTEXT_CACHE = new Map<string, SmartReportDetail>();
+const SOURCE_CONTEXT_SHORTCUTS = [
+  { path: '/intelligence', label: 'الذكاء' },
+  { path: '/advisor-cases', label: 'قضية Advisor' },
+  { path: '/work-center', label: 'العمل' },
+  { path: '/replay', label: 'إعادة التتبع' },
+  { path: '/benchmark', label: 'المقارنة' },
+  { path: '/trust', label: 'الدليل' },
+  { path: '/decision-experience?stage=evidence', label: 'القرار' },
+] as const;
+
+export function SourceContextNavigation({ jobId, sourceHash, variant = 'default' }: { jobId: string; sourceHash: string; variant?: 'default' | 'dark' }) {
+  const contextQuery = 'reportJobId=' + encodeURIComponent(jobId) + '&sourceHash=' + encodeURIComponent(sourceHash);
+  return (
+    <nav aria-label="مسارات التقرير الحالي" data-testid="report-source-context-links" className="mt-3 flex flex-wrap gap-2">
+      {SOURCE_CONTEXT_SHORTCUTS.map((item) => (
+        <Link
+          key={item.path}
+          to={item.path + (item.path.includes('?') ? '&' : '?') + contextQuery}
+          className={variant === 'dark'
+            ? 'inline-flex min-h-9 items-center rounded-lg border border-white/15 bg-white/[.06] px-3 py-2 text-[10px] font-bold text-slate-100 transition hover:border-primary-300/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300'
+            : 'btn-secondary text-[10px]'}
+        >
+          {item.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
 
 // These surfaces are part of the report-to-decision operating chain. Once a
 // verified report is active, navigation to any of them must carry the exact
@@ -54,6 +83,10 @@ function needsContextContinuity(pathname: string): boolean {
   return CONTEXT_CONTINUITY_PATHS.some((path) => pathname === path || pathname.startsWith(path + '/'));
 }
 
+function requestSignal(controller: AbortController): AbortSignal {
+  return AbortSignal.any([controller.signal, AbortSignal.timeout(12000)]);
+}
+
 function stateLabel(value: string | null): string {
   if (!value) return 'غير متاح';
   const labels: Record<string, string> = {
@@ -86,6 +119,26 @@ export function ReportSourceContext() {
   const [report, setReport] = useState<SmartReportDetail | null>(() => cacheKey ? REPORT_CONTEXT_CACHE.get(cacheKey) ?? null : null);
   const [error, setError] = useState<string | null>(null);
   const [contextResolving, setContextResolving] = useState(false);
+  const [recentReports, setRecentReports] = useState<SmartReportCatalogItem[]>([]);
+  const [recentReportsLoading, setRecentReportsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!needsContextContinuity(location.pathname) || location.pathname === '/reports' || location.pathname.startsWith('/reports/smart/')) {
+      setRecentReports([]);
+      setRecentReportsLoading(false);
+      return;
+    }
+    let active = true;
+    const controller = new AbortController();
+    setRecentReportsLoading(true);
+    void fetchSmartReportCatalogPage(6, 0, { signal: requestSignal(controller) })
+      .then((page) => { if (active) setRecentReports(page.reports); })
+      .catch((cause) => {
+        if (active && !controller.signal.aborted) console.warn('[ReportSourceContext] recent smart report navigation unavailable', cause);
+      })
+      .finally(() => { if (active) setRecentReportsLoading(false); });
+    return () => { active = false; controller.abort(); };
+  }, [location.pathname]);
 
   // Normalize the browser URL to the active report context. This closes the
   // exact failure mode where a global sidebar/journey link lands on a
@@ -104,24 +157,34 @@ export function ReportSourceContext() {
   }, [contextResolving, jobId, location.pathname, location.search, navigate, sourceHash, validSourceHash]);
 
   useEffect(() => {
+    if (!needsContextContinuity(location.pathname)) {
+      setContextResolving(false);
+      return;
+    }
     if (urlJobId && urlValidSourceHash) return;
     if (storedJobId && validSourceHash) return;
     let active = true;
+    const controller = new AbortController();
     setContextResolving(true);
     setError(null);
-    void fetchSmartReportCatalog(1, { signal: AbortSignal.timeout(12000) })
+    void fetchSmartReportCatalog(1, { signal: requestSignal(controller) })
       .then((catalog) => {
         if (!active) return;
         const latest = catalog[0];
         if (latest?.jobId && latest.sourceHash) setReportContext(latest.jobId, latest.sourceHash);
         else setError('لا يوجد تقرير مكتمل صالح للربط بالسياق الحالي.');
       })
-      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : String(cause)); })
+      .catch((cause) => { if (active && !controller.signal.aborted) setError(cause instanceof Error ? cause.message : String(cause)); })
       .finally(() => { if (active) setContextResolving(false); });
-    return () => { active = false; };
-  }, [urlJobId, urlValidSourceHash, storedJobId, validSourceHash, setReportContext]);
+    return () => { active = false; controller.abort(); };
+  }, [location.pathname, urlJobId, urlValidSourceHash, storedJobId, validSourceHash, setReportContext]);
 
   useEffect(() => {
+    if (!needsContextContinuity(location.pathname)) {
+      setReport(null);
+      setError(null);
+      return;
+    }
     if (contextResolving) return;
     if (!jobId || !validSourceHash) {
       setReport(null);
@@ -129,35 +192,60 @@ export function ReportSourceContext() {
       return;
     }
     let active = true;
+    const controller = new AbortController();
     const key = jobId + ':' + sourceHash;
     const cached = REPORT_CONTEXT_CACHE.get(key);
     if (cached) {
       setReport(cached);
       setError(null);
-      return () => { active = false; };
+      return () => { active = false; controller.abort(); };
     }
     setReport(null);
     setError(null);
-    void fetchSmartReport(jobId, sourceHash).then((value) => {
+    void fetchSmartReport(jobId, sourceHash, { signal: requestSignal(controller) }).then((value) => {
       if (!active) return;
       if (value && sourceHash && value.sourceHash !== sourceHash) {
         setReport(null);
         setError('مصدر التقرير لا يطابق البصمة المرسلة إلى هذه الشاشة.');
         return;
       }
-      if (value) REPORT_CONTEXT_CACHE.set(key, value);
+      if (!value) {
+        setReport(null);
+        setError('لم يتم العثور على التقرير المرتبط بالمصدر الحالي.');
+        return;
+      }
+      REPORT_CONTEXT_CACHE.set(key, value);
+      setError(null);
       setReport(value);
     }).catch((cause) => {
-      if (active) setError(cause instanceof Error ? cause.message : String(cause));
+      if (active && !controller.signal.aborted) setError(cause instanceof Error ? cause.message : String(cause));
     });
-    return () => { active = false; };
-  }, [jobId, sourceHash, validSourceHash]);
+    return () => { active = false; controller.abort(); };
+  }, [location.pathname, contextResolving, jobId, sourceHash, validSourceHash]);
+
+  if (!needsContextContinuity(location.pathname)) return null;
 
   if (contextResolving && !report) {
-    return <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite"><div className="text-[11px] font-black text-primary-950">جارٍ ربط أحدث تقرير ذكي بالسياق الحالي…</div><p className="mt-1 text-[10px] leading-5 text-primary-900/80">لن نعرض أرقامًا أو توصيات عامة؛ سيتم تحميل النتيجة من آخر تقرير مكتمل في نفس مساحة العمل.</p></section>;
+    return (
+      <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite">
+        <div className="text-[11px] font-black text-primary-950">جارٍ ربط أحدث تقرير ذكي بالسياق الحالي…</div>
+        <p className="mt-1 text-[10px] leading-5 text-primary-900/80">لن نعرض أرقامًا أو توصيات عامة؛ سيتم تحميل النتيجة من آخر تقرير مكتمل في نفس مساحة العمل.</p>
+        {jobId && validSourceHash ? <SourceContextNavigation jobId={jobId} sourceHash={sourceHash} /> : null}
+      </section>
+    );
   }
 
   if (!jobId || !validSourceHash) return null;
+
+  if (!report && !error) {
+    return (
+      <section dir="rtl" className="mb-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4" role="status" aria-live="polite" data-testid="report-source-context-loading">
+        <div className="text-[11px] font-black text-primary-950">جارٍ تحميل تفاصيل التقرير المرتبط بالمصدر…</div>
+        <p className="mt-1 text-[10px] leading-5 text-primary-900/80">هوية التقرير وبصمته محفوظتان؛ تبقى تفاصيل التحليل قيد القراءة، ولا يتوقف التنقل بين مساحات التقرير أثناء ذلك.</p>
+        <SourceContextNavigation jobId={jobId} sourceHash={sourceHash} />
+      </section>
+    );
+  }
 
   if (error || !report) {
     return (
@@ -168,6 +256,7 @@ export function ReportSourceContext() {
             <div className="text-[11px] font-black text-warning-950">سياق المصدر غير متاح</div>
             <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{error === 'INVALID_REPORT_CONTEXT' ? 'تعذر تحديد سياق التقرير الحالي. افتح التقرير من مركز التقارير.' : error ?? 'تعذر قراءة التقرير المصدرّي الحالي.'}</p>
             <Link to="/reports" className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-[10px] font-black text-warning-950">العودة إلى مركز التقارير <ArrowLeft size={13}/></Link>
+            <SourceContextNavigation jobId={jobId} sourceHash={sourceHash} />
           </div>
         </div>
       </section>
@@ -195,6 +284,37 @@ export function ReportSourceContext() {
   const nextLifecycle = lifecycleIndex >= 0 ? lifecycle[lifecycleIndex] : null;
   return (
     <div className="mb-4 space-y-3">
+      {location.pathname !== '/reports' && !location.pathname.startsWith('/reports/smart/') ? (
+        <section dir="rtl" className="rounded-2xl border border-ink-200 bg-white/95 px-4 py-3 shadow-sm" aria-label="التقارير الذكية الأخيرة" data-testid="recent-smart-report-navigation">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-[10px] font-black text-ink-950">التقارير الذكية الأخيرة</div>
+              <p className="mt-0.5 text-[9px] text-ink-500">افتح أي تقرير من مصدره الأصلي؛ تبقى بصمة المصدر ومعرّف المهمة مرتبطين بالتنقل.</p>
+            </div>
+            <Link to="/reports" className="text-[10px] font-black text-primary-700 hover:text-primary-900">عرض كل التقارير ←</Link>
+          </div>
+          {recentReports.length > 0 ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {recentReports.map((item) => (
+                <Link
+                  key={item.jobId + ':' + item.sourceHash}
+                  data-testid="recent-smart-report-link"
+                  to={'/reports/smart/' + encodeURIComponent(item.jobId) + '?sourceHash=' + encodeURIComponent(item.sourceHash)}
+                  className="group flex min-w-0 items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2.5 transition hover:border-primary-300 hover:bg-primary-50/60"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-[10px] font-black text-ink-900" title={item.sourcePath}>{item.sourcePath || 'تقرير أعمال بدون اسم'}</span>
+                    <span className="mt-1 block truncate text-[9px] text-ink-500">{item.specialty ? (DOMAIN_PATHS[item.specialty]?.label ?? 'تحليل أعمال') : 'تحليل أعمال ذكي'} · {item.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(item.rowCount) + ' صف'}</span>
+                  </span>
+                  <span className="shrink-0 text-[9px] font-black text-primary-700 group-hover:translate-x-[-2px]">فتح ←</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-[9px] text-ink-500">{recentReportsLoading ? 'جارٍ تحميل التقارير الأخيرة…' : 'لا توجد تقارير أخيرة متاحة للعرض على هذه الشاشة.'}</p>
+          )}
+        </section>
+      ) : null}
       <section dir="rtl" className="rounded-[20px] border border-ink-200 bg-ink-950 p-3 text-white shadow-sm" aria-label="سلسلة ذكاء التقرير الحالية">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">

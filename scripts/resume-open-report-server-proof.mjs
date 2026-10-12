@@ -1,7 +1,7 @@
 const SUPABASE_URL = process.env.REPORT_ADVISOR_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY;
-const EMAIL = process.env.TEST_USER_A_EMAIL;
-const PASSWORD = process.env.TEST_USER_A_PASSWORD;
+const EMAIL = process.env.OPEN_REPORT_TEST_USER_EMAIL || process.env.TEST_USER_A_EMAIL;
+const PASSWORD = process.env.OPEN_REPORT_TEST_USER_PASSWORD || process.env.TEST_USER_A_PASSWORD;
 const BASE_URL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4173';
 const JOB_ID = process.env.OPEN_REPORT_EXECUTION_JOB_ID;
 const EXPECTED_HASH = process.env.OPEN_REPORT_EXPECTED_SOURCE_HASH;
@@ -53,21 +53,18 @@ const auth = await supabaseFetch('/auth/v1/token?grant_type=password', {
 });
 const accessToken = required('ACCESS_TOKEN', auth.body?.access_token);
 
-const company = await rest('/rpc/current_company_id', accessToken, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: '{}',
-});
-const companyId = required('COMPANY_ID', typeof company.body === 'string' ? company.body : null);
-
+// Query the target job ID under the user's JWT before choosing a company context.
+ // Postgres RLS must return the row only to an authorized member of its owning tenant.
+ // The current/default company can legitimately differ from a saved report's owner.
 const before = await rest(
   '/report_execution_jobs?id=eq.' + encodeURIComponent(JOB_ID) +
-  '&company_id=eq.' + encodeURIComponent(companyId) +
-  '&select=id,status,source_path,source_hash,job_key,checkpoint,evidence',
+  '&select=id,company_id,status,source_path,source_hash,job_key,checkpoint,evidence',
   accessToken,
 );
 const beforeJob = before.body?.[0];
-if (!beforeJob) throw new Error('OPEN_REPORT_JOB_NOT_FOUND');
+if (!beforeJob) throw new Error('OPEN_REPORT_JOB_NOT_FOUND_OR_NOT_AUTHORIZED');
+if (before.body.length !== 1) throw new Error('OPEN_REPORT_JOB_ID_NOT_UNIQUE');
+const companyId = required('REPORT_JOB_COMPANY_ID', beforeJob.company_id);
 if (beforeJob.source_path !== EXPECTED_FILE) throw new Error('OPEN_REPORT_SOURCE_PATH_MISMATCH');
 if (beforeJob.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_SOURCE_HASH_MISMATCH');
 

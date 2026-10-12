@@ -7,10 +7,11 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState, userFacingE
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
+import { fetchSmartReport, fetchSmartReportCatalogPage, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { CustomerReportSurface } from '@/components/CustomerReportSurface';
+import { SourceContextNavigation } from '@/components/ReportSourceContext';
 import { BusinessDataExplorer } from '@/components/SourceBoundReportSurface';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
@@ -139,13 +140,51 @@ const reportCards = [
 ];
 
 export function ReportsCenterPage() {
+  // Preserve explicit report context when navigation originates from a Smart Report.
+  // A requested source must never silently fall back to the tenant's latest report.
+  const [searchParams] = useSearchParams();
+  const requestedReportJobId = searchParams.get('reportJobId')?.trim() || '';
+  const requestedSourceHash = searchParams.get('sourceHash')?.trim() || '';
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [smartReports, setSmartReports] = useState<SmartReportCatalogItem[]>([]);
+  const [catalogOffset, setCatalogOffset] = useState(0);
+  const [catalogHasMore, setCatalogHasMore] = useState(false);
+  const [catalogLoadingMore, setCatalogLoadingMore] = useState(false);
+  const [catalogLoadError, setCatalogLoadError] = useState<string | null>(null);
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [catalogFilter, setCatalogFilter] = useState<'all' | 'supported' | 'review'>('all');
+  const [catalogDisplayPage, setCatalogDisplayPage] = useState(0);
 
   const [primarySmartReport, setPrimarySmartReport] = useState<SmartReportDetail | null>(null);
+
+  const query = catalogSearch.trim().toLocaleLowerCase('ar');
+  const filteredSmartReports = smartReports.filter((report) => {
+    const searchable = [
+      report.sourcePath, report.specialty, specialtyLabel(report.specialty), report.jobId,
+      report.sourceHash, report.trustState, report.archetypeState, report.reportVerificationState,
+    ].filter(Boolean).join(' ').toLocaleLowerCase('ar');
+    if (query && !searchable.includes(query)) return false;
+    if (catalogFilter === 'supported') return report.archetypeState === 'SUPPORTED';
+    if (catalogFilter === 'review') {
+      return ['REVIEW_REQUIRED', 'NOT_AVAILABLE', 'INSUFFICIENT_SAMPLE', 'BLOCKED'].includes(String(report.archetypeState ?? ''))
+        || ['REVIEW', 'REVIEW_REQUIRED', 'PENDING', 'INSUFFICIENT_DATA', 'GAP_DETECTED'].includes(String(report.trustState ?? report.reportVerificationState ?? ''));
+    }
+    return true;
+  });
+  const SMART_REPORT_CATALOG_PAGE_SIZE = 9;
+  const catalogPageCount = Math.max(1, Math.ceil(filteredSmartReports.length / SMART_REPORT_CATALOG_PAGE_SIZE));
+  const visibleCatalogPage = Math.min(catalogDisplayPage, catalogPageCount - 1);
+  const visibleSmartReports = filteredSmartReports.slice(
+    visibleCatalogPage * SMART_REPORT_CATALOG_PAGE_SIZE,
+    (visibleCatalogPage + 1) * SMART_REPORT_CATALOG_PAGE_SIZE,
+  );
+  const catalogRangeStart = filteredSmartReports.length === 0 ? 0 : visibleCatalogPage * SMART_REPORT_CATALOG_PAGE_SIZE + 1;
+  const catalogRangeEnd = Math.min((visibleCatalogPage + 1) * SMART_REPORT_CATALOG_PAGE_SIZE, filteredSmartReports.length);
+
+  useEffect(() => { setCatalogDisplayPage(0); }, [catalogSearch, catalogFilter]);
 
   const load = useCallback(async (silent = false) => {
     if (silent) setRefreshing(true); else setLoading(true);
@@ -153,8 +192,9 @@ export function ReportsCenterPage() {
 
     // The catalog is the authority for "latest report". A fixed historical
     // report job must never outrank a newer completed report from the tenant.
-    const catalogPromise = fetchSmartReportCatalog(
+    const catalogPromise = fetchSmartReportCatalogPage(
       60,
+      0,
       { signal: AbortSignal.timeout(12000) },
     );
     const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
@@ -166,8 +206,12 @@ export function ReportsCenterPage() {
     const [catalogRead, dashboardRead] = await Promise.allSettled([catalogPromise, dashboardPromise]);
 
     if (catalogRead.status === 'fulfilled') {
-      catalog = catalogRead.value;
+      const catalogPage = catalogRead.value;
+      catalog = catalogPage.reports;
       setSmartReports(catalog);
+      setCatalogOffset(catalogPage.nextOffset ?? catalogPage.scanned);
+      setCatalogHasMore(catalogPage.nextOffset !== null);
+      setCatalogLoadError(null);
       const selected = catalog[0] ?? null;
       if (selected) {
         window.sessionStorage.setItem('aghbari:last-smart-report-job', selected.jobId);
@@ -177,6 +221,9 @@ export function ReportsCenterPage() {
       firstFailure ??= catalogRead.reason;
       console.warn('[ReportsCenter] smart report catalog readback failed', catalogRead.reason);
       setSmartReports([]);
+      setCatalogOffset(0);
+      setCatalogHasMore(false);
+      setCatalogLoadError(null);
     }
 
     if (dashboardRead.status === 'fulfilled') {
@@ -192,22 +239,41 @@ export function ReportsCenterPage() {
     // enriches the first/latest report without blocking the whole customer surface.
     if (catalog.length > 0 || dashboard) setLoading(false);
 
-    const selected = catalog[0] ?? null;
-    if (selected) {
+    let requestedContextFailure: unknown = null;
+    const selected = requestedReportJobId
+      ? { jobId: requestedReportJobId, sourceHash: requestedSourceHash }
+      : catalog[0] ?? null;
+
+    if (requestedReportJobId && !requestedSourceHash) {
+      requestedContextFailure = new Error('REPORT_SOURCE_HASH_REQUIRED');
+      firstFailure ??= requestedContextFailure;
+      setPrimarySmartReport(null);
+      window.sessionStorage.removeItem('aghbari:last-smart-report-job');
+      window.sessionStorage.removeItem('aghbari:last-smart-report-source-hash');
+    } else if (selected) {
       try {
         const detail = await fetchSmartReport(
           selected.jobId,
           selected.sourceHash,
           { signal: AbortSignal.timeout(15000) },
         );
-        if (detail) {
-          setPrimarySmartReport(detail);
-          window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
-          window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
+        if (!detail) throw new Error(requestedReportJobId ? 'INVALID_REPORT_CONTEXT' : 'SMART_REPORT_DETAIL_UNAVAILABLE');
+        if (requestedReportJobId && detail.sourceHash !== requestedSourceHash) {
+          throw new Error('REPORT_SOURCE_HASH_MISMATCH');
         }
+        setPrimarySmartReport(detail);
+        window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
+        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
       } catch (cause) {
         firstFailure ??= cause;
-        console.warn('[ReportsCenter] latest smart report detail readback failed', cause);
+        requestedContextFailure = requestedReportJobId ? cause : null;
+        console.warn(
+          requestedReportJobId
+            ? '[ReportsCenter] requested source context readback failed'
+            : '[ReportsCenter] latest smart report detail readback failed',
+          cause,
+        );
+        if (requestedReportJobId) setPrimarySmartReport(null);
       }
     } else {
       setPrimarySmartReport(null);
@@ -215,7 +281,9 @@ export function ReportsCenterPage() {
       window.sessionStorage.removeItem('aghbari:last-smart-report-source-hash');
     }
 
-    if (catalog.length === 0 && !dashboard && firstFailure) {
+    if (requestedContextFailure) {
+      setError(errorMessage(requestedContextFailure));
+    } else if (catalog.length === 0 && !dashboard && firstFailure) {
       setError(errorMessage(firstFailure));
     } else {
       setError(null);
@@ -225,9 +293,39 @@ export function ReportsCenterPage() {
       setLoading(false);
     }
     setRefreshing(false);
-  }, []);
+  }, [requestedReportJobId, requestedSourceHash]);
 
   useEffect(() => { void load(); }, [load]);
+
+  const loadMoreCatalog = useCallback(async () => {
+    if (!catalogHasMore || catalogLoadingMore) return;
+    setCatalogLoadingMore(true);
+    setCatalogLoadError(null);
+    try {
+      const page = await fetchSmartReportCatalogPage(
+        60,
+        catalogOffset,
+        { signal: AbortSignal.timeout(12000) },
+      );
+      setSmartReports((current) => {
+        const seen = new Set(current.map((report) => report.jobId + ':' + report.sourceHash));
+        const additions = page.reports.filter((report) => {
+          const key = report.jobId + ':' + report.sourceHash;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        return [...current, ...additions];
+      });
+      setCatalogOffset(page.nextOffset ?? catalogOffset + page.scanned);
+      setCatalogHasMore(page.nextOffset !== null);
+    } catch (cause) {
+      setCatalogLoadError(errorMessage(cause));
+    } finally {
+      setCatalogLoadingMore(false);
+    }
+  }, [catalogHasMore, catalogLoadingMore, catalogOffset]);
+
 
   if (loading) {
     return (
@@ -285,6 +383,20 @@ export function ReportsCenterPage() {
             </div>
             <h2 className="mt-2 text-2xl font-black tracking-tight lg:text-3xl">تقرير {specialty} قابل للقرار</h2>
             <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">المصدر: {primarySmartReport.sourcePath} · {rows.toLocaleString('ar-YE')} صفًا موثقًا · جودة المصدر {quality}</p>
+            <section data-testid="reports-center-source-lineage" aria-label="هوية المصدر المرتبط بالتقرير" className="mt-3 grid gap-2 rounded-xl border border-white/10 bg-white/[.04] p-3 text-[10px] leading-5 text-slate-200 sm:grid-cols-2">
+              <div className="min-w-0">
+                <div className="text-[9px] font-bold text-slate-400">معرّف التقرير</div>
+                <div data-testid="reports-center-source-job-id" className="break-all font-mono text-[10px]">{primarySmartReport.jobId}</div>
+              </div>
+              <div className="min-w-0">
+                <div className="text-[9px] font-bold text-slate-400">بصمة SHA-256 للمصدر</div>
+                <div data-testid="reports-center-source-hash" className="break-all font-mono text-[10px]">{primarySmartReport.sourceHash}</div>
+              </div>
+              <div className="min-w-0 sm:col-span-2">
+                <div className="text-[9px] font-bold text-slate-400">مسار المصدر</div>
+                <div data-testid="reports-center-source-path" className="break-words font-semibold">{primarySmartReport.sourcePath}</div>
+              </div>
+            </section>
             {signal ? <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.06] p-4">
               <div className="text-[9px] font-black tracking-[.08em] text-primary-200">أهم إشارة من المصدر</div>
               <div className="mt-1 text-sm font-black text-white">{signal.title}</div>
@@ -302,6 +414,13 @@ export function ReportsCenterPage() {
             </div>
             <Link to={'/reports/smart/' + primarySmartReport.jobId + '?sourceHash=' + encodeURIComponent(primarySmartReport.sourceHash)} className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950 transition hover:bg-ink-100">فتح التقرير الذكي ←</Link>
           </div>
+        </div>
+        <div data-testid="reports-center-source-navigation" className="mt-5 rounded-2xl border border-white/10 bg-white/[.035] p-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-[10px] font-black text-slate-100">تابع التقرير عبر مسار القرار</div>
+            <span className="text-[9px] text-slate-400">كل انتقال يحتفظ بارتباط المصدر نفسه</span>
+          </div>
+          <SourceContextNavigation jobId={primarySmartReport.jobId} sourceHash={primarySmartReport.sourceHash} variant="dark" />
         </div>
       </section>
     })() : snapshot ? <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
@@ -426,8 +545,54 @@ export function ReportsCenterPage() {
             ))}
           </div>
 
+          <div data-testid="smart-report-catalog-tools" className="mt-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-indigo-50/50 p-4 shadow-sm">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+              <label className="block min-w-0">
+                <span className="mb-2 block text-[10px] font-black text-slate-700">ابحث داخل مصادر وتقارير الأعمال</span>
+                <input type="search" aria-label="بحث في التقارير الذكية" value={catalogSearch}
+                  onChange={(event) => setCatalogSearch(event.target.value)}
+                  placeholder="اسم الملف، التخصص، معرّف التقرير أو بصمة المصدر…"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-right text-xs font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" />
+              </label>
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="تصفية التقارير الذكية">
+                {([
+                  ['all', 'كل التقارير', smartReports.length],
+                  ['supported', 'تخصص مدعوم', smartReports.filter((r) => r.archetypeState === 'SUPPORTED').length],
+                  ['review', 'تحتاج مراجعة', smartReports.filter((r) =>
+                    ['REVIEW_REQUIRED', 'NOT_AVAILABLE', 'INSUFFICIENT_SAMPLE', 'BLOCKED'].includes(String(r.archetypeState ?? ''))
+                    || ['REVIEW', 'REVIEW_REQUIRED', 'PENDING', 'INSUFFICIENT_DATA', 'GAP_DETECTED'].includes(String(r.trustState ?? r.reportVerificationState ?? '')),
+                  ).length],
+                ] as const).map(([value, label, count]) => (
+                  <button key={value} type="button" aria-pressed={catalogFilter === value}
+                    onClick={() => setCatalogFilter(value)}
+                    className={catalogFilter === value
+                      ? 'inline-flex items-center gap-2 rounded-full bg-slate-950 px-3 py-2 text-[10px] font-black text-white shadow-sm ring-2 ring-indigo-200'
+                      : 'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-[10px] font-bold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-800'}>
+                    {label}<span className={catalogFilter === value ? 'rounded-full bg-white/15 px-1.5 py-0.5 text-[9px]' : 'rounded-full bg-slate-100 px-1.5 py-0.5 text-[9px]'}>{count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 pt-3">
+              <p role="status" aria-live="polite" data-testid="smart-report-catalog-result-count" className="text-[10px] font-bold text-slate-600">
+                عرض {formatNumber(catalogRangeStart)}–{formatNumber(catalogRangeEnd)} من {formatNumber(filteredSmartReports.length)} تقرير
+                {catalogSearch ? ' — نتائج البحث' : ''} · الصفحة {formatNumber(visibleCatalogPage + 1)} من {formatNumber(catalogPageCount)}
+              </p>
+              {(catalogSearch || catalogFilter !== 'all') ? (
+                <button type="button" onClick={() => { setCatalogSearch(''); setCatalogFilter('all'); }} className="rounded-lg px-2.5 py-1.5 text-[10px] font-bold text-indigo-700 transition hover:bg-indigo-50">مسح التصفية</button>
+              ) : null}
+            </div>
+          </div>
+
+          {visibleSmartReports.length === 0 ? (
+            <div data-testid="smart-report-catalog-empty-filter" className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-sm"><FileBarChart size={20}/></div>
+              <h3 className="mt-3 text-sm font-black text-slate-900">لا توجد تقارير مطابقة</h3>
+              <p className="mt-1 text-xs text-slate-500">غيّر كلمة البحث أو أزل التصفية لعرض بقية المصادر المحفوظة.</p>
+            </div>
+          ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {smartReports.map((report, reportIndex) => {
+            {visibleSmartReports.map((report, reportIndex) => {
               const modelLabel = report.archetypeState === 'SUPPORTED'
                 ? 'تحليل متخصص جاهز'
                 : report.archetypeState === 'REVIEW_REQUIRED'
@@ -453,9 +618,9 @@ export function ReportsCenterPage() {
                       <div className="text-[9px] font-black text-ink-400">المصدر</div>
                       <div className="mt-1 truncate text-[10px] font-bold text-ink-800" title={report.sourcePath}>{report.sourcePath || 'مصدر غير مسمى'}</div>
                     </div>
-                    <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
-                      <div className="text-[9px] font-black text-ink-400">الفترة</div>
-                      <div className="mt-1 text-[10px] font-bold text-ink-800">غير محددة في المصدر</div>
+                    <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-3">
+                      <div className="text-[9px] font-black text-indigo-700">بصمة المصدر</div>
+                      <div className="mt-1 truncate font-mono text-[10px] font-bold text-slate-800" title={report.sourceHash}>{report.sourceHash.slice(0, 24)}…</div>
                     </div>
                   </div>
 
@@ -500,6 +665,43 @@ export function ReportsCenterPage() {
                 </Link>
               );
             })}
+          </div>
+          )}
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3" data-testid="smart-report-local-pagination">
+            <p className="text-[10px] font-semibold text-slate-600">عرض {formatNumber(catalogRangeStart)}–{formatNumber(catalogRangeEnd)} من {formatNumber(filteredSmartReports.length)} تقرير</p>
+            <div className="flex items-center gap-2">
+              <button type="button" data-testid="smart-report-local-previous" disabled={visibleCatalogPage === 0}
+                onClick={() => setCatalogDisplayPage((current) => Math.max(0, current - 1))}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-[10px] font-bold text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-35">السابق</button>
+              <span className="min-w-[4rem] text-center text-[10px] font-black text-slate-500">{formatNumber(visibleCatalogPage + 1)} / {formatNumber(catalogPageCount)}</span>
+              <button type="button" data-testid="smart-report-local-next" disabled={visibleCatalogPage >= catalogPageCount - 1}
+                onClick={() => setCatalogDisplayPage((current) => Math.min(catalogPageCount - 1, current + 1))}
+                className="rounded-lg bg-slate-950 px-3 py-2 text-[10px] font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-35">التالي</button>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 pt-4" data-testid="smart-report-catalog-pagination">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold text-ink-600">
+                تم تحميل {formatNumber(smartReports.length)} تقريرًا ذكيًا
+                {catalogHasMore ? ' — توجد تقارير أخرى في الصفحات التالية.' : ' — وصلنا إلى نهاية التقارير المتاحة.'}
+              </p>
+              {catalogLoadError ? <p className="mt-1 text-[10px] text-warning-700" role="alert">تعذر تحميل الصفحة التالية: {catalogLoadError}</p> : null}
+            </div>
+            {catalogHasMore ? (
+              <button
+                type="button"
+                data-testid="smart-report-catalog-load-more"
+                onClick={() => void loadMoreCatalog()}
+                disabled={catalogLoadingMore}
+                className="inline-flex items-center justify-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[10px] font-black text-primary-900 transition hover:bg-primary-100 disabled:cursor-wait disabled:opacity-60"
+              >
+                {catalogLoadingMore ? 'جارٍ تحميل التقارير…' : catalogLoadError ? 'إعادة المحاولة' : 'تحميل المزيد من التقارير الذكية'}
+              </button>
+            ) : (
+              <span data-testid="smart-report-catalog-end" className="rounded-full bg-ink-50 px-3 py-2 text-[9px] font-bold text-ink-500">تم تحميل كل التقارير المتاحة</span>
+            )}
           </div>
         </>
       )}

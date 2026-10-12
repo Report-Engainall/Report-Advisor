@@ -45,6 +45,15 @@ for (const token of [
   if (!workerRecoverySql.includes(token)) throw new Error(`Expired worker recovery reconciliation missing: ${token}`);
 }
 
+const snapshotProbe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
+for (const token of ['buildExportedSnapshotSql()', '--snapshot="$SNAPSHOT_ID"', "source_snapshot_strategy: 'postgres-exported-snapshot-shared-with-pg-dump'"]) {
+  if (!snapshotProbe.includes(token)) throw new Error('Logical restore snapshot binding missing: ' + token);
+}
+const snapshotHelper = fs.readFileSync(path.join(root,'src/server/logical-restore-snapshot.mjs'),'utf8');
+for (const token of ['SET TRANSACTION SNAPSHOT', 'logical_snapshot_id_invalid', 'BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE', 'pg_export_snapshot()']) {
+  if (!snapshotHelper.includes(token)) throw new Error('Logical restore snapshot helper missing: ' + token);
+}
+
 const roadmap = fs.readFileSync(path.join(root,'docs/IMPLEMENTATION_ROADMAP.md'),'utf8');
 for (const item of ['Automated tenant-isolation canary suite','Automated migration dry-run and schema drift detection','Backup freshness/restore verification','Queue health, stuck-worker and dead-letter alerting','Artifact delivery integrity monitoring','SLO dashboards, error budgets and incident evidence ledger','Periodic trust certification']) if (!roadmap.includes(item)) throw new Error(`Roadmap resilience item missing: ${item}`);
 console.log('Operational resilience contract: PASS');

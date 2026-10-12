@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import rollbackHandler, { deploymentReady } from '../api/rollback-drill.mjs';
+import { isTransientPostgresConnectionError, retryTransientPostgresConnection } from '../src/server/resilience-db-retry.mjs';
 import { isDisallowedOutboundAddress, isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch, sha256ResponseBody, runtimeIdentity } from '../src/server/resilience-runtime.mjs';
 
 const files = [
@@ -15,11 +16,65 @@ const files = [
 ];
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 const phaseFProbe = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
+const postgresRetrySource = fs.readFileSync('src/server/resilience-db-retry.mjs', 'utf8');
 assert.match(phaseFProbe, /create temp table _phase_f_counts\(table_name text, row_count bigint\)/);
 assert.match(phaseFProbe, /EXECUTE format\(/);
 assert.match(phaseFProbe, /SELECT table_name \|\| '\|' \|\| row_count::text FROM _phase_f_counts/);
 assert.match(phaseFProbe, /const governanceHead = process\.env\.GOVERNANCE_HEAD\?\.trim\(\) \|\| exactHead/);
 assert.match(phaseFProbe, /governanceHead,/);
+assert.match(phaseFProbe, /const volatileExcludeArgs = \[\.\.\.VOLATILE_RESTORE_TABLES\]/);
+assert.match(phaseFProbe, /--exclude-table-data=\$\{tableName\}/);
+assert.match(phaseFProbe, /--data-only \$\{volatileExcludeArgs\}/, 'logical backup must exclude data from volatile tables that depend on auth.users');
+assert.match(phaseFProbe, /'public\.carts'/, 'logical restore must exclude auth-dependent cart rows');
+assert.match(phaseFProbe, /'public\.cart_items'/, 'logical restore must exclude child rows referencing excluded carts');
+assert.ok(phaseFProbe.includes("const authUserIdsSql ="), 'logical restore must discover missing Auth user IDs');
+assert.ok(phaseFProbe.includes("c.confrelid = 'auth.users'::regclass"), 'Auth placeholder discovery must follow actual FK references');
+assert.ok(phaseFProbe.includes("INSERT INTO auth.users (id)"), 'restore must insert ID-only user placeholders');
+assert.ok(phaseFProbe.includes("ON CONFLICT (id) DO NOTHING"), 'placeholder insert must be rerunnable');
+assert.ok(phaseFProbe.includes("SET LOCAL session_replication_role = replica"), 'placeholder insert must not trigger user creation side effects');
+assert.ok(phaseFProbe.includes("runDockerPsqlFileRaw(localDbUrl, authUserStubsPath)"), 'placeholders must be applied to the ephemeral restore target');
+assert.ok(phaseFProbe.includes("auth_user_stub_mode: 'id-only-ephemeral'"));
+const authStubBuilder = phaseFProbe.slice(phaseFProbe.indexOf('function buildAuthUserStubSql(userIds)'), phaseFProbe.indexOf('\nfunction verifyRestoredRecommendationAuthority'));
+assert.ok(authStubBuilder.startsWith('function buildAuthUserStubSql(userIds)'), 'ID-only Auth placeholder builder must exist');
+for (const forbidden of ['email', 'encrypted_password', 'raw_app_meta_data', 'raw_user_meta_data', 'confirmation_token']) {
+  assert.equal(authStubBuilder.includes(forbidden), false, 'restore must not copy Auth credential/PII field: ' + forbidden);
+}
+assert.match(phaseFProbe, /retryTransientPostgresConnection/);
+assert.match(postgresRetrySource, /PHASE_F_TRANSIENT_POSTGRES_RETRY/);
+assert.equal(isTransientPostgresConnectionError(new Error('FATAL: Failed to connect to database: authentication did not complete within 15000ms')), true);
+assert.equal(isTransientPostgresConnectionError(new Error('ECHECKOUTTIMEOUT unable to check out connection from pool')), true);
+assert.equal(isTransientPostgresConnectionError(new Error('ERROR: duplicate key value violates unique constraint')), false);
+
+let transientAttempts = 0;
+const retryDelays = [];
+const retryEvents = [];
+const connected = retryTransientPostgresConnection(() => {
+  transientAttempts += 1;
+  if (transientAttempts < 3) throw new Error('authentication did not complete within 15000ms');
+  return 'connected';
+}, {
+  label: 'unit-test',
+  pause: (milliseconds) => retryDelays.push(milliseconds),
+  onRetry: (event) => retryEvents.push(event),
+});
+assert.equal(connected, 'connected');
+assert.equal(transientAttempts, 3);
+assert.deepEqual(retryDelays, [1000, 2000]);
+assert.equal(retryEvents.length, 2);
+
+let sqlErrorAttempts = 0;
+assert.throws(() => retryTransientPostgresConnection(() => {
+  sqlErrorAttempts += 1;
+  throw new Error('canceling statement due to statement timeout');
+}, { pause: () => assert.fail('SQL errors must not be retried') }), /statement timeout/);
+assert.equal(sqlErrorAttempts, 1, 'real SQL failures must fail immediately');
+
+let exhaustedAttempts = 0;
+assert.throws(() => retryTransientPostgresConnection(() => {
+  exhaustedAttempts += 1;
+  throw new Error('authentication did not complete within 15000ms');
+}, { maxAttempts: 2, pause: () => undefined, onRetry: () => undefined }), /authentication did not complete/);
+assert.equal(exhaustedAttempts, 2, 'transient retries must remain strictly bounded');
 
 assert.equal(timingSafeEqual(Buffer.from('resilience-secret'), Buffer.from('resilience-secret')), true);
 process.env.RESILIENCE_TARGET_ENV = 'production';

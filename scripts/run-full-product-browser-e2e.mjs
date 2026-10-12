@@ -9,9 +9,10 @@ const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
 
-const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
+const REAL_SMART_REPORT_JOB_ID = process.env.REAL_SMART_REPORT_JOB_ID || '16709d80-e012-40ef-9c12-6fd8255897f8';
 const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
-const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_SOURCE_HASH = process.env.REAL_SMART_REPORT_SOURCE_HASH || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_SOURCE_PATH = process.env.REAL_SMART_REPORT_SOURCE_PATH || 'تقارير ادارية.xlsx';
 
 const routes = [
   '/', '/command-center', '/onboarding', '/decision-experience', '/metrics', '/reports',
@@ -42,8 +43,16 @@ const consoleErrors = [];
 const failedRequests = [];
 const failedResponses = [];
 const requests = [];
-const pendingDataRequests = new Set();
-let dataRequestsSeen = 0;
+const pageTelemetryByPage = new WeakMap();
+
+function telemetryFor(targetPage) {
+  let telemetry = pageTelemetryByPage.get(targetPage);
+  if (!telemetry) {
+    telemetry = { pendingDataRequests: new Set(), dataRequestsSeen: 0 };
+    pageTelemetryByPage.set(targetPage, telemetry);
+  }
+  return telemetry;
+}
 let reportProofContext = null;
 let reportProofPage = null;
 let reportProofTenant = null;
@@ -79,16 +88,17 @@ function isDataRequest(request) {
 }
 
 function wirePageTelemetry(targetPage) {
+  const telemetry = telemetryFor(targetPage);
   targetPage.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
   targetPage.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`));
   targetPage.on('requestfailed', request => {
-    pendingDataRequests.delete(request);
+    telemetry.pendingDataRequests.delete(request);
     const error = request.failure()?.errorText || 'unknown';
     if (error === 'net::ERR_ABORTED') return;
     failedRequests.push({ method: request.method(), url: request.url(), error });
   });
   targetPage.on('requestfinished', request => {
-    pendingDataRequests.delete(request);
+    telemetry.pendingDataRequests.delete(request);
   });
   targetPage.on('response', async response => {
     if (response.status() < 400) return;
@@ -101,8 +111,8 @@ function wirePageTelemetry(targetPage) {
   targetPage.on('request', request => {
     requests.push({ method: request.method(), url: request.url() });
     if (isDataRequest(request)) {
-      pendingDataRequests.add(request);
-      dataRequestsSeen += 1;
+      telemetry.pendingDataRequests.add(request);
+      telemetry.dataRequestsSeen += 1;
     }
   });
 }
@@ -270,6 +280,7 @@ async function inspectPage(targetPage) {
 }
 
 async function waitForReportSettled(targetPage, route, dataBaseline) {
+  const telemetry = telemetryFor(targetPage);
   const expected = REPORT_EXPECTATIONS.get(route);
   if (!expected) return null;
 
@@ -278,7 +289,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
   let lastState = null;
 
   while (Date.now() < deadline) {
-    const state = await targetPage.evaluate(({ expected, loadingMarkers, smartReportJobId, smartReportSourceHash }) => {
+    const state = await targetPage.evaluate(({ expected, loadingMarkers, smartReportJobId, smartReportSourceHash, smartReportSourcePath }) => {
       const text = document.body?.innerText?.trim() || '';
       const loading = loadingMarkers.filter(marker => text.includes(marker));
       const matches = expected.map(marker => ({ marker, found: text.includes(marker) }));
@@ -305,16 +316,17 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
         smartSourceHashPresent: text.includes(smartReportSourceHash) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes(smartReportSourceHash)),
         realReportJobIdPresent: text.includes(smartReportJobId) || [...document.querySelectorAll('a[href]')].some(link => String(link.getAttribute('href') ?? '').includes('/reports/smart/' + smartReportJobId)),
-        realReportSourcePresent: text.includes('تقارير ادارية.xlsx'),
+        realReportSourcePresent: text.includes(smartReportSourcePath),
       };
     }, {
       expected,
       loadingMarkers: REPORT_LOADING_MARKERS,
       smartReportJobId: REAL_SMART_REPORT_JOB_ID,
       smartReportSourceHash: REAL_SMART_REPORT_SOURCE_HASH,
+      smartReportSourcePath: REAL_SMART_REPORT_SOURCE_PATH,
     });
 
-    const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
+    const dataRequestsSeenSinceRoute = telemetry.dataRequestsSeen - dataBaseline;
     const allExpectedFound = state.matches.every(item => item.found) || (
       state.sourceBoundSurfacePresent && state.matches[0]?.found && state.realReportJobIdPresent && state.realReportSourcePresent
     );
@@ -326,12 +338,12 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       }
       return false;
     };
-    const criticalPendingDataRequests = [...pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
+    const criticalPendingDataRequests = [...telemetry.pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
     const isReportsCenter = route === '/reports';
     const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const domBackedSmartReadback = isSmartReport && state.smartJobIdPresent && state.smartSourceHashPresent && state.smartDecisionCards.length === 6 && criticalPendingDataRequests.length === 0;
     const dataComplete = (dataRequestsSeenSinceRoute > 0 || domBackedSmartReadback) && criticalPendingDataRequests.length === 0;
-    const pendingDataRequestDetails = [...pendingDataRequests].slice(0, 20).map(request => ({
+    const pendingDataRequestDetails = [...telemetry.pendingDataRequests].slice(0, 20).map(request => ({
       method: request.method(),
       url: request.url(),
     }));
@@ -364,7 +376,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     lastState = {
       ...state,
       dataRequestsSeenSinceRoute,
-      pendingDataRequests: pendingDataRequests.size,
+      pendingDataRequests: telemetry.pendingDataRequests.size,
       criticalPendingDataRequests: criticalPendingDataRequests.length,
       pendingDataRequestDetails,
       settled,
@@ -373,7 +385,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     await targetPage.waitForTimeout(350);
   }
 
-  return lastState || { dataRequestsSeenSinceRoute: dataRequestsSeen - dataBaseline, pendingDataRequests: pendingDataRequests.size, settled: false };
+  return lastState || { dataRequestsSeenSinceRoute: telemetry.dataRequestsSeen - dataBaseline, pendingDataRequests: telemetry.pendingDataRequests.size, settled: false };
 }
 
 async function waitForRealReportFirstPaint(targetPage, timeoutMs = 8000) {
@@ -392,7 +404,7 @@ async function waitForRealReportFirstPaint(targetPage, timeoutMs = 8000) {
         textLength: text.length,
       };
     }, {
-      sourceName: 'تقارير ادارية.xlsx',
+      sourceName: REAL_SMART_REPORT_SOURCE_PATH,
     });
     if (lastState.visibleText && lastState.primaryCardPresent && lastState.sourcePresent) {
       return {
@@ -675,12 +687,13 @@ try {
             || route.startsWith('/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID)
             || route.startsWith('/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID));
         const routePage = usesReportProofTenant ? reportProofPage : page;
+        const routeTelemetry = telemetryFor(routePage);
         const beforeErrors = consoleErrors.length;
         const beforeFailed = failedRequests.length;
         const beforeFailedResponses = failedResponses.length;
         const beforeRequests = requests.length;
-        pendingDataRequests.clear();
-        const dataBaseline = dataRequestsSeen;
+        routeTelemetry.pendingDataRequests.clear();
+        const dataBaseline = routeTelemetry.dataRequestsSeen;
         const started = Date.now();
         let status = 'PASS'; let reason = '';
         let inspection = null;
@@ -717,7 +730,10 @@ try {
 
         let readback = null;
         if (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID) && status !== 'FAIL') {
-          const readbackBaseline = dataRequestsSeen;
+          const readbackTelemetry = telemetryFor(routePage);
+          // Initial render already settled; isolate refresh readback from prior background requests.
+          readbackTelemetry.pendingDataRequests.clear();
+          const readbackBaseline = readbackTelemetry.dataRequestsSeen;
           try {
             await routePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
             readback = await waitForReportSettled(routePage, route, readbackBaseline);
