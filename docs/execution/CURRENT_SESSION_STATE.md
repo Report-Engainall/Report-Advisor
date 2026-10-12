@@ -1,3 +1,41 @@
+## LIVE RESUME — 2026-10-12 / SOURCE-KEY MAPPING + REPORT CATALOG POLISH
+
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PR_STATE = OPEN / NOT MERGED
+CODE_HEAD_UNDER_TEST = 4d682ed013ff5804d744b6ebe72ccd99a002918a
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/4d682ed013ff5804d744b6ebe72ccd99a002918a
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12
+
+IMPLEMENTED =
+- Fixed report-archetype column-key resolution to use keys actually present in persisted canonical rows. Metadata mapped fields are no longer returned as if they were stored values. This prevents mappedField=invoice_date from incorrectly making the engine read row.data.invoice_date when the source row only contains date.
+- Added the real Arabic invoice amount header 'مبلغ الصافي بالمحلي' as an explicit alias for canonical netAmount.
+- Added a regression test using the same source-analysis mapping pattern (name=date, mappedField=invoice_date) and a true source-key row shape; asserts source-backed trend, model signal, recommendation and evidence keys.
+- Improved the smart-report catalog with accessible search across filename/specialty/report ID/source hash, supported-specialty/review filters, nine-card local paging, empty search state, and visible abbreviated source fingerprint. Replaced the generic period-undefined card field with the source hash to avoid asserting a period not extracted from source.
+- Added static product-surface contract assertions for the new catalog controls.
+
+CODE_HEAD = 4d682ed013ff5804d744b6ebe72ccd99a002918a
+CHANGED_FILES = src/lib/report-intelligence/archetype-evaluator.ts; src/lib/report-intelligence/canonical-schema.ts; scripts/report-intelligence-value-chain.test.ts; src/pages/ReportsPage.tsx; scripts/customer-facing-report-surface-contract.test.mjs
+48_ARCHETYPE_THRESHOLD = unchanged / strict.
+SOURCE_DATA = unchanged; no fake rows, values, evidence, trust scores, or source passports added.
+EARLIER_PARENT_MATRIX = run 38184886341 on 26334116... reported 21/48; it belongs to that older head only.
+OLDER_RUNNING_RUN = https://github.com/Report-Engainall/Report-Advisor/actions/runs/38187183664 — on code head 717b8f49124d7ae283eb313196cab201486f6564, it reached step 19 “Prove governed real-source 48 archetype matrix” after authenticated business journey PASS. Its result has not yet been available; do not project it onto 4d682ed013ff5804d744b6ebe72ccd99a002918a.
+CURRENT_HEAD_RUNS =
+- Product Build Gate https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188029987 — IN_PROGRESS at last read.
+- Quality https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030024 — IN_PROGRESS at last read.
+- Full Product Browser E2E https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030067 — PENDING at last read.
+- Session Handoff Contract https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030212 — QUEUED at last read.
+- Phase-F Live Resilience https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030131 — QUEUED at last read.
+- Final Certification Gate https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030059 — IN_PROGRESS at last read.
+- Data Quality Runtime https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030107 — IN_PROGRESS at last read.
+
+NEXT_EXACT_ACTION = Confirm governance checkpoint readback and handoff PASS, then inspect exact-head build/quality and full Chromium journey. Use the new source-key regression to see whether the real-source matrix now recognizes the 610-row invoice source. Keep 48/48 strict and show blockers for archetypes unsupported by actual fields. Do not merge or promote production.
+
+---
+
 ## LIVE RESUME — 2026-10-12 / TS TEST-LOADER REGRESSION CHECKPOINT
 
 REPOSITORY = Report-Engainall/Report-Advisor

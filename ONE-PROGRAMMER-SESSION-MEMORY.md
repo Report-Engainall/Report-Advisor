@@ -1,3 +1,32 @@
+# LIVE RESUME — 2026-10-12 / SOURCE-KEY FIX + REPORT CATALOG POLISH
+
+Repository Report-Engainall/Report-Advisor
+Branch fix/source-bound-generic-intelligence-20261009
+PR #912 OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Code head 4d682ed013ff5804d744b6ebe72ccd99a002918a
+Commit https://github.com/Report-Engainall/Report-Advisor/commit/4d682ed013ff5804d744b6ebe72ccd99a002918a
+PRODUCT_COMPLETE = NO. No merge/deployment.
+
+Latest code changes:
+- Archetype evaluator now selects only actual canonical row keys, not metadata-only mapped field names. Example proven in DB: metadata column name date, mappedField invoice_date; persisted data key date. This bug made real sales-over-time signals falsely appear missing.
+- Added canonical alias for the actual Arabic source field 'مبلغ الصافي بالمحلي' -> netAmount.
+- Added value-chain regression using the same metadata+row key pattern, asserting trend finding, model signal, recommendation, period grain and evidence names the stored key.
+- Reports center now has accessible search (file/specialty/report ID/hash), filters for all/supported/review, 9-card pages, result count and empty state, and an abbreviated source hash card instead of claiming all periods are undefined.
+- 48 real-source certification strictness unchanged. No rows/fields/passports/fake evidence created.
+
+Current code-head workflows:
+Build https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188029987 IN_PROGRESS at last read
+Quality https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030024 IN_PROGRESS at last read
+Full Product Browser E2E https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030067 PENDING at last read
+Session Handoff https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030212 QUEUED at last read
+Phase-F https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030131 QUEUED at last read
+Final Certification https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030059 IN_PROGRESS at last read
+Data Quality https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030107 IN_PROGRESS at last read
+
+A prior E2E on code head 717b8f... had a successful authenticated business journey and reached source matrix; the matrix had not yet produced an artifact at the previous read. Do not transfer its result to current head. Older matrix run on 26334116... was 21/48 only. Source SQL proved invoice records contain date aliases and net_local_amount/Arabic net amount while analysis metadata maps date -> invoice_date. The evaluator fix directly addresses this mismatch.
+
+One next action: read back the documentation checkpoint and pass handoff, then inspect exact-head CI and real-source matrix. Preserve strict 48/48 and keep production on its existing version until all release proof passes.
+
 # LIVE RESUME — 2026-10-12 / TEST LOADER FIX 717b8f49124d7ae283eb313196cab201486f6564
 
 Repository = Report-Engainall/Report-Advisor

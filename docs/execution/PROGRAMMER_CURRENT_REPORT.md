@@ -1,3 +1,24 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / SOURCE KEY REPAIR + SMART CATALOG UX
+
+REPORT_FOR_HEAD = 4d682ed013ff5804d744b6ebe72ccd99a002918a
+UPDATED_AT = 2026-10-12
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+WHAT_I_DID = Committed https://github.com/Report-Engainall/Report-Advisor/commit/4d682ed013ff5804d744b6ebe72ccd99a002918a after querying live canonical rows and source-analysis metadata in Supabase. Root cause: evaluator columnKey() selected mappedField from metadata before validating it was present in stored row data. For a real invoice import, source analysis maps date to invoice_date, but canonical rows have date; the old evaluator would read a nonexistent invoice_date property and suppress trend finding/signal/recommendation. It now selects real stored source keys only, preferring the source column name when the semantic mapping matches the target. The canonical schema now maps 'مبلغ الصافي بالمحلي' to netAmount, and a deterministic regression test asserts the exact pattern yields a finding, model signal, recommendation and provenance naming date and the Arabic amount key. The catalog now has accessible query + three state filters + nine-card pages, explicit empty search state, result counts, and the source hash fingerprint instead of a false generic period string. Contract assertions were added. The strict 48-source threshold is unchanged.
+WHAT_IS_PROVEN = Current branch ref and code files read back as 4d682ed013ff5804d744b6ebe72ccd99a002918a; PR remains open/not merged. Product Build, Quality, Certification, and Data Quality workflows are running; Full Product Browser E2E for this head is pending. The prior authenticated business journey on parent 717b8f... reached step 19 matrix, but no result/artifact was yet available, so no matrix pass or failure is claimed for that run. Earlier parent 26334116... matrix 21/48 is historical only.
+LIVE_GATE_LINKS = Build: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188029987; Quality: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030024; Handoff: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030212; Browser: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030067; Phase-F: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030131; Certification: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030059; Data Quality: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38188030107.
+FIRST ROOT CAUSE NOW ADDRESSED = metadata-only canonical field values incorrectly took priority over persisted canonical row keys, causing valid source metrics to read as absent. Also the actual source header 'مبلغ الصافي بالمحلي' lacked canonical netAmount alias.
+UI CHANGES = catalog can be searched by source/name/specialty/report ID/source hash; filter all/specialty supported/review; display nine reports per local page; empty state and page navigation are accessible; every card shows the actual source hash prefix instead of an unproven period placeholder. Files: src/pages/ReportsPage.tsx, scripts/customer-facing-report-surface-contract.test.mjs.
+NOT_PROVEN = whether the 610-row real invoice trend now produces an archetype result within the governed database-backed matrix; whether other real sources cover all 48 archetypes; exact-head E2E completion; final published production still points to older head 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+NEXT_EXACT_ACTION = Save and read back this governance checkpoint, ensure Session Handoff passes, then inspect exact-head build/quality/Chromium and governed 48/48 result. Don't invent missing balance-sheet/returns/targets, and don't release until true 48/48 and live deployment provenance are proven.
+SESSION HANDOFF = READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / TYPESCRIPT TEST-LOADER REGRESSION FIX
 
 REPORT_FOR_HEAD = 717b8f49124d7ae283eb313196cab201486f6564
