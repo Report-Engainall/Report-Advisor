@@ -1,3 +1,24 @@
+# CURRENT EXECUTION REPORT — 2026-10-12 / COHERENT ARCHETYPE RUNTIME FIXTURE
+
+REPORT_FOR_HEAD = ef9e837f5ff50976cfc37a182f8e31e73e5e44ea
+UPDATED_AT = 2026-10-12
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR #912 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+
+CODE COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/ef9e837f5ff50976cfc37a182f8e31e73e5e44ea
+CHANGED FILE = scripts/check-48-archetype-runtime-contract.mjs
+CHANGE = Replaced one canonical row paired with rowCount/sampleSize 12 by 12 actual rows across 12 months and the complete runtime-contract field set. This gives sales.over-time multiple genuine fixture periods; the test still checks the primary question is ANSWERED, model signal, recommendation, claims, verified proof, and source lineage. No assertion, threshold, or source data was fabricated.
+FIRST FAILURE = Run 38188122208, step 7: "Archetype-specific advisory question must be answered for sales.over-time".
+ROOT CAUSE = One test row, one observed period, while the contract claimed 12. A source-derived trend cannot honestly answer the primary question from a single period.
+RELATED FIX = Commit 4d682ed013ff5804d744b6ebe72ccd99a002918a repairs source-key resolution and reports-center UI.
+NEXT EXACT ACTION = Save and read back this checkpoint, then inspect all new exact-head test runs. Resolve contract/test errors before the independent strict 48/48 real-source matrix; no merge or production promotion.
+SESSION HANDOFF = READY
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-12 / SOURCE KEY REPAIR + SMART CATALOG UX
 
 REPORT_FOR_HEAD = 4d682ed013ff5804d744b6ebe72ccd99a002918a

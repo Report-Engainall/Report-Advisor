@@ -1,3 +1,18 @@
+# LIVE RESUME — 2026-10-12 / COHERENT ARCHETYPE CONTRACT FIX
+
+Repository: Report-Engainall/Report-Advisor
+Branch: fix/source-bound-generic-intelligence-20261009
+PR #912: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+Exact code head: ef9e837f5ff50976cfc37a182f8e31e73e5e44ea
+Commit: https://github.com/Report-Engainall/Report-Advisor/commit/ef9e837f5ff50976cfc37a182f8e31e73e5e44ea
+PRODUCT_COMPLETE = NO; do not merge or deploy.
+
+Latest correction: scripts/check-48-archetype-runtime-contract.mjs had rowCount/sampleSize 12 but only one row dated 2026-01-01. It now constructs 12 actual rows across 12 different months with the full contract source field set. This makes the sales-over-time advisory question answerable from multiple periods; strict assertions for question ANSWERED, model signal, recommendation, claims, proofState and lineage remain in place.
+
+Related code commit 4d682ed repairs evaluator lookup of stored source keys vs metadata-only mapped names, recognizes the real Arabic net amount header and adds Arabic report catalog search, filters, paging and source fingerprint display.
+
+Historical source matrix outputs (21/48 at head 26334116 and 23/48 at head 717b8f) are historical and must not transfer to this code head. One next action: persist this checkpoint, then inspect the exact-head handoff, build, quality and browser runs before evaluating source coverage. Keep strict 48/48 and production unchanged.
+
 # LIVE RESUME — 2026-10-12 / SOURCE-KEY FIX + REPORT CATALOG POLISH
 
 Repository Report-Engainall/Report-Advisor

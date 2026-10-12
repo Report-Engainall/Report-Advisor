@@ -1,3 +1,27 @@
+## LIVE RESUME — 2026-10-12 / ARCHETYPE RUNTIME FIXTURE COHERENCE
+
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/source-bound-generic-intelligence-20261009
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/912
+PR_STATE = OPEN / NOT MERGED
+CODE_HEAD_UNDER_TEST = ef9e837f5ff50976cfc37a182f8e31e73e5e44ea
+CODE_COMMIT = https://github.com/Report-Engainall/Report-Advisor/commit/ef9e837f5ff50976cfc37a182f8e31e73e5e44ea
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+UPDATED_AT = 2026-10-12
+
+LATEST FIX = scripts/check-48-archetype-runtime-contract.mjs now constructs 12 actual canonical rows across 12 distinct months, and values for all profile required/optional fields. The previous fixture claimed rowCount/sampleSize=12 while supplying one row dated 2026-01-01. The adaptive sales-over-time evaluator correctly could not derive a trend from that single period. This is a fixture fix, not a relaxation of assertions.
+
+ROOT CAUSE = Full Product Browser E2E run 38188122208 at prior head 63580539b58909d419db73d1575dc2d82579a7e9 failed step 7: "Archetype-specific advisory question must be answered for sales.over-time". The canonical source-key regression and weekly trend test passed before this contract. The contract still requires ANSWERED primary question, source-bound model signal, recommendation, claims, VERIFIED proof and fail-closed evidence handling.
+
+RELATED IMPLEMENTATION = commit 4d682ed013ff5804d744b6ebe72ccd99a002918a fixes source-key selection against stored canonical row keys, maps the Arabic net-amount source header, adds regression and improves Reports catalog search/filter/pagination/fingerprint. Current code head = ef9e837f5ff50976cfc37a182f8e31e73e5e44ea.
+
+48_SOURCE_REAL_MATRIX = strict 48/48 unchanged. Historical 21/48 at 26334116… and 23/48 at 717b8f… belong to those older heads only.
+
+NEXT EXACT ACTION = Commit this checkpoint; re-read memory/state/report/archive on the resulting head; verify the Session Handoff Contract, Product Build, Quality, Full Product Browser E2E, Phase-F, Data Quality Runtime and Final Certification on the exact head. First validate the coherent runtime contract, then assess real source coverage. Do not merge or promote production.
+
+---
+
 ## LIVE RESUME — 2026-10-12 / SOURCE-KEY MAPPING + REPORT CATALOG POLISH
 
 REPOSITORY = Report-Engainall/Report-Advisor
