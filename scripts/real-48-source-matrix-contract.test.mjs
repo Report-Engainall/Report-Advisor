@@ -41,6 +41,14 @@ for (const marker of [
 ]) {
   if (!source.includes(marker)) fail('Specialist coverage must remain explicitly optional when diagnostic-only: ' + marker);
 }
+const genericStepIndex = browserWorkflow.indexOf('Validate generic file intelligence across supported formats');
+const specialistStepIndex = browserWorkflow.indexOf('Diagnose optional real-source coverage for 48 specialist archetypes');
+if (genericStepIndex < 0 || specialistStepIndex < 0 || genericStepIndex > specialistStepIndex) {
+  fail('Universal generic format proof must run before optional specialist coverage diagnostics');
+}
+if (!browserWorkflow.includes('timeout --signal=TERM --kill-after=15s 240s node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs')) {
+  fail('Optional specialist diagnostics need a bounded runtime so they cannot delay universal file proof indefinitely');
+}
 for (const marker of [
   "Diagnose optional real-source coverage for 48 specialist archetypes",
   "REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY: '1'",
