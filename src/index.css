@@ -2262,3 +2262,75 @@ body{background:#f4f6fa;color:#0f172a}}
     transform: none !important;
   }
 }
+
+
+/* CONTRAST FIX — EXECUTIVE REPORT HERO MUST REMAIN DARK */
+/* Tailwind's arbitrary gradient can be removed by downstream minification.
+   Declare the critical executive canvas explicitly so white text never lands
+   on a light inherited surface. */
+@layer components {
+  .ag-smart-report-surface #executive-layer {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: #f8fafc !important;
+    background:
+      radial-gradient(circle at 92% 0%, rgba(99,102,241,.28), transparent 22rem),
+      radial-gradient(circle at 8% 100%, rgba(214,161,30,.10), transparent 20rem),
+      linear-gradient(135deg, #080d19 0%, #111827 54%, #25235a 100%) !important;
+    border-color: rgba(165,180,252,.22) !important;
+    box-shadow: 0 34px 90px -44px rgba(15,23,42,.76), inset 0 1px 0 rgba(255,255,255,.07) !important;
+  }
+  .ag-smart-report-surface #executive-layer::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-end: -8rem;
+    top: -10rem;
+    width: 25rem;
+    height: 25rem;
+    border-radius: 999px;
+    border: 1px solid rgba(165,180,252,.12);
+    box-shadow: 0 0 0 2.5rem rgba(99,102,241,.025), 0 0 0 5rem rgba(214,161,30,.018);
+    pointer-events: none;
+  }
+  .ag-smart-report-surface #executive-layer > .grid,
+  .ag-smart-report-surface #executive-layer .ag-report-hero-stat,
+  .ag-smart-report-surface #executive-layer .ag-report-tech-meta {
+    position: relative;
+    z-index: 1;
+  }
+  .ag-smart-report-surface #executive-layer .text-white {
+    color: #f8fafc !important;
+  }
+  .ag-smart-report-surface #executive-layer .text-slate-300,
+  .ag-smart-report-surface #executive-layer .text-slate-400 {
+    color: #cbd5e1 !important;
+  }
+  .ag-smart-report-surface #executive-layer .text-slate-500 {
+    color: #a5b4fc !important;
+  }
+  .ag-smart-report-surface #executive-layer .ag-report-hero-stat {
+    border-color: rgba(226,232,240,.13) !important;
+    background: rgba(255,255,255,.055) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+  }
+  .ag-smart-report-surface #executive-layer .ag-report-tech-meta {
+    border-color: rgba(226,232,240,.12) !important;
+    background: rgba(0,0,0,.24) !important;
+  }
+  .ag-smart-report-surface #executive-layer .ag-report-hero-stat:hover {
+    border-color: rgba(165,180,252,.28) !important;
+    background: rgba(255,255,255,.085) !important;
+  }
+  .ag-smart-report-surface #executive-layer a.bg-white {
+    background: linear-gradient(135deg,#f8fafc,#e0e7ff) !important;
+    color: #111827 !important;
+    border: 1px solid rgba(255,255,255,.4);
+    box-shadow: 0 12px 24px -18px rgba(0,0,0,.65);
+  }
+  .ag-smart-report-surface #executive-layer a.bg-white:hover {
+    background: #fff !important;
+    transform: translateY(-1px);
+  }
+}
