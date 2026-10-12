@@ -5,6 +5,7 @@ name: Full Product Browser E2E
 
 on:
   # PR branches use pull_request below; don't run a second staging browser pass on the same feature-branch push.
+# Keep active authenticated evidence jobs alive while a corrected head queues behind them.
   push:
     branches: [main]
     paths:
@@ -116,7 +117,7 @@ on:
 # Only serialize duplicate runs of this workflow; do not evict another proof workflow.
 concurrency:
   group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
