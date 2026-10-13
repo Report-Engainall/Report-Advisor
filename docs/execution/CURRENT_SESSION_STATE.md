@@ -1,30 +1,27 @@
-## LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
+## LIVE RESUME — 2026-10-13 / POST-MERGE PRODUCTION VERIFICATION
 
-CURRENT_EXACT_HEAD = 1910e9809af30c9d178e73813906f07401ac7280
-CODE_CHECKPOINT = 1910e9809af30c9d178e73813906f07401ac7280
-REPORT_FOR_HEAD = 1910e9809af30c9d178e73813906f07401ac7280
-BASE_HEAD = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
-BRANCH = fix/bootstrap-vercel-resilience-deploy-20261013
+CURRENT_EXACT_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+REPORT_FOR_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+BRANCH = docs/live-release-checkpoint-20261013 (documentation-only checkpoint branch from current main)
 REPOSITORY = Report-Engainall/Report-Advisor
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/917 (OPEN / NOT MERGED)
-MERGE_STATE = DO NOT MERGE until current exact-head required checks pass; use merge commit to preserve report ancestry.
-ACTION_STATUS = VERCEL_BOOTSTRAP_CANDIDATE; HANDOFF_REPORT_REANCHORED_TO_CODE_CHECKPOINT; NEW_EXACT_HEAD_CI_PENDING; NETLIFY_DEPLOY_BLOCKED_MISSING_SECRETS; PHASE_F_NOT_READY
+PR #912 = MERGED
+PR #917 = MERGED
+MERGE_STATE = main current SHA 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517; do not alter main while Phase-F run 38326934437 is still executing unless an essential fix is proven necessary.
+ACTION_STATUS = PRODUCT_BUILD_PASS; QUALITY_PASS; FINAL_CERTIFICATION_PASS; SESSION_HANDOFF_PASS; VERCEL_EXACT_SHA_PRODUCTION_DEPLOY_READY; PHASE_F_IN_PROGRESS; NETLIFY_DEPLOY_BLOCKED_MISSING_SECRETS; GITHUB_VERCEL_AUTODEPLOY_WORKFLOW_BLOCKED_MISSING_SECRETS
 UPDATED_AT = 2026-10-13
 PRODUCT_COMPLETE = NO
 
-IMPLEMENTED = Documentation-only checkpoint correction: anchor REPORT_FOR_HEAD at 1910e9809af30c9d178e73813906f07401ac7280, where the guarded Vercel push-trigger workflow is already present. No app logic, resilience checks, tenant-isolation rules, or workflow enforcement checks were weakened.
-PERSISTED = NOT_APPLICABLE — checkpoint metadata only; no business/report database write.
-UI-EXPOSED = NO_UI_CODE_CHANGED.
-TESTED = Candidate 1910e9809af30c9d178e73813906f07401ac7280: build-and-contracts PASS (run 38322546253); Session Handoff FAILED (run 38322546640) and Certification Contracts FAILED (run 38322546453) at the same unreported-workflow assertion. These results apply to 1910e9809af30c9d178e73813906f07401ac7280, not to the new docs-only checkpoint commit.
-READBACK-PROVEN = YES — PR #917 current head, branch, workflow path trigger and checkpoint files read from GitHub; main SHA 0c9e0aaf4442a270446af87e20146f2af9cbf8e3 re-confirmed.
-BROWSER-PROVEN = Prior authenticated Chromium proof only on product-code SHA 6dbc16ea1f762cb78b398c741d925c52275017fe (run 38294294413).
-PRODUCTION-PROVEN = NOT_PROVEN — Vercel homepage deployment READY but health/canary operational endpoints fail closed; Netlify is stale and production publish is blocked.
-FIRST_ACTIVE_FAILURE = Exact-head handoff/certification assertion on PR #917: unreported path .github/workflows/vercel-production-deploy.yml.
-ROOT_CAUSE = The handoff checker compares diff REPORT_FOR_HEAD..HEAD against a fixed strict documentation-only path allowlist. The report was anchored at base main 0c9e0aaf4442a270446af87e20146f2af9cbf8e3, so the new workflow appeared unreported. This checkpoint moves the anchor to candidate 1910e9809af30c9d178e73813906f07401ac7280; the checker is not relaxed.
-CHANGED_FILES_AFTER_CODE_CHECKPOINT = ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-13/REPORT-20261013-PR917-HANDOFF-RECOVERY.md
-NEXT_EXACT_ACTION = Verify exact-head Session Handoff, Quality, Product Build and Final Certification on the new commit. If green, merge PR #917 using a merge commit, then verify Vercel production health reports the expected SHA and deployment ID. Resolve Netlify credential and Phase-F blockers separately.
-CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
-SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+IMPLEMENTED = Merged guarded Vercel deployment-trigger workflow via PR #917. Published current main SHA 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517 directly using Vercel's authenticated connector (deployment dpl_7Lyx17ZYgit1RSfdqN8RPxLC1w4V; READY; source SHA exact). No application logic changed during this deploy/fallback.
+PERSISTED = NOT_APPLICABLE — no business/report DB write was executed by this checkpoint.
+UI-EXPOSED = No UI code change. Vercel root responded with Arabic product-page content.
+TESTED = Same-SHA Build Gate 38326934500 PASS; Quality 38326934521 PASS; Final Certification 38326934447 PASS; Session Handoff 38326934423 PASS. Phase-F run 38326934437 is still active in the authenticated live-probe step; wait on this existing run, do not relaunch it. Runtime error aggregation (1h) returned no Vercel runtime errors.
+READBACK-PROVEN = GitHub main SHA 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517; Vercel deployment source SHA 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517, state READY, canonical alias report-advisor.vercel.app. Public homepage retrieval succeeded.
+BROWSER-PROVEN = Authenticated Chromium E2E proof remains prior run 38294294413 at SHA 6dbc16ea1f762cb78b398c741d925c52275017fe; no new authenticated browser proof on 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517.
+PRODUCTION-PROVEN = PARTIAL; exact SHA deployment and root page are proven. /api/health called without x-resilience-token returns 503 by design, so do not use an unauthenticated request to determine health. Authenticated Phase-F is authoritative and pending. Netlify is still stale.
+OPEN_BLOCKER = 1) Phase-F live probes pending at 38326934437. 2) Netlify deploy 38326934498 failed because NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are not configured in GitHub Actions. 3) Vercel deploy workflow 38326934517 failed its credential guard: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID are absent. Vercel direct connector successfully deployed current main, but the workflow cannot sync the protected operational token itself without those credentials.
+SECURITY_BOUNDARY = Do not invent/print tokens, do not turn off x-resilience-token protection, and do not treat unauthenticated 503 as proof of runtime failure.
+NEXT_EXACT_ACTION = Poll current run 38326934437 to completion, inspect the exact-head authenticated health/canary/backup/rollback assertions and readiness artifact; fix the first proven code issue if present without duplicating the run. Netlify credential/deploy repair remains separate.
 ---
 
 ## LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
