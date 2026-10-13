@@ -1,3 +1,35 @@
+# LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
+
+Repository: Report-Engainall/Report-Advisor
+BASE_HEAD = 0c9e0aaf4442a270446af87e20146f2af9cbf8e3
+CURRENT_CODE_CHECKPOINT = 1910e9809af30c9d178e73813906f07401ac7280
+REPORT_FOR_HEAD = 1910e9809af30c9d178e73813906f07401ac7280
+BRANCH = fix/bootstrap-vercel-resilience-deploy-20261013
+PR #917 = OPEN — https://github.com/Report-Engainall/Report-Advisor/pull/917
+RELATED PRODUCT PR #912 = MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md
+
+FIRST_ACTIVE_FAILURE = PR #917 exact-head Session Handoff Contract run 38322546640 and Certification Contracts run 38322546453 failed with: "stale report; unreported files: .github/workflows/vercel-production-deploy.yml". The workflow change exists in candidate 1910e9809af30c9d178e73813906f07401ac7280, but the checkpoint still anchored REPORT_FOR_HEAD at base SHA 0c9e0aaf4442a270446af87e20146f2af9cbf8e3, so the contract correctly included the workflow as a post-checkpoint path outside its documentation-only allowlist.
+
+ROOT_CAUSE = scripts/check-session-handoff-contract.mjs computes git diff --name-only REPORT_FOR_HEAD..HEAD and strictly permits only ONE-PROGRAMMER-SESSION-MEMORY.md, docs/execution/CURRENT_SESSION_STATE.md, docs/execution/PROGRAMMER_CURRENT_REPORT.md, and docs/execution/PROGRAMMER_REPORTS/** after the report anchor. The report anchor must advance to the commit that already contains the workflow change; the gate itself remains unchanged.
+
+IMPLEMENTED = YES IN CHECKPOINT — re-anchor this documentation checkpoint at code commit 1910e9809af30c9d178e73813906f07401ac7280, retain the workflow diff as part of that code checkpoint, and keep the post-checkpoint delta documentation-only. No checker, secrets, runtime guard, RLS rule, test threshold, or app behavior is changed by this repair.
+
+TESTED = Code candidate 1910e9809af30c9d178e73813906f07401ac7280: build-and-contracts PASS at https://github.com/Report-Engainall/Report-Advisor/actions/runs/38322546253. Session Handoff FAIL at https://github.com/Report-Engainall/Report-Advisor/actions/runs/38322546640/job/115053731639. Certification Contracts fail at the same strict handoff assertion: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38322546453/job/115053730753. The new documentation checkpoint commit is NOT YET TESTED until its own exact-head Actions finish.
+
+READBACK-PROVEN = GitHub confirms PR #917 head 1910e9809af30c9d178e73813906f07401ac7280, branch fix/bootstrap-vercel-resilience-deploy-20261013, open/not merged; read back the exact workflow and all three current checkpoint files before editing. Main was re-read at 0c9e0aaf4442a270446af87e20146f2af9cbf8e3.
+
+PRODUCTION-PROVEN = NOT_PROVEN — Vercel production deployment for main 0c9e0aaf4442a270446af87e20146f2af9cbf8e3 is READY but /api/health and /api/tenant-canary still fail closed with operational_token_not_configured. Netlify published deployment is stale at 858ef8e3e5bc5bf74430555eadfb9e6767be348b; its current Actions deploy fails because NETLIFY_AUTH_TOKEN is missing and NETLIFY_SITE_ID is blank.
+
+BROWSER-PROVEN = Prior authenticated Chromium E2E only at product SHA 6dbc16ea1f762cb78b398c741d925c52275017fe: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38294294413. No new browser proof is inferred from this workflow/checkpoint change.
+
+CHECKPOINT_DELTA_FILES = ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-13/REPORT-20261013-PR917-HANDOFF-RECOVERY.md
+NEXT_EXACT_ACTION = Read the new commit SHA and its exact-head Session Handoff, Quality, Build, and Final Certification checks. If all required checks pass, merge PR #917 using a normal merge commit (not squash) so 1910e9809af30c9d178e73813906f07401ac7280 remains in main ancestry; then verify the automatically triggered guarded Vercel production deploy and its HTTP 200 deployment SHA/ID proof. Netlify secrets and Phase-F 4/4 remain separate blockers.
+
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+---
+
 # LIVE RESUME — 2026-10-13 / SQUASH-MERGE HANDOFF REPAIR
 
 Repository: Report-Engainall/Report-Advisor
