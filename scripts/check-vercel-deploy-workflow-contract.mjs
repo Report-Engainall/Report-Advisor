@@ -16,9 +16,8 @@ const missing = required.filter((value) => !workflow.includes(value));
 if (missing.length) {
   throw new Error(`Vercel production deploy workflow contract failed; missing: ${missing.join(', ')}`);
 }
-for (const secret of ['VERCEL_TOKEN', 'RESILIENCE_OPERATIONAL_TOKEN']) {
-  if (!workflow.includes(`test -n "${${secret}:-}"`) && !workflow.includes(`if [ -z "${${secret}:-}" ]`)) {
-    throw new Error(`Vercel production workflow must fail closed when ${secret} is absent.`);
-  }
+if (!workflow.includes('for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID RESILIENCE_OPERATIONAL_TOKEN; do')
+    || !workflow.includes('if [ -z "${!name:-}" ]; then')) {
+  throw new Error('Vercel production workflow must fail closed when any required credential is absent.');
 }
 console.log('Vercel production deploy workflow contract: PASS (public IDs have safe defaults; tokens remain mandatory; exact-SHA health proof preserved).');
