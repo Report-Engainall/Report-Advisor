@@ -1,27 +1,26 @@
 # LIVE RESUME — 2026-10-14 / Generic table missingness guard
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = ba64ef395bdf0c650bae24d0a4b97b0b2b76cf4a (functional checkpoint; this report is committed in its documentation-only successor)
-CODE_CHECKPOINT = ba64ef395bdf0c650bae24d0a4b97b0b2b76cf4a
-REPORT_FOR_HEAD = ba64ef395bdf0c650bae24d0a4b97b0b2b76cf4a
+CURRENT_EXACT_HEAD = 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5 (functional checkpoint; this checkpoint report is its documentation-only successor)
+CODE_CHECKPOINT = 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5
+REPORT_FOR_HEAD = 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5
 BRANCH = fix/generic-source-completeness-20261014
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED)
 RELATED_RELEASE_BLOCKER = PR #925 https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED; Phase-F live canary remains blocked by missing authorized operational credentials)
-IMPLEMENTED = Generic table intelligence no longer treats missing/invalid totals and monthly measurements as zero. Full totals are only reported when all source rows have numeric values; period change requires complete adjacent periods; reconciliation counts only rows with a numeric stated total and every monthly value present. Inspection evidence reports observed coverage, missing cells, and compared/excluded reconciliation rows.
-REGRESSION = Added a CSV case with four customer-labelled records: one complete row, one missing stated total, one missing month, and one genuine total mismatch. Missing rows must be excluded from reconciliation; real complete-row mismatch must remain actionable.
-TESTED = PENDING_EXACT_HEAD — GitHub Actions must validate the pushed code and documentation successor. Do not infer a pass from commit creation.
-PERSISTED / READBACK-PROVEN = Code commit ba64ef395bdf0c650bae24d0a4b97b0b2b76cf4a was created and the branch ref update was confirmed. The code and regression files must be re-read from GitHub after checkpoint commit.
-BROWSER-PROVEN = NOT_PROVEN for this new change. Existing browser proofs on earlier heads are not transferable.
-PRODUCTION-PROVEN = NOT_PROVEN. Netlify published deployment is still stale on 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
-OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed at Live resilience probes: /api/tenant-canary returned HTTP 503 operational_token_not_configured. Netlify environment readback confirms RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY, and NETLIFY_AUTH_TOKEN are absent; connected GitHub tool does not provide authorized GitHub secret administration. Do not invent credentials, weaken tenant isolation, or waive Phase-F.
-NEXT_EXACT_ACTION = Read the Build, Quality, Session Handoff, Final Certification, and Full Product Browser E2E results for the latest PR #926 documentation-successor head; inspect failed-step logs if any gate fails and make the smallest source-correct fix.
+IMPLEMENTED = Generic table intelligence no longer treats missing/invalid totals or monthly measurements as zero. A complete total is reported only when every row is numeric; period movement requires complete adjacent periods; reconciliation compares only rows with a numeric stated total and every period present. Inspection evidence exposes observed coverage and compared/excluded rows.
+REGRESSION = Four-row CSV case covers one complete row, one missing stated total, one missing month and one genuine mismatch. Assertions cover coverage, suppressed unsupported trend, correct exclusions, and retention of the complete-row mismatch recommendation.
+TESTED = PENDING_EXACT_HEAD — GitHub Actions must validate the current code and documentation successor. Commit creation is not test evidence.
+PERSISTED / READBACK-PROVEN = Functional code commit 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5 is pushed to the existing PR #926 branch. Source/test files were re-read from GitHub after the test-fixture correction.
+BROWSER-PROVEN = NOT_PROVEN for this change; earlier-head browser proofs do not transfer.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify remains stale on 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed at Live resilience probes: tenant-canary HTTP 503 operational_token_not_configured. Netlify environment readback confirms RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN are absent; the connected GitHub integration does not provide secret administration. Do not fabricate secrets or weaken tenant isolation.
+NEXT_EXACT_ACTION = Read exact-head Quality, Product Build Gate, Session Handoff Contract, Final Certification Gate and Full Product Browser E2E on the latest documentation-successor SHA; inspect failure logs for any failed step and fix the smallest confirmed defect.
 PRODUCT_COMPLETE = NO
 
 ## Current code fix
-- src/lib/file-engine/generic-intelligence.ts: observed numeric sums now declare coverage; a full stated total is only shown for complete values; trends require complete adjacent periods; reconciliation excludes rows missing the stated total or any monthly value, and prints compared/excluded counts.
-- scripts/generic-file-analysis.test.mjs: regression case guards missing totals, missing month values, invalid trend inference, correct excluded-row accounting, and retention of a genuine mismatch recommendation.
-- Functional code checkpoint: ba64ef395bdf0c650bae24d0a4b97b0b2b76cf4a; next commit contains only execution checkpoint documentation. Exact-head Actions are still required.
-
+- src/lib/file-engine/generic-intelligence.ts — coverage-aware totals/monthly sums; change only with complete adjacent periods; reconciliation excludes any row missing a stated total or period and exposes compared/excluded counts.
+- scripts/generic-file-analysis.test.mjs — four-row missingness regression; CSV fixture now uses an actual newline separator and count assertion tolerates localized digits.
+- Code checkpoint: 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5; exact-head Actions are pending.
 ---
 # LIVE RESUME — 2026-10-14 / Source completeness + browser readback hardening
 
