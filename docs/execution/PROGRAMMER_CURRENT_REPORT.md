@@ -1,3 +1,30 @@
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — Generic intelligence rowset provenance
+
+Repository: Report-Engainall/Report-Advisor
+BRANCH = fix/generic-source-completeness-20261014
+PR #926 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
+CODE_CHECKPOINT = 2b65b597307a6b17d98549b30c1c4097a168b0d4
+REPORT_FOR_HEAD = 2b65b597307a6b17d98549b30c1c4097a168b0d4
+PRODUCT_COMPLETE = NO
+
+## Implemented in this checkpoint
+- `src/lib/report-smart.ts` now preserves the exact origin returned by `selectGenericSourceRows` as `genericIntelligenceSource` (`canonical` or `source-analysis-snapshot`) through the source-bound smart-report result.
+- `src/pages/SmartReportPage.tsx` and `src/components/CustomerReportSurface.tsx` now render that returned origin instead of inferring it from whether canonical rows are empty.
+- `scripts/smart-report-complete-intelligence-surface.test.mjs` asserts end-to-end origin propagation and rejects the old row-count heuristic.
+
+## Verification boundary
+- GitHub writes completed: report-smart commit `a98794a14bf8395ce96ddd6414820d779b472f3a`; Smart Report page commit `d3c9c62e2ae602fc50cfda34f754fd640351addb`; customer report surface commit `c1e00ec36bffa3b8cf96adfbbae45775b57837ae`; regression-contract commit / latest code head `2b65b597307a6b17d98549b30c1c4097a168b0d4`.
+- These files were committed to the existing PR #926 branch; the latest content readback and exact-head workflow results are pending this checkpoint. Do not transfer predecessor test results to this head.
+- Predecessor documentation head `811afddf2dc4a7d05b99523f3c3aeddae23fd01b` passed Product Build Gate run 38629910926, Quality run 38629911024, Final Certification Gate run 38629910729, Session Handoff Contract run 38629911052, Data Quality Runtime run 38629910900, Full Product Browser E2E run 38629911008, Device-Independent Browser E2E run 38629913533 and Storage Tenant Runtime E2E run 38629911146. This evidence belongs only to `811afdd...`.
+- PR #925 remains a separate release blocker. Phase-F run 38610637235 failed with `operational_token_not_configured`; Netlify production deploy 6ac3d608e2e37d0008cc0222 still serves source SHA `858ef8e3e5bc5bf74430555eadfb9e6767be348b`, not the candidate code. No authorized deployment/runtime secret was fabricated or weakened.
+- `PERSISTED` = code changes committed remotely. `READBACK-PROVEN` = pending fresh verification of all changed paths. `TESTED` = PENDING on exact head `2b65b597307a6b17d98549b30c1c4097a168b0d4`. `BROWSER-PROVEN` = predecessor only. `PRODUCTION-PROVEN` = NOT_PROVEN. `PRODUCT_COMPLETE` = NO.
+
+FIRST_ACTIVE_FAILURE = Exact-head build / quality / certification / browser / handoff runs have not yet been confirmed for `2b65b597307a6b17d98549b30c1c4097a168b0d4`. Handoff also requires this checkpoint to anchor its report at the code commit before documentation-only successor commits.
+
+NEXT_EXACT_ACTION = Re-read all four changed code/test paths from this branch, confirm the branch tip and Session Handoff Contract on its documentation successor, then inspect the newest exact-head Product Build, Quality, Final Certification, Data Quality Runtime and Full Product Browser E2E results; fix only the first evidenced failure.
+
+---
+
 # CURRENT PROGRAMMER REPORT — 2026-10-14 — E2E credential masking + generic completeness guard
 
 Repository: Report-Engainall/Report-Advisor
