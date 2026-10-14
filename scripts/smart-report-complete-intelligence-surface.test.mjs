@@ -84,7 +84,7 @@ if (!uploadPage.includes('generalIntelligence: genericIntelligence ?? undefined'
 if (!uploadPage.includes('sourceHash={file.hash}')) throw new Error('File Lab generic results must show the uploaded source hash');
 
 const genericCard = fs.readFileSync(new URL('../src/components/GenericFileIntelligenceCard.tsx', import.meta.url), 'utf8');
-for (const marker of ['signals.map((signal)', 'recommendations.map((recommendation)', 'signal.evidence ?? []', 'recommendation.evidence ?? []', 'intelligence.guidance.inspect.map(', 'finding.evidence ?? []', 'generic-intelligence-source-lineage']) {
+for (const marker of ['signals.map((signal)', 'recommendations.map((recommendation)', 'signal.evidence ?? []', 'recommendation.evidence ?? []', 'const inspections = intelligence.guidance.inspect ?? []', 'inspections.map((item, index)', 'data-testid="generic-intelligence-inspect-empty"', 'finding.evidence ?? []', 'generic-intelligence-source-lineage']) {
   if (!genericCard.includes(marker)) throw new Error('Generic intelligence card must expose all source-derived results/evidence: ' + marker);
 }
 for (const marker of ['evidence.slice(', 'signals.slice(', 'recommendations.slice(', 'guidance.inspect.slice(']) {
