@@ -1,3 +1,7 @@
+## Latest report — 2026-10-14
+
+- [Generic report results UI navigation](2026-10-14/REPORT-20261014-UI-RESULT-NAVIGATION.md) — code checkpoint `2f648428ff90295768e7d9b5d5a0f5b27c801357`; fresh exact-head CI and browser proof required.
+
 ## Latest report — 2026-10-11
 
 - [Visible passport + source-safe logical restore](2026-10-11/REPORT-20261011-023D8D3-AUTH-STUBS-AND-PASSPORT-LABEL.md) — application/test head `023d8d38d0c05e6b62c872b234422f9d717e2727`; fresh exact-head proof queued/pending.

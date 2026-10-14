@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-14 / SOURCE-RESULTS UI NAVIGATION
+
+Repository: Report-Engainall/Report-Advisor
+MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+BRANCH = feat/source-results-workspace-ui-20261014
+PR #919 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/919
+CODE_CHECKPOINT = 2f648428ff90295768e7d9b5d5a0f5b27c801357
+REPORT_FOR_HEAD = 2f648428ff90295768e7d9b5d5a0f5b27c801357
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until exact-head quality/build/certification/browser checks pass and live deployment/runtime parity is independently proven.
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md
+
+IMPLEMENTED = UI-only improvement on the actual generic Smart Report card: RTL anchor navigation for summary, signals, recommendations, facts/risks/opportunities and detailed inspection; source-derived counts including facts, risks and opportunities; responsive horizontal scrolling and keyboard-visible focus. Added a regression contract in scripts/generic-file-analysis.test.mjs. Commit: https://github.com/Report-Engainall/Report-Advisor/commit/2f648428ff90295768e7d9b5d5a0f5b27c801357.
+READBACK-PROVEN = GitHub readback confirmed the UI file and generic-file test at code head 2f648428ff90295768e7d9b5d5a0f5b27c801357. This is a repository readback, not a build or browser proof.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38573690237 failed with "stale report; unreported files: scripts/generic-file-analysis.test.mjs, src/components/GenericFileIntelligenceCard.tsx".
+ROOT_CAUSE = The canonical execution checkpoint still referenced PR #917's older baseline and did not document the two source files changed in 2f648428ff90295768e7d9b5d5a0f5b27c801357. The checker is behaving strictly as designed; this checkpoint anchors REPORT_FOR_HEAD to the code commit and records the changed files. No workflow or enforcement threshold is relaxed.
+EXACT_HEAD_TEST_STATUS_AT_CAPTURE = Quality run 38573690167 IN_PROGRESS; Product Build Gate run 38573690654 IN_PROGRESS; Full Product Browser E2E run 38573690649 IN_PROGRESS; Final Certification Gate run 38573690186 IN_PROGRESS; Session Handoff run 38573690237 FAIL (stale checkpoint). All these statuses belong to 2f648428ff90295768e7d9b5d5a0f5b27c801357; after the checkpoint commit advances the branch, these are historical evidence and the new SHA must be checked again.
+BROWSER_PROVEN = NOT_PROVEN for final refreshed report UI. The automated browser workflow was active at capture but had not reached a terminal result.
+PERSISTED = NOT_APPLICABLE — no business report or user data was written.
+PRODUCTION_PROVEN = NOT_PROVEN. Netlify still publishes old source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b; Vercel/Netlify deployment and Phase-F issues remain separate blockers recorded in PR #918 (missing authorized secrets / tenant-canary configuration). No secrets were read or changed.
+NEXT_EXACT_ACTION = Verify the documentation checkpoint and changed-file readback on GitHub, then consume the exact-new-head Quality, Product Build, Full Product Browser E2E, Final Certification and Session Handoff results; fix the first confirmed failure without weakening source/evidence/security contracts.
+
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+
+---
+
 ## LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 CURRENT_EXACT_HEAD = 1910e9809af30c9d178e73813906f07401ac7280

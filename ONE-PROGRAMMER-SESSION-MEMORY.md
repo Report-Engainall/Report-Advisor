@@ -1,3 +1,26 @@
+# LIVE RESUME — 2026-10-14 / GENERIC REPORT RESULTS UI
+
+Repository: Report-Engainall/Report-Advisor
+MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CURRENT_CODE_CHECKPOINT = 2f648428ff90295768e7d9b5d5a0f5b27c801357
+REPORT_FOR_HEAD = 2f648428ff90295768e7d9b5d5a0f5b27c801357
+BRANCH = feat/source-results-workspace-ui-20261014
+PR #919 = OPEN — https://github.com/Report-Engainall/Report-Advisor/pull/919
+RELATED PRODUCT PR #912 = MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/912
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until exact-head gates and independent production/runtime proof close.
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md
+NEXT: Read exact-head CI for the documentation checkpoint, repair the first evidenced failure without weakening the handoff/evidence/security contracts, and prove the browser journey before merge.
+
+IMPLEMENTED = Actual Generic Smart Report UI navigation + source-derived result counts; UI/test code commit 2f648428ff90295768e7d9b5d5a0f5b27c801357 (https://github.com/Report-Engainall/Report-Advisor/commit/2f648428ff90295768e7d9b5d5a0f5b27c801357).
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38573690237 flagged stale checkpoint coverage for scripts/generic-file-analysis.test.mjs and src/components/GenericFileIntelligenceCard.tsx.
+ROOT_CAUSE = Previously persisted checkpoint was anchored at a PR #917 handoff commit and failed to account for this PR's UI/test files. The docs-only followup records the code checkpoint; never relax the checker.
+TESTED = The exact-code-head Quality, Product Build, Full Product Browser E2E and Final Certification jobs were in progress at capture; Session Handoff failed on stale path coverage. Do not use those pre-checkpoint statuses as proof for a descendant SHA.
+READBACK-PROVEN = Changed UI and test files read back from GitHub at 2f648428ff90295768e7d9b5d5a0f5b27c801357.
+BROWSER-PROVEN = NOT_PROVEN.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify source SHA remains 858ef8e3e5bc5bf74430555eadfb9e6767be348b; see PR #918 for deploy secret / tenant-canary blockers.
+---
+
 # LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 Repository: Report-Engainall/Report-Advisor

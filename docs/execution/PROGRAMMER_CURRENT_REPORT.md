@@ -1,3 +1,38 @@
+# CURRENT EXECUTION REPORT — 2026-10-14 / GENERIC REPORT RESULTS UI
+
+REPORT_FOR_HEAD = 2f648428ff90295768e7d9b5d5a0f5b27c801357
+UPDATED_AT = 2026-10-14
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = feat/source-results-workspace-ui-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/919 (OPEN / NOT MERGED)
+BASE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = 2f648428ff90295768e7d9b5d5a0f5b27c801357
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until exact-head Build, Quality, Session Handoff, Final Certification and Full Product Browser E2E pass; production/runtime proof remains separate.
+
+WHAT_I_WAS_ASKED_TO_DO = Continue from live main, improve the true end-user report results interface and ensure any supported file can show source-derived output without fabricated values.
+
+WHAT_I_ACTUALLY_DID = Created branch feat/source-results-workspace-ui-20261014 from live main 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517. Commit 2f648428ff90295768e7d9b5d5a0f5b27c801357 changes only src/components/GenericFileIntelligenceCard.tsx and scripts/generic-file-analysis.test.mjs. The real Smart Report result card now has an RTL results navigation strip to summary, signals, recommendations, facts/risks/opportunities and detailed inspection, plus source-derived counts for facts, risks, opportunities and existing signals/recommendations/evidence. Added static regression assertions for each navigable section, the current intelligence result groups and keyboard focus. The commit is integrated into open PR #919: https://github.com/Report-Engainall/Report-Advisor/pull/919.
+
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run https://github.com/Report-Engainall/Report-Advisor/actions/runs/38573690237 failed at job 115885153409 with "SESSION_HANDOFF_CONTRACT_FAIL: stale report; unreported files: scripts/generic-file-analysis.test.mjs, src/components/GenericFileIntelligenceCard.tsx".
+
+ROOT_CAUSE = The inherited session memory/current report referenced the earlier PR #917 handoff checkpoint; it did not mention the two changed paths in 2f648428ff90295768e7d9b5d5a0f5b27c801357. The strict handoff checker compared that outdated baseline against the current checkout. This follow-up is documentation-only and anchors REPORT_FOR_HEAD at 2f648428ff90295768e7d9b5d5a0f5b27c801357; the gate itself is not changed.
+
+WHAT_IS_PROVEN = GitHub returned source commit 2f648428ff90295768e7d9b5d5a0f5b27c801357 and read back both changed files at that exact SHA: https://github.com/Report-Engainall/Report-Advisor/commit/2f648428ff90295768e7d9b5d5a0f5b27c801357. Main was read at 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517. On 2f648428ff90295768e7d9b5d5a0f5b27c801357, Quality run 38573690167, Product Build Gate 38573690654, Full Product Browser E2E 38573690649 and Final Certification 38573690186 were in progress at capture; Session Handoff run 38573690237 failed only on stale report coverage. The product UI contract has not yet been claimed to pass. Environment could not reach GitHub through local git networking, so no claim of a locally executed npm test is made; use CI output for executed tests.
+
+WHAT_IS_NOT_PROVEN = Exact-head UI regression pass; exact-head build/quality/final certification/session handoff terminal pass; authenticated Chromium screenshot/use of new anchor navigation and responsive behavior; persisted report readback after refresh/re-login; current production deployment SHA parity; tenant-canary/Phase-F 4/4; PRODUCT_COMPLETE.
+
+BROWSER_PROVEN = NOT_PROVEN.
+PERSISTED = NOT_APPLICABLE — no business or report records changed.
+READBACK-PROVEN = YES for the two changed source files at 2f648428ff90295768e7d9b5d5a0f5b27c801357; docs checkpoint readback remains pending until this commit is read from GitHub.
+PRODUCTION-PROVEN = NOT_PROVEN — public Netlify metadata still carries stale source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b. PR #918 records missing authorized Netlify runtime/deploy configuration and a tenant-canary failure. Do not embed or bypass secrets.
+CHANGED_FILES_AFTER_CODE_CHECKPOINT = ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-14/REPORT-20261014-UI-RESULT-NAVIGATION.md; docs/execution/PROGRAMMER_REPORTS/README.md
+NEXT_EXACT_ACTION = Verify the new documentation-only checkpoint's Session Handoff and other CI results on its exact SHA; inspect any terminal failing job log and repair the first proven failure.
+
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-13 / PR #917 HANDOFF RECOVERY
 
 REPORT_FOR_HEAD = 1910e9809af30c9d178e73813906f07401ac7280
