@@ -580,3 +580,15 @@ jobs:
             exact-head.txt
             artifacts/e2e-browser/**
             artifacts/e2e-business/**
+
+      # The current run 38626675330 wrote regenerated actor passwords to its public
+      # Actions trace before masking them. Revoke only run-scoped test accounts for
+      # that incident and this run; never touch configured/stable actor identities.
+      - name: Revoke run-scoped E2E actors and prior exposed credentials
+        if: ${{ always() && steps.resolve-report-context.outputs.ready == 'true' }}
+        timeout-minutes: 3
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_REVOKE_RUN_IDS: '38626675330'
+        run: node scripts/cleanup-ephemeral-e2e-actors.mjs

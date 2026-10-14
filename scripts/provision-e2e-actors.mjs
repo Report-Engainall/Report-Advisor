@@ -125,6 +125,22 @@ async function findUserByEmail(email) {
   return { user: null, lookupUnavailable: false };
 }
 
+function maskActionCredential(value) {
+  if (process.env.GITHUB_ACTIONS !== 'true' || typeof value !== 'string' || !value || /[\r\n]/.test(value)) return;
+  process.stdout.write('::add-mask::' + value + '\n');
+}
+
+// Mask credentials inherited from the preparation step as early as possible. A later
+// auth recovery can rotate them again; every replacement is masked before GITHUB_ENV.
+for (const name of [
+  'TEST_USER_A_PASSWORD',
+  'TEST_USER_B_PASSWORD',
+  'TEST_USER_C_PASSWORD',
+  'TEST_APPROVER_PASSWORD',
+]) {
+  maskActionCredential(process.env[name]);
+}
+
 function runId() {
   return String(process.env.GITHUB_RUN_ID || process.env.E2E_ACTOR_RUN_ID || Date.now()).replace(/[^0-9]/g, '');
 }
@@ -147,6 +163,9 @@ function persistActorCredentials(label, email, password) {
         ? { email: 'TEST_USER_C_EMAIL', password: 'TEST_USER_C_PASSWORD' }
         : { email: 'TEST_APPROVER_EMAIL', password: 'TEST_APPROVER_PASSWORD' };
 
+  // Provisioning can replace a password after the workflow's initial mask pass.
+  // Register the replacement before persisting it for later steps.
+  maskActionCredential(password);
   if (process.env.GITHUB_ENV) {
     fs.appendFileSync(process.env.GITHUB_ENV, fields.email + '=' + email + '\n' + fields.password + '=' + password + '\n');
   }
@@ -282,6 +301,7 @@ function ensureApproverCredentials() {
   const runId = String(process.env.GITHUB_RUN_ID || process.env.E2E_APPROVER_RUN_ID || Date.now()).replace(/[^0-9]/g, '');
   const email = 'e2e-approver-' + runId + '@e2e.report-advisor.invalid';
   const password = 'E2e-AppR0ver-' + runId.slice(-12) + '-Ra7!';
+  maskActionCredential(password);
   if (process.env.GITHUB_ENV) {
     fs.appendFileSync(process.env.GITHUB_ENV, 'TEST_APPROVER_EMAIL=' + email + '\nTEST_APPROVER_PASSWORD=' + password + '\n');
   }
