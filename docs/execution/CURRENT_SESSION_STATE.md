@@ -1,35 +1,28 @@
 # LIVE RESUME — 2026-10-14 / Generic source completeness guard
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e (last functional code commit; subsequent checkpoint commits are documentation-only)
+CURRENT_EXACT_HEAD = 07603e7754cdfef814ca650a2f39044b5559d88b (tested code-bearing candidate; this consolidated checkpoint is a documentation-only descendant)
 CODE_CHECKPOINT = 3355fc58cede5c7313c2c828b795246131f3c60e
 REPORT_FOR_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e
 BRANCH = fix/generic-source-completeness-20261014
-PR = Pending creation from this branch; separate PR #925 remains OPEN / NOT MERGED
-ACTION_STATUS = New branch regression test has not yet run in GitHub Actions because its PR has not been opened. On PR #925 head 8d93a28e0d7824f4028b1a9e8e5742d65a666080, Product Build Gate run 38610637454, Quality 38610637553, Final Certification 38610636938, and Full Product Browser E2E 38610637227 succeeded; Phase-F run 38610637235 failed in live tenant-canary with HTTP 503 operational_token_not_configured. These prior results apply only to PR #925's head.
-IMPLEMENTED = Generic source row selection now rejects canonical rowsets explicitly reported as partial or inconsistent with the expected source row count; it can fall back only to a complete source-bound snapshot and reports why analysis is unavailable otherwise.
-TESTED = Regression assertions added for partial canonical + complete snapshot fallback, partial canonical + incomplete snapshot fail-closed behavior, canonical count mismatch, and canonical precedence. NOT YET RUN on this branch.
-PERSISTED / READBACK-PROVEN = Three functional file commits are confirmed by GitHub write responses: selector edf7c9ad145b776fd8b4bf99243f58befc219b78; regression test 29247ec2fa1f40830e331cbb146e7cb9ca0e6126; report runtime 3355fc58cede5c7313c2c828b795246131f3c60e. Read-back of branch files confirmed the changes before this checkpoint was written.
-BROWSER-PROVEN = PR #925 E2E was successful on its exact head; this new source-completeness fix has not yet been browser-proven.
-PRODUCTION-PROVEN = NOT_PROVEN. Netlify published deploy at last live readback was 6ac3d608e2e37d0008cc0222 (ready but stale); live Phase-F still requires valid runtime credentials.
-OPEN_BLOCKER = Netlify runtime is missing RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY. Current connector can enumerate configured Netlify variable names but cannot securely create known-good credential values; do not fabricate secrets or relax guards.
-NEXT_EXACT_ACTION = Open a PR from fix/generic-source-completeness-20261014, then verify generic-file-analysis in Quality, Product Build, Session Handoff, Final Certification, and relevant browser checks on the exact final PR head. Keep PR #925 unmerged until its Phase-F and production acceptance blockers are actually resolved.
-SESSION HANDOFF = NOT READY
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED); PR #925 is separate and also OPEN / NOT MERGED
+ACTION_STATUS = On candidate 07603e7754cdfef814ca650a2f39044b5559d88b: Product Build Gate 38617100559 SUCCESS; Quality 38617100491 SUCCESS; Session Handoff 38617100047 SUCCESS; Final Certification Gate 38617100255 SUCCESS; Device-Independent Browser E2E 38617100102 SUCCESS; Data Quality Runtime 38617100372 SUCCESS; Commercial Product Creation E2E 38617100353 SUCCESS. Full Product Browser E2E 38617100465 was still running step 19 (real Chromium route/authentication) with no failed steps observed at capture. Quality logs include GENERIC FILE ANALYSIS PASS and SOURCE-BOUND ROW SELECTOR PASS for the new cases. Rerun exact-head checks after this documentation-only commit.
+IMPLEMENTED = Generic source selection refuses canonical rows explicitly marked partial or inconsistent with expected source row count; falls back only to complete source-bound snapshots; otherwise returns unavailable with a visible Arabic warning.
+TESTED = Quality Behavioral regressions passed on 07603e7754cdfef814ca650a2f39044b5559d88b; explicit log lines: GENERIC FILE ANALYSIS PASS; SOURCE-BOUND ROW SELECTOR PASS canonical-priority/completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch; STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17. Build, certification, device-independent browser, data-quality and commercial E2E passes are linked below.
+PERSISTED / READBACK-PROVEN = Code commits edf7c9ad145b776fd8b4bf99243f58befc219b78, 29247ec2fa1f40830e331cbb146e7cb9ca0e6126, 3355fc58cede5c7313c2c828b795246131f3c60e; checkpoint docs are being consolidated in one Git tree commit, then branch and files must be re-read.
+BROWSER-PROVEN = Device-independent browser smoke and commercial product creation E2E passed on 07603e7754cdfef814ca650a2f39044b5559d88b; full product browser remained in progress at capture.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify deploy 6ac3d608e2e37d0008cc0222 is READY but stale at SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b, published 2026-10-05.
+OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed live tenant-canary with HTTP 503 operational_token_not_configured. Netlify site vars returned only RESILIENCE_CANARY_FOREIGN_COMPANY_ID, RESILIENCE_COMPANY_ID, SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_SUPABASE_URL; team vars list was empty. RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN were absent from enumerated site/team config. No authorized source for valid values is available; do not invent credentials or weaken tenant guards.
+NEXT_EXACT_ACTION = Re-read latest PR #926 tip and verify Quality, Product Build, Session Handoff, Final Certification and Full Product Browser E2E on the successor head. Resolve any failed exact step without weakening checks. Keep #926 unmerged until its required checks pass; keep #925 unmerged until authorized runtime secrets make Phase-F pass.
+SESSION HANDOFF = NOT READY — successor head verification pending
 PRODUCT_COMPLETE = NO
 
-## Root cause and code change
+## Root cause and fix
 
-The smart-report canonical read already computed canonicalRowsComplete / canonicalAnalysisScope after its paged database read. However, buildGenericDatasetForReport selected canonical data whenever it contained at least one object row, without receiving that completeness state. A partial canonical fetch could therefore be analyzed as if it represented the full source; the dataset row count could also be copied from a larger source-analysis declaration. This violated the source-evidence boundary.
+The smart-report read path already computed canonicalRowsComplete / canonicalAnalysisScope, but the generic row selector accepted any nonempty canonical rowset without consuming that status. Incomplete reads could feed generic intelligence, while rowCount could be copied from larger declared source metadata. The fix passes canonicalRowsComplete and expectedCanonicalRowCount to the selector, allows fallback only to a count-consistent complete source-bound snapshot, warns in Arabic when no complete set exists, and uses the verified selected row count.
 
-The fix passes canonicalRowsComplete and expectedCanonicalRowCount into selectGenericSourceRows. Canonical rows are accepted only when the read is not explicitly partial and the observed row count matches the expected count when known. If that gate fails, only a snapshot whose actual rows match its declared count and source-analysis row count can be used. Otherwise generic analysis returns no derived dataset and adds an explicit Arabic runtime warning. The selected dataset rowCount is the count of the verified rowset.
-
-## Relevant source changes
-
-- src/lib/file-engine/generic-source-rows.ts
-- src/lib/report-smart.ts
-- scripts/generic-file-analysis.test.mjs
-
-No tenant authorization, RLS policy, release guard, acceptance threshold, or secret value was changed.
+Code files: src/lib/file-engine/generic-source-rows.ts; src/lib/report-smart.ts; scripts/generic-file-analysis.test.mjs.
+Security boundary: no auth, RLS, tenant isolation, release guard, threshold, or secret was changed.
 
 ---
 

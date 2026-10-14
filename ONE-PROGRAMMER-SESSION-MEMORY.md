@@ -1,26 +1,26 @@
 # LIVE RESUME — 2026-10-14 / Generic source completeness guard
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e (functional checkpoint; current branch may have later documentation-only commits)
+CURRENT_EXACT_HEAD = 07603e7754cdfef814ca650a2f39044b5559d88b (code-bearing candidate; consolidated checkpoint is a documentation-only successor)
 CODE_CHECKPOINT = 3355fc58cede5c7313c2c828b795246131f3c60e
 REPORT_FOR_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e
 BRANCH = fix/generic-source-completeness-20261014
-PR = Pending creation; PR #925 remains open and not merged
-ACTION_STATUS = New regression test is pending GitHub Actions; it is not yet proven. PR #925 head 8d93a28e0d7824f4028b1a9e8e5742d65a666080: Build PASS 38610637454, Quality PASS 38610637553, Final Certification PASS 38610636938, Browser E2E PASS 38610637227, Phase-F FAIL 38610637235 (live tenant-canary HTTP 503 operational_token_not_configured).
-NEXT_EXACT_ACTION = Open PR from fix/generic-source-completeness-20261014 and verify the new generic file analysis regression on the exact head; then update this checkpoint with exact-head results.
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED); PR #925 remains separately open
+ACTION_STATUS = On 07603e7754cdfef814ca650a2f39044b5559d88b, Build, Quality, Handoff, Final Certification, Device-Independent Browser E2E, Data Quality Runtime and Commercial Product Creation E2E passed. Quality log contains GENERIC FILE ANALYSIS PASS and SOURCE-BOUND ROW SELECTOR PASS completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch. Full Product Browser E2E was still at step 19 (authenticated Chromium route proof) without recorded failure at capture.
+NEXT_EXACT_ACTION = Re-read the new PR #926 tip and inspect exact-head Quality, Build, Session Handoff, Final Certification and full browser E2E. Do not merge unless required exact-head gates finish successfully. PR #925 still has the operational_token_not_configured live Phase-F blocker.
 PRODUCT_COMPLETE = NO
 SESSION HANDOFF = NOT READY
 
-## Current change
+## Current code fix
 
-Root defect: canonical smart-report reads calculate canonicalRowsComplete, but generic row selection used any nonempty canonical rowset even when that read was partial. This can derive results from an incomplete subset. Fix is in src/lib/file-engine/generic-source-rows.ts and src/lib/report-smart.ts; regressions in scripts/generic-file-analysis.test.mjs. Partial canonical rows are rejected; a complete source-bound snapshot can be used as fallback; if no complete set exists, generic analysis returns unavailable with an Arabic warning. Expected row count is enforced and returned rowCount matches the validated rowset.
+Generic intelligence could analyze a partial canonical rowset because the selector accepted any nonempty array despite the caller knowing the database read was incomplete. The fix passes canonicalRowsComplete and expectedCanonicalRowCount, rejects incomplete/count-mismatched rows, falls back only to a complete source-bound snapshot, and warns in Arabic when no complete dataset exists. Dataset rowCount now uses the validated rowset.
 
 Functional commits:
-- edf7c9ad145b776fd8b4bf99243f58befc219b78 — completeness-aware selector
-- 29247ec2fa1f40830e331cbb146e7cb9ca0e6126 — regression cases
-- 3355fc58cede5c7313c2c828b795246131f3c60e — smart-report runtime wiring (code checkpoint)
+- edf7c9ad145b776fd8b4bf99243f58befc219b78 — selector
+- 29247ec2fa1f40830e331cbb146e7cb9ca0e6126 — regression tests
+- 3355fc58cede5c7313c2c828b795246131f3c60e — runtime wiring
 
-New tests not yet run. No RLS/token/release guards were changed. Live production remains NOT_PROVEN until authorized runtime credentials are configured and live Phase-F passes.
+Full production remains NOT_PROVEN until valid credentials are safely provisioned and Phase-F passes. No token/RLS bypass was implemented.
 
 ---
 
