@@ -27,12 +27,11 @@ function EvidenceList({ items }: { items: string[] }) {
   );
 }
 
-function FindingList({ title, items }: { title: string; items: BusinessFinding[] }) {
-  if (!items.length) return null;
+function FindingList({ id, title, items }: { id: string; title: string; items: BusinessFinding[] }) {
   return (
-    <section className="space-y-3" aria-label={title}>
+    <section id={id} data-testid={id} className="scroll-mt-5 space-y-3" aria-label={title}>
       <h3 className="flex items-center gap-2 text-sm font-black text-ink-950"><Layers3 size={16}/>{title} <span className="text-xs font-bold text-ink-400">({items.length})</span></h3>
-      {items.map((finding) => (
+      {items.length ? items.map((finding) => (
         <article key={finding.id} className="rounded-xl border border-ink-200/80 bg-white p-4 shadow-[0_10px_28px_-25px_rgba(15,23,42,.55)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h4 className="text-sm font-black leading-6 text-ink-950">{finding.title}</h4>
@@ -52,7 +51,11 @@ function FindingList({ title, items }: { title: string; items: BusinessFinding[]
           </div>
           <div className="mt-3"><div className="mb-2 text-[10px] font-black text-ink-500">الأدلة</div><EvidenceList items={finding.evidence ?? []}/></div>
         </article>
-      ))}
+      )) : (
+        <p className="rounded-xl border border-dashed border-ink-200 bg-ink-50/70 p-4 text-xs leading-6 text-ink-600" data-testid={id + '-empty'}>
+          لم تُشتق نتائج من هذا النوع من المحتوى المتاح. هذه حالة نتائج فارغة وليست دليلًا على خلو المصدر من المخاطر.
+        </p>
+      )}
     </section>
   );
 }
@@ -122,9 +125,16 @@ export function GenericFileIntelligenceCard({
   const signals = intelligence.signals ?? [];
   const recommendations = intelligence.recommendations ?? [];
   const findingGroups = [
-    { title: 'الحقائق والنتائج المستخرجة', items: intelligence.findings ?? [] },
-    { title: 'المخاطر المرصودة', items: intelligence.risks ?? [] },
-    { title: 'الفرص المرصودة', items: intelligence.opportunities ?? [] },
+    { id: 'generic-intelligence-findings', label: 'الحقائق والنتائج', title: 'الحقائق والنتائج المستخرجة', items: intelligence.findings ?? [] },
+    { id: 'generic-intelligence-risks', label: 'المخاطر', title: 'المخاطر المرصودة', items: intelligence.risks ?? [] },
+    { id: 'generic-intelligence-opportunities', label: 'الفرص', title: 'الفرص المرصودة', items: intelligence.opportunities ?? [] },
+  ];
+  const inspections = intelligence.guidance.inspect ?? [];
+  const resultsNavigation = [
+    { id: 'generic-intelligence-signals', label: 'الإشارات', count: signals.length },
+    { id: 'generic-intelligence-recommendations', label: 'التوصيات', count: recommendations.length },
+    ...findingGroups.map(({ id, label, items }) => ({ id, label, count: items.length })),
+    { id: 'generic-intelligence-inspect', label: 'فحوص إضافية', count: inspections.length },
   ];
   const evidenceCount = signals.reduce((sum, item) => sum + (item.evidence?.length ?? 0), 0)
     + recommendations.reduce((sum, item) => sum + (item.evidence?.length ?? 0), 0)
@@ -139,6 +149,25 @@ export function GenericFileIntelligenceCard({
       />
       <CardBody>
         <SourceLineage sourcePath={sourcePath} sourceHash={sourceHash} reportJobId={reportJobId}/>
+        <nav className="mb-5 rounded-2xl border border-slate-700/80 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#1b1640_100%)] p-3 shadow-[0_20px_48px_-34px_rgba(15,23,42,.8)]" aria-label="التنقل في نتائج التحليل العام" data-testid="generic-intelligence-results-navigation">
+          <div className="mb-2 flex items-center justify-between gap-3 px-1">
+            <div className="text-xs font-black text-white">استكشف النتائج المستخرجة</div>
+            <div className="text-[10px] font-bold text-slate-400">كل مجموعة مرتبطة بنتيجة المصدر نفسه</div>
+          </div>
+          <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 xl:grid-cols-6">
+            {resultsNavigation.map((item) => (
+              <a
+                key={item.id}
+                href={'#' + item.id}
+                aria-label={'انتقل إلى ' + item.label + ' (' + item.count + ')'}
+                className="flex min-h-14 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-slate-100 transition-colors hover:border-amber-300/70 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              >
+                <span className="leading-5">{item.label}</span>
+                <span className="rounded-lg border border-amber-300/20 bg-amber-300/10 px-2 py-1 text-[11px] font-black tabular-nums text-amber-300">{item.count}</span>
+              </a>
+            ))}
+          </div>
+        </nav>
         {(analysisSource === 'source-analysis-snapshot' || (analysisScope && analysisScope !== 'FULL_SOURCE')) && (
           <section className="mb-5 rounded-xl border border-amber-200 bg-amber-50/70 p-3" data-testid="generic-intelligence-analysis-scope">
             <div className="text-xs font-black text-amber-950">حدود القراءة والإثبات</div>
@@ -149,13 +178,13 @@ export function GenericFileIntelligenceCard({
         )}
 
         <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
-          <section className="rounded-2xl border border-ink-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f7f8ff_100%)] p-4 shadow-sm">
-            <div className="flex items-center gap-2 text-[10px] font-black tracking-[.08em] text-primary-700"><FileSearch size={14}/> قراءة محايدة للمصدر</div>
-            <h3 className="mt-2 text-base font-black leading-7 text-ink-950">{brief.headline}</h3>
-            <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-ink-600">{intelligence.summary}</p>
-            <div className="mt-4 rounded-xl border border-ink-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f8faff_100%)] p-3 shadow-[0_8px_20px_-19px_rgba(15,23,42,.45)]">
-              <div className="flex items-center gap-2 text-xs font-black text-ink-800"><Activity size={14}/> سؤال التحليل</div>
-              <p className="mt-1 text-xs leading-5 text-ink-700">{intelligence.businessQuestion}</p>
+          <section className="rounded-2xl border border-slate-700/80 bg-[linear-gradient(145deg,#0b1020_0%,#111827_60%,#1b1640_100%)] p-4 text-white shadow-[0_24px_56px_-38px_rgba(15,23,42,.8)]">
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-[.08em] text-indigo-300"><FileSearch size={14}/> قراءة محايدة للمصدر</div>
+            <h3 className="mt-2 text-base font-black leading-7 text-white">{brief.headline}</h3>
+            <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">{intelligence.summary}</p>
+            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-100"><Activity size={14} className="text-indigo-300"/> سؤال التحليل</div>
+              <p className="mt-1 text-xs leading-5 text-slate-300">{intelligence.businessQuestion}</p>
             </div>
           </section>
           <section className="space-y-3">
@@ -187,7 +216,7 @@ export function GenericFileIntelligenceCard({
           </section>
         </div>
 
-        <section className="mt-6 space-y-3" aria-label="كل إشارات التحليل العام">
+        <section id="generic-intelligence-signals" data-testid="generic-intelligence-signals" className="mt-6 scroll-mt-5 space-y-3" aria-label="كل إشارات التحليل العام">
           <h3 className="flex items-center gap-2 text-sm font-black text-ink-950"><Activity size={16}/> كل الإشارات ({signals.length})</h3>
           {signals.length ? signals.map((signal) => (
             <article key={signal.id} className="rounded-xl border border-ink-200/80 bg-white p-4 shadow-[0_10px_28px_-25px_rgba(15,23,42,.55)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md">
@@ -209,7 +238,7 @@ export function GenericFileIntelligenceCard({
           )) : <p className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-xs text-ink-500">لم يستخرج هذا المصدر إشارات تتجاوز حدود التحليل الحالي؛ لا يتم اختلاق استثناءات.</p>}
         </section>
 
-        <section className="mt-6 space-y-3" aria-label="كل توصيات التحليل العام">
+        <section id="generic-intelligence-recommendations" data-testid="generic-intelligence-recommendations" className="mt-6 scroll-mt-5 space-y-3" aria-label="كل توصيات التحليل العام">
           <h3 className="flex items-center gap-2 text-sm font-black text-ink-950"><ClipboardCheck size={16}/> كل التوصيات ({recommendations.length})</h3>
           {recommendations.length ? recommendations.map((recommendation) => (
             <article key={recommendation.id} className="rounded-xl border border-primary-100 bg-[linear-gradient(145deg,rgba(238,242,255,.8),rgba(255,255,255,.94))] p-4 shadow-[0_12px_32px_-28px_rgba(67,56,202,.45)] transition-shadow hover:shadow-md">
@@ -240,17 +269,21 @@ export function GenericFileIntelligenceCard({
         </section>
 
         <div className="mt-6 space-y-6">
-          {findingGroups.map((group) => <FindingList key={group.title} title={group.title} items={group.items}/>)}
+          {findingGroups.map((group) => <FindingList key={group.id} id={group.id} title={group.title} items={group.items}/>)}
         </div>
 
-        {intelligence.guidance.inspect.length > 0 && (
-          <section className="mt-6 rounded-xl border border-ink-200/80 bg-white p-4 shadow-[0_10px_28px_-25px_rgba(15,23,42,.55)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md">
-            <h3 className="flex items-center gap-2 text-sm font-black text-ink-900"><Sigma size={15}/> كل عناصر الفحص ({intelligence.guidance.inspect.length})</h3>
+        <section id="generic-intelligence-inspect" data-testid="generic-intelligence-inspect" className="mt-6 scroll-mt-5 rounded-xl border border-ink-200/80 bg-white p-4 shadow-[0_10px_28px_-25px_rgba(15,23,42,.55)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md">
+          <h3 className="flex items-center gap-2 text-sm font-black text-ink-900"><Sigma size={15}/> كل عناصر الفحص ({inspections.length})</h3>
+          {inspections.length ? (
             <ul className="mt-3 grid gap-2 md:grid-cols-2">
-              {intelligence.guidance.inspect.map((item, index) => <li key={item + ':' + index} className="break-words rounded-lg border border-ink-100 bg-ink-50 px-3 py-2 text-xs leading-5 text-ink-700">{item}</li>)}
+              {inspections.map((item, index) => <li key={item + ':' + index} className="break-words rounded-lg border border-ink-100 bg-ink-50 px-3 py-2 text-xs leading-5 text-ink-700">{item}</li>)}
             </ul>
-          </section>
-        )}
+          ) : (
+            <p className="mt-3 rounded-lg border border-dashed border-ink-200 bg-ink-50/70 p-3 text-xs leading-6 text-ink-600" data-testid="generic-intelligence-inspect-empty">
+              لا توجد عناصر فحص إضافية مستخرجة من المحتوى المتاح. لم تُعامل البيانات غير المتاحة على أنها صفر.
+            </p>
+          )}
+        </section>
 
         <div className="mt-5 flex items-start gap-2 rounded-xl border border-primary-100 bg-primary-50/40 p-3 text-xs leading-5 text-primary-950">
           <ShieldCheck size={14} className="mt-0.5 shrink-0"/>
