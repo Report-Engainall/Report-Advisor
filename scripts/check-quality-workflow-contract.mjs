@@ -18,6 +18,7 @@ if (!workflow.includes('npm ci --no-audit --no-fund')) throw new Error('Quality 
 if (!workflow.includes('npm run typecheck') || !workflow.includes('npm run lint') || !workflow.includes('npm run build')) throw new Error('Quality workflow must retain typecheck, lint, and build gates.');
 
 const requiredStageGroups = [
+  ['Vercel deploy workflow contract'],
   ['Quality workflow contract'],
   ['Typecheck'],
   ['Lint'],
