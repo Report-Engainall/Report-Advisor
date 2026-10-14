@@ -1,26 +1,21 @@
-# LIVE RESUME — 2026-10-14 / Generic source completeness guard
+# LIVE RESUME — 2026-10-14 / Source completeness + browser readback hardening
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 07603e7754cdfef814ca650a2f39044b5559d88b (code-bearing candidate; consolidated checkpoint is a documentation-only successor)
-CODE_CHECKPOINT = 3355fc58cede5c7313c2c828b795246131f3c60e
-REPORT_FOR_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e
+CURRENT_EXACT_HEAD = 10f1e376a135e0be72862315bf675f2966aa98a0 (functional checkpoint before documentation-only checkpoint)
+CODE_CHECKPOINT = 10f1e376a135e0be72862315bf675f2966aa98a0
+REPORT_FOR_HEAD = 10f1e376a135e0be72862315bf675f2966aa98a0
 BRANCH = fix/generic-source-completeness-20261014
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED); PR #925 remains separately open
-ACTION_STATUS = On 07603e7754cdfef814ca650a2f39044b5559d88b, Build, Quality, Handoff, Final Certification, Device-Independent Browser E2E, Data Quality Runtime and Commercial Product Creation E2E passed. Quality log contains GENERIC FILE ANALYSIS PASS and SOURCE-BOUND ROW SELECTOR PASS completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch. Full Product Browser E2E was still at step 19 (authenticated Chromium route proof) without recorded failure at capture.
-NEXT_EXACT_ACTION = Re-read the new PR #926 tip and inspect exact-head Quality, Build, Session Handoff, Final Certification and full browser E2E. Do not merge unless required exact-head gates finish successfully. PR #925 still has the operational_token_not_configured live Phase-F blocker.
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED); PR #925 remains separately open and unmerged.
+ACTION_STATUS = On 16446f4003f1611ca842574c0cbf3f9bb50ee9bb, Build/Quality/Handoff/Final Certification/Device-independent E2E/Commercial E2E/Data Quality passed, but Full Product Browser E2E run 38618336854 failed with E2E-REPORT-014. Its artifact proves the report DOM was fully present after refresh (all six decision-chain cards, matching job/hash/source, no loading/error state) but two pending sidecar GETs to business_intelligence_decisions prevented settlement. Supabase logs show matching REST queries returned HTTP 200 in ~185–245 ms; EXPLAIN ANALYZE ~1.4 ms. No route or network/HTTP errors were recorded.
+NEXT_EXACT_ACTION = Confirm exact-head Quality/Build/Handoff/Certification/full Browser E2E after the current request-classification fix and docs checkpoint. Do not merge unless the full browser proof is green. Keep PR #925 unmerged until authorized runtime secrets are supplied and Phase-F passes.
 PRODUCT_COMPLETE = NO
-SESSION HANDOFF = NOT READY
+SESSION HANDOFF = NOT READY — verification pending
 
 ## Current code fix
 
-Generic intelligence could analyze a partial canonical rowset because the selector accepted any nonempty array despite the caller knowing the database read was incomplete. The fix passes canonicalRowsComplete and expectedCanonicalRowCount, rejects incomplete/count-mismatched rows, falls back only to a complete source-bound snapshot, and warns in Arabic when no complete dataset exists. Dataset rowCount now uses the validated rowset.
+Generic source completeness: selector rejects partial or expected-count-mismatched canonical rows and uses only a full source-bound snapshot fallback. New regression cases passed in Quality on prior candidate 16446f4003f1611ca842574c0cbf3f9bb50ee9bb.
 
-Functional commits:
-- edf7c9ad145b776fd8b4bf99243f58befc219b78 — selector
-- 29247ec2fa1f40830e331cbb146e7cb9ca0e6126 — regression tests
-- 3355fc58cede5c7313c2c828b795246131f3c60e — runtime wiring
-
-Full production remains NOT_PROVEN until valid credentials are safely provisioned and Phase-F passes. No token/RLS bypass was implemented.
+Browser readback: scripts/run-full-product-browser-e2e.mjs now treats only the read-only source-intelligence decision-history GET for the matched Smart Report as optional background work during DOM settlement; it retains explicit network failure and HTTP >=400 checks. scripts/check-browser-e2e-page-telemetry-contract.mjs asserts both the narrow classification and preserved failure accounting. This fix at 10f1e376a135e0be72862315bf675f2966aa98a0 is not yet CI-proven.
 
 ---
 

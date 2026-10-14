@@ -1,41 +1,38 @@
-# Execution report — 2026-10-14 — Generic source completeness
+# Execution report — 2026-10-14 — Source completeness + browser refresh readback
 
 Repository: Report-Engainall/Report-Advisor
 Branch: fix/generic-source-completeness-20261014
-Main base at branch creation: b4bb9fe6f278fd7d2c2dcb76b144638549036565
-Code checkpoint: 3355fc58cede5c7313c2c828b795246131f3c60e
+Code checkpoint: 10f1e376a135e0be72862315bf675f2966aa98a0
 PR #926: https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED)
-Report timestamp: 2026-10-14T18:47:00Z
+Updated: 2026-10-14T19:18:00Z
 
-## Root cause
+## Source-completeness fix
 
-The smart-report caller computed the canonical fetch completeness state but did not pass it to the generic intelligence selector. Any nonempty canonical array could be accepted, even after a partial database read. The selected row count could also copy a larger source-analysis declaration.
+The Smart Report runtime now passes canonical fetch completeness and expected source count into the general intelligence selector. Partial or inconsistent canonical rows are rejected; a complete source-bound snapshot may be used as fallback, otherwise analysis is unavailable with an Arabic warning. The selected dataset row count equals the validated selected set.
 
-## Implemented
+Regression coverage in scripts/generic-file-analysis.test.mjs passed in Quality on prior candidate 16446f4003f1611ca842574c0cbf3f9bb50ee9bb; logs show GENERIC FILE ANALYSIS PASS and SOURCE-BOUND ROW SELECTOR PASS canonical-priority/completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch.
 
-- src/lib/file-engine/generic-source-rows.ts now rejects canonical rows when explicitly partial or inconsistent with expected row count.
-- src/lib/report-smart.ts passes canonicalRowsComplete and expected source count, uses only a verified full snapshot as fallback, returns no generic dataset if neither source is complete, adds an Arabic warning, and reports the selected row count.
-- scripts/generic-file-analysis.test.mjs now covers canonical precedence, partial-canonical/full-snapshot fallback, fail-closed when both datasets are incomplete, and count mismatch.
+## Full browser refresh diagnosis
 
-Functional commits: edf7c9ad145b776fd8b4bf99243f58befc219b78 (selector); 29247ec2fa1f40830e331cbb146e7cb9ca0e6126 (tests); 3355fc58cede5c7313c2c828b795246131f3c60e (runtime).
+Full Product Browser E2E run 38618336854 failed on 16446f4003f1611ca842574c0cbf3f9bb50ee9bb, finding E2E-REPORT-014. Initial report settlement passed; after refresh, the DOM contained all six chain cards, exact job ID and source hash, source file name, and no visible loading/errors. The test still marked readback NOT_PROVEN due to two pending read-only GETs to business_intelligence_decisions filtered to the report's source-intelligence history. It recorded zero failed routes and no failed network/HTTP responses.
 
-## Test results captured for code-bearing candidate 07603e7754cdfef814ca650a2f39044b5559d88b
+Validation of the matching query on staging:
+- Supabase edge logs show successful GET 200 responses for the exact endpoint with origin time approximately 185–245 ms.
+- EXPLAIN ANALYZE of the equivalent tenant + decision_key prefix filter completed in ~1.4 ms.
+- This does not prove the browser telemetry entries finished correctly; it shows database/query latency is not the cause.
 
-- Product Build Gate PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100559
-- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100491
-- Session Handoff PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100047
-- Final Certification PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100255
-- Device-Independent Browser E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100102
-- Data Quality Runtime PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100372
-- Commercial Product Creation E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100353
-- Full Product Browser E2E was still in progress at step 19: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100465
+## Fix implemented
 
-Quality logs explicitly print GENERIC FILE ANALYSIS PASS and SOURCE-BOUND ROW SELECTOR PASS canonical-priority/completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch. Since a documentation-only successor changes the PR head, exact-head checks must be re-read before merge.
+In scripts/run-full-product-browser-e2e.mjs, only GET requests to /rest/v1/business_intelligence_decisions associated with the exact source-intelligence key for the current Smart Report route are excluded from blocking DOM settlement. The full failure accounting is preserved: requestfailed events, failedResponses, routeFailed and routeFailedResponses still produce explicit findings. A contract assertion was added in scripts/check-browser-e2e-page-telemetry-contract.mjs so this exception stays narrowly scoped and does not suppress write requests or non-2xx/network failures.
 
-## Separate live runtime blocker
+## Exact-head evidence before this fix
 
-PR #925 remains open/unmerged at head 8d93a28e0d7824f4028b1a9e8e5742d65a666080. Phase-F run 38610637235 failed because the live tenant-canary returned HTTP 503 operational_token_not_configured. Netlify published deploy 6ac3d608e2e37d0008cc0222 is READY but uses old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b (2026-10-05). Site env listing contains only RESILIENCE_CANARY_FOREIGN_COMPANY_ID, RESILIENCE_COMPANY_ID, SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_SUPABASE_URL; the team env list is empty. RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN were not found among enumerated site/team variables. Do not create fake credentials or weaken tenant isolation; production remains NOT_PROVEN.
+On 16446f4003f1611ca842574c0cbf3f9bb50ee9bb, these passed: Product Build Gate 38618337065; Quality 38618336564; Session Handoff 38618336190; Final Certification 38618336879; Device-independent E2E 38618336839; Commercial Product Creation E2E 38618337179; Data Quality Runtime 38618337297. Full browser run 38618336854 failed with E2E-REPORT-014. None of those statuses proves the new head 10f1e376a135e0be72862315bf675f2966aa98a0; run the new exact-head gates before merging.
 
-## Next action
+## Separate production blocker
 
-Check the exact latest PR #926 head gates after the documentation-only checkpoint, especially full product browser E2E. Keep #926 unmerged until its required checks pass; resolve PR #925 Phase-F only through authorized runtime credential configuration.
+PR #925 remains open/unmerged; Phase-F run 38610637235 failed with HTTP 503 operational_token_not_configured. Netlify published deploy 6ac3d608e2e37d0008cc0222 uses stale main SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Netlify's enumerated site env vars do not include RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY or NETLIFY_AUTH_TOKEN, and no team-level vars were returned. Production remains NOT_PROVEN until authorized credentials are provisioned and Phase-F passes.
+
+## Next exact action
+
+Validate the new telemetry contract and all required exact-head gates, especially Full Product Browser E2E. Keep PR #926 open until the readback test succeeds with truthful error accounting; do not merge PR #925 until live Phase-F passes.

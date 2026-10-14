@@ -1,44 +1,38 @@
-# CURRENT PROGRAMMER REPORT — 2026-10-14 — Generic source completeness guard
+# CURRENT PROGRAMMER REPORT — 2026-10-14 — Source completeness + browser readback hardening
 
 Repository: Report-Engainall/Report-Advisor
-REPORT_FOR_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e
-UPDATED_AT = 2026-10-14T18:47:00Z
-WHAT_I_WAS_ASKED_TO_DO = Continue direct implementation of Report-Advisor, verify live GitHub/Netlify state, fix a real product correctness defect, test it, and preserve an exact resume point.
-WHAT_I_ACTUALLY_DID = Created fix/generic-source-completeness-20261014 from main b4bb9fe6f278fd7d2c2dcb76b144638549036565; fixed source-row completeness enforcement in generic report intelligence; added regression tests; opened PR #926; committed the code checkpoint 3355fc58cede5c7313c2c828b795246131f3c60e; consolidated the checkpoint docs in one documentation-only commit so the tested candidate and later doc changes remain distinguishable.
-WHAT_IS_PROVEN = On code-bearing head 07603e7754cdfef814ca650a2f39044b5559d88b: Product Build Gate 38617100559 PASS; Quality 38617100491 PASS; Session Handoff 38617100047 PASS; Final Certification Gate 38617100255 PASS; Device-Independent Browser E2E 38617100102 PASS; Data Quality Runtime 38617100372 PASS; Commercial Product Creation E2E 38617100353 PASS. Quality logs explicitly show GENERIC FILE ANALYSIS PASS and SOURCE-BOUND ROW SELECTOR PASS completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch. Full Product Browser E2E 38617100465 was in progress at step 19 at capture.
-FIRST_ACTIVE_FAILURE = Full Product Browser E2E step 19 was not yet complete on 07603e7754cdfef814ca650a2f39044b5559d88b; independent release blocker remains PR #925 Phase-F: HTTP 503 operational_token_not_configured.
-ROOT_CAUSE = selectGenericSourceRows accepted nonempty canonical rows even if the database fetch had been marked partial or the observed row count did not match expected source count.
-NEXT_EXACT_ACTION = Re-read latest PR #926 head after the docs-only checkpoint; verify exact-head Quality, Build, Handoff, Certification and Full Product Browser E2E. Investigate failed steps before merge.
-SESSION HANDOFF = NOT READY — successor verification pending
+REPORT_FOR_HEAD = 10f1e376a135e0be72862315bf675f2966aa98a0
+UPDATED_AT = 2026-10-14T19:18:00Z
+WHAT_I_WAS_ASKED_TO_DO = Continue direct implementation of Report-Advisor, fix a real source-bound analysis correctness defect, verify the product browser flow, and preserve an exact resumable checkpoint.
+WHAT_I_ACTUALLY_DID = Fixed the generic-source selector so partial canonical rowsets cannot be analyzed as full sources; added regression coverage; then inspected the failed exact-head browser artifact, confirmed the issue was limited to readback waiting on the source-decision-history sidecar query, verified successful Supabase responses and low SQL execution time, and committed a narrow background-request classification plus contract assertion without disabling network/HTTP failure checks.
+WHAT_IS_PROVEN = Generic file analysis passed on 16446f4003f1611ca842574c0cbf3f9bb50ee9bb; the report's source hash/job identity and all six report-chain cards were present after refresh. Full Product Browser E2E run 38618336854 failed only due E2E-REPORT-014: refresh readback settlement was NOT_PROVEN because the pending-request set included two GETs to the read-only business_intelligence_decisions source-intelligence history query. The route recorded zero failed routes and no failed network/HTTP requests. Supabase edge logs show this query returns HTTP 200 in ~185–245 ms; Postgres EXPLAIN ANALYZE for the exact matching filter completed in ~1.4 ms. New fix commit 10f1e376a135e0be72862315bf675f2966aa98a0 scopes the optional background classification to GET + Smart Report job + source-intelligence decision query and retains separate request-failure / HTTP-response-failure gates. New exact-head proof is pending.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38618336854, step “Real Chromium route and authenticated browser proof”, finding E2E-REPORT-014: Smart Report failed refresh readback settlement. Link: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336854.
+ROOT_CAUSE = Browser settlement treated read-only source-decision-history hydration as critical in-flight work even though the source-bound report render and decision cards were fully present; staging evidence shows the matching REST query returns quickly, suggesting stale/persistent telemetry entries rather than slow database execution. The classifier is now narrowed to that optional GET on this exact Smart Report route while actual failed requests and non-2xx responses still fail the route.
+NEXT_EXACT_ACTION = Verify Build, Quality, Session Handoff, Final Certification and Full Product Browser E2E on the current PR head after checkpoint docs commit. Confirm generic-file-analysis PASS and the new browser telemetry contract; do not merge while the full browser proof remains unresolved.
+SESSION HANDOFF = NOT READY — exact-head revalidation pending
 PRODUCT_COMPLETE = NO
 
-## Implementation and test evidence
+## Functional change inventory
 
 - src/lib/file-engine/generic-source-rows.ts — edf7c9ad145b776fd8b4bf99243f58befc219b78
 - scripts/generic-file-analysis.test.mjs — 29247ec2fa1f40830e331cbb146e7cb9ca0e6126
 - src/lib/report-smart.ts — 3355fc58cede5c7313c2c828b795246131f3c60e
+- scripts/run-full-product-browser-e2e.mjs — updated at 10f1e376a135e0be72862315bf675f2966aa98a0
+- scripts/check-browser-e2e-page-telemetry-contract.mjs — updated at 10f1e376a135e0be72862315bf675f2966aa98a0
 
-Quality log run 38617100491 on 07603e7754cdfef814ca650a2f39044b5559d88b:
-- GENERIC FILE ANALYSIS PASS
-- SOURCE-BOUND ROW SELECTOR PASS canonical-priority/completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch
-- STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation
+## Previous exact-head evidence
 
-## Exact-head Action evidence
+On 16446f4003f1611ca842574c0cbf3f9bb50ee9bb:
+- Build PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618337065
+- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336564
+- Session Handoff PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336190
+- Final Certification PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336879
+- Device-independent Browser E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336839
+- Commercial Product Creation E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618337179
+- Data Quality Runtime PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618337297
+- Full Product Browser E2E FAIL: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336854 (single P0 NOT_PROVEN finding E2E-REPORT-014 after refresh readback)
 
-- Build PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100559
-- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100491
-- Handoff PASS on pre-checkpoint candidate: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100047
-- Final certification PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100255
-- Device-independent browser E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100102
-- Data-quality runtime PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100372
-- Commercial product creation E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100353
-- Full product browser E2E was still in progress at step 19: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38617100465
-
-These results are tied to 07603e7754cdfef814ca650a2f39044b5559d88b; the docs-only successor requires its own exact-head gate readback.
-
-## Production blocker
-
-PR #925 is open/unmerged at 8d93a28e0d7824f4028b1a9e8e5742d65a666080. Phase-F run 38610637235 failed because the live tenant-canary returned HTTP 503 operational_token_not_configured. Netlify's current published deploy is stale at SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b; enumerated site vars do not include the operational token, Supabase service role key or Netlify auth token, and no team-level variables were returned. No fabricated secret or weakened safety guard was used. Production remains NOT_PROVEN.
+The new code fix has not yet passed exact-head CI. Do not reuse previous green statuses as proof for the new head.
 
 ---
 
