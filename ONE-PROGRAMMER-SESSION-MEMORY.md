@@ -1,3 +1,33 @@
+# LIVE RESUME — 2026-10-14 / PR #920 GENERIC RESULTS UI
+
+Repository: Report-Engainall/Report-Advisor
+BASE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CURRENT_CODE_CHECKPOINT = ae04534c10eb691dfea31f8d54b64399defb3b89
+REPORT_FOR_HEAD = ae04534c10eb691dfea31f8d54b64399defb3b89
+BRANCH = feat/generic-intelligence-results-ui-20261014
+PR #920 = OPEN — https://github.com/Report-Engainall/Report-Advisor/pull/920
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true
+CURRENT RESUME POINTER: docs/execution/CURRENT_SESSION_STATE.md
+
+USER OUTCOME = An actual Smart Report results interface that gives users direct access to every derived generic result group for any supported report, with evidence and scope limits preserved. This work changes the active GenericFileIntelligenceCard, not a marketing/demo page.
+
+IMPLEMENTED = Commit 7db816a92bc454c53dbf48ecb26817553e3a4e2d adds the responsive RTL result index, counts computed from the report's own intelligence object, visible findings/risks/opportunities and inspect sections, explicit empty-state language, and the restrained navy/Indigo/Amber summary surface. Commit f42ef5ade9f2db1cda859cdb2c89b7ab7459d4cb adds UI-contract assertions. Product Build Gate revealed a stale old marker in scripts/smart-report-complete-intelligence-surface.test.mjs:88; commit ae04534c10eb691dfea31f8d54b64399defb3b89 updates that assertion to the named inspections list and empty-state marker. No analysis logic, tenant scope, authentication, RLS, or database persistence code changed.
+
+FIRST ACTIVE CODE FAILURE = Product Build Gate run 38581195220 (job 115911217374) failed at smart-report-complete-intelligence-surface.test.mjs:88 on the predecessor f42ef5ade9f2db1cda859cdb2c89b7ab7459d4cb because the test expected intelligence.guidance.inspect.map(. Direct read of the assertion and new component proves the contract was stale; its source marker now matches the intended empty-state implementation in ae04534c10eb691dfea31f8d54b64399defb3b89. Exact-head rerun is still required.
+
+GOVERNANCE FAILURE = Session Handoff run 38581195116 failed because the report baseline omitted the newly changed component and customer-facing contract. Rebased docs/execution/PROGRAMMER_CURRENT_REPORT.md and docs/execution/CURRENT_SESSION_STATE.md to REPORT_FOR_HEAD/CODE_CHECKPOINT ae04534c10eb691dfea31f8d54b64399defb3b89. Post-checkpoint changes in this repair are documentation-only and remain within the existing strict allowlist; the checker itself was not modified or relaxed.
+
+PROOF ON PREDECESSOR ONLY = At f42ef5ade9f2db1cda859cdb2c89b7ab7459d4cb, Product Build Gate passed Typecheck and Production build before failing the UI contract; Quality (38581195025), Data Quality Runtime (38581195233), Phase 2 security (38581195442), Phase-F contract (38581194679), and regression evidence (38581194956) succeeded. These are not exact-head proof for ae04534c10eb691dfea31f8d54b64399defb3b89. Full Product Browser E2E run 38581195194 stopped during canonical-heart regressions and skipped Chromium because of the old UI-contract failure; browser result JSON was missing. No BROWSER-PROVEN claim.
+
+READBACK-PROVEN = UI file, contract files, exact commits, PR #920 head and changed file list were read back from GitHub. Regression evidence exists on f42 only.
+PERSISTED = NOT_APPLICABLE — no application/business data mutation.
+PRODUCTION-PROVEN = NOT_PROVEN — Vercel deployment readiness for main SHA 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517 is not proof of live health, exact runtime identity, UI behavior, or database readback.
+OPEN_BLOCKERS = Exact-head Build, Quality, Handoff, Final Certification, and authenticated browser journey after the marker repair; production operational-health/readback proof.
+NEXT EXACT ACTION = Verify current branch tip and exact-head status; consume the latest Build and browser logs; repair the next actual failing assertion only; do not merge until the exact-head code gates and authenticated Chromium proof pass and production health is freshly read back.
+
+--- 
+
 # LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 Repository: Report-Engainall/Report-Advisor
