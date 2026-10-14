@@ -144,6 +144,7 @@
     "test:import-business-key": "node scripts/check-import-business-key.mjs",
     "test:report-truth": "node scripts/check-report-truth-contract.mjs",
     "test:postcss-toolchain": "node scripts/check-postcss-toolchain.mjs",
+    "test:vercel-deploy-workflow-contract": "node scripts/check-vercel-deploy-workflow-contract.mjs",
     "test:quality-workflow-contract": "node scripts/check-quality-workflow-contract.mjs",
     "test:workflow-batch-integrity": "node scripts/check-workflow-batch-integrity.mjs",
     "test:import-state-contract": "node scripts/check-import-state-contract.mjs",
