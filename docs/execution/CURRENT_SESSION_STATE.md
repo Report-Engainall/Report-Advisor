@@ -1,3 +1,19 @@
+## LIVE RESUME — 2026-10-14 / Phase-F restore file permission fix
+
+CURRENT_EXACT_CODE_HEAD = d1e40bdff53f0776cd73834378080ac9a654dcf0
+REPORT_FOR_HEAD = d1e40bdff53f0776cd73834378080ac9a654dcf0
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/918 (OPEN / NOT MERGED)
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = Auth UUID-only restore SQL is mode 0644 for read access by the non-root PostgreSQL container; regression assertion added.
+TESTED = Static preflight passed. Exact-head tests for d1e40bdff53f0776cd73834378080ac9a654dcf0 are pending/running.
+READBACK-PROVEN = GitHub file reads verified the code and test changes. Handoff baseline reanchored to d1e40bdff53f0776cd73834378080ac9a654dcf0; checker was not weakened.
+BROWSER-PROVEN = NOT_PROVEN on d1e40bdff53f0776cd73834378080ac9a654dcf0.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Phase-F restore result pending; Netlify preview operational token and production deploy credentials remain missing.
+NEXT_EXACT_ACTION = Check exact-head Phase-F and required gates; then proceed on the first verified blocker only.
+---
 ## LIVE RESUME — 2026-10-14 / Phase-F PostgreSQL registry fallback
 
 CURRENT_EXACT_CODE_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504

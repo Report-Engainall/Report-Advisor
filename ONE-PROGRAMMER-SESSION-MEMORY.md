@@ -1,3 +1,23 @@
+# LIVE RESUME — 2026-10-14 / Phase-F restore file permission fix
+
+Repository: Report-Engainall/Report-Advisor
+CODE_CHECKPOINT = d1e40bdff53f0776cd73834378080ac9a654dcf0
+REPORT_FOR_HEAD = d1e40bdff53f0776cd73834378080ac9a654dcf0
+CURRENT_BRANCH_HEAD_BEFORE_DOC_FOLLOWUP = 92895e34b1aa23442e90ca212c09efe65e55b7ac
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR #918 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/918
+PRODUCT_COMPLETE = NO
+
+ROOT_CAUSE = Phase-F run 38568865682 eliminated the GHCR image-pull blocker but failed at logical restore because the container could not read /tmp/phase-f-auth-user-stubs.sql (Permission denied). The temporary SQL file had mode 0600 and the PostgreSQL client runs non-root.
+IMPLEMENTED = Code commit d1e40bdff53f0776cd73834378080ac9a654dcf0 changes the ephemeral Auth stub SQL file to mode 0644 and adds a regression assertion. It contains UUIDs only. No DB grants, RLS, authentication, restore SQL, or thresholds changed.
+TESTED = Static preflight passed. Exact-head Phase-F/Quality/Build/Browser/Certification on d1e40bdff53f0776cd73834378080ac9a654dcf0 are running/pending; previous SHA results do not transfer.
+READBACK-PROVEN = GitHub confirms source and test blobs for d1e40bdff53f0776cd73834378080ac9a654dcf0. Session Handoff found the stale report anchor and is now reanchored at d1e40bdff53f0776cd73834378080ac9a654dcf0; checker unchanged.
+BROWSER-PROVEN = NOT_PROVEN on d1e40bdff53f0776cd73834378080ac9a654dcf0.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Phase-F must prove the restore permission fix. Netlify live canary still lacks operational token; Netlify production deploy still lacks authorized deployment token.
+NEXT_ACTION = Read exact-head Phase-F and required gates; do not merge until all release and live deployment conditions pass.
+---
+
 # LIVE RESUME — 2026-10-14 / Phase-F PostgreSQL registry fallback
 
 Repository: Report-Engainall/Report-Advisor
