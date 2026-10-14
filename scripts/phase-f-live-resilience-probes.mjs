@@ -605,7 +605,9 @@ SELECT id::text FROM _phase_f_auth_user_ids ORDER BY id;`;
       throw new Error(`logical_source_auth_user_ids_failed:${error}`);
     }
     const authUserStubsPath = path.join(backupDir, 'auth-user-id-stubs.sql');
-    fs.writeFileSync(authUserStubsPath, buildAuthUserStubSql(authUserIds), { encoding: 'utf8', mode: 0o600 });
+    // This file contains Auth UUIDs only (no email, credentials, or user metadata). It is mounted
+    // read-only into a non-root PostgreSQL client container, so make the ephemeral file readable.
+    fs.writeFileSync(authUserStubsPath, buildAuthUserStubSql(authUserIds), { encoding: 'utf8', mode: 0o644 });
 
     const restoreConstraints = captureRestoreConstraints(localDbUrl);
     const restoreStartedAt = Date.now();

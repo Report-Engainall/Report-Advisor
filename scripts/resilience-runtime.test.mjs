@@ -39,6 +39,11 @@ assert.match(phaseFProbe, /--data-only \$\{volatileExcludeArgs\}/, 'logical back
 assert.match(phaseFProbe, /'public\.carts'/, 'logical restore must exclude auth-dependent cart rows');
 assert.match(phaseFProbe, /'public\.cart_items'/, 'logical restore must exclude child rows referencing excluded carts');
 assert.ok(phaseFProbe.includes("const authUserIdsSql ="), 'logical restore must discover missing Auth user IDs');
+assert.match(
+  phaseFProbe,
+  /fs\.writeFileSync\(authUserStubsPath, buildAuthUserStubSql\(authUserIds\), \{ encoding: 'utf8', mode: 0o644 \}\)/,
+  'Auth restore stub file contains UUIDs only and must be readable by the non-root pinned PostgreSQL container user',
+);
 assert.ok(phaseFProbe.includes("c.confrelid = 'auth.users'::regclass"), 'Auth placeholder discovery must follow actual FK references');
 assert.ok(phaseFProbe.includes("INSERT INTO auth.users (id)"), 'restore must insert ID-only user placeholders');
 assert.ok(phaseFProbe.includes("ON CONFLICT (id) DO NOTHING"), 'placeholder insert must be rerunnable');
