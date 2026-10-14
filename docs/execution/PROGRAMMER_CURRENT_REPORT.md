@@ -1,41 +1,24 @@
-# LIVE RESUME — 2026-10-14 / PR #924 non-secret deploy-ID fallback + handoff repair
+# CURRENT PROGRAMMER REPORT — 2026-10-14 — PR #924 workflow hardening + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 0bd8c8af1ee4c8f249255d57b421e583dc257760
-CODE_CHECKPOINT = 0bd8c8af1ee4c8f249255d57b421e583dc257760
 REPORT_FOR_HEAD = 0bd8c8af1ee4c8f249255d57b421e583dc257760
-BRANCH = fix/vercel-workflow-id-fallback-20261014
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/924 (OPEN / NOT MERGED; source head is a documentation-only descendant after this checkpoint)
-ACTION_STATUS = PR #924 candidate head 0bd8c8af1ee4c8f249255d57b421e583dc257760 had 47 workflows observed: 26 success, 16 in progress, 2 skipped, and Session Handoff Contract failed because the report baseline was stale. Quality, build, final certification and browser gates were still running at capture. Their results must be re-read on the new successor head, not inherited.
-NEXT_EXACT_ACTION = Verify the documentation-only successor resolves Session Handoff Contract, then wait for required exact-head Quality, Build, Session Handoff and Final Certification gates; do not merge until each required gate succeeds.
+UPDATED_AT = 2026-10-14T17:08:00Z
+WHAT_I_WAS_ASKED_TO_DO = Continue the Report-Advisor generic-report UI/release work from live repository state without relying on the unavailable user device, while preserving the current source-bound analysis and fail-closed security contracts.
+WHAT_I_ACTUALLY_DID = Opened PR #924 from current main. The PR provides defaults for the known public Vercel organization/project IDs, preserves mandatory token secrets and authenticated exact-SHA health proof, and adds a Quality contract test. Then I inspected the exact-head Session Handoff failure and prepared a documentation-only successor anchored at the code checkpoint so that the changed code/config paths are covered by the report baseline instead of being ignored or exempted.
+WHAT_IS_PROVEN = PR #924 code candidate 0bd8c8af1ee4c8f249255d57b421e583dc257760 changed five paths: .github/workflows/vercel-production-deploy.yml, .github/workflows/quality.yml, package.json, scripts/check-quality-workflow-contract.mjs, scripts/check-vercel-deploy-workflow-contract.mjs. Handoff run 38603580425 failed with the exact message that those five paths were unreported because the report baseline was stale. The report is now being re-anchored at 0bd8c8af1ee4c8f249255d57b421e583dc257760; the current PR source head is a docs-only descendant and exact-head checks must rerun on it.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract for the first PR #924 candidate 0bd8c8af1ee4c8f249255d57b421e583dc257760; see https://github.com/Report-Engainall/Report-Advisor/actions/runs/38603580425.
+ROOT_CAUSE = REPORT_FOR_HEAD was still 748947e1bf7268c8a67bbb69d7dffe125dfe2318, so the handoff contract saw five legitimate code/config changes after that baseline and rejected them. The failure was not a code test failure and must not be hidden by reducing the changed-path policy.
+NEXT_EXACT_ACTION = Verify Session Handoff Contract passes on the current docs-only successor, then verify Quality, Product Build Gate and Final Certification Gate on that same exact head. Do not merge until required gates are green; after merge, the production workflow still requires a valid GitHub VERCEL_TOKEN and authenticated health proof.
+SESSION HANDOFF = NOT READY
 PRODUCT_COMPLETE = NO
 
-## Current code change under review
-PR #924 changes only:
-- .github/workflows/vercel-production-deploy.yml
-- .github/workflows/quality.yml
-- package.json
-- scripts/check-quality-workflow-contract.mjs
-- scripts/check-vercel-deploy-workflow-contract.mjs
-
-The guarded Vercel workflow now resolves non-secret Vercel IDs in this order: repository variables, legacy secrets, then verified public IDs team_7BSJnGvDzIC6bXMakIOeAYle and prj_jcqgz6UKGd6tPgHZlttgFXaXvyvo. VERCEL_TOKEN and RESILIENCE_OPERATIONAL_TOKEN remain mandatory secrets; exact-SHA authenticated /api/health proof, sensitive token sync, and non-cancellable deploy concurrency are unchanged. A new quality contract checks those invariants.
-
-## Handoff failure — root cause and correction
-The first PR #924 candidate 0bd8c8af1ee4c8f249255d57b421e583dc257760 failed Session Handoff Contract run 38603580425 (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38603580425) because REPORT_FOR_HEAD in the current programmer report was still 748947e1bf7268c8a67bbb69d7dffe125dfe2318. Consequently the contract treated the five code/config files above as unreported paths since the report baseline. The code was not exempted and the checker was not weakened. This documentation-only successor re-anchors the report at code commit 0bd8c8af1ee4c8f249255d57b421e583dc257760, making the delta after the baseline documentation-only and verifiable. The new exact-head Session Handoff run must still prove this correction; until then SESSION HANDOFF = NOT READY.
-
-## Production blocker is unchanged
-Guarded release run 38596462967 (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38596462967) failed closed because GitHub Actions lacks VERCEL_TOKEN; previously the workflow also demanded VERCEL_ORG_ID and VERCEL_PROJECT_ID, which this PR removes as unnecessary secret requirements. Runtime /api/health and /api/tenant-canary on the current Vercel deployment returned HTTP 503 operational_token_not_configured. Netlify production is still stale on 858ef8e3e5bc5bf74430555eadfb9e6767be348b; PR #918 Phase-F failed live canary at the same operational-token configuration guard. No secrets were created, revealed, derived or rotated.
-
-## Truth boundary
-IMPLEMENTED = PR #924 changes above.
-TESTED = do not transfer results from 0bd8c8af1ee4c8f249255d57b421e583dc257760 to the documentation-only successor. Recheck exact-head workflow states.
-READBACK-PROVEN = GitHub readback confirms branch files and PR head; prior exact-head handoff failure log gives the concrete stale-report assertion.
-BROWSER-PROVEN = earlier UI browser proof belongs to PR #920 candidate 652e29aef9745f2e7a1a5db224713fad411da43d only.
-PRODUCTION-PROVEN = NOT_PROVEN.
-OPEN_BLOCKER = Missing VERCEL_TOKEN; operational runtime APIs blocked; Netlify stale/missing operational token; current PR's handoff must be proven on the new exact head.
-SESSION HANDOFF = NOT READY
-NEXT_EXACT_ACTION = Wait for exact-head Handoff, Quality, Product Build and Final Certification on the new PR #924 head; if required gates pass, merge the small workflow hardening. Even after merge, production remains blocked until an authorized valid VERCEL_TOKEN is configured and runtime health proves exact deployed SHA.
+## Production evidence and blocker
+- [Guarded Vercel deploy run 38596462967](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38596462967) stopped at credential preflight because VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID were absent as GitHub secrets; RESILIENCE_OPERATIONAL_TOKEN was present as a GitHub secret. This PR removes the unnecessary requirement to provision the two public IDs as secrets while retaining an owner-supplied variable/secret override and safe verified defaults.
+- The public Vercel page returns HTTP 200 with a source SHA tag; /api/health and /api/tenant-canary return HTTP 503 operational_token_not_configured. Runtime production proof remains NOT_PROVEN.
+- Netlify remains stale on SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b; PR #918 Phase-F live canary previously failed closed on the operational-token prerequisite. Do not merge #918 until exact-head live resilience and required release gates pass.
+- No secrets were read, manufactured, exposed, or rotated. No authentication/RLS check or acceptance threshold was weakened.
 ---
+
 
 # LIVE RESUME — 2026-10-14 / Post-PR #922 production runtime readback
 
