@@ -1,3 +1,29 @@
+# LIVE RESUME — 2026-10-14 / Generic source completeness guard
+
+Repository: Report-Engainall/Report-Advisor
+CURRENT_EXACT_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e (functional checkpoint; current branch may have later documentation-only commits)
+CODE_CHECKPOINT = 3355fc58cede5c7313c2c828b795246131f3c60e
+REPORT_FOR_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e
+BRANCH = fix/generic-source-completeness-20261014
+PR = Pending creation; PR #925 remains open and not merged
+ACTION_STATUS = New regression test is pending GitHub Actions; it is not yet proven. PR #925 head 8d93a28e0d7824f4028b1a9e8e5742d65a666080: Build PASS 38610637454, Quality PASS 38610637553, Final Certification PASS 38610636938, Browser E2E PASS 38610637227, Phase-F FAIL 38610637235 (live tenant-canary HTTP 503 operational_token_not_configured).
+NEXT_EXACT_ACTION = Open PR from fix/generic-source-completeness-20261014 and verify the new generic file analysis regression on the exact head; then update this checkpoint with exact-head results.
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY
+
+## Current change
+
+Root defect: canonical smart-report reads calculate canonicalRowsComplete, but generic row selection used any nonempty canonical rowset even when that read was partial. This can derive results from an incomplete subset. Fix is in src/lib/file-engine/generic-source-rows.ts and src/lib/report-smart.ts; regressions in scripts/generic-file-analysis.test.mjs. Partial canonical rows are rejected; a complete source-bound snapshot can be used as fallback; if no complete set exists, generic analysis returns unavailable with an Arabic warning. Expected row count is enforced and returned rowCount matches the validated rowset.
+
+Functional commits:
+- edf7c9ad145b776fd8b4bf99243f58befc219b78 — completeness-aware selector
+- 29247ec2fa1f40830e331cbb146e7cb9ca0e6126 — regression cases
+- 3355fc58cede5c7313c2c828b795246131f3c60e — smart-report runtime wiring (code checkpoint)
+
+New tests not yet run. No RLS/token/release guards were changed. Live production remains NOT_PROVEN until authorized runtime credentials are configured and live Phase-F passes.
+
+---
+
 # LIVE RESUME — 2026-10-14 / PR #924 non-secret deploy-ID fallback + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
