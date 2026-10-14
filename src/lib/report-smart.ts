@@ -73,6 +73,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
   genericIntelligence: ReportIntelligence | null;
+  genericIntelligenceSource: 'canonical' | 'source-analysis-snapshot' | null;
   runtimeWarnings?: string[];
 };
 
@@ -351,7 +352,7 @@ function buildGenericDatasetForReport(input: {
   expectedCanonicalRowCount: number | null;
   qualityScore: number | null;
   runtimeWarnings?: string[];
-}): Dataset | null {
+}): { dataset: Dataset; origin: 'canonical' | 'source-analysis-snapshot' } | null {
   const canonicalRows = input.canonicalRows
     .map((row) => row.data)
     .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object' && !Array.isArray(row)));
@@ -407,6 +408,7 @@ function buildGenericDatasetForReport(input: {
   });
 
   return {
+    dataset: {
     id: String(sourceDataset?.id ?? input.sourcePath),
     name: String(sourceDataset?.name ?? input.sourcePath),
     source: String(sourceDataset?.source ?? input.sourcePath),
@@ -419,6 +421,8 @@ function buildGenericDatasetForReport(input: {
     rows,
     preview: rows.slice(0, 50),
     qualityScore: input.qualityScore == null ? 0 : Number(input.qualityScore),
+    },
+    origin: selectedRows.origin === 'source-analysis-snapshot' ? 'source-analysis-snapshot' : 'canonical',
   };
 }
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
@@ -1023,8 +1027,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // General analysis is descriptive and source-derived. Keep it available for
   // every source even when the stronger specialist decision gate is not met.
   let genericIntelligence: ReportIntelligence | null = null;
+  let genericIntelligenceSource: SmartReportDetail['genericIntelligenceSource'] = null;
   try {
-    const genericDataset = buildGenericDatasetForReport({
+    const genericSelection = buildGenericDatasetForReport({
       sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
       sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
       canonicalRows,
@@ -1033,9 +1038,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
       runtimeWarnings,
     });
-    if (genericDataset) {
+    if (genericSelection) {
+      genericIntelligenceSource = genericSelection.origin;
       genericIntelligence = buildGenericFileIntelligence(
-        genericDataset,
+        genericSelection.dataset,
         String(sourceAnalysis?.sourceFormat ?? 'generic'),
       );
     }
@@ -1206,6 +1212,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalRows,
     intelligence,
     genericIntelligence,
+    genericIntelligenceSource,
     evidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),
