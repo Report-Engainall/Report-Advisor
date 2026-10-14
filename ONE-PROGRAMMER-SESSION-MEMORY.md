@@ -1,26 +1,26 @@
 # LIVE RESUME — 2026-10-14 / Generic table missingness guard
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5 (functional checkpoint; this checkpoint report is its documentation-only successor)
-CODE_CHECKPOINT = 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5
-REPORT_FOR_HEAD = 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5
+CURRENT_EXACT_HEAD = 51bbfae3266bc285b35498f9c3b177cefd3e92cd (functional checkpoint; this report is committed in its documentation-only successor)
+CODE_CHECKPOINT = 51bbfae3266bc285b35498f9c3b177cefd3e92cd
+REPORT_FOR_HEAD = 51bbfae3266bc285b35498f9c3b177cefd3e92cd
 BRANCH = fix/generic-source-completeness-20261014
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED)
-RELATED_RELEASE_BLOCKER = PR #925 https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED; Phase-F live canary remains blocked by missing authorized operational credentials)
-IMPLEMENTED = Generic table intelligence no longer treats missing/invalid totals or monthly measurements as zero. A complete total is reported only when every row is numeric; period movement requires complete adjacent periods; reconciliation compares only rows with a numeric stated total and every period present. Inspection evidence exposes observed coverage and compared/excluded rows.
-REGRESSION = Four-row CSV case covers one complete row, one missing stated total, one missing month and one genuine mismatch. Assertions cover coverage, suppressed unsupported trend, correct exclusions, and retention of the complete-row mismatch recommendation.
-TESTED = PENDING_EXACT_HEAD — GitHub Actions must validate the current code and documentation successor. Commit creation is not test evidence.
-PERSISTED / READBACK-PROVEN = Functional code commit 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5 is pushed to the existing PR #926 branch. Source/test files were re-read from GitHub after the test-fixture correction.
-BROWSER-PROVEN = NOT_PROVEN for this change; earlier-head browser proofs do not transfer.
-PRODUCTION-PROVEN = NOT_PROVEN. Netlify remains stale on 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
-OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed at Live resilience probes: tenant-canary HTTP 503 operational_token_not_configured. Netlify environment readback confirms RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN are absent; the connected GitHub integration does not provide secret administration. Do not fabricate secrets or weaken tenant isolation.
-NEXT_EXACT_ACTION = Read exact-head Quality, Product Build Gate, Session Handoff Contract, Final Certification Gate and Full Product Browser E2E on the latest documentation-successor SHA; inspect failure logs for any failed step and fix the smallest confirmed defect.
+RELATED_RELEASE_BLOCKER = PR #925 https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED; Phase-F canary remains blocked by missing authorized operational credentials)
+IMPLEMENTED = Generic table analysis no longer adds missing/non-numeric totals or monthly values as zero. Complete totals require all rows to be numeric, period change requires complete adjacent periods, and reconciliation compares only rows with a numeric stated total and every period present. Coverage, missing cells, compared rows and excluded rows are visible in evidence.
+REGRESSION = Four-row CSV test covers complete data, a missing total, a missing month, and a genuine mismatch. It checks coverage and reconciliation integrity; fixture row separators and the Arabic month-change evidence assertion are corrected.
+TESTED = PENDING_EXACT_HEAD — GitHub Actions must validate the code checkpoint and its documentation successor.
+PERSISTED / READBACK-PROVEN = Code checkpoint 51bbfae3266bc285b35498f9c3b177cefd3e92cd is pushed on the existing PR #926 branch. Source and test blobs were read back from GitHub; session records are being aligned to this exact checkpoint.
+BROWSER-PROVEN = NOT_PROVEN for this change; earlier-head browser runs do not transfer.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify published deployment remains stale on 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed: /api/tenant-canary returned HTTP 503 operational_token_not_configured. Netlify environment readback confirmed RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN are absent; authorized secret provisioning is not available through the connected GitHub integration. Do not fabricate credentials or weaken tenant isolation.
+NEXT_EXACT_ACTION = Read exact-head Quality, Product Build Gate, Session Handoff Contract, Final Certification Gate and Full Product Browser E2E on the latest documentation-successor SHA; inspect failed-step logs and fix only a confirmed defect.
 PRODUCT_COMPLETE = NO
 
 ## Current code fix
-- src/lib/file-engine/generic-intelligence.ts — coverage-aware totals/monthly sums; change only with complete adjacent periods; reconciliation excludes any row missing a stated total or period and exposes compared/excluded counts.
-- scripts/generic-file-analysis.test.mjs — four-row missingness regression; CSV fixture now uses an actual newline separator and count assertion tolerates localized digits.
-- Code checkpoint: 2ec58dd0d6e2270390e2b26f061a27a8ca3169e5; exact-head Actions are pending.
+- src/lib/file-engine/generic-intelligence.ts — missing values are not zero; totals disclose coverage, adjacent-period changes require complete inputs, reconciliation requires every row measure and reports exclusions.
+- scripts/generic-file-analysis.test.mjs — four-row missingness regression; CSV delimiter and evidence assertion match the source's Arabic output.
+- Functional checkpoint: 51bbfae3266bc285b35498f9c3b177cefd3e92cd. Actions on the final documentation-successor head are pending.
 ---
 # LIVE RESUME — 2026-10-14 / Source completeness + browser readback hardening
 
