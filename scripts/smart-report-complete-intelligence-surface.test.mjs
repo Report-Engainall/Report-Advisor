@@ -43,7 +43,7 @@ for (const marker of [
   'sourceHash={report.sourceHash}',
   'reportJobId={report.jobId}',
   'analysisScope={report.canonicalAnalysisScope}',
-  "analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}",
+  "analysisSource={report.genericIntelligenceSource}",
   '<ReportIntelligencePanel report={report} />',
 ]) {
   if (!customerReportSurface.includes(marker)) throw new Error('Inventory domain route must render source-bound universal/general intelligence: ' + marker);
@@ -69,7 +69,7 @@ if (!smartReportPage.includes("GenericFileIntelligenceCard")) throw new Error('S
 if (!smartReportPage.includes('data-testid="smart-report-generic-intelligence"')) throw new Error('Smart Report generic intelligence test marker missing');
 if (!smartReportPage.includes('intelligence={report.genericIntelligence}')) throw new Error('Smart Report must render only the independent general intelligence layer, never label specialty results as generic');
 if (!smartReportPage.includes('analysisScope={report.canonicalAnalysisScope}')) throw new Error('Smart Report must expose canonical source coverage to the general intelligence surface');
-if (!smartReportPage.includes("analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}")) throw new Error('Smart Report must identify source-snapshot fallback separately from canonical analysis');
+if (!smartReportPage.includes("analysisSource={report.genericIntelligenceSource}")) throw new Error('Smart Report must identify source-snapshot fallback separately from canonical analysis');
 const genericCardUnavailableUi = fs.readFileSync(new URL('../src/components/GenericFileIntelligenceCard.tsx', import.meta.url), 'utf8');
 if (!genericCardUnavailableUi.includes('data-testid="generic-intelligence-unavailable"')) throw new Error('Missing explicit unavailable state when source-bound general analysis cannot be derived');
 if (!genericCardUnavailableUi.includes('data-testid="generic-intelligence-analysis-scope"')) throw new Error('Missing explicit warning for partial or extraction-snapshot analysis');
@@ -209,6 +209,11 @@ for (const marker of [
 const reportSmartSource = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
 if (!reportSmartSource.includes('selectGenericSourceRows({')) throw new Error('Saved Smart Reports must use the source-bound generic row selector');
 if (!reportSmartSource.includes("selectedRows.origin === 'source-analysis-snapshot'")) throw new Error('Snapshot-derived generic intelligence must surface a review warning');
+if (!reportSmartSource.includes("genericIntelligenceSource: 'canonical' | 'source-analysis-snapshot' | null")) throw new Error('Smart Report must carry the actual selected generic rowset origin');
+if (!reportSmartSource.includes("origin: selectedRows.origin === 'source-analysis-snapshot' ? 'source-analysis-snapshot' : 'canonical'")) throw new Error('Generic dataset selector origin must be preserved in report output');
+if (!reportSmartSource.includes('genericIntelligenceSource,')) throw new Error('Generic rowset origin must be returned by fetchSmartReport');
+const sourceOriginHeuristic = "report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'";
+if (smartReportPage.includes(sourceOriginHeuristic) || customerReportSurface.includes(sourceOriginHeuristic)) throw new Error('UI must not guess generic intelligence origin from canonical row count');
 const sourceRowsSelector = fs.readFileSync(new URL('../src/lib/file-engine/generic-source-rows.ts', import.meta.url), 'utf8');
 for (const marker of ['snapshotRows.length === declaredRows', "origin: 'source-analysis-snapshot'", "origin: 'unavailable'"]) {
   if (!sourceRowsSelector.includes(marker)) throw new Error('Generic source fallback must fail closed on incomplete data: ' + marker);
