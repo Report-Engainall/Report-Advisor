@@ -1,3 +1,32 @@
+# CURRENT EXECUTION REPORT — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
+
+REPORT_FOR_HEAD = 84117611d458f291aef064747ccfa8b97905744c
+UPDATED_AT = 2026-10-14
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = Pending creation from this branch; base main
+BASE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = 84117611d458f291aef064747ccfa8b97905744c
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until exact-head Build, Quality, Session Handoff, browser proof, and Phase-F result are reviewed; production requires real host verification.
+
+WHAT_I_ACTUALLY_DID = Assembled a current-main-based Git tree on fix/netlify-runtime-provenance-current-main-20261014, parented at 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517, then committed code checkpoint 84117611d458f291aef064747ccfa8b97905744c. The code adds the fail-closed Netlify tenant-canary function and route; bundles runtime provenance; updates health/rollback runtime SHA and deploy ID reporting; improves the Netlify production build/deploy workflow with exact SHA verification and public site ID fallback; and registers focused runtime tests. Quality checks now require these guardrails, and Netlify function/provenance changes trigger browser E2E and Phase-F.
+
+ROOT_CAUSE = The live Netlify deployment was stale and served SPA HTML for /api/tenant-canary. The main Netlify config did not route this endpoint or include runtime-provenance.json in function bundles. Existing health/rollback probes consequently lacked complete runtime identity. Deploy workflows separately fail closed due missing hosting credentials.
+
+IMPLEMENTED = YES at 84117611d458f291aef064747ccfa8b97905744c; no auth tokens or tenant protections were fabricated or bypassed.
+TESTED = PENDING: new code checkpoint has not yet acquired exact-head CI results. Base-head main (71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517) had Product Build Gate PASS https://github.com/Report-Engainall/Report-Advisor/actions/runs/38326934500 and Quality PASS https://github.com/Report-Engainall/Report-Advisor/actions/runs/38326934521, but these are not results for 84117611d458f291aef064747ccfa8b97905744c. Prior PR #916 browser E2E at SHA 732022470846dce6219d363a5b830b1e037f99cf passed https://github.com/Report-Engainall/Report-Advisor/actions/runs/38318804969; not transferred to this head.
+READBACK-PROVEN = GitHub reported branch fix/netlify-runtime-provenance-current-main-20261014 and code commit 84117611d458f291aef064747ccfa8b97905744c; perform fresh branch/file readback after docs checkpoint.
+BROWSER-PROVEN = NOT_PROVEN for this head.
+PERSISTED = NOT_APPLICABLE to user business data.
+PRODUCTION-PROVEN = NOT_PROVEN. Live Vercel /api/health and /api/tenant-canary returned HTTP 503 operational_token_not_configured. Netlify production serves stale SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+OPEN_BLOCKER = Netlify production workflow cannot publish until the authorized GitHub Actions secret NETLIFY_AUTH_TOKEN is restored; public site ID fallback is now present in code. Vercel workflow cannot publish/sync until VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID are configured. No available connected action here can write GitHub repository Actions secrets, so credentials cannot be safely invented or recovered from masked CI logs.
+NEXT_EXACT_ACTION = Open the PR from this branch and inspect its exact-head Actions, starting with operational-resilience / Quality / Product Build / browser E2E / Phase-F; repair the first code-level failure if present, without relaxing gates.
+
+CHANGED_FILES = .github/workflows/deploy-netlify-production.yml; .github/workflows/full-product-browser-e2e.yml; .github/workflows/phase-f-live-resilience.yml; netlify.toml; netlify/functions/health.mts; netlify/functions/rollback-drill.mts; netlify/functions/tenant-canary.mjs; scripts/check-operational-resilience-contract.mjs; scripts/netlify-tenant-canary.test.mjs; scripts/write-netlify-runtime-provenance.mjs; package.json
+HANDOFF_COVERAGE = Code changes are anchored by REPORT_FOR_HEAD=84117611d458f291aef064747ccfa8b97905744c; subsequent handoff delta is documentation-only.
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+---
 # CURRENT EXECUTION REPORT — 2026-10-13 / PR #917 HANDOFF RECOVERY
 
 REPORT_FOR_HEAD = 1910e9809af30c9d178e73813906f07401ac7280

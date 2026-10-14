@@ -1,3 +1,36 @@
+# LIVE RESUME — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
+
+Repository: Report-Engainall/Report-Advisor
+LIVE MAIN HEAD AT START: 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE CHECKPOINT: 84117611d458f291aef064747ccfa8b97905744c
+BRANCH: fix/netlify-runtime-provenance-current-main-20261014
+PR: Pending creation from this current-main branch
+PRODUCT_COMPLETE = NO
+
+## First proven blocker
+Production Netlify still serves source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b and /api/tenant-canary returns the SPA fallback. Its /api/health provenance is stale. The current Vercel production /api/health and /api/tenant-canary return HTTP 503 operational_token_not_configured. Hosting workflows fail closed because deployment credentials are missing; do not disable credentials or invent tokens to force a green result.
+
+## Code checkpoint implemented
+At code checkpoint 84117611d458f291aef064747ccfa8b97905744c on branch fix/netlify-runtime-provenance-current-main-20261014:
+- Added a Netlify tenant-isolation canary function guarded by a timing-safe operational-token check and a user bearer token; it verifies own/foreign tenant visibility under RLS, persists health evidence, and fails closed on missing prerequisites or leakage.
+- Routed /api/tenant-canary to that function before the SPA fallback.
+- Included generated runtime-provenance.json in Netlify function bundles; hardened health and rollback identity to expose source/build/deployment SHA and deployment ID from provenance/runtime variables.
+- Made Netlify production build write exact GitHub SHA provenance, added a non-secret known site-ID fallback, and required the live post-deploy health endpoint to prove exact SHA plus deployment ID.
+- Added a focused tenant-canary runtime test to test:operational-resilience; extended Quality contract checks and ensured Netlify function/provenance changes trigger browser E2E and Phase-F.
+
+## Evidence boundary
+IMPLEMENTED = YES at code checkpoint 84117611d458f291aef064747ccfa8b97905744c.
+INTEGRATED = pending PR creation/review.
+TESTED = no CI result is claimed for 84117611d458f291aef064747ccfa8b97905744c before its exact-head Actions run.
+PERSISTED = NOT_APPLICABLE for business data; the test asserts source/runtime behavior only.
+READBACK-PROVEN = current-main source PR blobs and the new code commit were used to assemble the exact tree; final branch/file readback follows PR creation.
+BROWSER-PROVEN = prior PR #916 browser run only, SHA 732022470846dce6219d363a5b830b1e037f99cf: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38318804969. Not evidence for 84117611d458f291aef064747ccfa8b97905744c.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Missing authorized NETLIFY_AUTH_TOKEN; Netlify deploy also previously lacked site ID (this code adds the known public site ID fallback). Vercel still lacks VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID; runtime operational token is not configured there.
+NEXT_ACTION = Create the PR from fix/netlify-runtime-provenance-current-main-20261014, inspect exact-head checks, and fix the first actual code/test failure; release still requires authorized hosting secrets.
+
+---
+
 # LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 Repository: Report-Engainall/Report-Advisor

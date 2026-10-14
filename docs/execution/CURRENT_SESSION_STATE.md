@@ -1,3 +1,23 @@
+## LIVE RESUME — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
+
+CURRENT_EXACT_CODE_HEAD = 84117611d458f291aef064747ccfa8b97905744c
+LIVE_MAIN_BASE = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = Pending creation; base main
+MERGE_STATE = NOT MERGED
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = Current-main-based code checkpoint adds the Netlify tenant-isolation endpoint and route; includes generated provenance in functions; ties health/rollback identity to exact source/build/deployment fields; makes the production deploy verify exact SHA + deployment ID; registers adversarial canary tests and expands Quality/Browser/Phase-F change-path coverage.
+TESTED = PENDING exact-head GitHub Actions on 84117611d458f291aef064747ccfa8b97905744c. Local/remote runtime execution is not claimed.
+PERSISTED = No business rows were written by this code change.
+READBACK-PROVEN = GitHub Git data API created the code tree with parent 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517; final branch/file readback must be done after the docs checkpoint.
+BROWSER-PROVEN = NOT_PROVEN for 84117611d458f291aef064747ccfa8b97905744c; prior PR #916 browser E2E passed at SHA 732022470846dce6219d363a5b830b1e037f99cf only.
+PRODUCTION-PROVEN = NOT_PROVEN — Netlify current deployment remains stale at 858ef8e3e5bc5bf74430555eadfb9e6767be348b; Vercel runtime endpoints still fail closed with operational_token_not_configured.
+FIRST_ACTIVE_FAILURE = Missing/incorrect live runtime provenance and absent Netlify tenant-canary route; separately, hosting credentials prevent authorized deployment.
+ROOT_CAUSE = Netlify config lacked a tenant-canary redirect and did not package runtime-provenance.json into function bundles; health/rollback handlers did not consistently fall back to current runtime identity; deploy workflow did not require post-publish exact-SHA readback.
+NEXT_EXACT_ACTION = Open and validate the new PR on exact head 84117611d458f291aef064747ccfa8b97905744c; do not merge until exact-head checks are reviewed. Do not weaken auth/RLS or manufacture provider credentials.
+CURRENT RESUME POINTER = This block + docs/execution/PROGRAMMER_CURRENT_REPORT.md.
+---
 ## LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 CURRENT_EXACT_HEAD = 1910e9809af30c9d178e73813906f07401ac7280
