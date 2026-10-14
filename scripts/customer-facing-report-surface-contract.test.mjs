@@ -11,6 +11,13 @@ const fullProductBrowserWorkflow = fs.readFileSync('.github/workflows/full-produ
 const generic = fs.readFileSync('src/components/GenericFileIntelligenceCard.tsx', 'utf8');
 const chain = fs.readFileSync('src/components/UniversalIntelligenceChain.tsx', 'utf8');
 
+assert.ok(generic.includes('data-testid="generic-intelligence-results-navigation"'), 'Generic analysis must expose an accessible in-card index for all result groups');
+assert.ok(generic.includes("id: 'generic-intelligence-signals'") && generic.includes("id: 'generic-intelligence-recommendations'"), 'Signals and recommendations must be reachable from the results index');
+assert.ok(generic.includes("id: 'generic-intelligence-findings'") && generic.includes("id: 'generic-intelligence-risks'") && generic.includes("id: 'generic-intelligence-opportunities'"), 'Facts, risks, and opportunities must remain explicit result groups');
+assert.ok(generic.includes("id: 'generic-intelligence-inspect'"), 'Additional source checks must be reachable even when none are available');
+assert.ok(generic.includes('هذه حالة نتائج فارغة وليست دليلًا على خلو المصدر من المخاطر'), 'An empty result category must not be represented as proof that no risk exists');
+assert.ok(generic.includes('generic-intelligence-inspect-empty'), 'The inspection group must display an explicit empty state rather than disappear');
+
 assert.ok(reports.includes("import { CustomerReportSurface } from '@/components/CustomerReportSurface';"));
 assert.ok(reports.includes("import { SourceContextNavigation } from '@/components/ReportSourceContext';"), 'Reports center must render the source-bound navigation on its actual report surface');
 assert.ok(reports.includes('<div data-testid="reports-center-source-navigation"'), 'Reports center must expose a visible navigation container within the current report card');

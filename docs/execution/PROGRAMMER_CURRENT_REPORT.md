@@ -1,3 +1,39 @@
+# CURRENT EXECUTION REPORT — 2026-10-14 / PR #920 GENERIC RESULTS UI
+
+REPORT_FOR_HEAD = ae04534c10eb691dfea31f8d54b64399defb3b89
+UPDATED_AT = 2026-10-14
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = feat/generic-intelligence-results-ui-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/920 (OPEN / NOT MERGED)
+BASE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = ae04534c10eb691dfea31f8d54b64399defb3b89
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until final exact-head code gates and authenticated Chromium proof pass; production health/readback must be checked separately.
+
+WHAT_I_WAS_ASKED_TO_DO = Continue the existing Report-Advisor product, improve the real Arabic RTL results interface for any supported report, make the visible result groups navigable, preserve source-derived truth and strict governance, and verify the changes through GitHub Actions.
+
+WHAT_I_ACTUALLY_DID = Created PR #920 from the current main tip 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517. Changed src/components/GenericFileIntelligenceCard.tsx to add an accessible responsive results index with counts derived from this report's existing generic-intelligence object; give facts/findings, risks, opportunities, and additional inspection a persistent visible section; and label empty result sets so they are not misrepresented as proof that the source has no issue. Applied a dark navy/Indigo executive surface with restrained Amber accents only to the real SmartReportPage card, preserving source lineage, evidence, and partial-source disclosures. Added UI-contract assertions in scripts/customer-facing-report-surface-contract.test.mjs. The first exact candidate f42ef5ade9f2db1cda859cdb2c89b7ab7459d4cb built and typechecked but Product Build Gate found a stale string assertion in scripts/smart-report-complete-intelligence-surface.test.mjs. Fixed the test to assert the new inspections list and visible empty state; that test repair is commit ae04534c10eb691dfea31f8d54b64399defb3b89. No database, RLS, authentication, or analysis-value logic changed.
+
+FIRST_ACTIVE_FAILURE = Product Build Gate run https://github.com/Report-Engainall/Report-Advisor/actions/runs/38581195220 failed in job 115911217374 at smart-report-complete-intelligence-surface.test.mjs:88 because its legacy marker expected intelligence.guidance.inspect.map(. The UI now binds the source inspections array once and keeps an explicit empty state; the contract was updated in commit ae04534c10eb691dfea31f8d54b64399defb3b89. A rerun on the new exact code checkpoint remains pending. Separately, Session Handoff Contract run https://github.com/Report-Engainall/Report-Advisor/actions/runs/38581195116 failed because the persistent execution checkpoint had not declared the newly changed UI component and contract files. This report anchors coverage at the code checkpoint, and the remaining session-state changes are documentation-only.
+
+ROOT_CAUSE = The UI contract hard-coded an implementation detail of the previous conditional rendering instead of asserting the complete visible results behavior. Its evidence was direct: smart-report-complete-intelligence-surface.test.mjs:88 rejected only the old inspect map expression after the UI intentionally introduced a named source-derived inspections array and explicit empty-state marker. The original session handoff was also stale because the UI/test code commits came before the execution report had been re-anchored. Neither issue justified weakening the build or handoff contract; the UI assertion is repaired and the checkpoint is being rebaselined at the code-bearing commit.
+
+WHAT_IS_PROVEN = GitHub readback confirms PR #920 and its exact changed source/test files. Product Build Gate run 38581195220 on predecessor f42ef5ade9f2db1cda859cdb2c89b7ab7459d4cb passed Typecheck and Production build but failed the legacy UI-contract assertion described above. Quality run 38581195025 passed on f42; data-quality-runtime run 38581195233, Phase 2 security run 38581195442, Phase-F contract run 38581194679, and regression-evidence run 38581194956 also completed successfully on f42. These are predecessor-head evidence only; none is promoted as a PASS for ae04534c10eb691dfea31f8d54b64399defb3b89. The test fix and UI source are committed and readable on GitHub.
+
+WHAT_IS_NOT_PROVEN = Build/Quality/Certification/Handoff completion on the code checkpoint ae04534c10eb691dfea31f8d54b64399defb3b89; authenticated Chromium journey; actual uploaded-report display for this exact UI; database persistence/readback after refresh/re-login; current production /api/health SHA and deployment identity; production parity; PRODUCT_COMPLETE.
+
+PERSISTED = NOT_APPLICABLE — UI and test source only; no business/report rows were written.
+UI-EXPOSED = IMPLEMENTED IN CODE — the changed component is rendered from SmartReportPage in the current route, but browser-visible proof for this candidate is pending.
+READBACK-PROVEN = YES — code and test-file content, commit SHA and PR changed-file list were read back from GitHub.
+BROWSER-PROVEN = NOT_PROVEN — Full Product Browser E2E run https://github.com/Report-Engainall/Report-Advisor/actions/runs/38581195194 stopped at canonical-heart regressions after the predecessor UI-contract failure; Chromium was skipped and result JSON artifacts were missing.
+PRODUCTION-PROVEN = NOT_PROVEN — Vercel production deployment dpl_7Lyx17ZYgit1RSfdqN8RPxLC1w4V is READY on main SHA 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517, but deployment readiness alone does not prove authenticated health, live UI behavior, or persistence.
+
+CHANGED_FILES_AT_CODE_CHECKPOINT = src/components/GenericFileIntelligenceCard.tsx; scripts/customer-facing-report-surface-contract.test.mjs; scripts/smart-report-complete-intelligence-surface.test.mjs
+NEXT_EXACT_ACTION = Rebase the persistent session-state and memory docs to code checkpoint ae04534c10eb691dfea31f8d54b64399defb3b89 in a docs-only delta; then verify the new exact-head Session Handoff, Build, Quality, Final Certification and authenticated browser runs. Do not merge until those results are green and production health/readback is freshly proven.
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-13 / PR #917 HANDOFF RECOVERY
 
 REPORT_FOR_HEAD = 1910e9809af30c9d178e73813906f07401ac7280

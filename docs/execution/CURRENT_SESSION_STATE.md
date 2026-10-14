@@ -1,3 +1,37 @@
+## LIVE RESUME — 2026-10-14 / PR #920 GENERIC RESULTS UI
+
+CURRENT_EXACT_HEAD = ae04534c10eb691dfea31f8d54b64399defb3b89
+CODE_CHECKPOINT = ae04534c10eb691dfea31f8d54b64399defb3b89
+REPORT_FOR_HEAD = ae04534c10eb691dfea31f8d54b64399defb3b89
+BASE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+BRANCH = feat/generic-intelligence-results-ui-20261014
+REPOSITORY = Report-Engainall/Report-Advisor
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/920 (OPEN / NOT MERGED)
+MERGE_STATE = DO NOT MERGE until the newest exact-head Build, Quality, Session Handoff, Final Certification, and authenticated Chromium requirements pass and production health/readback is proven.
+ACTION_STATUS = GENERIC_RESULTS_UI_IMPLEMENTED; STALE_UI_CONTRACT_FIXED_IN_AE04534; DOC_CHECKPOINT_REBASELINING; EXACT_HEAD_RERUN_PENDING; BROWSER_NOT_PROVEN; PRODUCTION_NOT_PROVEN
+UPDATED_AT = 2026-10-14
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = On the real SmartReportPage route, src/components/GenericFileIntelligenceCard.tsx adds responsive RTL navigation with source-derived result counts; keeps facts/findings, risks, opportunities, and additional inspections visible even when empty; and explicitly states that empty derived results do not prove no risk exists. The executive summary uses a restrained dark navy / Indigo / Amber treatment. Analysis data, source lineage, evidence boundaries, auth, RLS and persistence code are unchanged. PR #920 includes the UI contract additions and a fix to the existing smart-report completeness test.
+INTEGRATED = PR #920 OPEN; not merged.
+PERSISTED = NOT_APPLICABLE — UI/test source only; no business/report database writes.
+UI-EXPOSED = CODE PATH VERIFIED — SmartReportPage renders GenericFileIntelligenceCard with genericIntelligence plus sourcePath, sourceHash, reportJobId, analysisScope and analysisSource. Authenticated browser proof for this candidate is not established.
+READBACK-PROVEN = YES — UI/test files, code commits, PR #920 and changed-file list read back from GitHub.
+
+TESTED = Product Build Gate run 38581195220 and Full Product Browser E2E run 38581195194 were executed on prior candidate f42ef5ade9f2db1cda859cdb2c89b7ab7459d4cb. Typecheck and production build passed; Product Build Gate then failed at scripts/smart-report-complete-intelligence-surface.test.mjs:88 because its stale source marker expected intelligence.guidance.inspect.map(. The UI now uses a named inspections array so it can provide a persistent empty state. Fixed the contract in commit ae04534c10eb691dfea31f8d54b64399defb3b89. This fixed test has not yet received a verified PASS on that code checkpoint. On predecessor f42, Quality 38581195025, Data Quality 38581195233, Phase 2 security 38581195442, Phase-F contract 38581194679 and regression-evidence 38581194956 passed; predecessor evidence is not current-head certification.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run https://github.com/Report-Engainall/Report-Advisor/actions/runs/38581195116 failed with stale coverage: unreported files scripts/customer-facing-report-surface-contract.test.mjs and src/components/GenericFileIntelligenceCard.tsx. After the contract fix, scripts/smart-report-complete-intelligence-surface.test.mjs is also a product/test delta relative to the original old report; it must be included in the checkpoint's changed-file record and report coverage.
+ROOT_CAUSE = Two explicit causes are established by direct logs: (1) a contract test hard-coded the old inspect array rendering and rejected the new UI empty-state implementation; the assertion was updated rather than weakening the test; (2) code/tests were committed before the persistent execution reports were rebased, so the strict handoff correctly rejected unreported changes. The session report is now anchored to the current code-bearing commit ae04534c10eb691dfea31f8d54b64399defb3b89; all post-anchor edits in this repair are intended to be documentation-only, preserving the strict allowlist.
+
+BROWSER-PROVEN = NOT_PROVEN — browser run 38581195194 stopped at canonical-heart regressions after the predecessor contract failure; Chromium browser steps were skipped. Its universal browser proof gate failed because browser result JSON files did not exist.
+PRODUCTION-PROVEN = NOT_PROVEN — Vercel production deployment dpl_7Lyx17ZYgit1RSfdqN8RPxLC1w4V is READY for main SHA 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517, but deployment readiness does not prove HTTP health, the expected runtime SHA/deployment ID at /api/health, customer UI behavior, or stored-row readback. Current production health has not been freshly proven.
+OPEN_BLOCKER = New exact-head Build/Quality/Handoff/Final Certification/browser results are pending after commit ae04534c10eb691dfea31f8d54b64399defb3b89. PR #920 is open; do not merge.
+NEXT_EXACT_ACTION = Finish a docs-only checkpoint for ae04534c10eb691dfea31f8d54b64399defb3b89; then verify the next exact-head Session Handoff, Product Build, Quality, Final Certification and authenticated browser runs. If any product assertion fails, repair that assertion's actual underlying behavior and retest. Verify current production health and identity separately; no PRODUCT_COMPLETE claim before all acceptance conditions pass.
+
+CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+
+---
+
 ## LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 CURRENT_EXACT_HEAD = 1910e9809af30c9d178e73813906f07401ac7280
