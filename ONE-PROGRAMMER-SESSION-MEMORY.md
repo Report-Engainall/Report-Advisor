@@ -1,13 +1,25 @@
-# LIVE RESUME — 2026-10-14 / PR #925 Netlify provenance + tenant-canary repair
+# LIVE RESUME — 2026-10-15 / PR #925 missing-measurement truth fix
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = f4994137d1b8ae09103b8a3e19abe3deee1c02b7 (code checkpoint; a handoff-only successor is being recorded)
-CODE_CHECKPOINT = f4994137d1b8ae09103b8a3e19abe3deee1c02b7
-REPORT_FOR_HEAD = f4994137d1b8ae09103b8a3e19abe3deee1c02b7
 BRANCH = fix/netlify-runtime-provenance-on-main-20261014
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
-ACTION_STATUS = On code checkpoint f4994137d1b8ae09103b8a3e19abe3deee1c02b7: Execution Enforcement Contract run 38610276958 passed; Session Handoff run 38610276919 failed because 11 changed code/config/test paths were not documented in this handoff. Product Build, Quality, full browser E2E, and Phase-F runs had queued/in-progress states when first read. Any result on f4994137d1b8ae09103b8a3e19abe3deee1c02b7 is predecessor-only after the handoff successor and must be re-read at the current PR tip. Main b4bb9fe6f278fd7d2c2dcb76b144638549036565 had Product Build, Quality, Session Handoff, Final Certification and Full Product Browser E2E passing; Phase-F failed.
-NEXT_EXACT_ACTION = Read the current PR #925 tip and exact-head Quality/Product Build/Session Handoff/Final Certification/Browser/Phase-F results; repair the first confirmed code assertion. Never claim Netlify production complete while NETLIFY_AUTH_TOKEN and the runtime operational/service credentials remain absent.
+CODE_CHECKPOINT = 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8
+REPORT_FOR_HEAD = 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8
+PRODUCT_COMPLETE = NO
+CURRENT_EXACT_HEAD = 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8 (functional checkpoint; docs-only successor follows)
+UPDATED_AT = 2026-10-15T01:22:00+03:00
+ACTION_STATUS = Generic sheet analysis now preserves missing measurements as unknown, with a sparse-data test. Functional change: e4d8332a598366438eba2f831c817a5061edbe09; test localization correction: 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8. Latest checkpoint handoff is being re-anchored to the test-corrected code commit.
+FIRST_ACTIVE_FAILURES:
+- Quality run 38646392385 on e4d8332a598366438eba2f831c817a5061edbe09: regression assertion expected Western digit `1` but the report localizes counts with `ar-YE`; test now accepts either `1` or `١`.
+- Session Handoff run 38646392387: strict contract listed `scripts/generic-file-analysis.test.mjs` and `src/lib/file-engine/generic-intelligence.ts` as unreported because the previous `REPORT_FOR_HEAD` was stale.
+CODE_CHANGE = https://github.com/Report-Engainall/Report-Advisor/commit/e4d8332a598366438eba2f831c817a5061edbe09
+REGRESSION_FIX = https://github.com/Report-Engainall/Report-Advisor/commit/7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8
+TESTED = PENDING on final exact PR head; do not infer success from an edit or a predecessor run.
+PHASE_F = predecessor run 38610637235 failed closed on tenant-canary HTTP 503 `operational_token_not_configured` despite health identity and rollback passing.
+NETLIFY_ENV = site inventory lacks `RESILIENCE_OPERATIONAL_TOKEN` and `SUPABASE_SERVICE_ROLE_KEY`; `NETLIFY_AUTH_TOKEN` is a separate GitHub deployment secret not available for administration through the active connector. No secrets are generated or exposed.
+PRODUCTION-PROVEN = NOT_PROVEN; published Netlify deploy 6ac3d608e2e37d0008cc0222 is stale.
+PRODUCT_COMPLETE = NO.
+NEXT_EXACT_ACTION = Update branch from e4d8332a598366438eba2f831c817a5061edbe09 to the docs-only successor with a compare-and-swap; then re-read and act on exact-head Actions and fix the next proven failure.
 
 
 ---

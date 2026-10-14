@@ -1,24 +1,25 @@
-# CURRENT PROGRAMMER REPORT — 2026-10-14 — PR #925 runtime provenance/canary port
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #925 metric completeness and handoff
 
 Repository: Report-Engainall/Report-Advisor
-REPORT_FOR_HEAD = f4994137d1b8ae09103b8a3e19abe3deee1c02b7
-UPDATED_AT = 2026-10-14T17:53:52.208Z
-WHAT_I_WAS_ASKED_TO_DO = Continue the existing universal-file analysis product and repair the first proven current runtime/release blocker without depending on the user's device, weakening RLS, or inventing secrets.
-WHAT_I_ACTUALLY_DID = Created PR #925 from the live main checkpoint after rejecting a direct merge of stale/diverged PR #918. Ported the tested Netlify changes: bundle runtime-provenance.json with functions; route /api/tenant-canary; add fail-closed tenant isolation probe + tests; make health and rollback identity use provenance/runtime fallbacks; validate exact 40-character source SHA; add post-deploy exact SHA proof; and add the Netlify code paths to Phase-F/Browser pull-request filters and to the operational-resilience contract.
-WHAT_IS_PROVEN = GitHub readback confirms code commit f4994137d1b8ae09103b8a3e19abe3deee1c02b7 on fix/netlify-runtime-provenance-on-main-20261014, PR #925 open on main base b4bb9fe6f278fd7d2c2dcb76b144638549036565, with 11 changed paths. The old live Netlify deploy remains on 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Vercel production homepage returned HTTP 200 and an aghbari-source-sha meta tag exactly matching main b4bb9fe6f278fd7d2c2dcb76b144638549036565. Full Product Browser E2E on main run 38607598239 passed. Vercel /api/health returned HTTP 503 operational_token_not_configured. Netlify environment readback has no RESILIENCE_OPERATIONAL_TOKEN or SUPABASE_SERVICE_ROLE_KEY; GitHub Netlify deploy fails before publish because NETLIFY_AUTH_TOKEN is missing.
-FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38610276919 on code head f4994137d1b8ae09103b8a3e19abe3deee1c02b7: SESSION_HANDOFF_CONTRACT_FAIL listed 11 changed paths as unreported.
-ROOT_CAUSE = The code/config/test commit was pushed without an execution-state and programmer-report checkpoint that anchors REPORT_FOR_HEAD to f4994137d1b8ae09103b8a3e19abe3deee1c02b7. The handoff successor now documents the exact code checkpoint; the handoff contract itself remains unchanged.
-NEXT_EXACT_ACTION = Verify the current PR #925 tip and exact-head test runs after the handoff commit. Fix the first failing code assertion; keep deploy/Phase-F gates fail-closed until legitimate runtime credentials are configured and deployed.
-IMPLEMENTED = YES — 11 source/config/test/workflow paths changed; see https://github.com/Report-Engainall/Report-Advisor/commit/f4994137d1b8ae09103b8a3e19abe3deee1c02b7.
-READBACK-PROVEN = YES — GitHub re-read commit, PR and key changed files.
-PERSISTED = NOT_APPLICABLE — no business/report records were written.
-TESTED = PENDING_EXACT_HEAD — code-head workflow results were queued or failed at handoff; new tip needs fresh run readback.
-BROWSER-PROVEN = PASS ON MAIN CHECKPOINT ONLY; PR #925 exact-head browser run pending.
-PRODUCTION-PROVEN = NO — Vercel app shell SHA matches main; authenticated runtime-health proof fails and Netlify still serves old SHA.
-PRODUCT_COMPLETE = NO.
-OPEN_BLOCKER = Missing authorized deploy/runtime secrets prevent Netlify deploy and authenticated operational proof; Phase-F cannot be waived.
-SESSION HANDOFF = READY
-HANDOFF_COVERAGE = ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-14/REPORT-20261014-PR925-NETLIFY-RUNTIME-PROVENANCE.md
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+CODE_CHECKPOINT = 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8
+REPORT_FOR_HEAD = 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8
+PRODUCT_COMPLETE = NO
+UPDATED_AT = 2026-10-15T01:22:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue from live GitHub, correct evidenced defects in the generic-file analysis, validate the new code, and preserve a truthful resumable checkpoint without inventing credentials.
+WHAT_I_ACTUALLY_DID = Changed monthly aggregation to preserve missing values as unknown, added missing coverage and a count of incomplete reconciliation rows, and added a sparse-data regression. Corrected the test's expected count to accept the Arabic-localized digit the application intentionally emits.
+IMPLEMENTED = YES — functional commit https://github.com/Report-Engainall/Report-Advisor/commit/e4d8332a598366438eba2f831c817a5061edbe09; test-assertion correction https://github.com/Report-Engainall/Report-Advisor/commit/7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8.
+READBACK-PROVEN = YES for the current functional and test commits and both changed files; docs-only checkpoint awaits ref update/readback.
+FIRST_ACTIVE_FAILURE = Quality run 38646392385 on e4d8332a598366438eba2f831c817a5061edbe09: new regression assertion expected the ASCII digit `1`, but the report formats counts with `toLocaleString('ar-YE')`. Session Handoff run 38646392387 independently flagged the two functional paths as unreported because the checkpoint still referenced f4994137d1b8ae09103b8a3e19abe3deee1c02b7.
+ROOT_CAUSE = One assertion was over-specific about localized numerals; separately, report baseline drift meant the strict handoff checker correctly rejected unreported paths.
+FIX = Test assertion now accepts ASCII or Arabic-Indic one; documentation-only successor re-anchors `REPORT_FOR_HEAD` to 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8. No code, test coverage, or handoff policy was weakened.
+TESTED = The first regression attempt failed at the assertion described above. Results from Product Build 38646392171, Quality 38646392385, Final Certification 38646392375, Browser E2E 38646392119 and Phase-F 38646392275 are on predecessor e4d8332a598366438eba2f831c817a5061edbe09; do not transfer them to the new head. New exact-head runs are required.
+BROWSER-PROVEN = NOT_PROVEN on the latest code until exact-head E2E succeeds.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Netlify runtime environment lacks `RESILIENCE_OPERATIONAL_TOKEN` and `SUPABASE_SERVICE_ROLE_KEY`; production workflow still requires authorized `NETLIFY_AUTH_TOKEN`. No secrets are readable/manageable via connected GitHub secret APIs.
+NEXT_EXACT_ACTION = Attach the documentation-only checkpoint to this branch with an expected-SHA lease, verify its readback, then consume the new exact-head workflow outcomes and repair the first remaining assertion.
+SESSION HANDOFF = DOCS-ONLY REPAIR PREPARED; EXACT-HEAD PASS REQUIRED
 
 
 ---
