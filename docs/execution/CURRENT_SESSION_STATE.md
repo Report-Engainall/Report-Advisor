@@ -1,3 +1,58 @@
+## LIVE RESUME — 2026-10-14 / Phase-F restore file permission fix
+
+CURRENT_EXACT_CODE_HEAD = d1e40bdff53f0776cd73834378080ac9a654dcf0
+REPORT_FOR_HEAD = d1e40bdff53f0776cd73834378080ac9a654dcf0
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/918 (OPEN / NOT MERGED)
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = Auth UUID-only restore SQL is mode 0644 for read access by the non-root PostgreSQL container; regression assertion added.
+TESTED = Static preflight passed. Exact-head tests for d1e40bdff53f0776cd73834378080ac9a654dcf0 are pending/running.
+READBACK-PROVEN = GitHub file reads verified the code and test changes. Handoff baseline reanchored to d1e40bdff53f0776cd73834378080ac9a654dcf0; checker was not weakened.
+BROWSER-PROVEN = NOT_PROVEN on d1e40bdff53f0776cd73834378080ac9a654dcf0.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Phase-F restore result pending; Netlify preview operational token and production deploy credentials remain missing.
+NEXT_EXACT_ACTION = Check exact-head Phase-F and required gates; then proceed on the first verified blocker only.
+---
+## LIVE RESUME — 2026-10-14 / Phase-F PostgreSQL registry fallback
+
+CURRENT_EXACT_CODE_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
+REPORT_FOR_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
+LIVE_MAIN_BASE = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/918 (OPEN / NOT MERGED)
+MERGE_STATE = DO NOT MERGE until new exact-head gates are reviewed
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = Phase-F now defaults to a digest-pinned public PostgreSQL 17.10 client image in GHCR rather than the ECR public mirror that exhausted its anonymous data quota; explicit image override remains supported. A regression check locks the source to a pinned GHCR digest and rejects default ECR routing.
+TESTED = Pre-commit static transformation checks passed. Exact-head CI on a96656b9fcc1be61052b415b522bbd34bd399504 is pending.
+PREVIOUS_HEAD_EVIDENCE = On 556feab5e31e81f35b2ea51dad370624e2dfffd8, Product Build, Quality, Full Product Browser E2E, Session Handoff and Final Certification passed. Phase-F passed 2/4; restore failed due ECR image-pull quota and tenant-canary failed with HTTP 503 operational_token_not_configured. These results do not certify a96656b9fcc1be61052b415b522bbd34bd399504.
+READBACK-PROVEN = GitHub commit readback for code checkpoint a96656b9fcc1be61052b415b522bbd34bd399504; docs checkpoint readback and new Actions results still required.
+BROWSER-PROVEN = NOT_PROVEN for a96656b9fcc1be61052b415b522bbd34bd399504.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = GHCR image pull and restore proof now await exact-head testing; missing RESILIENCE_OPERATIONAL_TOKEN in Netlify preview is a separate secret-provisioning block. Netlify production deploy still requires NETLIFY_AUTH_TOKEN.
+NEXT_EXACT_ACTION = Read the new Phase-F attempt for a96656b9fcc1be61052b415b522bbd34bd399504; do not merge based on predecessor results.
+---
+## LIVE RESUME — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
+
+CURRENT_EXACT_CODE_HEAD = 84117611d458f291aef064747ccfa8b97905744c
+LIVE_MAIN_BASE = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = Pending creation; base main
+MERGE_STATE = NOT MERGED
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = Current-main-based code checkpoint adds the Netlify tenant-isolation endpoint and route; includes generated provenance in functions; ties health/rollback identity to exact source/build/deployment fields; makes the production deploy verify exact SHA + deployment ID; registers adversarial canary tests and expands Quality/Browser/Phase-F change-path coverage.
+TESTED = PENDING exact-head GitHub Actions on 84117611d458f291aef064747ccfa8b97905744c. Local/remote runtime execution is not claimed.
+PERSISTED = No business rows were written by this code change.
+READBACK-PROVEN = GitHub Git data API created the code tree with parent 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517; final branch/file readback must be done after the docs checkpoint.
+BROWSER-PROVEN = NOT_PROVEN for 84117611d458f291aef064747ccfa8b97905744c; prior PR #916 browser E2E passed at SHA 732022470846dce6219d363a5b830b1e037f99cf only.
+PRODUCTION-PROVEN = NOT_PROVEN — Netlify current deployment remains stale at 858ef8e3e5bc5bf74430555eadfb9e6767be348b; Vercel runtime endpoints still fail closed with operational_token_not_configured.
+FIRST_ACTIVE_FAILURE = Missing/incorrect live runtime provenance and absent Netlify tenant-canary route; separately, hosting credentials prevent authorized deployment.
+ROOT_CAUSE = Netlify config lacked a tenant-canary redirect and did not package runtime-provenance.json into function bundles; health/rollback handlers did not consistently fall back to current runtime identity; deploy workflow did not require post-publish exact-SHA readback.
+NEXT_EXACT_ACTION = Open and validate the new PR on exact head 84117611d458f291aef064747ccfa8b97905744c; do not merge until exact-head checks are reviewed. Do not weaken auth/RLS or manufacture provider credentials.
+CURRENT RESUME POINTER = This block + docs/execution/PROGRAMMER_CURRENT_REPORT.md.
+---
 ## LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 CURRENT_EXACT_HEAD = 1910e9809af30c9d178e73813906f07401ac7280

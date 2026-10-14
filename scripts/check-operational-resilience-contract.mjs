@@ -56,6 +56,45 @@ for (const token of ['SET TRANSACTION SNAPSHOT', 'logical_snapshot_id_invalid', 
 
 const roadmap = fs.readFileSync(path.join(root,'docs/IMPLEMENTATION_ROADMAP.md'),'utf8');
 for (const item of ['Automated tenant-isolation canary suite','Automated migration dry-run and schema drift detection','Backup freshness/restore verification','Queue health, stuck-worker and dead-letter alerting','Artifact delivery integrity monitoring','SLO dashboards, error budgets and incident evidence ledger','Periodic trust certification']) if (!roadmap.includes(item)) throw new Error(`Roadmap resilience item missing: ${item}`);
+
+const netlifyDeployWorkflow = fs.readFileSync(path.join(root,'.github/workflows/deploy-netlify-production.yml'),'utf8');
+for (const token of [
+  'node scripts/write-netlify-runtime-provenance.mjs && npm run build',
+  'COMMIT_REF: ${{ github.sha }}',
+  'CONTEXT: production',
+  'BRANCH: main',
+  "vars.NETLIFY_SITE_ID || 'dfcf116c-cb75-449a-8a45-2f610a8ce3f5'",
+  'Verify published Netlify runtime SHA',
+  'body.deployment_sha !== expected',
+]) {
+  if (!netlifyDeployWorkflow.includes(token)) throw new Error(`Netlify production deployment provenance contract missing: ${token}`);
+}
+const netlifyToml = fs.readFileSync(path.join(root,'netlify.toml'),'utf8');
+for (const token of [
+  'netlify/functions/runtime-provenance.json',
+  'from = "/api/health"',
+  'from = "/api/tenant-canary"',
+  'to = "/.netlify/functions/tenant-canary"',
+  'from = "/api/rollback-drill"',
+]) {
+  if (!netlifyToml.includes(token)) throw new Error(`Netlify function routing/provenance contract missing: ${token}`);
+}
+const netlifyProvenanceWriter = fs.readFileSync(path.join(root,'scripts/write-netlify-runtime-provenance.mjs'),'utf8');
+if (!netlifyProvenanceWriter.includes('process.env.GITHUB_SHA')) throw new Error('Netlify provenance writer must accept a GitHub exact-SHA fallback');
+const netlifyCanary = fs.readFileSync(path.join(root,'netlify/functions/tenant-canary.mjs'),'utf8');
+for (const token of ['RESILIENCE_OPERATIONAL_TOKEN','RESILIENCE_CANARY_FOREIGN_COMPANY_ID','cross_tenant_data_visible','persistHealth']) {
+  if (!netlifyCanary.includes(token)) throw new Error(`Netlify tenant canary safety contract missing: ${token}`);
+}
+const netlifyBrowserWorkflow = fs.readFileSync(path.join(root,'.github/workflows/full-product-browser-e2e.yml'),'utf8');
+const netlifyBrowserPullRequestPaths = (netlifyBrowserWorkflow.split('  pull_request:')[1] || '').split('  workflow_dispatch:')[0];
+for (const token of ['netlify/functions/**', 'netlify.toml', 'scripts/write-netlify-runtime-provenance.mjs']) {
+  if (!netlifyBrowserPullRequestPaths.includes(token)) throw new Error(`Netlify runtime changes must trigger full authenticated browser proof on pull requests: ${token}`);
+}
+const netlifyPhaseFWorkflow = fs.readFileSync(path.join(root,'.github/workflows/phase-f-live-resilience.yml'),'utf8');
+for (const token of ['netlify/functions/**', 'netlify.toml', 'scripts/write-netlify-runtime-provenance.mjs']) {
+  if (!netlifyPhaseFWorkflow.includes(token)) throw new Error(`Netlify runtime changes must trigger Phase-F live resilience proof: ${token}`);
+}
+
 console.log('Operational resilience contract: PASS');
 console.log('  - existing resilience contract remains intact');
 console.log('  - report execution failure/dead-letter alert emission remains source-bound');

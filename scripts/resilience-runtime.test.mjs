@@ -17,6 +17,17 @@ const files = [
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 const phaseFProbe = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
 const postgresRetrySource = fs.readFileSync('src/server/resilience-db-retry.mjs', 'utf8');
+assert.match(
+  phaseFProbe,
+  /ghcr\.io\/cloudnative-pg\/postgresql@sha256:[0-9a-f]{64}/,
+  'Phase F must use a digest-pinned PostgreSQL client image outside the throttled ECR public mirror',
+);
+assert.doesNotMatch(
+  phaseFProbe.slice(0, phaseFProbe.indexOf('const baseRequired')),
+  /public\.ecr\.aws\/docker\/library\/postgres/,
+  'the default PostgreSQL recovery client must not depend on the ECR public image quota',
+);
+
 assert.match(phaseFProbe, /create temp table _phase_f_counts\(table_name text, row_count bigint\)/);
 assert.match(phaseFProbe, /EXECUTE format\(/);
 assert.match(phaseFProbe, /SELECT table_name \|\| '\|' \|\| row_count::text FROM _phase_f_counts/);
@@ -28,6 +39,11 @@ assert.match(phaseFProbe, /--data-only \$\{volatileExcludeArgs\}/, 'logical back
 assert.match(phaseFProbe, /'public\.carts'/, 'logical restore must exclude auth-dependent cart rows');
 assert.match(phaseFProbe, /'public\.cart_items'/, 'logical restore must exclude child rows referencing excluded carts');
 assert.ok(phaseFProbe.includes("const authUserIdsSql ="), 'logical restore must discover missing Auth user IDs');
+assert.match(
+  phaseFProbe,
+  /fs\.writeFileSync\(authUserStubsPath, buildAuthUserStubSql\(authUserIds\), \{ encoding: 'utf8', mode: 0o644 \}\)/,
+  'Auth restore stub file contains UUIDs only and must be readable by the non-root pinned PostgreSQL container user',
+);
 assert.ok(phaseFProbe.includes("c.confrelid = 'auth.users'::regclass"), 'Auth placeholder discovery must follow actual FK references');
 assert.ok(phaseFProbe.includes("INSERT INTO auth.users (id)"), 'restore must insert ID-only user placeholders');
 assert.ok(phaseFProbe.includes("ON CONFLICT (id) DO NOTHING"), 'placeholder insert must be rerunnable');

@@ -1,3 +1,85 @@
+# LIVE RESUME — 2026-10-14 / Phase-F restore file permission fix
+
+Repository: Report-Engainall/Report-Advisor
+CODE_CHECKPOINT = d1e40bdff53f0776cd73834378080ac9a654dcf0
+REPORT_FOR_HEAD = d1e40bdff53f0776cd73834378080ac9a654dcf0
+CURRENT_BRANCH_HEAD_BEFORE_DOC_FOLLOWUP = 92895e34b1aa23442e90ca212c09efe65e55b7ac
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR #918 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/918
+PRODUCT_COMPLETE = NO
+
+ROOT_CAUSE = Phase-F run 38568865682 eliminated the GHCR image-pull blocker but failed at logical restore because the container could not read /tmp/phase-f-auth-user-stubs.sql (Permission denied). The temporary SQL file had mode 0600 and the PostgreSQL client runs non-root.
+IMPLEMENTED = Code commit d1e40bdff53f0776cd73834378080ac9a654dcf0 changes the ephemeral Auth stub SQL file to mode 0644 and adds a regression assertion. It contains UUIDs only. No DB grants, RLS, authentication, restore SQL, or thresholds changed.
+TESTED = Static preflight passed. Exact-head Phase-F/Quality/Build/Browser/Certification on d1e40bdff53f0776cd73834378080ac9a654dcf0 are running/pending; previous SHA results do not transfer.
+READBACK-PROVEN = GitHub confirms source and test blobs for d1e40bdff53f0776cd73834378080ac9a654dcf0. Session Handoff found the stale report anchor and is now reanchored at d1e40bdff53f0776cd73834378080ac9a654dcf0; checker unchanged.
+BROWSER-PROVEN = NOT_PROVEN on d1e40bdff53f0776cd73834378080ac9a654dcf0.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Phase-F must prove the restore permission fix. Netlify live canary still lacks operational token; Netlify production deploy still lacks authorized deployment token.
+NEXT_ACTION = Read exact-head Phase-F and required gates; do not merge until all release and live deployment conditions pass.
+---
+
+# LIVE RESUME — 2026-10-14 / Phase-F PostgreSQL registry fallback
+
+Repository: Report-Engainall/Report-Advisor
+LIVE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = a96656b9fcc1be61052b415b522bbd34bd399504
+REPORT_FOR_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR #918 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/918
+PRODUCT_COMPLETE = NO
+
+FIRST_ACTIVE_FAILURE = Phase-F run 38564780775, exact head 556feab5e31e81f35b2ea51dad370624e2dfffd8, passed live health and rollback (2/4 overall) but failed tenant-canary because the Netlify function environment lacks RESILIENCE_OPERATIONAL_TOKEN, and failed logical backup because Docker could not pull public.ecr.aws/docker/library/postgres:17 (toomanyrequests: Data limit exceeded).
+
+IMPLEMENTED = Code commit a96656b9fcc1be61052b415b522bbd34bd399504 replaces the ECR public Docker image default with a digest-pinned PostgreSQL 17.10 image hosted in GHCR (CloudNativePG), retains the explicit RESILIENCE_POSTGRES_CLIENT_IMAGE override, and adds regression assertions that the fallback is digest-pinned and does not default to the throttled ECR mirror. No restore, SQL, RLS, credential, or acceptance thresholds were weakened.
+
+TESTED = Pre-commit string-level preflight passed for the exact image pin and regression assertion. Exact-head Quality / Product Build / Phase-F / browser / certification checks for a96656b9fcc1be61052b415b522bbd34bd399504 are pending and must be read from GitHub before claiming CI completion. Previous exact-head result on 556feab5e31e81f35b2ea51dad370624e2dfffd8 remains historical only:
+- Product Build PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780427
+- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780517
+- Full Product Browser E2E PASS, including authenticated Chromium business journey and generic file intelligence: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780516
+- Session Handoff PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780042
+- Final Certification PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780752
+These outcomes are not transferred to a96656b9fcc1be61052b415b522bbd34bd399504.
+
+READBACK-PROVEN = GitHub confirms the code checkpoint commit exists on fix/netlify-runtime-provenance-current-main-20261014; re-read the resulting documentation checkpoint and PR head after commit.
+BROWSER-PROVEN = Previous head 556feab5... PASS; new head a96656b9fcc1be61052b415b522bbd34bd399504 NOT_PROVEN until its browser check completes.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify production remains stale and the production deploy requires NETLIFY_AUTH_TOKEN. Vercel deployment/operations remain blocked by missing provider credentials and operational-token configuration.
+OPEN_BLOCKER = The code change targets the image-rate failure. The tenant-canary failure is a separate environment-secret blocker: the preview runtime has no RESILIENCE_OPERATIONAL_TOKEN. Do not derive or invent secrets, bypass authentication, or loosen tenant-isolation checks.
+NEXT_ACTION = Inspect new exact-head Phase-F result. If the GHCR image pulls, resolve the next concrete backup/restore assertion; handle missing Netlify runtime secret as a distinct authorized configuration dependency.
+---
+
+# LIVE RESUME — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
+
+Repository: Report-Engainall/Report-Advisor
+LIVE MAIN HEAD AT START: 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE CHECKPOINT: 84117611d458f291aef064747ccfa8b97905744c
+BRANCH: fix/netlify-runtime-provenance-current-main-20261014
+PR: Pending creation from this current-main branch
+PRODUCT_COMPLETE = NO
+
+## First proven blocker
+Production Netlify still serves source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b and /api/tenant-canary returns the SPA fallback. Its /api/health provenance is stale. The current Vercel production /api/health and /api/tenant-canary return HTTP 503 operational_token_not_configured. Hosting workflows fail closed because deployment credentials are missing; do not disable credentials or invent tokens to force a green result.
+
+## Code checkpoint implemented
+At code checkpoint 84117611d458f291aef064747ccfa8b97905744c on branch fix/netlify-runtime-provenance-current-main-20261014:
+- Added a Netlify tenant-isolation canary function guarded by a timing-safe operational-token check and a user bearer token; it verifies own/foreign tenant visibility under RLS, persists health evidence, and fails closed on missing prerequisites or leakage.
+- Routed /api/tenant-canary to that function before the SPA fallback.
+- Included generated runtime-provenance.json in Netlify function bundles; hardened health and rollback identity to expose source/build/deployment SHA and deployment ID from provenance/runtime variables.
+- Made Netlify production build write exact GitHub SHA provenance, added a non-secret known site-ID fallback, and required the live post-deploy health endpoint to prove exact SHA plus deployment ID.
+- Added a focused tenant-canary runtime test to test:operational-resilience; extended Quality contract checks and ensured Netlify function/provenance changes trigger browser E2E and Phase-F.
+
+## Evidence boundary
+IMPLEMENTED = YES at code checkpoint 84117611d458f291aef064747ccfa8b97905744c.
+INTEGRATED = pending PR creation/review.
+TESTED = no CI result is claimed for 84117611d458f291aef064747ccfa8b97905744c before its exact-head Actions run.
+PERSISTED = NOT_APPLICABLE for business data; the test asserts source/runtime behavior only.
+READBACK-PROVEN = current-main source PR blobs and the new code commit were used to assemble the exact tree; final branch/file readback follows PR creation.
+BROWSER-PROVEN = prior PR #916 browser run only, SHA 732022470846dce6219d363a5b830b1e037f99cf: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38318804969. Not evidence for 84117611d458f291aef064747ccfa8b97905744c.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Missing authorized NETLIFY_AUTH_TOKEN; Netlify deploy also previously lacked site ID (this code adds the known public site ID fallback). Vercel still lacks VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID; runtime operational token is not configured there.
+NEXT_ACTION = Create the PR from fix/netlify-runtime-provenance-current-main-20261014, inspect exact-head checks, and fix the first actual code/test failure; release still requires authorized hosting secrets.
+
+---
+
 # LIVE RESUME — 2026-10-13 / VERCEL BOOTSTRAP HANDOFF RECOVERY
 
 Repository: Report-Engainall/Report-Advisor
