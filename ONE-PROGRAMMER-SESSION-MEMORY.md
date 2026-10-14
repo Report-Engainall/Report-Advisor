@@ -1,26 +1,26 @@
-# LIVE RESUME — 2026-10-14 / Generic table missingness guard
+# LIVE RESUME — 2026-10-14 / E2E credential masking + generic completeness guard
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 51bbfae3266bc285b35498f9c3b177cefd3e92cd (functional checkpoint; this report is committed in its documentation-only successor)
-CODE_CHECKPOINT = 51bbfae3266bc285b35498f9c3b177cefd3e92cd
-REPORT_FOR_HEAD = 51bbfae3266bc285b35498f9c3b177cefd3e92cd
+CURRENT_EXACT_HEAD = d4154b10e02deb3e47354aed476e072671c3921d (latest code head; this checkpoint is a documentation-only successor)
+CODE_CHECKPOINT = d4154b10e02deb3e47354aed476e072671c3921d
+REPORT_FOR_HEAD = d4154b10e02deb3e47354aed476e072671c3921d
 BRANCH = fix/generic-source-completeness-20261014
 PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED)
-RELATED_RELEASE_BLOCKER = PR #925 https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED; Phase-F canary remains blocked by missing authorized operational credentials)
-IMPLEMENTED = Generic table analysis no longer adds missing/non-numeric totals or monthly values as zero. Complete totals require all rows to be numeric, period change requires complete adjacent periods, and reconciliation compares only rows with a numeric stated total and every period present. Coverage, missing cells, compared rows and excluded rows are visible in evidence.
-REGRESSION = Four-row CSV test covers complete data, a missing total, a missing month, and a genuine mismatch. It checks coverage and reconciliation integrity; fixture row separators and the Arabic month-change evidence assertion are corrected.
-TESTED = PENDING_EXACT_HEAD — GitHub Actions must validate the code checkpoint and its documentation successor.
-PERSISTED / READBACK-PROVEN = Code checkpoint 51bbfae3266bc285b35498f9c3b177cefd3e92cd is pushed on the existing PR #926 branch. Source and test blobs were read back from GitHub; session records are being aligned to this exact checkpoint.
-BROWSER-PROVEN = NOT_PROVEN for this change; earlier-head browser runs do not transfer.
-PRODUCTION-PROVEN = NOT_PROVEN. Netlify published deployment remains stale on 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
-OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed: /api/tenant-canary returned HTTP 503 operational_token_not_configured. Netlify environment readback confirmed RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN are absent; authorized secret provisioning is not available through the connected GitHub integration. Do not fabricate credentials or weaken tenant isolation.
-NEXT_EXACT_ACTION = Read exact-head Quality, Product Build Gate, Session Handoff Contract, Final Certification Gate and Full Product Browser E2E on the latest documentation-successor SHA; inspect failed-step logs and fix only a confirmed defect.
+ACTION_STATUS = Prior code head ba844b8fb300ed72160e2849626b0001f618a827 passed Product Build Gate 38626675270, Quality 38626675002 (includes GENERIC FILE ANALYSIS PASS), Session Handoff 38626675470, Final Certification 38626674796, Data Quality Runtime 38626676092, and Full Product Browser E2E 38626675330. Those results apply to ba844... only. On current security head d4154b10e02deb3e47354aed476e072671c3921d, Session Handoff run 38629551738 initially failed because this report was stale and four security files were unreported; the correction is in this docs-only checkpoint. Exact-head quality/build/browser/certification reruns for the current security head were still in progress/queued at last read. No PASS is inferred for the newer head until its runs close.
+IMPLEMENTED = Fixed missing-value-to-zero coercion in generic table intelligence. Added rotated-password masking in E2E actor provisioning; added a scoped cleanup utility to revoke only run-scoped ephemeral actor users for exposed run 38626675330 and current future runs; wired cleanup before provisioning and after browser artifacts; added a static contract test for masking, cleanup, and step ordering.
+TESTED = Generic analysis/build/full browser previously PASS on ba844b8fb300ed72160e2849626b0001f618a827. Security hardening on d4154b10e02deb3e47354aed476e072671c3921d is awaiting clean exact-head rerun; Session Handoff failure reason was diagnosed as stale report coverage, not a source-code assertion.
+PERSISTED / READBACK-PROVEN = Security source files were committed to the existing PR #926 branch through d4154b10e02deb3e47354aed476e072671c3921d. Masking utility, cleanup script, updated workflow, and contract test were re-read from GitHub. This checkpoint will document their diffs and then be read back again.
+BROWSER-PROVEN = On ba844b8fb300ed72160e2849626b0001f618a827, Chromium route/auth, business journey/Smart Report, and generic supported-format checks passed; universal browser evidence gate passed; artifact 11924717516 was uploaded to run 38626675330. Real-source diagnostic reported 18/48 supported and 30/48 NOT_PROVEN; this optional diagnostic does not gate generic analysis. These browser proofs do not transfer to d4154b10... without rerun.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify production still runs commit 858ef8e3e5bc5bf74430555eadfb9e6767be348b in deploy 6ac3d608e2e37d0008cc0222. No authorized Netlify deploy token is available via current connections.
+OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed: /api/tenant-canary HTTP 503 operational_token_not_configured. Netlify site/team readback lacks RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN; do not fabricate secrets or weaken tenant isolation. New security head's exact-head workflows are still pending confirmation.
+NEXT_EXACT_ACTION = Read exact-head Session Handoff run after this docs checkpoint, then inspect the newest Quality, Build, Full Product Browser E2E, Final Certification, Data Quality Runtime results; verify cleanup pass without credential output and update this checkpoint to the final tested head.
+SESSION HANDOFF = READY — all files changed through CODE_CHECKPOINT are documented; exact-head CI and production remain independent proof obligations.
 PRODUCT_COMPLETE = NO
 
-## Current code fix
-- src/lib/file-engine/generic-intelligence.ts — missing values are not zero; totals disclose coverage, adjacent-period changes require complete inputs, reconciliation requires every row measure and reports exclusions.
-- scripts/generic-file-analysis.test.mjs — four-row missingness regression; CSV delimiter and evidence assertion match the source's Arabic output.
-- Functional checkpoint: 51bbfae3266bc285b35498f9c3b177cefd3e92cd. Actions on the final documentation-successor head are pending.
+## Current work details
+- Generic table intelligence: missing/non-numeric values are not zero; stated total only when every row numeric; period movement requires complete adjacent periods; reconciliation counts only fully observed rows and emits coverage/exclusion evidence.
+- E2E actor security: function `maskActionCredential` masks inherited/generated credentials before environment persistence; cleanup script only deletes identities matching exact run-scoped fixture email patterns; workflow revokes prior incident run users before provisioning and revokes current ephemeral run users after artifact upload.
+- Security checkpoint: d4154b10e02deb3e47354aed476e072671c3921d; fresh exact-head reruns required.
 ---
 # LIVE RESUME — 2026-10-14 / Source completeness + browser readback hardening
 
