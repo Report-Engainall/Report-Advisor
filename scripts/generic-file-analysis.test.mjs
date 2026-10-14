@@ -212,7 +212,7 @@ async function main() {
   assert.ok(sparseTotal?.includes('قيم رقمية 1/2'), 'stated-total measurement must expose its observed coverage');
   assert.ok(sparseTotal?.includes('فارغ/غير رقمي 1'), 'stated-total measurement must expose missing coverage');
   assert.ok(sparseMonthly.guidance.inspect.some((line) =>
-    line.includes('فحص الاتساق: استُبعد 1') && line.includes('لم تُعامل القيمة المفقودة كصفر'),
+    /فحص الاتساق: استُبعد\s+(?:1|١)/.test(line) && line.includes('لم تُعامل القيمة المفقودة كصفر'),
   ), 'monthly reconciliation must explicitly skip rows with missing periods instead of imputing zero');
 
   const sourceBoundPreview = {
