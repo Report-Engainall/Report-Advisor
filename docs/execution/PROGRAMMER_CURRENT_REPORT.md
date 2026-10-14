@@ -1,3 +1,29 @@
+# CURRENT EXECUTION REPORT — 2026-10-14 / Phase-F restore file permission fix
+
+REPORT_FOR_HEAD = d1e40bdff53f0776cd73834378080ac9a654dcf0
+UPDATED_AT = 2026-10-14
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/918 (OPEN / NOT MERGED)
+BASE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = d1e40bdff53f0776cd73834378080ac9a654dcf0
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until exact-head Build, Quality, Phase-F, Browser E2E, Session Handoff and Final Certification pass.
+
+IMPLEMENTED = The ephemeral Auth stub SQL file is now written mode 0644 so the pinned PostgreSQL container's non-root user can read it. The file contains UUIDs only; regression assertion added. No DB grants, RLS, restore SQL or thresholds changed.
+ROOT_CAUSE = Phase-F on predecessor ac3ec4e7d9e5f78820ddfef1488f867d06ff068a reached logical restore after the GHCR image pull, then failed reading /tmp/phase-f-auth-user-stubs.sql: Permission denied; file mode was 0600.
+TESTED = Static preflight passed. Exact-head checks for d1e40bdff53f0776cd73834378080ac9a654dcf0 are pending/running; older-head results are not transferred.
+READBACK-PROVEN = GitHub confirms code checkpoint d1e40bdff53f0776cd73834378080ac9a654dcf0, probe blob 692738de2be2442268a19e897295ec564032cc89, and test blob fac5ad5692b50f1a34ad1673e57d9852d234139b. This checkpoint reanchors the report after the strict handoff failure named those changed code paths.
+BROWSER-PROVEN = NOT_PROVEN on d1e40bdff53f0776cd73834378080ac9a654dcf0.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify canary lacks its operational token; production publishing is still blocked by missing deployment credentials.
+OPEN_BLOCKER = Verify the current Phase-F restore and keep the live canary environment blocker separate.
+NEXT_EXACT_ACTION = Read current exact-head Phase-F, Browser E2E, Build, Quality and Certification, then repair only the next proven failure.
+
+CHANGED_FILES = scripts/phase-f-live-resilience-probes.mjs; scripts/resilience-runtime.test.mjs; execution checkpoint files.
+HANDOFF_COVERAGE = Baseline d1e40bdff53f0776cd73834378080ac9a654dcf0; subsequent delta documentation-only.
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+---
+
 # CURRENT EXECUTION REPORT — 2026-10-14 / Phase-F PostgreSQL registry fallback
 
 REPORT_FOR_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
