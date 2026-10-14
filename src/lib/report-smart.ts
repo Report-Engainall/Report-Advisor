@@ -347,6 +347,8 @@ function buildGenericDatasetForReport(input: {
   sourcePath: string;
   sourceAnalysis: SmartReportDetail['sourceAnalysis'];
   canonicalRows: SmartReportDetail['canonicalRows'];
+  canonicalRowsComplete: boolean;
+  expectedCanonicalRowCount: number | null;
   qualityScore: number | null;
   runtimeWarnings?: string[];
 }): Dataset | null {
@@ -365,9 +367,18 @@ function buildGenericDatasetForReport(input: {
     sourceDataset,
     sourceDatasetCount,
     sourceAnalysisRowCount: input.sourceAnalysis?.rowCount,
+    canonicalRowsComplete: input.canonicalRowsComplete,
+    expectedCanonicalRowCount: input.expectedCanonicalRowCount,
   });
   const rows = selectedRows.rows;
-  if (!rows.length) return null;
+  if (!rows.length) {
+    input.runtimeWarnings?.push(
+      input.canonicalRowsComplete
+        ? 'لم يُشتق التحليل العام لعدم توفر صفوف مصدر كاملة قابلة للتحقق.'
+        : 'لم يُشتق التحليل العام لأن الصفوف الكانونية غير مكتملة ولا توجد لقطة تحليل كاملة ومتسقة مع عدد صفوف المصدر.',
+    );
+    return null;
+  }
 
   if (selectedRows.origin === 'source-analysis-snapshot') {
     input.runtimeWarnings?.push('التحليل العام مشتق من لقطة الاستخراج المربوطة بنفس المصدر لأن الصفوف الكانونية غير متاحة؛ تبقى تغطية المصدر الكانونية قيد المراجعة ولا يُرقّى التقرير إلى جاهز للقرار.');
@@ -400,7 +411,9 @@ function buildGenericDatasetForReport(input: {
     name: String(sourceDataset?.name ?? input.sourcePath),
     source: String(sourceDataset?.source ?? input.sourcePath),
     sheet: sourceDataset?.sheet == null ? undefined : String(sourceDataset.sheet),
-    rowCount: selectedRows.origin === 'canonical' && input.sourceAnalysis?.rowCount != null ? Number(input.sourceAnalysis.rowCount) : rows.length,
+    // The selected rowset has already passed a completeness check; report its
+    // actual size rather than copying a potentially mismatched declaration.
+    rowCount: rows.length,
     columnCount: input.sourceAnalysis?.columnCount == null ? columns.length : Number(input.sourceAnalysis.columnCount),
     columns,
     rows,
@@ -1015,6 +1028,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
       sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
       canonicalRows,
+      canonicalRowsComplete,
+      expectedCanonicalRowCount: sourceRowCount,
       qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
       runtimeWarnings,
     });
