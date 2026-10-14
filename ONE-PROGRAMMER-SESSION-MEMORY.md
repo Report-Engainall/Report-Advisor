@@ -1,6 +1,7 @@
 # LIVE RESUME — 2026-10-15 / Generic intelligence rowset provenance
 
 Repository: Report-Engainall/Report-Advisor
+CURRENT_EXACT_HEAD = 2b65b597307a6b17d98549b30c1c4097a168b0d4 (latest code head; later commits in this checkpoint are documentation-only)
 BRANCH = fix/generic-source-completeness-20261014
 PR #926 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
 CODE_CHECKPOINT = 2b65b597307a6b17d98549b30c1c4097a168b0d4
