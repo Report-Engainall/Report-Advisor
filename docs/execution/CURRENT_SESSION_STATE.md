@@ -1,3 +1,19 @@
+# LIVE RESUME — 2026-10-14 / PR #925 Netlify provenance + tenant-canary repair
+
+Repository: Report-Engainall/Report-Advisor
+CURRENT_EXACT_HEAD = f4994137d1b8ae09103b8a3e19abe3deee1c02b7 (code checkpoint; a handoff-only successor is being recorded)
+CODE_CHECKPOINT = f4994137d1b8ae09103b8a3e19abe3deee1c02b7
+REPORT_FOR_HEAD = f4994137d1b8ae09103b8a3e19abe3deee1c02b7
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+ACTION_STATUS = On code checkpoint f4994137d1b8ae09103b8a3e19abe3deee1c02b7: Execution Enforcement Contract run 38610276958 passed; Session Handoff run 38610276919 failed because 11 changed code/config/test paths were not documented in this handoff. Product Build, Quality, full browser E2E, and Phase-F runs had queued/in-progress states when first read. Any result on f4994137d1b8ae09103b8a3e19abe3deee1c02b7 is predecessor-only after the handoff successor and must be re-read at the current PR tip. Main b4bb9fe6f278fd7d2c2dcb76b144638549036565 had Product Build, Quality, Session Handoff, Final Certification and Full Product Browser E2E passing; Phase-F failed.
+NEXT_EXACT_ACTION = Read the current PR #925 tip and exact-head Quality/Product Build/Session Handoff/Final Certification/Browser/Phase-F results; repair the first confirmed code assertion. Never claim Netlify production complete while NETLIFY_AUTH_TOKEN and the runtime operational/service credentials remain absent.
+
+
+---
+
+# Previous handoff retained below (historical checkpoint)
+
 # LIVE RESUME — 2026-10-14 / PR #924 non-secret deploy-ID fallback + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
