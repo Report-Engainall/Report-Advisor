@@ -115,7 +115,7 @@ async function main() {
   assert.ok(partialMonthInspect.some((line) => line.includes('حقل الإجمالي «الإجمالي الكلي»') && line.includes('3/4') && line.includes('القيم المفقودة ليست صفرًا')), 'the observed total must expose its coverage and missing-value rule');
   assert.ok(partialMonthInspect.some((line) => line.includes('فبراير') && line.includes('تغطية 3/4') && line.includes('مفقود/غير رقمي 1')), 'February sum must state the observed coverage');
   assert.ok(partialMonthInspect.some((line) => line.includes('مارس') && line.includes('تغطية 3/4') && line.includes('مفقود/غير رقمي 1')), 'March sum must state the observed coverage');
-  assert.ok(partialMonthInspect.some((line) => line.includes('لم يُحسب التغير بين فبراير و مارس') && line.includes('تغطية القيم الرقمية غير مكتملة')), 'incomplete adjacent periods must not generate a numeric trend');
+  assert.ok(partialMonthInspect.some((line) => line.includes('لم يُحسب التغير بين فبراير ومارس') && line.includes('تغطية القيم الرقمية غير مكتملة')), 'incomplete adjacent periods must not generate a numeric trend');
   assert.ok(!partialMonthInspect.some((line) => line.includes('التغير من فبراير إلى مارس:')), 'trend evidence must not appear for incomplete periods');
   assert.ok(partialMonthInspect.some((line) => line.includes('فحص الاتساق:') && line.includes('سجلًا يختلف') && line.includes('من 2 سجل قابل للمقارنة') && line.includes('استُبعد 2 سجلًا')), 'reconciliation must count only complete rows and report excluded rows');
   assert.ok(partialMonthIntelligence.recommendations.some((item) => item.id === 'generic:table:reconcile-totals'), 'a real mismatch on a complete row must still produce a reconciliation recommendation');
