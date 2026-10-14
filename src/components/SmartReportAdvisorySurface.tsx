@@ -126,16 +126,24 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
     decisionId: decision.id,
   };
 
-  const refreshDecisionProposal = useCallback(async () => {
+  const refreshDecisionProposal = useCallback(async (signal?: AbortSignal) => {
     try {
-      const proposals = await fetchSourceDecisionProposals(report.sourceHash, report.jobId);
+      const proposals = await fetchSourceDecisionProposals(report.sourceHash, report.jobId, signal);
+      if (signal?.aborted) return;
       setDecisionProposal(proposals[0] ?? null);
     } catch (error) {
+      // React StrictMode intentionally remounts effects in development. Cancel the stale
+      // proposal lookup instead of letting a detached request hold the report route open.
+      if (signal?.aborted) return;
       setDecisionError(error instanceof Error ? error.message : 'تعذر قراءة قرار المصدر');
     }
   }, [report.sourceHash, report.jobId]);
 
-  useEffect(() => { void refreshDecisionProposal(); }, [refreshDecisionProposal]);
+  useEffect(() => {
+    const controller = new AbortController();
+    void refreshDecisionProposal(controller.signal);
+    return () => controller.abort();
+  }, [refreshDecisionProposal]);
 
   const createDecisionProposal = async () => {
     const basis = advisorBrief.topRisk ?? advisorBrief.topFinding ?? advisorBrief.topOpportunity;

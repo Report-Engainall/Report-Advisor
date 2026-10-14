@@ -127,20 +127,30 @@ export type SourceDecisionState = SourceDecisionProposal & {
   approvalDecidedBy: string | null;
 };
 
-export async function fetchSourceDecisionProposals(sourceHash: string, reportJobId: string): Promise<SourceDecisionState[]> {
+export async function fetchSourceDecisionProposals(
+  sourceHash: string,
+  reportJobId: string,
+  signal?: AbortSignal,
+): Promise<SourceDecisionState[]> {
+  if (signal?.aborted) return [];
+  const readSignal = signal ?? new AbortController().signal;
   const companyId = await resolveCurrentCompanyId();
+  if (signal?.aborted) return [];
   if (!companyId) throw new Error('TENANT_REQUIRED');
   const normalizedHash = sourceHash.trim();
   const normalizedJobId = reportJobId.trim();
   if (!normalizedHash || !normalizedJobId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const { data, error } = await supabase
+  const decisionQuery = supabase
     .from('business_intelligence_decisions')
     .select('id,decision_key,status,created_at,approved_at,approved_by,recommendation_id,evidence')
     .eq('company_id', companyId)
     .like('decision_key', 'source-intelligence:' + normalizedJobId + ':' + normalizedHash + ':%')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .abortSignal(readSignal);
+  const { data, error } = await decisionQuery;
 
+  if (signal?.aborted) return [];
   if (error) throw error;
 
   const decisionRows = (data ?? []).filter((row) => {
@@ -160,8 +170,10 @@ export async function fetchSourceDecisionProposals(sourceHash: string, reportJob
         .select('id,title,status,evidence_snapshot_id')
         .eq('company_id', companyId)
         .in('id', recommendationIds)
+        .abortSignal(readSignal)
     : { data: [], error: null };
 
+  if (signal?.aborted) return [];
   if (recommendationError) throw recommendationError;
 
   const recommendationById = new Map<string, {
@@ -184,8 +196,10 @@ export async function fetchSourceDecisionProposals(sourceHash: string, reportJob
         .eq('company_id', companyId)
         .in('decision_id', decisionIds)
         .order('created_at', { ascending: false })
+        .abortSignal(readSignal)
     : { data: [], error: null };
 
+  if (signal?.aborted) return [];
   if (workError) throw workError;
 
   const workByDecision = new Map<string, { id: string; status: string }>();
@@ -203,8 +217,10 @@ export async function fetchSourceDecisionProposals(sourceHash: string, reportJob
         .eq('company_id', companyId)
         .in('decision_id', decisionIds)
         .order('observed_at', { ascending: false })
+        .abortSignal(readSignal)
     : { data: [], error: null };
 
+  if (signal?.aborted) return [];
   if (outcomeError) throw outcomeError;
   const { data: approvals, error: approvalError } = decisionIds.length
     ? await supabase
@@ -213,8 +229,10 @@ export async function fetchSourceDecisionProposals(sourceHash: string, reportJob
         .eq('company_id', companyId)
         .in('decision_id', decisionIds)
         .order('requested_at', { ascending: false })
+        .abortSignal(readSignal)
     : { data: [], error: null };
 
+  if (signal?.aborted) return [];
   if (approvalError) throw approvalError;
 
   const approvalByDecision = new Map();
