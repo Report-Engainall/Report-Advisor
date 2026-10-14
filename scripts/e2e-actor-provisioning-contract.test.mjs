@@ -48,6 +48,13 @@ assert.match(actorCleanup, /report-advisor-e2e-/);
 assert.match(actorCleanup, /auth\\/v1\\/admin\\/users/);
 assert.match(workflow, /Revoke run-scoped E2E actors and prior exposed credentials/);
 assert.match(workflow, /E2E_REVOKE_RUN_IDS:\s*'38626675330'/);
+const reportResolverStep = workflow.indexOf('Resolve dynamic source-bound report context');
+const revokeBeforeProvisionStep = workflow.indexOf('Revoke prior run-scoped E2E actors before reprovisioning');
+const reprovisionStep = workflow.indexOf('Provision rerunnable E2E actors with bounded recovery');
+assert.ok(
+  reportResolverStep >= 0 && revokeBeforeProvisionStep > reportResolverStep && reprovisionStep > revokeBeforeProvisionStep,
+  'the exposed run-scoped test actors must be revoked before provisioning new actors',
+);
 
 assert.match(migration, /security definer/i);
 assert.match(migration, /set search_path = public, pg_catalog/i);

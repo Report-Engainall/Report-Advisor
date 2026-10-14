@@ -354,6 +354,17 @@ jobs:
           REAL_SMART_REPORT_COMPANY_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
           E2E_REPORT_CONTEXT_TIMEOUT_MS: '12000'
         run: node scripts/resolve-e2e-report-context.mjs
+
+      # Revoke the prior run's ephemeral actors before provisioning this run's actors.
+      # The scoped run-id patterns make this idempotent and exclude configured user identities.
+      - name: Revoke prior run-scoped E2E actors before reprovisioning
+        if: ${{ steps.resolve-report-context.outputs.ready == 'true' }}
+        timeout-minutes: 3
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_REVOKE_RUN_IDS: '38626675330'
+        run: node scripts/cleanup-ephemeral-e2e-actors.mjs
       - name: Provision rerunnable E2E actors with bounded recovery
         if: ${{ steps.resolve-report-context.outputs.ready == 'true' }}
         env:
