@@ -13,9 +13,11 @@ on:
 permissions:
   contents: read
 
+# Keep token synchronization, exact-SHA deployment, and authenticated health proof atomic.
+# A newer main push must queue behind this guarded release instead of cancelling it mid-flight.
 concurrency:
   group: vercel-production-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:

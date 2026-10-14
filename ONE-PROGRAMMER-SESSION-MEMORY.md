@@ -1,3 +1,31 @@
+# LIVE RESUME — 2026-10-14 / PR #921 guarded Vercel deployment recovery
+
+Repository: Report-Engainall/Report-Advisor
+BASE_MAIN_HEAD = 60dd5423ad10492ab1cbccc14366fb8ad1e3e64f
+CODE_CHECKPOINT = dee2f5a88c25d794dd457372a2467ff2718157a9
+REPORT_FOR_HEAD = dee2f5a88c25d794dd457372a2467ff2718157a9
+BRANCH = fix/vercel-deploy-noncancelable-20261014
+PR #921 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/921
+RELATED PR #920 = MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/920 (merge SHA 60dd5423ad10492ab1cbccc14366fb8ad1e3e64f)
+RELATED PR #919 = CLOSED / SUPERSEDED — https://github.com/Report-Engainall/Report-Advisor/pull/919
+RELATED PR #918 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/918
+PRODUCT_COMPLETE = NO
+MERGE_POLICY = Do not merge PR #921 until all required exact-head Build, Quality, Session Handoff and Final Certification checks pass. The merge is intended to trigger the pre-existing guarded Vercel production workflow because its push filter is restricted to this workflow file.
+
+IMPLEMENTED = PR #920 merged the actual Smart Report generic-results UI: RTL result navigation; counts derived from the current source-bound intelligence; always-visible facts/findings, risks, opportunities, and inspect sections; honest empty states; restrained executive navy/Indigo/Amber styling. Its exact candidate head 652e29aef9745f2e7a1a5db224713fad411da43d had 43 passing, 2 skipped, 0 failing workflow runs, including Build, Quality, Handoff, Final Certification, and Full Product Browser E2E. Main readback confirmed the navigation component after merge.
+IMPLEMENTED_CURRENT = PR #921 changes only the guarded production deploy workflow concurrency from cancel-in-progress=true to false, so a second push queues instead of cancelling a production token-sync/deploy/health-proof transaction. Secret preflight, sensitive RESILIENCE_OPERATIONAL_TOKEN sync, exact-SHA build/deploy, authenticated /api/health assertion, and thresholds are unchanged.
+PERSISTED = NOT_APPLICABLE — UI and workflow configuration changes only; no business/report rows written.
+READBACK-PROVEN = YES — GitHub readback confirms PR #920 merged at 60dd5423ad10492ab1cbccc14366fb8ad1e3e64f, main UI source contains generic-intelligence-results-navigation, PR #919 closed, PR #921 current workflow diff, and deployment metadata for the exact main SHA.
+TESTED = PR #920 exact-head Actions: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38582005303 (Product Build Gate PASS), https://github.com/Report-Engainall/Report-Advisor/actions/runs/38582005397 (Quality PASS), https://github.com/Report-Engainall/Report-Advisor/actions/runs/38582005396 (Session Handoff PASS), https://github.com/Report-Engainall/Report-Advisor/actions/runs/38582005073 (Final Certification PASS), https://github.com/Report-Engainall/Report-Advisor/actions/runs/38582005553 (Full Product Browser E2E PASS). PR #921 exact-head checks are pending; prior PR #918 Phase-F failure is unrelated and not counted as passing.
+BROWSER-PROVEN = YES for PR #920 candidate head 652e29aef9745f2e7a1a5db224713fad411da43d via Full Product Browser E2E run 38582005553. Do not infer a new browser run for PR #921 from the workflow-only change.
+VERCEL_PRODUCTION = PARTIAL / NOT_PROVEN — deployment dpl_DovGkNoGsyQLNLznmAoD3GLvXFwe is READY and bound to main SHA 60dd5423ad10492ab1cbccc14366fb8ad1e3e64f; direct probes of stable /api/health and /api/tenant-canary returned HTTP 503. The guarded workflow is not triggered by ordinary app changes; it has workflow_dispatch plus a main push path filter for .github/workflows/vercel-production-deploy.yml. PR #921 is designed to trigger that existing guarded workflow after a safe non-cancellable concurrency fix is merged. Do not claim production proof until the workflow logs confirm token sync and HTTP-successful /api/health where deployment_sha equals GITHUB_SHA and deployment_id is present.
+NETLIFY_PRODUCTION = BLOCKED / STALE — published deploy 6ac3d608e2e37d0008cc0222 uses old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Its /api/health reports that stale SHA, and /api/tenant-canary serves SPA HTML because main lacks the redirect. PR #918 adds route/runtime provenance and restore resilience corrections, but Phase-F run 38570921284 failed its live tenant canary with HTTP 503 operational_token_not_configured; current production deploy credentials were previously reported missing NETLIFY_AUTH_TOKEN. Do not merge PR #918 until exact-head Phase-F and all other required gates pass, and do not fabricate credentials.
+OPEN_BLOCKERS = PR #921 exact-head required checks pending; authenticated Vercel deployment SHA/health proof missing (public service currently 503); Netlify production stale and no /api/tenant-canary route; PR #918 Phase-F token-not-configured failure.
+NEXT_ACTION = Verify PR #921 final exact-head Build/Quality/Handoff/Final Certification checks. If green, merge normally to trigger the guarded workflow, then read back its deployment logs and live exact-SHA health proof. Address Netlify credential/runtime separately.
+CURRENT RESUME POINTER = ONE-PROGRAMMER-SESSION-MEMORY.md → docs/execution/CURRENT_SESSION_STATE.md
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+---
+
 # LIVE RESUME — 2026-10-14 / PR #920 GENERIC RESULTS UI
 
 Repository: Report-Engainall/Report-Advisor
