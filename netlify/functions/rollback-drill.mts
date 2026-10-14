@@ -48,10 +48,10 @@ export default async function handler(request) {
   }
 
   const provenance = loadProvenance();
-  const sourceSha = String(provenance.source_sha ?? process.env.COMMIT_REF ?? '').trim();
-  const deploymentSha = String(provenance.deployment_sha ?? process.env.COMMIT_REF ?? '').trim();
-  const deploymentId = String(provenance.deployment_id ?? process.env.DEPLOY_ID ?? '').trim();
-  const targetEnv = String(provenance.target_env ?? '').trim() || null;
+  const sourceSha = String(provenance.source_sha || process.env.COMMIT_REF || process.env.GITHUB_SHA || '').trim();
+  const deploymentSha = String(provenance.deployment_sha || process.env.COMMIT_REF || process.env.GITHUB_SHA || '').trim();
+  const deploymentId = String(provenance.deployment_id || process.env.NETLIFY_DEPLOY_ID || process.env.DEPLOY_ID || '').trim();
+  const targetEnv = String(provenance.target_env || process.env.RESILIENCE_TARGET_ENV || process.env.CONTEXT || '').trim() || null;
 
   if (!sourceSha || !deploymentSha || !deploymentId) return json({ status: 'blocked', reason: 'runtime_provenance_incomplete', source_sha: sourceSha || null, deployment_sha: deploymentSha || null, deployment_id: deploymentId || null, target_env: targetEnv }, 503);
   if (deploymentSha !== sourceSha) return json({ status: 'blocked', reason: 'runtime_deployment_sha_mismatch', source_sha: sourceSha, deployment_sha: deploymentSha, deployment_id: deploymentId, target_env: targetEnv }, 409);

@@ -1,27 +1,42 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+function firstNonBlank(...values) {
+  return values.map((value) => typeof value === 'string' ? value.trim() : '')
+    .find(Boolean) ?? null;
+}
+
+const sourceSha = firstNonBlank(
+  process.env.COMMIT_REF,
+  process.env.HEAD,
+  process.env.GITHUB_SHA,
+);
+const context = firstNonBlank(process.env.CONTEXT);
 const values = {
-  source_sha: process.env.COMMIT_REF ?? process.env.HEAD ?? null,
-  build_sha: process.env.COMMIT_REF ?? process.env.HEAD ?? null,
-  deployment_sha: process.env.COMMIT_REF ?? process.env.HEAD ?? null,
-  deployment_id: process.env.DEPLOY_ID ?? null,
-  target_env: process.env.CONTEXT === 'production'
+  source_sha: sourceSha,
+  build_sha: sourceSha,
+  deployment_sha: sourceSha,
+  deployment_id: firstNonBlank(process.env.DEPLOY_ID, process.env.NETLIFY_DEPLOY_ID),
+  target_env: context === 'production'
     ? 'production'
-    : process.env.CONTEXT === 'deploy-preview'
+    : context === 'deploy-preview'
       ? 'preview'
-      : process.env.CONTEXT === 'branch-deploy'
+      : context === 'branch-deploy'
         ? 'branch'
-        : process.env.CONTEXT === 'dev'
+        : context === 'dev'
           ? 'development'
-          : process.env.CONTEXT ?? null,
+          : context,
   runtime_environment: 'netlify-function',
-  context: process.env.CONTEXT ?? null,
-  branch: process.env.BRANCH ?? null,
-  review_id: process.env.REVIEW_ID ?? null,
-  deploy_url: process.env.DEPLOY_URL ?? null,
-  deploy_prime_url: process.env.DEPLOY_PRIME_URL ?? null,
+  context,
+  branch: firstNonBlank(process.env.BRANCH),
+  review_id: firstNonBlank(process.env.REVIEW_ID),
+  deploy_url: firstNonBlank(process.env.DEPLOY_URL),
+  deploy_prime_url: firstNonBlank(process.env.DEPLOY_PRIME_URL),
 };
+
+if (!values.source_sha || !/^[0-9a-f]{40}$/i.test(values.source_sha)) {
+  throw new Error('NETLIFY_RUNTIME_SOURCE_SHA_MISSING_OR_INVALID');
+}
 
 const output = path.resolve('netlify/functions/runtime-provenance.json');
 fs.mkdirSync(path.dirname(output), { recursive: true });
