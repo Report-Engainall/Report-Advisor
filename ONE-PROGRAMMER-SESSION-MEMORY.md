@@ -1,3 +1,41 @@
+# LIVE RESUME — 2026-10-14 / Post-PR #922 production runtime readback
+
+Repository: Report-Engainall/Report-Advisor
+VERIFIED_MAIN_HEAD_AT_CAPTURE = 748947e1bf7268c8a67bbb69d7dffe125dfe2318
+LAST_FUNCTIONAL_HEAD = 16bdb8a847087eab6f01a60733de480094e754df
+LATEST_MERGE_AT_CAPTURE = PR #922 (documentation-only) — https://github.com/Report-Engainall/Report-Advisor/pull/922; merge SHA 748947e1bf7268c8a67bbb69d7dffe125dfe2318
+PR #921 = MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/921 (functional workflow config)
+PR #920 = MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/920 (generic report results UI)
+PR #919 = CLOSED / SUPERSEDED — https://github.com/Report-Engainall/Report-Advisor/pull/919
+PR #918 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/918
+PR #922 = MERGED — checkpoint and blocker archive
+PRODUCT_COMPLETE = NO
+NOTE: This block records the exact main head and production observations at capture time. On a later resume, query live GitHub HEAD first; this documentation-only checkpoint may itself be followed by another merge commit. Do not treat the recorded SHA as immutable current main.
+
+## Production proof on the verified head
+Vercel deployment `dpl_Fg21aVP1uEcSZqwytEWCGJKqhFNf` is READY, target production, Git SHA `748947e1bf7268c8a67bbb69d7dffe125dfe2318`.
+- `GET https://report-advisor.vercel.app/` returned HTTP 200; HTML meta `aghbari-source-sha` equals the deployment/main SHA above. This proves the shell is deployed, not that runtime APIs work.
+- `GET https://report-advisor.vercel.app/api/health` returned HTTP 503 body `{"status":"blocked","error":"operational_token_not_configured"}`.
+- `GET https://report-advisor.vercel.app/api/tenant-canary` returned HTTP 503 body `{"status":"blocked","error":"operational_token_not_configured"}`.
+- Guarded run `38596462967` failed closed at credential preflight: missing GitHub Actions secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`; `RESILIENCE_OPERATIONAL_TOKEN` was present as a GitHub secret. Token synchronization/deploy/health-proof steps were skipped. Run: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38596462967
+- No secrets were printed, derived, fabricated or rotated. Connected GitHub tools do not expose the GitHub secrets API, and no signed-in browser profile for secret administration is available.
+
+## Netlify production
+Published deploy `6ac3d608e2e37d0008cc0222` remains READY but stale on `858ef8e3e5bc5bf74430555eadfb9e6767be348b` (published 2026-10-05). Its health endpoint identifies the old SHA; `/api/tenant-canary` returns SPA HTML instead of JSON. PR #918's Phase-F run `38570921284` failed live canary with HTTP 503 `operational_token_not_configured`; logical backup/restore passed RPO 77.42 s and RTO 11.32 s, but overall release proof failed closed. Do not merge PR #918 until exact-head Phase-F and mandatory gates pass.
+
+## Verified CI evidence
+- PR #921 candidate `d5463ac5c7832fc5551ffe82ef44075fcf940168`: 37/37 runs passed before merge; [Build](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38595651162), [Quality](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38595651248), [Session Handoff](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38595651166), [Final Certification](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38595651018).
+- PR #922 docs candidate `57d4f336c62d6bda7e4eb59af478403a1befee5f`: 36/36 Actions passed before merge, including Quality, Session Handoff and Final Certification. The UI browser proof remains tied to PR #920 candidate `652e29aef9745f2e7a1a5db224713fad411da43d`: [Full Product Browser E2E](https://github.com/Report-Engainall/Report-Advisor/actions/runs/38582005553). These are candidate-head tests, not a production browser proof.
+
+## Classification and next action
+IMPLEMENTED / INTEGRATED: Generic RTL results navigation and source-derived counts (PR #920); production workflow cancellation hardening (PR #921); exact blocker checkpoint (PR #922).
+READBACK-PROVEN: GitHub current-main readback at capture; Vercel deployment metadata and HTTP results; workflow logs for missing credential names.
+BROWSER-PROVEN: Authenticated browser E2E on the PR #920 candidate only.
+PRODUCTION-PROVEN: NOT_PROVEN. Runtime APIs are explicitly blocked although the deployed RTL application shell is HTTP 200.
+OPEN_BLOCKER: Missing GitHub Actions deploy credentials block the guarded Vercel workflow. Netlify remains stale and Phase-F cannot authenticate its tenant canary.
+NEXT_ACTION: Authorized repository administrator must restore a valid `VERCEL_TOKEN` and provide `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` as the configured workflow expects (or separately authorize a safe code change using repository variables for these nonsecret identifiers). Then rerun guarded Vercel release and demand successful authenticated health where `deployment_sha` equals the exact live main code SHA and `deployment_id` is present. Separately restore the Netlify deployment/runtime credential and rerun Phase-F. Do not paste secrets into chat; do not claim PRODUCT_COMPLETE.
+---
+
 # LIVE RESUME — 2026-10-14 / Post-merge production health blocker
 
 Repository: Report-Engainall/Report-Advisor
