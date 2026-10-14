@@ -273,12 +273,59 @@ async function main() {
 
   const canonicalSelection = selectGenericSourceRows({
     canonicalRows: [{ value: 'canonical' }],
+    canonicalRowsComplete: true,
+    expectedCanonicalRowCount: 1,
     sourceDataset: { rowCount: 1, rows: [{ value: 'snapshot' }] },
     sourceDatasetCount: 1,
     sourceAnalysisRowCount: 1,
   });
   assert.equal(canonicalSelection.origin, 'canonical', 'canonical database rows always take precedence over snapshots');
   assert.equal(canonicalSelection.rows[0].value, 'canonical', 'canonical source data cannot be replaced by snapshot preview');
+
+  const partialCanonicalWithCompleteSnapshot = selectGenericSourceRows({
+    canonicalRows: [{ value: 'partial-canonical' }],
+    canonicalRowsComplete: false,
+    expectedCanonicalRowCount: 3,
+    sourceDataset: { rowCount: 3, rows: [{ value: 10 }, { value: 20 }, { value: 30 }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 3,
+  });
+  assert.equal(
+    partialCanonicalWithCompleteSnapshot.origin,
+    'source-analysis-snapshot',
+    'partial canonical read must not override an independently complete source-bound snapshot',
+  );
+  assert.equal(partialCanonicalWithCompleteSnapshot.rows.length, 3, 'fallback must retain the full verified snapshot');
+  assert.deepEqual(
+    partialCanonicalWithCompleteSnapshot.rows.map(row => row.value),
+    [10, 20, 30],
+    'partial canonical data must not contaminate a complete snapshot fallback',
+  );
+
+  const partialCanonicalWithoutCompleteSnapshot = selectGenericSourceRows({
+    canonicalRows: [{ value: 'partial-canonical' }],
+    canonicalRowsComplete: false,
+    expectedCanonicalRowCount: 3,
+    sourceDataset: { rowCount: 3, rows: [{ value: 10 }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 3,
+  });
+  assert.equal(
+    partialCanonicalWithoutCompleteSnapshot.origin,
+    'unavailable',
+    'partial canonical rows and partial snapshots must fail closed instead of producing partial intelligence',
+  );
+  assert.equal(partialCanonicalWithoutCompleteSnapshot.rows.length, 0, 'no incomplete row set may emit generic intelligence');
+
+  const mismatchedCanonicalCount = selectGenericSourceRows({
+    canonicalRows: [{ value: 10 }, { value: 20 }],
+    canonicalRowsComplete: true,
+    expectedCanonicalRowCount: 3,
+    sourceDataset: null,
+    sourceDatasetCount: 0,
+    sourceAnalysisRowCount: null,
+  });
+  assert.equal(mismatchedCanonicalCount.origin, 'unavailable', 'canonical row count mismatch must not be silently treated as complete');
 
   const completeSnapshotSelection = selectGenericSourceRows({
     canonicalRows: [],
@@ -307,7 +354,7 @@ async function main() {
   assert.equal(inconsistentSnapshotSelection.origin, 'unavailable', 'conflicting snapshot and import row counts must fail closed');
 
   console.log('GENERIC FILE ANALYSIS PASS');
-  console.log('SOURCE-BOUND ROW SELECTOR PASS canonical-priority/complete-snapshot/partial-preview/count-mismatch');
+  console.log('SOURCE-BOUND ROW SELECTOR PASS canonical-priority/completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch');
   console.log('STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation');
 }
 
