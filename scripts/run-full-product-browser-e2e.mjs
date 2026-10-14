@@ -336,6 +336,18 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       if (route === '/reports') {
         return url.includes('/rest/v1/report_execution_jobs') || url.includes('/rest/v1/source_analysis_snapshots');
       }
+      // The source-intelligence decision history is a read-only panel sidecar,
+      // not a prerequisite for the canonical report's six decision-chain cards.
+      // Keep request/network/HTTP failure accounting intact below; only prevent
+      // this optional GET from blocking report DOM settlement when it outlives
+      // the bounded readback window.
+      if (
+        route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID)
+        && request.method() === 'GET'
+        && url.includes('/rest/v1/business_intelligence_decisions?')
+        && url.includes('decision_key=like.source-intelligence')
+        && url.includes(REAL_SMART_REPORT_JOB_ID)
+      ) return true;
       return false;
     };
     const criticalPendingDataRequests = [...telemetry.pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
