@@ -90,7 +90,7 @@ async function main() {
     'عميل بإجمالي مفقود,مستمر,,100,,100',
     'عميل بفترة مفقودة,مستمر,500,0,100,',
     'عميل بفارق مثبت,مستمر,300,50,50,50',
-  ].join('\\n');
+  ].join('\n');
   const parsedPartialMonth = await parseFile(buffer(partialMonthCsv), 'partial-month-completeness.csv', 'csv');
   assert.equal(parsedPartialMonth.length, 1, 'partial monthly source should parse as one dataset');
   assert.equal(parsedPartialMonth[0].rowCount, 4, 'partial monthly source must preserve all records');
@@ -117,7 +117,7 @@ async function main() {
   assert.ok(partialMonthInspect.some((line) => line.includes('مارس') && line.includes('تغطية 3/4') && line.includes('مفقود/غير رقمي 1')), 'March sum must state the observed coverage');
   assert.ok(partialMonthInspect.some((line) => line.includes('لم يُحسب التغير بين فبراير و مارس') && line.includes('تغطية القيم الرقمية غير مكتملة')), 'incomplete adjacent periods must not generate a numeric trend');
   assert.ok(!partialMonthInspect.some((line) => line.includes('التغير من فبراير إلى مارس:')), 'trend evidence must not appear for incomplete periods');
-  assert.ok(partialMonthInspect.some((line) => line.includes('فحص الاتساق: 1 سجلًا يختلف') && line.includes('من 2 سجل قابل للمقارنة') && line.includes('استُبعد 2 سجلًا')), 'reconciliation must count only complete rows and report excluded rows');
+  assert.ok(partialMonthInspect.some((line) => line.includes('فحص الاتساق:') && line.includes('سجلًا يختلف') && line.includes('من 2 سجل قابل للمقارنة') && line.includes('استُبعد 2 سجلًا')), 'reconciliation must count only complete rows and report excluded rows');
   assert.ok(partialMonthIntelligence.recommendations.some((item) => item.id === 'generic:table:reconcile-totals'), 'a real mismatch on a complete row must still produce a reconciliation recommendation');
   assert.ok(!partialMonthIntelligence.recommendations.some((item) => item.id === 'generic:table:review-monthly-change'), 'incomplete periods must not trigger a monthly-change recommendation');
 

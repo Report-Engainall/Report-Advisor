@@ -269,7 +269,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     priority: portfolioLike && stoppedCount ? 'high' : 'medium',
     title: portfolioLike ? 'ملف نشاط العملاء' : 'ملخص الجدول المستخرج',
     statement: headline,
-    evidence: [...statusSummary, ...topEvidence, ...monthStats.map((month) => month.label + ': ' + numberLabel(month.total))],
+    evidence: [...statusSummary, ...topEvidence, ...monthSummaries],
     limitation: 'هذا الوصف مشتق من القيم والعناوين الظاهرة؛ لا يفترض عملة أو سببًا أو أثرًا غير موجود في الملف.',
     action: portfolioLike && stoppedCount
       ? 'راجع عينة السجلات المصنفة بالانقطاع وتحقق من آخر تعامل قبل اعتماد قائمة استعادة العملاء.'
