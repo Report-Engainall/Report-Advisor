@@ -121,14 +121,24 @@ export function GenericFileIntelligenceCard({
   const brief = intelligence.advisorBrief;
   const signals = intelligence.signals ?? [];
   const recommendations = intelligence.recommendations ?? [];
+  const findings = intelligence.findings ?? [];
+  const risks = intelligence.risks ?? [];
+  const opportunities = intelligence.opportunities ?? [];
   const findingGroups = [
-    { title: 'الحقائق والنتائج المستخرجة', items: intelligence.findings ?? [] },
-    { title: 'المخاطر المرصودة', items: intelligence.risks ?? [] },
-    { title: 'الفرص المرصودة', items: intelligence.opportunities ?? [] },
+    { title: 'الحقائق والنتائج المستخرجة', items: findings },
+    { title: 'المخاطر المرصودة', items: risks },
+    { title: 'الفرص المرصودة', items: opportunities },
   ];
   const evidenceCount = signals.reduce((sum, item) => sum + (item.evidence?.length ?? 0), 0)
     + recommendations.reduce((sum, item) => sum + (item.evidence?.length ?? 0), 0)
     + findingGroups.reduce((sum, group) => sum + group.items.reduce((groupSum, item) => groupSum + (item.evidence?.length ?? 0), 0), 0);
+  const resultSections = [
+    { id: 'generic-results-overview', label: 'الملخص', count: null },
+    { id: 'generic-results-signals', label: 'الإشارات', count: signals.length },
+    { id: 'generic-results-recommendations', label: 'التوصيات', count: recommendations.length },
+    { id: 'generic-results-findings', label: 'الحقائق والمخاطر والفرص', count: findings.length + risks.length + opportunities.length },
+    { id: 'generic-results-inspect', label: 'الفحص التفصيلي', count: intelligence.guidance.inspect.length },
+  ];
 
   return (
     <Card className="border-ink-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)] shadow-[0_18px_52px_-42px_rgba(15,23,42,.55)] ring-1 ring-indigo-950/[.025]" data-testid="generic-file-intelligence">
@@ -148,7 +158,27 @@ export function GenericFileIntelligenceCard({
           </section>
         )}
 
-        <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+        <nav dir="rtl" aria-label="التنقل بين أقسام نتائج التقرير" data-testid="generic-intelligence-results-nav" className="mb-5 rounded-2xl border border-slate-800 bg-[#101626] p-3 text-white shadow-[0_16px_36px_-28px_rgba(15,23,42,.85)]">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1">
+            <span className="text-xs font-black text-white">استكشف نتائج هذا التقرير</span>
+            <span className="text-[10px] font-bold text-slate-400">كل الأعداد مرتبطة بمخرجات التحليل الحالي</span>
+          </div>
+          <ul className="flex min-w-0 gap-2 overflow-x-auto pb-1">
+            {resultSections.map((item) => (
+              <li key={item.id} className="shrink-0">
+                <a
+                  href={'#' + item.id}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-3 py-2 text-[11px] font-bold text-slate-100 transition-colors hover:border-indigo-300/50 hover:bg-indigo-400/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101626]"
+                >
+                  <span>{item.label}</span>
+                  {item.count !== null && <span className="rounded-md bg-amber-300/10 px-1.5 py-0.5 text-[10px] font-black tabular-nums text-amber-200">{item.count}</span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div id="generic-results-overview" className="scroll-mt-24 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
           <section className="rounded-2xl border border-ink-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f7f8ff_100%)] p-4 shadow-sm">
             <div className="flex items-center gap-2 text-[10px] font-black tracking-[.08em] text-primary-700"><FileSearch size={14}/> قراءة محايدة للمصدر</div>
             <h3 className="mt-2 text-base font-black leading-7 text-ink-950">{brief.headline}</h3>
@@ -159,11 +189,13 @@ export function GenericFileIntelligenceCard({
             </div>
           </section>
           <section className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {[
                 ['الإشارات', signals.length],
                 ['التوصيات', recommendations.length],
-                ['النتائج', (intelligence.findings ?? []).length],
+                ['الحقائق', findings.length],
+                ['المخاطر', risks.length],
+                ['الفرص', opportunities.length],
                 ['عناصر الدليل', evidenceCount],
               ].map(([label, value]) => (
                 <div key={String(label)} className="rounded-xl border border-ink-200/80 bg-[linear-gradient(160deg,#ffffff_0%,#f8faff_100%)] p-3 shadow-[0_8px_20px_-19px_rgba(15,23,42,.45)]"><div className="text-[10px] text-ink-500">{label}</div><div className="mt-1 text-lg font-black text-ink-950">{value}</div></div>
@@ -187,7 +219,7 @@ export function GenericFileIntelligenceCard({
           </section>
         </div>
 
-        <section className="mt-6 space-y-3" aria-label="كل إشارات التحليل العام">
+        <section id="generic-results-signals" className="mt-6 scroll-mt-24 space-y-3" aria-label="كل إشارات التحليل العام" data-testid="generic-intelligence-signals">
           <h3 className="flex items-center gap-2 text-sm font-black text-ink-950"><Activity size={16}/> كل الإشارات ({signals.length})</h3>
           {signals.length ? signals.map((signal) => (
             <article key={signal.id} className="rounded-xl border border-ink-200/80 bg-white p-4 shadow-[0_10px_28px_-25px_rgba(15,23,42,.55)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md">
@@ -209,7 +241,7 @@ export function GenericFileIntelligenceCard({
           )) : <p className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-xs text-ink-500">لم يستخرج هذا المصدر إشارات تتجاوز حدود التحليل الحالي؛ لا يتم اختلاق استثناءات.</p>}
         </section>
 
-        <section className="mt-6 space-y-3" aria-label="كل توصيات التحليل العام">
+        <section id="generic-results-recommendations" className="mt-6 scroll-mt-24 space-y-3" aria-label="كل توصيات التحليل العام" data-testid="generic-intelligence-recommendations">
           <h3 className="flex items-center gap-2 text-sm font-black text-ink-950"><ClipboardCheck size={16}/> كل التوصيات ({recommendations.length})</h3>
           {recommendations.length ? recommendations.map((recommendation) => (
             <article key={recommendation.id} className="rounded-xl border border-primary-100 bg-[linear-gradient(145deg,rgba(238,242,255,.8),rgba(255,255,255,.94))] p-4 shadow-[0_12px_32px_-28px_rgba(67,56,202,.45)] transition-shadow hover:shadow-md">
@@ -239,12 +271,12 @@ export function GenericFileIntelligenceCard({
           )) : <p className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-xs text-ink-500">لا توجد توصية مستخرجة من المحتوى الحالي.</p>}
         </section>
 
-        <div className="mt-6 space-y-6">
+        <div id="generic-results-findings" className="mt-6 scroll-mt-24 space-y-6" data-testid="generic-intelligence-findings">
           {findingGroups.map((group) => <FindingList key={group.title} title={group.title} items={group.items}/>)}
         </div>
 
         {intelligence.guidance.inspect.length > 0 && (
-          <section className="mt-6 rounded-xl border border-ink-200/80 bg-white p-4 shadow-[0_10px_28px_-25px_rgba(15,23,42,.55)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md">
+          <section id="generic-results-inspect" className="mt-6 scroll-mt-24 rounded-xl border border-ink-200/80 bg-white p-4 shadow-[0_10px_28px_-25px_rgba(15,23,42,.55)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md" data-testid="generic-intelligence-inspect">
             <h3 className="flex items-center gap-2 text-sm font-black text-ink-900"><Sigma size={15}/> كل عناصر الفحص ({intelligence.guidance.inspect.length})</h3>
             <ul className="mt-3 grid gap-2 md:grid-cols-2">
               {intelligence.guidance.inspect.map((item, index) => <li key={item + ':' + index} className="break-words rounded-lg border border-ink-100 bg-ink-50 px-3 py-2 text-xs leading-5 text-ink-700">{item}</li>)}

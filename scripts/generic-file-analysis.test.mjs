@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { parseFile } from '../src/lib/file-engine/adapters.ts';
 import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { buildGenericFileIntelligence } from '../src/lib/file-engine/generic-intelligence.ts';
@@ -27,6 +28,33 @@ function buffer(value) {
 }
 
 async function main() {
+  // UI contract: all generic results must be discoverable in the real Smart Report surface.
+  // This complements parser assertions; it does not claim a browser journey by itself.
+  const resultUi = await readFile(new URL('../src/components/GenericFileIntelligenceCard.tsx', import.meta.url), 'utf8');
+  assert.ok(resultUi.includes('data-testid="generic-intelligence-results-nav"'), 'generic Smart Report must expose results navigation');
+  for (const sectionId of [
+    'generic-results-overview',
+    'generic-results-signals',
+    'generic-results-recommendations',
+    'generic-results-findings',
+    'generic-results-inspect',
+  ]) {
+    assert.ok(resultUi.includes('id="' + sectionId + '"'), 'generic Smart Report navigation target must exist: ' + sectionId);
+  }
+  assert.ok(resultUi.includes("href={'#' + item.id}"), 'generic results navigation targets must be functional anchor links');
+  for (const resultGroup of [
+    'intelligence.findings ?? []',
+    'intelligence.risks ?? []',
+    'intelligence.opportunities ?? []',
+    'intelligence.signals ?? []',
+    'intelligence.recommendations ?? []',
+    'intelligence.guidance.inspect',
+  ]) {
+    assert.ok(resultUi.includes(resultGroup), 'real Smart Report must render source-derived result group: ' + resultGroup);
+  }
+  assert.ok(resultUi.includes('focus-visible:ring-2'), 'results navigation must remain keyboard-focus visible');
+  console.log('GENERIC INTELLIGENCE UI SURFACE PASS');
+
   const unknownText = 'نص عام في ملف غير معروف\nيوجد تأخير ويجب المراجعة\nالإجمالي 1200 ريال';
   const detectedUnknown = detectFormat({ name: 'business.log', size: unknownText.length, type: 'text/plain' }, buffer(unknownText));
   assert.equal(detectedUnknown.format, 'txt', 'unknown readable text should use generic text fallback');
