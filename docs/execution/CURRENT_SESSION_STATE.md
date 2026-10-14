@@ -1,3 +1,22 @@
+## LIVE RESUME — 2026-10-14 / Phase-F PostgreSQL registry fallback
+
+CURRENT_EXACT_CODE_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
+REPORT_FOR_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
+LIVE_MAIN_BASE = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/918 (OPEN / NOT MERGED)
+MERGE_STATE = DO NOT MERGE until new exact-head gates are reviewed
+PRODUCT_COMPLETE = NO
+
+IMPLEMENTED = Phase-F now defaults to a digest-pinned public PostgreSQL 17.10 client image in GHCR rather than the ECR public mirror that exhausted its anonymous data quota; explicit image override remains supported. A regression check locks the source to a pinned GHCR digest and rejects default ECR routing.
+TESTED = Pre-commit static transformation checks passed. Exact-head CI on a96656b9fcc1be61052b415b522bbd34bd399504 is pending.
+PREVIOUS_HEAD_EVIDENCE = On 556feab5e31e81f35b2ea51dad370624e2dfffd8, Product Build, Quality, Full Product Browser E2E, Session Handoff and Final Certification passed. Phase-F passed 2/4; restore failed due ECR image-pull quota and tenant-canary failed with HTTP 503 operational_token_not_configured. These results do not certify a96656b9fcc1be61052b415b522bbd34bd399504.
+READBACK-PROVEN = GitHub commit readback for code checkpoint a96656b9fcc1be61052b415b522bbd34bd399504; docs checkpoint readback and new Actions results still required.
+BROWSER-PROVEN = NOT_PROVEN for a96656b9fcc1be61052b415b522bbd34bd399504.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = GHCR image pull and restore proof now await exact-head testing; missing RESILIENCE_OPERATIONAL_TOKEN in Netlify preview is a separate secret-provisioning block. Netlify production deploy still requires NETLIFY_AUTH_TOKEN.
+NEXT_EXACT_ACTION = Read the new Phase-F attempt for a96656b9fcc1be61052b415b522bbd34bd399504; do not merge based on predecessor results.
+---
 ## LIVE RESUME — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
 
 CURRENT_EXACT_CODE_HEAD = 84117611d458f291aef064747ccfa8b97905744c

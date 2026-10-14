@@ -1,3 +1,32 @@
+# LIVE RESUME — 2026-10-14 / Phase-F PostgreSQL registry fallback
+
+Repository: Report-Engainall/Report-Advisor
+LIVE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = a96656b9fcc1be61052b415b522bbd34bd399504
+REPORT_FOR_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR #918 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/918
+PRODUCT_COMPLETE = NO
+
+FIRST_ACTIVE_FAILURE = Phase-F run 38564780775, exact head 556feab5e31e81f35b2ea51dad370624e2dfffd8, passed live health and rollback (2/4 overall) but failed tenant-canary because the Netlify function environment lacks RESILIENCE_OPERATIONAL_TOKEN, and failed logical backup because Docker could not pull public.ecr.aws/docker/library/postgres:17 (toomanyrequests: Data limit exceeded).
+
+IMPLEMENTED = Code commit a96656b9fcc1be61052b415b522bbd34bd399504 replaces the ECR public Docker image default with a digest-pinned PostgreSQL 17.10 image hosted in GHCR (CloudNativePG), retains the explicit RESILIENCE_POSTGRES_CLIENT_IMAGE override, and adds regression assertions that the fallback is digest-pinned and does not default to the throttled ECR mirror. No restore, SQL, RLS, credential, or acceptance thresholds were weakened.
+
+TESTED = Pre-commit string-level preflight passed for the exact image pin and regression assertion. Exact-head Quality / Product Build / Phase-F / browser / certification checks for a96656b9fcc1be61052b415b522bbd34bd399504 are pending and must be read from GitHub before claiming CI completion. Previous exact-head result on 556feab5e31e81f35b2ea51dad370624e2dfffd8 remains historical only:
+- Product Build PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780427
+- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780517
+- Full Product Browser E2E PASS, including authenticated Chromium business journey and generic file intelligence: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780516
+- Session Handoff PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780042
+- Final Certification PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780752
+These outcomes are not transferred to a96656b9fcc1be61052b415b522bbd34bd399504.
+
+READBACK-PROVEN = GitHub confirms the code checkpoint commit exists on fix/netlify-runtime-provenance-current-main-20261014; re-read the resulting documentation checkpoint and PR head after commit.
+BROWSER-PROVEN = Previous head 556feab5... PASS; new head a96656b9fcc1be61052b415b522bbd34bd399504 NOT_PROVEN until its browser check completes.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify production remains stale and the production deploy requires NETLIFY_AUTH_TOKEN. Vercel deployment/operations remain blocked by missing provider credentials and operational-token configuration.
+OPEN_BLOCKER = The code change targets the image-rate failure. The tenant-canary failure is a separate environment-secret blocker: the preview runtime has no RESILIENCE_OPERATIONAL_TOKEN. Do not derive or invent secrets, bypass authentication, or loosen tenant-isolation checks.
+NEXT_ACTION = Inspect new exact-head Phase-F result. If the GHCR image pulls, resolve the next concrete backup/restore assertion; handle missing Netlify runtime secret as a distinct authorized configuration dependency.
+---
+
 # LIVE RESUME — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
 
 Repository: Report-Engainall/Report-Advisor

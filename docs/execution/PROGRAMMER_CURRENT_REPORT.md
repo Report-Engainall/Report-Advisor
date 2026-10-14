@@ -1,3 +1,32 @@
+# CURRENT EXECUTION REPORT — 2026-10-14 / Phase-F PostgreSQL registry fallback
+
+REPORT_FOR_HEAD = a96656b9fcc1be61052b415b522bbd34bd399504
+UPDATED_AT = 2026-10-14
+REPOSITORY = Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-current-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/918 (OPEN / NOT MERGED)
+BASE_MAIN_HEAD = 71a8f3c0b86b36c3bd6e14ad77c2fb5423d11517
+CODE_CHECKPOINT = a96656b9fcc1be61052b415b522bbd34bd399504
+PRODUCT_COMPLETE = NO
+DO_NOT_MERGE = true until current exact-head Build, Quality, Phase-F, browser proof and Final Certification are reviewed.
+
+IMPLEMENTED = Switched the default Phase-F Postgres client from the ECR Public image mirror to a digest-pinned GHCR CloudNativePG PostgreSQL 17.10 image, while retaining the explicit RESILIENCE_POSTGRES_CLIENT_IMAGE override. Added regression checks for a valid SHA-256 image digest and the absence of the ECR mirror as the default. Change addresses the first proven registry failure without changing logical backup/restore semantics, credentials, SQL, RLS or acceptance rules.
+
+ROOT_CAUSE = The live Phase-F run used public.ecr.aws/docker/library/postgres:17 and failed to pull the image with toomanyrequests: Data limit exceeded. Phase-F therefore reported only 2/4 live probes successful. A different public registry and digest pin remove the known ECR quota dependency; the next run must prove the image really pulls and the restore succeeds.
+
+TESTED = Pre-commit source transformation checks passed. Exact-head Actions on a96656b9fcc1be61052b415b522bbd34bd399504 are PENDING. The predecessor code head 556feab5e31e81f35b2ea51dad370624e2dfffd8 had Product Build PASS (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780427), Quality PASS (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780517), Full Product Browser E2E PASS (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780516), Session Handoff PASS (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780042), Final Certification PASS (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780752), and Phase-F FAIL (https://github.com/Report-Engainall/Report-Advisor/actions/runs/38564780775). None are claimed for a96656b9fcc1be61052b415b522bbd34bd399504.
+
+FIRST_ACTIVE_FAILURE = Phase-F backup/restore failed on an external image quota; tenant-canary returned HTTP 503 operational_token_not_configured.
+OPEN_BLOCKER = Tenant canary requires authorized deployment of RESILIENCE_OPERATIONAL_TOKEN into the Netlify preview function environment. Current Netlify production deployment also requires NETLIFY_AUTH_TOKEN. No secrets were fabricated or exposed.
+READBACK-PROVEN = Code commit a96656b9fcc1be61052b415b522bbd34bd399504 is on the branch; update this record to the actual documentation commit SHA after saving and re-read from GitHub.
+BROWSER-PROVEN = NOT_PROVEN for a96656b9fcc1be61052b415b522bbd34bd399504.
+PRODUCTION-PROVEN = NOT_PROVEN.
+NEXT_EXACT_ACTION = Read exact-head Phase-F and all impacted CI checks for a96656b9fcc1be61052b415b522bbd34bd399504; repair the first genuine failure without weakening guards, then separately resolve the external Netlify token configuration.
+
+CHANGED_FILES = scripts/phase-f-live-resilience-probes.mjs; scripts/resilience-runtime.test.mjs; ONE-PROGRAMMER-SESSION-MEMORY.md; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; docs/execution/PROGRAMMER_REPORTS/2026-10-14/REPORT-20261014-PHASE-F-IMAGE-REGISTRY-FIX.md
+HANDOFF_COVERAGE = Report baseline anchored at a96656b9fcc1be61052b415b522bbd34bd399504; any changes after that anchor must be documentation-only.
+SESSION HANDOFF = READY FOR EXACT-HEAD VALIDATION
+---
 # CURRENT EXECUTION REPORT — 2026-10-14 / Netlify Runtime Provenance + Tenant Canary
 
 REPORT_FOR_HEAD = 84117611d458f291aef064747ccfa8b97905744c
