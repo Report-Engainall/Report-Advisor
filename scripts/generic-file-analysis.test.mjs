@@ -195,6 +195,26 @@ async function main() {
   const structureSignal = portfolioIntelligence.signals.find(signal => signal.id === 'generic:table:structure');
   assert.ok(structureSignal?.evidence.some(item => item.includes('نسبة النمو (يوليو-أغسطس)')), 'signal evidence must not lose later numeric fields');
 
+  // Missing measurements are unknown, not zero. Do not publish a zero monthly
+  // sum or reconcile a stated total against a partial set of monthly values.
+  const sparseMonthlyList = await parseFile(
+    buffer('customer_name,status,total,monthly_sales_jan,monthly_sales_feb,monthly_sales_mar\nA,active,,,,\nB,active,0,,0,0'),
+    'sparse-monthly-values.csv',
+    'csv',
+  );
+  assert.equal(sparseMonthlyList.length, 1, 'sparse monthly fixture should parse');
+  const sparseMonthly = buildGenericFileIntelligence(sparseMonthlyList[0], 'csv');
+  const emptyMonth = sparseMonthly.guidance.inspect.find((line) => line.includes('monthly_sales_jan:'));
+  assert.ok(emptyMonth?.includes('لا توجد قيم رقمية مقروءة'), 'an all-missing month must be reported as unavailable rather than summed to zero');
+  assert.ok(emptyMonth?.includes('فارغ/غير رقمي 2'), 'all missing month values must remain visible as missing');
+  assert.ok(!emptyMonth?.includes('مجموع'), 'an all-missing month must not be represented as a zero sum');
+  const sparseTotal = sparseMonthly.guidance.inspect.find((line) => line.includes('مجموع total:'));
+  assert.ok(sparseTotal?.includes('قيم رقمية 1/2'), 'stated-total measurement must expose its observed coverage');
+  assert.ok(sparseTotal?.includes('فارغ/غير رقمي 1'), 'stated-total measurement must expose missing coverage');
+  assert.ok(sparseMonthly.guidance.inspect.some((line) =>
+    line.includes('فحص الاتساق: استُبعد 1') && line.includes('لم تُعامل القيمة المفقودة كصفر'),
+  ), 'monthly reconciliation must explicitly skip rows with missing periods instead of imputing zero');
+
   const sourceBoundPreview = {
     ...portfolioIntelligence,
     businessQuestion: 'سؤال محفظة العملاء من نفس الصفوف المصدرية',
