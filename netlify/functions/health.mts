@@ -10,30 +10,38 @@ function loadProvenance() {
   }
 }
 
+function firstNonBlank(...values: Array<string | undefined | null>) {
+  return values.map((value) => value?.trim() || '').find(Boolean) || null;
+}
+
 export default async function handler() {
   const provenance = loadProvenance();
-  const sourceSha = provenance.source_sha ?? process.env.COMMIT_REF ?? null;
-  const deploymentId = provenance.deployment_id ?? process.env.DEPLOY_ID ?? null;
+  const sourceSha = firstNonBlank(provenance.source_sha, process.env.COMMIT_REF, process.env.GITHUB_SHA);
+  const deploymentSha = firstNonBlank(provenance.deployment_sha, process.env.COMMIT_REF, process.env.GITHUB_SHA);
+  const buildSha = firstNonBlank(provenance.build_sha, process.env.COMMIT_REF, process.env.GITHUB_SHA);
+  const deploymentId = firstNonBlank(provenance.deployment_id, process.env.NETLIFY_DEPLOY_ID, process.env.DEPLOY_ID);
+  const targetEnv = firstNonBlank(provenance.target_env, process.env.RESILIENCE_TARGET_ENV, process.env.CONTEXT);
 
+  const completeIdentity = Boolean(sourceSha && deploymentSha && deploymentId);
   const body = {
-    status: sourceSha && deploymentId ? 'healthy' : 'degraded',
+    status: completeIdentity ? 'healthy' : 'degraded',
     component: 'runtime',
     source_sha: sourceSha,
-    build_sha: provenance.build_sha ?? null,
-    deployment_sha: provenance.deployment_sha ?? null,
+    build_sha: buildSha,
+    deployment_sha: deploymentSha,
     deployment_id: deploymentId,
-    target_env: provenance.target_env ?? null,
+    target_env: targetEnv,
     runtime_environment: 'netlify-function',
-    context: provenance.context ?? null,
-    branch: provenance.branch ?? null,
-    review_id: provenance.review_id ?? null,
-    deploy_url: provenance.deploy_url ?? null,
-    deploy_prime_url: provenance.deploy_prime_url ?? null,
+    context: provenance.context ?? process.env.CONTEXT ?? null,
+    branch: provenance.branch ?? process.env.BRANCH ?? null,
+    review_id: provenance.review_id ?? process.env.REVIEW_ID ?? null,
+    deploy_url: provenance.deploy_url ?? process.env.DEPLOY_URL ?? null,
+    deploy_prime_url: provenance.deploy_prime_url ?? process.env.DEPLOY_PRIME_URL ?? null,
     checked_at: new Date().toISOString(),
   };
 
   return new Response(JSON.stringify(body), {
-    status: sourceSha && deploymentId ? 200 : 503,
+    status: completeIdentity ? 200 : 503,
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store, no-cache, must-revalidate',

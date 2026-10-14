@@ -29,13 +29,50 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build
-        run: npm run build
+        env:
+          COMMIT_REF: ${{ github.sha }}
+          CONTEXT: production
+          BRANCH: main
+        run: node scripts/write-netlify-runtime-provenance.mjs && npm run build
 
       - name: Deploy production to Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID || vars.NETLIFY_SITE_ID || 'dfcf116c-cb75-449a-8a45-2f610a8ce3f5' }}
         run: |
           test -n "$NETLIFY_AUTH_TOKEN" || { echo "::error::Missing NETLIFY_AUTH_TOKEN repository secret"; exit 1; }
           test -n "$NETLIFY_SITE_ID" || { echo "::error::Missing NETLIFY_SITE_ID repository secret"; exit 1; }
           npx --yes netlify-cli@latest deploy --prod --dir=dist --site-id="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
+
+      - name: Verify published Netlify runtime SHA
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          health_url="https://aghbari-report-advisor.netlify.app/api/health"
+          for attempt in $(seq 1 18); do
+            body="$(curl -fsS --max-time 8 "$health_url" 2>/dev/null || true)"
+            if EXPECTED_SHA="$EXPECTED_SHA" RESPONSE_BODY="$body" node --input-type=module <<'NODE'
+          let body = null;
+          try { body = JSON.parse(process.env.RESPONSE_BODY || ''); } catch {}
+          const expected = process.env.EXPECTED_SHA;
+          if (!body || body.source_sha !== expected || body.deployment_sha !== expected || !body.deployment_id) {
+            process.exit(1);
+          }
+          console.log(JSON.stringify({
+            status: 'PASS',
+            expected_sha: expected,
+            source_sha: body.source_sha,
+            deployment_sha: body.deployment_sha,
+            deployment_id: body.deployment_id,
+            target_env: body.target_env,
+          }));
+          NODE
+            then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::Netlify runtime did not prove the exact source/deployment SHA after publish."
+          exit 1
