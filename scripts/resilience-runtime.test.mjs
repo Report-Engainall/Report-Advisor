@@ -17,6 +17,17 @@ const files = [
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 const phaseFProbe = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
 const postgresRetrySource = fs.readFileSync('src/server/resilience-db-retry.mjs', 'utf8');
+assert.match(
+  phaseFProbe,
+  /ghcr\.io\/cloudnative-pg\/postgresql@sha256:[0-9a-f]{64}/,
+  'Phase F must use a digest-pinned PostgreSQL client image outside the throttled ECR public mirror',
+);
+assert.doesNotMatch(
+  phaseFProbe.slice(0, phaseFProbe.indexOf('const baseRequired')),
+  /public\.ecr\.aws\/docker\/library\/postgres/,
+  'the default PostgreSQL recovery client must not depend on the ECR public image quota',
+);
+
 assert.match(phaseFProbe, /create temp table _phase_f_counts\(table_name text, row_count bigint\)/);
 assert.match(phaseFProbe, /EXECUTE format\(/);
 assert.match(phaseFProbe, /SELECT table_name \|\| '\|' \|\| row_count::text FROM _phase_f_counts/);

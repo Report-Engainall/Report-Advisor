@@ -10,9 +10,10 @@ import { retryTransientPostgresConnection } from '../src/server/resilience-db-re
 import { buildExportedSnapshotSql, buildSnapshotBoundQuery, parseExportedSnapshotOutput } from '../src/server/logical-restore-snapshot.mjs';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
-// Use the Docker Official Images mirror in Amazon ECR Public to avoid Docker Hub's
-// anonymous pull-rate limit in the fail-closed backup/restore certification probe.
-const postgresClientImage = (process.env.RESILIENCE_POSTGRES_CLIENT_IMAGE || 'public.ecr.aws/docker/library/postgres:17').trim();
+// Pin the public CloudNativePG PostgreSQL 17 client image on GHCR. The former ECR public
+// mirror hit an anonymous data-limit quota in Phase-F and prevented real restore verification.
+// Allow an explicit image override for controlled environments, but keep the safe pinned default.
+const postgresClientImage = (process.env.RESILIENCE_POSTGRES_CLIENT_IMAGE || 'ghcr.io/cloudnative-pg/postgresql@sha256:02d2219649fa845ed4f67cd8b8720b5de6437bd130b4615efda6b4ee294730d8').trim();
 if (!postgresClientImage) throw new Error('RESILIENCE_POSTGRES_CLIENT_IMAGE_EMPTY');
 if (!['managed', 'logical'].includes(backupMode)) throw new Error(`invalid_resilience_backup_mode:${backupMode}`);
 
