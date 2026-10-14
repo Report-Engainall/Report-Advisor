@@ -5,6 +5,7 @@ BRANCH = fix/generic-source-completeness-20261014
 PR #926 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
 CODE_CHECKPOINT = 2b65b597307a6b17d98549b30c1c4097a168b0d4
 REPORT_FOR_HEAD = 2b65b597307a6b17d98549b30c1c4097a168b0d4
+DOCUMENTATION_SUCCESSOR = 2cad910eb7be22bcba99e360b0067a7082c9cdde (timestamped report; this state update requests fresh exact-head contracts)
 PRODUCT_COMPLETE = NO
 
 ## Implemented in this checkpoint
