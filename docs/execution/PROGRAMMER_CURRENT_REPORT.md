@@ -1,3 +1,38 @@
+# CURRENT PROGRAMMER REPORT — 2026-10-14 — Generic source completeness guard
+
+Repository: Report-Engainall/Report-Advisor
+REPORT_FOR_HEAD = 3355fc58cede5c7313c2c828b795246131f3c60e
+UPDATED_AT = 2026-10-14T18:31:00Z
+WHAT_I_WAS_ASKED_TO_DO = Continue direct implementation of Report-Advisor, prove current state through GitHub, fix a real product correctness defect, run exact-head tests, and save a reliable checkpoint without relying on the user's device.
+WHAT_I_ACTUALLY_DID = Created branch fix/generic-source-completeness-20261014 from main b4bb9fe6f278fd7d2c2dcb76b144638549036565. Committed a completeness guard for source-bound generic analysis, regression tests for incomplete canonical reads and complete snapshot fallback, and the runtime wiring that passes canonical read completeness and expected source count.
+WHAT_IS_PROVEN = GitHub confirmed functional commits edf7c9ad145b776fd8b4bf99243f58befc219b78, 29247ec2fa1f40830e331cbb146e7cb9ca0e6126, and code checkpoint 3355fc58cede5c7313c2c828b795246131f3c60e; branch readback confirmed the edited selector, test, and smart-report code. Newly added tests are NOT YET RUN because the branch PR is not open. Existing PR #925 gate evidence is exact-head only: Build run 38610637454 PASS, Quality 38610637553 PASS, Final Certification 38610636938 PASS, Browser E2E 38610637227 PASS, Phase-F 38610637235 FAIL (live tenant-canary HTTP 503 operational_token_not_configured).
+FIRST_ACTIVE_FAILURE = Partial canonical rows could be accepted by generic intelligence despite canonicalRowsComplete being false; separately, PR #925 Phase-F's live tenant-canary is blocked by operational_token_not_configured.
+ROOT_CAUSE = selectGenericSourceRows accepted any nonempty canonical row array without checking read completeness or matching source row count. The caller had already calculated the partial-fetch state but did not pass it into this selector; it could also report sourceAnalysis.rowCount instead of the selected rowset size.
+NEXT_EXACT_ACTION = Open a PR from fix/generic-source-completeness-20261014; verify test:generic-file-analysis on the resulting exact head and check Quality, Product Build, Session Handoff, Final Certification, and browser E2E outcomes before merging any change.
+SESSION HANDOFF = NOT READY
+PRODUCT_COMPLETE = NO
+
+## Implementation detail
+
+The selector now accepts canonical rows only if the caller has not marked the canonical read partial and the actual row count matches expectedCanonicalRowCount when specified. A partial canonical read may fall back only to a complete source-bound snapshot; incomplete or inconsistent rowsets return unavailable. The caller emits an explicit Arabic warning instead of silently presenting partial-derived intelligence. Regression coverage now asserts complete canonical precedence, full-snapshot fallback for partial canonical reads, fail-closed behavior when both are incomplete, and rejection of expected-count mismatch.
+
+## Exact file/commit inventory
+
+- src/lib/file-engine/generic-source-rows.ts — edf7c9ad145b776fd8b4bf99243f58befc219b78
+- scripts/generic-file-analysis.test.mjs — 29247ec2fa1f40830e331cbb146e7cb9ca0e6126
+- src/lib/report-smart.ts — 3355fc58cede5c7313c2c828b795246131f3c60e
+
+## Gates and truth boundary
+
+IMPLEMENTED = Yes, branch code read back from GitHub.
+TESTED = Regression test code added; execution pending CI on the new PR. No PASS claim for the new code.
+PERSISTED / READBACK-PROVEN = Functional commits and their current branch blobs confirmed by GitHub.
+BROWSER-PROVEN = NOT_PROVEN for this new branch.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Netlify live runtime requires authorized RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY. Netlify currently has public Supabase URL/anon values and the company/canary identifiers, but runtime secret credentials were not present in the returned variable set. GitHub connector does not expose repository Actions secrets; no fake values or weakened guards were used.
+
+---
+
 # CURRENT PROGRAMMER REPORT — 2026-10-14 — PR #924 workflow hardening + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
