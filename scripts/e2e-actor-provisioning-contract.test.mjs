@@ -43,9 +43,9 @@ assert.ok(
   'generated approver password must be masked before being persisted to GITHUB_ENV',
 );
 assert.match(actorCleanup, /E2E_REVOKE_RUN_IDS/);
-assert.match(actorCleanup, /e2e\\.report-advisor\\.invalid/);
-assert.match(actorCleanup, /report-advisor-e2e-/);
-assert.match(actorCleanup, /auth\\/v1\\/admin\\/users/);
+assert.ok(actorCleanup.includes('e2e\\\\.report-advisor\\\\.invalid'));
+assert.ok(actorCleanup.includes('report-advisor-e2e-'));
+assert.ok(actorCleanup.includes('/auth/v1/admin/users'));
 assert.match(workflow, /Revoke run-scoped E2E actors and prior exposed credentials/);
 assert.match(workflow, /E2E_REVOKE_RUN_IDS:\s*'38626675330'/);
 const reportResolverStep = workflow.indexOf('Resolve dynamic source-bound report context');
