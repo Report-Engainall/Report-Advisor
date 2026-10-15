@@ -25,12 +25,34 @@ function text(value: unknown): string { return String(value ?? '').trim(); }
 function normalize(value: string): string {
   return value.toLowerCase().normalize('NFKC').replace(/[\u064B-\u065F\u0670]/g, '').replace(/[إأآ]/g, 'ا').replace(/ى/g, 'ي');
 }
+function normalizedDatasetColumnKey(value: unknown): string {
+  return String(value ?? '').toLowerCase().normalize('NFKC').replace(/[\s_.-]+/g, '');
+}
+function isSyntheticLineDataset(dataset: Dataset): boolean {
+  const keys = dataset.columns.map((column) => normalizedDatasetColumnKey(column.name));
+  const hasLineOrdinal = keys.some((key) => ['linenumber', 'lineno', 'lineindex', 'rowindex'].includes(key));
+  const hasLineContent = keys.some((key) => ['text', 'content', 'body', 'paragraph', 'rawtext', 'pagetext'].includes(key));
+  const hasVisualCells = keys.some((key) => /^visualcell\d+$/.test(key));
+  // PDF visual-layout rows carry metadata plus duplicate per-cell projections.
+  // They are evidence lines, not a business table; aggregate only the source line text.
+  return hasLineOrdinal && hasLineContent && (dataset.columnCount <= 2 || hasVisualCells);
+}
 function datasetText(dataset: Dataset): string[] {
+  const sourceLineColumn = isSyntheticLineDataset(dataset)
+    ? dataset.columns.find((column) =>
+        ['text', 'content', 'body', 'paragraph', 'rawtext', 'pagetext'].includes(normalizedDatasetColumnKey(column.name)),
+      )
+    : undefined;
   return (dataset.rows ?? []).flatMap((row) => {
+    if (sourceLineColumn) {
+      const line = text(row[sourceLineColumn.name]);
+      return line ? [line] : [];
+    }
     const values = Object.values(row).filter((value) => value !== null && value !== undefined && String(value).trim() !== '');
     return [values.map(text).join(' | ')];
   }).filter(Boolean);
 }
+
 const MAX_INLINE_EVIDENCE_LINES = 100;
 
 function matchingLineCount(lines: string[], terms: string[]): number {
@@ -96,14 +118,9 @@ type StructuredTableProfile = {
 function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null {
   if (dataset.rowCount < 2 || dataset.columnCount < 2) return null;
 
-  // Plain documents are represented as synthetic {line_number, text} rows.
-  // Treating that adapter shape as a business table hides the actual source text.
-  const rawHeaders = dataset.columns.map((column) =>
-    String(column.name ?? '').toLowerCase().normalize('NFKC').replace(/[\s_.-]+/g, ''),
-  );
-  const hasLineOrdinal = rawHeaders.some((header) => ['linenumber', 'lineno', 'lineindex', 'rowindex'].includes(header));
-  const hasLineContent = rawHeaders.some((header) => ['text', 'content', 'body', 'paragraph', 'rawtext', 'pagetext'].includes(header));
-  if (dataset.columnCount <= 2 && hasLineOrdinal && hasLineContent) return null;
+  // Synthetic document/PDF line layouts are not tables, even when visual cells
+  // are exposed as helper columns for inspection.
+  if (isSyntheticLineDataset(dataset)) return null;
   const headerKey = (column: Dataset['columns'][number]) => normalize(column.mappedField || column.name).replace(/[()]/g, '');
   const valueFor = (row: Record<string, unknown>, column: Dataset['columns'][number]) =>
     row[column.name] ?? row[column.mappedField ?? ''];

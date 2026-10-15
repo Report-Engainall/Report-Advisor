@@ -136,6 +136,47 @@ async function main() {
   assert.ok(universalWithoutSpecialty.intelligence.recommendations.some((item) => item.id === 'generic:table:validate-profile'), 'generic review recommendation must remain available without a specialist');
   assert.ok(universalWithoutSpecialty.intelligence.summary.length > 20, 'universal analysis must return a useful source-derived summary when no archetype is applicable');
 
+  // Reconstructed PDF visual rows are evidence lines, not a numeric business table.
+  // "text" already contains the visual-cell values; helper columns must not duplicate them.
+  const syntheticPdfColumnNames = ['page_number', 'line_number', 'text', 'visual_cell_1', 'visual_cell_2'];
+  const syntheticPdfDataset = {
+    id: 'synthetic-pdf-line-layout',
+    name: 'receivables.pdf',
+    source: 'pdf',
+    rowCount: 3,
+    columnCount: syntheticPdfColumnNames.length,
+    qualityScore: 60,
+    columns: syntheticPdfColumnNames.map((name) => ({
+      name,
+      mappedField: null,
+      mappingConfidence: 0,
+      requiresReview: true,
+      dataType: ['page_number', 'line_number'].includes(name) ? 'integer' : 'text',
+      nullCount: 0,
+      uniqueCount: 3,
+      uniqueRatio: 1,
+      sampleValues: [],
+      statistics: { count: 3 },
+      qualityIssues: [],
+    })),
+    rows: [
+      {
+        page_number: 1, line_number: 1,
+        text: 'AL-Amiry Trading & Cement Marketing - The main | العامري لتجارة المواد الغذائية - صنعاء',
+        visual_cell_1: 'AL-Amiry Trading & Cement Marketing - The main',
+        visual_cell_2: 'العامري لتجارة المواد الغذائية - صنعاء',
+      },
+      { page_number: 1, line_number: 2, text: '1650000 | 1650000', visual_cell_1: '1650000', visual_cell_2: '1650000' },
+      { page_number: 1, line_number: 3, text: '1127000 | 1127000', visual_cell_1: '1127000', visual_cell_2: '1127000' },
+    ],
+    preview: [],
+  };
+  const syntheticPdfIntelligence = buildGenericFileIntelligence(syntheticPdfDataset, 'pdf');
+  assert.ok(!syntheticPdfIntelligence.summary.includes('تحليل جدولي فعلي'), 'unconfirmed PDF lines must not emit table metric summaries');
+  assert.ok(!syntheticPdfIntelligence.summary.includes('تم تحليل بنية الجدول'), 'organization titles must not be presented as verified table headers');
+  assert.ok(!syntheticPdfIntelligence.guidance.inspect.some((line) => line.includes('المقياس «visual_cell_')), 'synthetic PDF cell projections must not become business measures');
+  assert.ok(syntheticPdfIntelligence.guidance.inspect.some((line) => line.includes('1650000:2')), 'source line text must be counted once (two source occurrences, not four helper-duplicated occurrences)');
+
   // Real XLSX regression: customer portfolio + eight monthly measures.
   // The report should map the observed semantics, summarize the table and expose
   // evidence-backed customer-status, monthly-trend and reconciliation signals.
