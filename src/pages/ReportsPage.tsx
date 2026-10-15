@@ -349,7 +349,7 @@ export function ReportsCenterPage() {
   if (error && smartReports.length === 0) {
     return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10"><PageHeader title="مركز التقارير" subtitle="تعذر تحميل البيانات الحالية." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">إعادة المحاولة</button>} /><ErrorState message={error} onRetry={() => void load()} /></div>;
   }
-  if (!snapshot && smartReports.length === 0) return <DataUnavailableState title="مركز التقارير ينتظر المصدر" message="لا توجد لقطة تنفيذية ولا تقارير مكتملة للعرض بعد؛ لم يتم اختلاق أي بطاقة أو رقم." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
+  if (!snapshot && smartReports.length === 0 && !primarySmartReport) return <DataUnavailableState title="مركز التقارير ينتظر المصدر" message="لا توجد لقطة تنفيذية ولا تقارير مكتملة للعرض بعد؛ لم يتم اختلاق أي بطاقة أو رقم." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
   const persistedSmartJobId = typeof window !== 'undefined'
     ? window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? ''
