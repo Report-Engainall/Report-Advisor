@@ -1,3 +1,94 @@
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — Batch real-source matrix and fix duplicate result accumulator
+
+Repository: Report-Engainall/Report-Advisor
+BRANCH = fix/generic-source-completeness-20261014
+PR = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
+MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
+CURRENT_EXACT_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8 (code checkpoint; docs-only successor follows)
+CODE_CHECKPOINT = f9bb12d80d295e47643effb779c1160dd063afc8
+REPORT_FOR_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8
+UPDATED_AT = 2026-10-15T01:11:00Z
+WHAT_I_WAS_ASKED_TO_DO = Remove the 240-second timeout cause from the optional real-source matrix while keeping file-origin, evidence snapshot, tenant and canonical commit proof strict; test and persist every fix.
+WHAT_I_ACTUALLY_DID = Batched completed-job queries using only VERIFIED/READY passport IDs, prefetched governed file records once per tenant, batched canonical anchors, and added atomic progress artifacts plus contract assertions. Exact-head Quality then revealed a duplicate results declaration from moving the accumulator; removed the old declaration and added a one-accumulator contract invariant.
+WHAT_IS_PROVEN = Prior head e624f3f passed generic file analysis and the complete browser business/Smart Report journey, but its optional specialist matrix timed out and reported 0/48 NOT_PROVEN. On f3dccc, lint failed specifically with “Identifier 'results' has already been declared”; f9bb12d fixes that and source/test files were read back. Exact-head CI for f9bb12d and its docs-only successor remains pending.
+FIRST_ACTIVE_FAILURE = Quality run 38663310993 on 0efe136, lint reported the duplicate results declaration. Session handoff on the code-only intermediate also failed because the new code/test files were not yet covered by the report checkpoint.
+ROOT_CAUSE = An earlier edit moved results to the top for incremental progress but did not delete the original declaration before the profile loop; documentation also needed advancing after the source/test files changed.
+FIX = Code commit f9bb12d80d295e47643effb779c1160dd063afc8 removes the duplicate and asserts exactly one results accumulator in scripts/real-48-source-matrix-contract.test.mjs. Batching and partial-progress behavior remain implemented.
+TESTED = Fresh readback confirmed results declaration count = 1 on f9bb12d; exact-head CI remains PENDING.
+PERSISTED / READBACK-PROVEN = Both source/test blobs were re-read from GitHub after commit f9bb12d. This doc successor is being written and will be re-read.
+SESSION HANDOFF = NOT READY — new docs-only successor needs contract recheck.
+BROWSER-PROVEN = predecessor e624f3f only, run 38660140004. The matrix optimization has not yet passed a new full browser run.
+PRODUCTION-PROVEN = NOT_PROVEN.
+PRODUCT_COMPLETE = NO
+OPEN_BLOCKER = PR #925 Phase-F still fails at HTTP 503 operational_token_not_configured. Do not weaken security to force a release.
+NEXT_EXACT_ACTION = Verify Quality/Lint, matrix contract, Build, Full Product Browser and Final Certification on f9bb12d and the documentation successor. If the matrix still reaches timeout, inspect its partial artifact progress before making another change.
+
+---
+
+# CURRENT PROGRAMMER REPORT — 2026-10-14 — E2E credential masking + generic completeness guard
+
+Repository: Report-Engainall/Report-Advisor
+CURRENT_EXACT_HEAD = d4154b10e02deb3e47354aed476e072671c3921d (latest code head; this checkpoint is a documentation-only successor)
+CODE_CHECKPOINT = d4154b10e02deb3e47354aed476e072671c3921d
+REPORT_FOR_HEAD = d4154b10e02deb3e47354aed476e072671c3921d
+BRANCH = fix/generic-source-completeness-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED)
+ACTION_STATUS = Prior code head ba844b8fb300ed72160e2849626b0001f618a827 passed Product Build Gate 38626675270, Quality 38626675002 (includes GENERIC FILE ANALYSIS PASS), Session Handoff 38626675470, Final Certification 38626674796, Data Quality Runtime 38626676092, and Full Product Browser E2E 38626675330. Those results apply to ba844... only. On current security head d4154b10e02deb3e47354aed476e072671c3921d, Session Handoff run 38629551738 initially failed because this report was stale and four security files were unreported; the correction is in this docs-only checkpoint. Exact-head quality/build/browser/certification reruns for the current security head were still in progress/queued at last read. No PASS is inferred for the newer head until its runs close.
+IMPLEMENTED = Fixed missing-value-to-zero coercion in generic table intelligence. Added rotated-password masking in E2E actor provisioning; added a scoped cleanup utility to revoke only run-scoped ephemeral actor users for exposed run 38626675330 and current future runs; wired cleanup before provisioning and after browser artifacts; added a static contract test for masking, cleanup, and step ordering.
+TESTED = Generic analysis/build/full browser previously PASS on ba844b8fb300ed72160e2849626b0001f618a827. Security hardening on d4154b10e02deb3e47354aed476e072671c3921d is awaiting clean exact-head rerun; Session Handoff failure reason was diagnosed as stale report coverage, not a source-code assertion.
+PERSISTED / READBACK-PROVEN = Security source files were committed to the existing PR #926 branch through d4154b10e02deb3e47354aed476e072671c3921d. Masking utility, cleanup script, updated workflow, and contract test were re-read from GitHub. This checkpoint will document their diffs and then be read back again.
+BROWSER-PROVEN = On ba844b8fb300ed72160e2849626b0001f618a827, Chromium route/auth, business journey/Smart Report, and generic supported-format checks passed; universal browser evidence gate passed; artifact 11924717516 was uploaded to run 38626675330. Real-source diagnostic reported 18/48 supported and 30/48 NOT_PROVEN; this optional diagnostic does not gate generic analysis. These browser proofs do not transfer to d4154b10... without rerun.
+PRODUCTION-PROVEN = NOT_PROVEN. Netlify production still runs commit 858ef8e3e5bc5bf74430555eadfb9e6767be348b in deploy 6ac3d608e2e37d0008cc0222. No authorized Netlify deploy token is available via current connections.
+OPEN_BLOCKER = PR #925 Phase-F run 38610637235 failed: /api/tenant-canary HTTP 503 operational_token_not_configured. Netlify site/team readback lacks RESILIENCE_OPERATIONAL_TOKEN, SUPABASE_SERVICE_ROLE_KEY and NETLIFY_AUTH_TOKEN; do not fabricate secrets or weaken tenant isolation. New security head's exact-head workflows are still pending confirmation.
+NEXT_EXACT_ACTION = Read exact-head Session Handoff run after this docs checkpoint, then inspect the newest Quality, Build, Full Product Browser E2E, Final Certification, Data Quality Runtime results; verify cleanup pass without credential output and update this checkpoint to the final tested head.
+SESSION HANDOFF = READY — all files changed through CODE_CHECKPOINT are documented; exact-head CI and production remain independent proof obligations.
+PRODUCT_COMPLETE = NO
+
+UPDATED_AT = 2026-10-14
+WHAT_I_WAS_ASKED_TO_DO = Resume execution on the existing Report-Advisor PR, fix the generic table missing-value defect, prove the supported-format/browser path, and secure E2E test actors without weakening tenant isolation.
+WHAT_I_ACTUALLY_DID = Changed the generic analyzer to preserve missingness, add coverage-aware sums and avoid incomplete-period trends. Subsequent audit of Full Product Browser E2E logs found that rotated temporary E2E passwords could be printed in environment blocks. Added early masking in actor provisioning, a narrowly scoped Supabase Auth cleanup for run-scoped ephemeral test identities only, pre-provision revocation for run 38626675330, post-artifact cleanup for this and future runs, and a regression contract asserting masking and step order.
+WHAT_IS_PROVEN = Generic file analysis, build, quality, final certification, data quality, session handoff and full browser E2E passed on prior head ba844b8fb300ed72160e2849626b0001f618a827. Browser artifact run 38626675330 exposed the logging defect; current head d4154b10e02deb3e47354aed476e072671c3921d contains the correction. On d4154b10, Session Handoff failed only because the top report's REPORT_FOR_HEAD predated the newly changed E2E security files, and its log named those unreported paths; this docs checkpoint corrects the report coverage. Exact-head reruns remain mandatory.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38629551738, job 116077357675, step “Validate persistent session handoff”: stale report listed unreported files .github/workflows/full-product-browser-e2e.yml, scripts/cleanup-ephemeral-e2e-actors.mjs, scripts/e2e-actor-provisioning-contract.test.mjs, scripts/provision-e2e-actors.mjs. The report now targets code head d4154b10e02deb3e47354aed476e072671c3921d, which is an ancestor of the documentation successor; all post-target changes are within the contract's allowed docs paths.
+ROOT_CAUSE = The current session report still referenced generic-code checkpoint 51bbfae3266bc285b35498f9c3b177cefd3e92cd while E2E security hardening added four non-documentation files. The session handoff contract correctly rejected these changes as unreported. This checkpoint records the security work and advances REPORT_FOR_HEAD to the immediately preceding code head.
+NEXT_EXACT_ACTION = Verify fresh Session Handoff Contract and all relevant exact-head runs after the documentation checkpoint; read the new cleanup step logs while redacting all sensitive output; do not merge or deploy until fresh gates and the Phase-F blocker are resolved.
+# CURRENT PROGRAMMER REPORT — 2026-10-14 — Source completeness + browser readback hardening
+
+Repository: Report-Engainall/Report-Advisor
+REPORT_FOR_HEAD = 10f1e376a135e0be72862315bf675f2966aa98a0
+UPDATED_AT = 2026-10-14T19:18:00Z
+WHAT_I_WAS_ASKED_TO_DO = Continue direct implementation of Report-Advisor, fix a real source-bound analysis correctness defect, verify the product browser flow, and preserve an exact resumable checkpoint.
+WHAT_I_ACTUALLY_DID = Fixed the generic-source selector so partial canonical rowsets cannot be analyzed as full sources; added regression coverage; then inspected the failed exact-head browser artifact, confirmed the issue was limited to readback waiting on the source-decision-history sidecar query, verified successful Supabase responses and low SQL execution time, and committed a narrow background-request classification plus contract assertion without disabling network/HTTP failure checks.
+WHAT_IS_PROVEN = Generic file analysis passed on 16446f4003f1611ca842574c0cbf3f9bb50ee9bb; the report's source hash/job identity and all six report-chain cards were present after refresh. Full Product Browser E2E run 38618336854 failed only due E2E-REPORT-014: refresh readback settlement was NOT_PROVEN because the pending-request set included two GETs to the read-only business_intelligence_decisions source-intelligence history query. The route recorded zero failed routes and no failed network/HTTP requests. Supabase edge logs show this query returns HTTP 200 in ~185–245 ms; Postgres EXPLAIN ANALYZE for the exact matching filter completed in ~1.4 ms. New fix commit 10f1e376a135e0be72862315bf675f2966aa98a0 scopes the optional background classification to GET + Smart Report job + source-intelligence decision query and retains separate request-failure / HTTP-response-failure gates. New exact-head proof is pending.
+FIRST_ACTIVE_FAILURE = Full Product Browser E2E run 38618336854, step “Real Chromium route and authenticated browser proof”, finding E2E-REPORT-014: Smart Report failed refresh readback settlement. Link: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336854.
+ROOT_CAUSE = Browser settlement treated read-only source-decision-history hydration as critical in-flight work even though the source-bound report render and decision cards were fully present; staging evidence shows the matching REST query returns quickly, suggesting stale/persistent telemetry entries rather than slow database execution. The classifier is now narrowed to that optional GET on this exact Smart Report route while actual failed requests and non-2xx responses still fail the route.
+NEXT_EXACT_ACTION = Verify Build, Quality, Session Handoff, Final Certification and Full Product Browser E2E on the current PR head after checkpoint docs commit. Confirm generic-file-analysis PASS and the new browser telemetry contract; do not merge while the full browser proof remains unresolved.
+SESSION HANDOFF = NOT READY — exact-head revalidation pending
+PRODUCT_COMPLETE = NO
+
+## Functional change inventory
+
+- src/lib/file-engine/generic-source-rows.ts — edf7c9ad145b776fd8b4bf99243f58befc219b78
+- scripts/generic-file-analysis.test.mjs — 29247ec2fa1f40830e331cbb146e7cb9ca0e6126
+- src/lib/report-smart.ts — 3355fc58cede5c7313c2c828b795246131f3c60e
+- scripts/run-full-product-browser-e2e.mjs — updated at 10f1e376a135e0be72862315bf675f2966aa98a0
+- scripts/check-browser-e2e-page-telemetry-contract.mjs — updated at 10f1e376a135e0be72862315bf675f2966aa98a0
+
+## Previous exact-head evidence
+
+On 16446f4003f1611ca842574c0cbf3f9bb50ee9bb:
+- Build PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618337065
+- Quality PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336564
+- Session Handoff PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336190
+- Final Certification PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336879
+- Device-independent Browser E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336839
+- Commercial Product Creation E2E PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618337179
+- Data Quality Runtime PASS: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618337297
+- Full Product Browser E2E FAIL: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38618336854 (single P0 NOT_PROVEN finding E2E-REPORT-014 after refresh readback)
+
+The new code fix has not yet passed exact-head CI. Do not reuse previous green statuses as proof for the new head.
+
+---
+
 # CURRENT PROGRAMMER REPORT — 2026-10-14 — PR #924 workflow hardening + handoff repair
 
 Repository: Report-Engainall/Report-Advisor

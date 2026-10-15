@@ -73,6 +73,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
   genericIntelligence: ReportIntelligence | null;
+  genericIntelligenceSource: 'canonical' | 'source-analysis-snapshot' | null;
   runtimeWarnings?: string[];
 };
 
@@ -347,9 +348,11 @@ function buildGenericDatasetForReport(input: {
   sourcePath: string;
   sourceAnalysis: SmartReportDetail['sourceAnalysis'];
   canonicalRows: SmartReportDetail['canonicalRows'];
+  canonicalRowsComplete: boolean;
+  expectedCanonicalRowCount: number | null;
   qualityScore: number | null;
   runtimeWarnings?: string[];
-}): Dataset | null {
+}): { dataset: Dataset; origin: 'canonical' | 'source-analysis-snapshot' } | null {
   const canonicalRows = input.canonicalRows
     .map((row) => row.data)
     .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === 'object' && !Array.isArray(row)));
@@ -365,9 +368,18 @@ function buildGenericDatasetForReport(input: {
     sourceDataset,
     sourceDatasetCount,
     sourceAnalysisRowCount: input.sourceAnalysis?.rowCount,
+    canonicalRowsComplete: input.canonicalRowsComplete,
+    expectedCanonicalRowCount: input.expectedCanonicalRowCount,
   });
   const rows = selectedRows.rows;
-  if (!rows.length) return null;
+  if (!rows.length) {
+    input.runtimeWarnings?.push(
+      input.canonicalRowsComplete
+        ? 'لم يُشتق التحليل العام لعدم توفر صفوف مصدر كاملة قابلة للتحقق.'
+        : 'لم يُشتق التحليل العام لأن الصفوف الكانونية غير مكتملة ولا توجد لقطة تحليل كاملة ومتسقة مع عدد صفوف المصدر.',
+    );
+    return null;
+  }
 
   if (selectedRows.origin === 'source-analysis-snapshot') {
     input.runtimeWarnings?.push('التحليل العام مشتق من لقطة الاستخراج المربوطة بنفس المصدر لأن الصفوف الكانونية غير متاحة؛ تبقى تغطية المصدر الكانونية قيد المراجعة ولا يُرقّى التقرير إلى جاهز للقرار.');
@@ -396,16 +408,21 @@ function buildGenericDatasetForReport(input: {
   });
 
   return {
+    dataset: {
     id: String(sourceDataset?.id ?? input.sourcePath),
     name: String(sourceDataset?.name ?? input.sourcePath),
     source: String(sourceDataset?.source ?? input.sourcePath),
     sheet: sourceDataset?.sheet == null ? undefined : String(sourceDataset.sheet),
-    rowCount: selectedRows.origin === 'canonical' && input.sourceAnalysis?.rowCount != null ? Number(input.sourceAnalysis.rowCount) : rows.length,
+    // The selected rowset has already passed a completeness check; report its
+    // actual size rather than copying a potentially mismatched declaration.
+    rowCount: rows.length,
     columnCount: input.sourceAnalysis?.columnCount == null ? columns.length : Number(input.sourceAnalysis.columnCount),
     columns,
     rows,
     preview: rows.slice(0, 50),
     qualityScore: input.qualityScore == null ? 0 : Number(input.qualityScore),
+    },
+    origin: selectedRows.origin === 'source-analysis-snapshot' ? 'source-analysis-snapshot' : 'canonical',
   };
 }
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
@@ -1010,17 +1027,21 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // General analysis is descriptive and source-derived. Keep it available for
   // every source even when the stronger specialist decision gate is not met.
   let genericIntelligence: ReportIntelligence | null = null;
+  let genericIntelligenceSource: SmartReportDetail['genericIntelligenceSource'] = null;
   try {
-    const genericDataset = buildGenericDatasetForReport({
+    const genericSelection = buildGenericDatasetForReport({
       sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
       sourceAnalysis: sourceAnalysis as SmartReportDetail['sourceAnalysis'],
       canonicalRows,
+      canonicalRowsComplete,
+      expectedCanonicalRowCount: sourceRowCount,
       qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
       runtimeWarnings,
     });
-    if (genericDataset) {
+    if (genericSelection) {
+      genericIntelligenceSource = genericSelection.origin;
       genericIntelligence = buildGenericFileIntelligence(
-        genericDataset,
+        genericSelection.dataset,
         String(sourceAnalysis?.sourceFormat ?? 'generic'),
       );
     }
@@ -1191,6 +1212,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalRows,
     intelligence,
     genericIntelligence,
+    genericIntelligenceSource,
     evidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),

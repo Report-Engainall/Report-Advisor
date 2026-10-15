@@ -16,9 +16,24 @@ export function selectGenericSourceRows(input: {
   sourceDataset: unknown;
   sourceDatasetCount: number;
   sourceAnalysisRowCount?: number | null;
+  /** False when the canonical read ended early, hit its ceiling, or failed. */
+  canonicalRowsComplete?: boolean;
+  /** Expected count from the source-bound report metadata, when known. */
+  expectedCanonicalRowCount?: number | null;
 }): { rows: RowObject[]; origin: GenericSourceRowsOrigin } {
   const canonical = input.canonicalRows.filter(isRowObject);
-  if (canonical.length > 0) return { rows: canonical, origin: 'canonical' };
+  const expectedCanonicalRowCount = input.expectedCanonicalRowCount;
+  const canonicalCountMatchesExpected = expectedCanonicalRowCount == null
+    || (Number.isSafeInteger(expectedCanonicalRowCount)
+      && expectedCanonicalRowCount >= 0
+      && canonical.length === expectedCanonicalRowCount);
+  if (
+    canonical.length > 0
+    && input.canonicalRowsComplete !== false
+    && canonicalCountMatchesExpected
+  ) {
+    return { rows: canonical, origin: 'canonical' };
+  }
 
   if (!isRowObject(input.sourceDataset)) return { rows: [], origin: 'unavailable' };
   const rawRows = Array.isArray(input.sourceDataset.rows) ? input.sourceDataset.rows : [];

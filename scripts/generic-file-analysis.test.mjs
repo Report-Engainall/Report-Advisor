@@ -83,6 +83,44 @@ async function main() {
   assert.ok(arabicMetric?.includes('قيم رقمية 2/2'), 'Arabic-Indic numeric strings must not be lost from generic analysis');
   assert.ok(arabicMetric?.includes('المجموع الحسابي ' + expectedArabicSum), 'Arabic decimal/thousands separators must produce the correct source total');
 
+  // Missing measurements are unknown, not zero: completeness, trend and reconciliation must reflect coverage.
+  const partialMonthCsv = [
+    'اسم العميل,حالة الزبون,الإجمالي الكلي,يناير,فبراير,مارس',
+    'عميل مكتمل,مستمر,600,100,200,300',
+    'عميل بإجمالي مفقود,مستمر,,100,,100',
+    'عميل بفترة مفقودة,مستمر,500,0,100,',
+    'عميل بفارق مثبت,مستمر,300,50,50,50',
+  ].join('\n');
+  const parsedPartialMonth = await parseFile(buffer(partialMonthCsv), 'partial-month-completeness.csv', 'csv');
+  assert.equal(parsedPartialMonth.length, 1, 'partial monthly source should parse as one dataset');
+  assert.equal(parsedPartialMonth[0].rowCount, 4, 'partial monthly source must preserve all records');
+  const partialMonthDataset = {
+    ...parsedPartialMonth[0],
+    columns: parsedPartialMonth[0].columns.map((column) =>
+      ['الإجمالي الكلي', 'يناير', 'فبراير', 'مارس'].includes(column.name)
+        ? { ...column, dataType: 'integer' }
+        : column,
+    ),
+    rows: parsedPartialMonth[0].rows.map((row) => ({
+      ...row,
+      'الإجمالي الكلي': row['الإجمالي الكلي'] === '' || row['الإجمالي الكلي'] === undefined ? null : row['الإجمالي الكلي'],
+      'يناير': row['يناير'] === '' || row['يناير'] === undefined ? null : row['يناير'],
+      'فبراير': row['فبراير'] === '' || row['فبراير'] === undefined ? null : row['فبراير'],
+      'مارس': row['مارس'] === '' || row['مارس'] === undefined ? null : row['مارس'],
+    })),
+  };
+  const partialMonthIntelligence = buildGenericFileIntelligence(partialMonthDataset, 'csv');
+  const partialMonthInspect = partialMonthIntelligence.guidance.inspect;
+  assert.ok(partialMonthIntelligence.summary.includes('لم يُحسب المجموع الكامل لحقل «الإجمالي الكلي»'), 'summary must not claim a complete total with missing source values');
+  assert.ok(partialMonthInspect.some((line) => line.includes('حقل الإجمالي «الإجمالي الكلي»') && line.includes('3/4') && line.includes('القيم المفقودة ليست صفرًا')), 'the observed total must expose its coverage and missing-value rule');
+  assert.ok(partialMonthInspect.some((line) => line.includes('فبراير') && line.includes('تغطية 3/4') && line.includes('مفقود/غير رقمي 1')), 'February sum must state the observed coverage');
+  assert.ok(partialMonthInspect.some((line) => line.includes('مارس') && line.includes('تغطية 3/4') && line.includes('مفقود/غير رقمي 1')), 'March sum must state the observed coverage');
+  assert.ok(partialMonthInspect.some((line) => line.includes('لم يُحسب التغير بين فبراير ومارس') && line.includes('تغطية القيم الرقمية غير مكتملة')), 'incomplete adjacent periods must not generate a numeric trend');
+  assert.ok(!partialMonthInspect.some((line) => line.includes('التغير من فبراير إلى مارس:')), 'trend evidence must not appear for incomplete periods');
+  assert.ok(partialMonthInspect.some((line) => line.includes('فحص الاتساق:') && line.includes('سجلًا يختلف') && line.includes('من 2 سجل قابل للمقارنة') && line.includes('استُبعد 2 سجلًا')), 'reconciliation must count only complete rows and report excluded rows');
+  assert.ok(partialMonthIntelligence.recommendations.some((item) => item.id === 'generic:table:reconcile-totals'), 'a real mismatch on a complete row must still produce a reconciliation recommendation');
+  assert.ok(!partialMonthIntelligence.recommendations.some((item) => item.id === 'generic:table:review-monthly-change'), 'incomplete periods must not trigger a monthly-change recommendation');
+
   // A semantic mapper may guess that "name" means customer_name. The raw
   // source header is generic, so that guess must not authorize specialization.
   const genericMappedDataset = await parseFile(
@@ -273,12 +311,59 @@ async function main() {
 
   const canonicalSelection = selectGenericSourceRows({
     canonicalRows: [{ value: 'canonical' }],
+    canonicalRowsComplete: true,
+    expectedCanonicalRowCount: 1,
     sourceDataset: { rowCount: 1, rows: [{ value: 'snapshot' }] },
     sourceDatasetCount: 1,
     sourceAnalysisRowCount: 1,
   });
   assert.equal(canonicalSelection.origin, 'canonical', 'canonical database rows always take precedence over snapshots');
   assert.equal(canonicalSelection.rows[0].value, 'canonical', 'canonical source data cannot be replaced by snapshot preview');
+
+  const partialCanonicalWithCompleteSnapshot = selectGenericSourceRows({
+    canonicalRows: [{ value: 'partial-canonical' }],
+    canonicalRowsComplete: false,
+    expectedCanonicalRowCount: 3,
+    sourceDataset: { rowCount: 3, rows: [{ value: 10 }, { value: 20 }, { value: 30 }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 3,
+  });
+  assert.equal(
+    partialCanonicalWithCompleteSnapshot.origin,
+    'source-analysis-snapshot',
+    'partial canonical read must not override an independently complete source-bound snapshot',
+  );
+  assert.equal(partialCanonicalWithCompleteSnapshot.rows.length, 3, 'fallback must retain the full verified snapshot');
+  assert.deepEqual(
+    partialCanonicalWithCompleteSnapshot.rows.map(row => row.value),
+    [10, 20, 30],
+    'partial canonical data must not contaminate a complete snapshot fallback',
+  );
+
+  const partialCanonicalWithoutCompleteSnapshot = selectGenericSourceRows({
+    canonicalRows: [{ value: 'partial-canonical' }],
+    canonicalRowsComplete: false,
+    expectedCanonicalRowCount: 3,
+    sourceDataset: { rowCount: 3, rows: [{ value: 10 }] },
+    sourceDatasetCount: 1,
+    sourceAnalysisRowCount: 3,
+  });
+  assert.equal(
+    partialCanonicalWithoutCompleteSnapshot.origin,
+    'unavailable',
+    'partial canonical rows and partial snapshots must fail closed instead of producing partial intelligence',
+  );
+  assert.equal(partialCanonicalWithoutCompleteSnapshot.rows.length, 0, 'no incomplete row set may emit generic intelligence');
+
+  const mismatchedCanonicalCount = selectGenericSourceRows({
+    canonicalRows: [{ value: 10 }, { value: 20 }],
+    canonicalRowsComplete: true,
+    expectedCanonicalRowCount: 3,
+    sourceDataset: null,
+    sourceDatasetCount: 0,
+    sourceAnalysisRowCount: null,
+  });
+  assert.equal(mismatchedCanonicalCount.origin, 'unavailable', 'canonical row count mismatch must not be silently treated as complete');
 
   const completeSnapshotSelection = selectGenericSourceRows({
     canonicalRows: [],
@@ -307,7 +392,7 @@ async function main() {
   assert.equal(inconsistentSnapshotSelection.origin, 'unavailable', 'conflicting snapshot and import row counts must fail closed');
 
   console.log('GENERIC FILE ANALYSIS PASS');
-  console.log('SOURCE-BOUND ROW SELECTOR PASS canonical-priority/complete-snapshot/partial-preview/count-mismatch');
+  console.log('SOURCE-BOUND ROW SELECTOR PASS canonical-priority/completeness-guard/full-snapshot-fallback/partial-preview/count-mismatch');
   console.log('STRUCTURED XLSX CUSTOMER PORTFOLIO PASS rows=3 columns=17 mapped=17 status/trend/reconciliation');
 }
 

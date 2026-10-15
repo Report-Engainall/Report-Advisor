@@ -6,6 +6,7 @@ const migration = fs.readFileSync('supabase/migrations/20261002050000_reconcile_
 const workflow = fs.readFileSync('.github/workflows/full-product-browser-e2e.yml', 'utf8');
 const reportContextResolver = fs.readFileSync('scripts/resolve-e2e-report-context.mjs', 'utf8');
 const browserReportProof = fs.readFileSync('scripts/run-full-product-browser-e2e.mjs', 'utf8');
+const actorCleanup = fs.readFileSync('scripts/cleanup-ephemeral-e2e-actors.mjs', 'utf8');
 
 assert.match(script, /auth\.admin\.createUser/);
 assert.match(script, /createActor\(/);
@@ -28,6 +29,32 @@ assert.match(workflow, /TEST_USER_A_EPHEMERAL=false/);
 assert.match(workflow, /TEST_USER_B_EPHEMERAL=false/);
 assert.match(script, /GITHUB_RUN_ID/);
 assert.match(script, /GITHUB_ENV/);
+assert.match(script, /function maskActionCredential\(/);
+const persistActorCredentialsBlock = script.slice(script.indexOf('function persistActorCredentials('), script.indexOf('async function signInConfiguredActor('));
+assert.ok(
+  persistActorCredentialsBlock.indexOf('maskActionCredential(password)') >= 0
+    && persistActorCredentialsBlock.indexOf('maskActionCredential(password)') < persistActorCredentialsBlock.indexOf('fs.appendFileSync'),
+  'rotated actor passwords must be masked before being persisted to GITHUB_ENV',
+);
+const approverCredentialsBlock = script.slice(script.indexOf('function ensureApproverCredentials('), script.indexOf('async function findTenantB('));
+assert.ok(
+  approverCredentialsBlock.indexOf('maskActionCredential(password)') >= 0
+    && approverCredentialsBlock.indexOf('maskActionCredential(password)') < approverCredentialsBlock.indexOf('fs.appendFileSync'),
+  'generated approver password must be masked before being persisted to GITHUB_ENV',
+);
+assert.match(actorCleanup, /E2E_REVOKE_RUN_IDS/);
+assert.ok(actorCleanup.includes('e2e\\\\.report-advisor\\\\.invalid'));
+assert.ok(actorCleanup.includes('report-advisor-e2e-'));
+assert.ok(actorCleanup.includes('/auth/v1/admin/users'));
+assert.match(workflow, /Revoke run-scoped E2E actors and prior exposed credentials/);
+assert.match(workflow, /E2E_REVOKE_RUN_IDS:\s*'38626675330'/);
+const reportResolverStep = workflow.indexOf('Resolve dynamic source-bound report context');
+const revokeBeforeProvisionStep = workflow.indexOf('Revoke prior run-scoped E2E actors before reprovisioning');
+const reprovisionStep = workflow.indexOf('Provision rerunnable E2E actors with bounded recovery');
+assert.ok(
+  reportResolverStep >= 0 && revokeBeforeProvisionStep > reportResolverStep && reprovisionStep > revokeBeforeProvisionStep,
+  'the exposed run-scoped test actors must be revoked before provisioning new actors',
+);
 
 assert.match(migration, /security definer/i);
 assert.match(migration, /set search_path = public, pg_catalog/i);

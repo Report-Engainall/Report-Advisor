@@ -1070,7 +1070,7 @@ export function SmartReportPage() {
         sourceHash={report.sourceHash}
         reportJobId={report.jobId}
         analysisScope={report.canonicalAnalysisScope}
-        analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}
+        analysisSource={report.genericIntelligenceSource}
       />
     </section>
 
