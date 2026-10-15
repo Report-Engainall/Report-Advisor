@@ -8,6 +8,12 @@ CODE_CHECKPOINT = f25af5867d40a665cbce502aef591fafe6d4f411
 REPORT_FOR_HEAD = f25af5867d40a665cbce502aef591fafe6d4f411
 MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
 UPDATED_AT = 2026-10-15T02:18:00Z
+ACTION_STATUS = Customer-facing report hierarchy repair is committed; exact-head validation is pending on the documented checkpoint.
+WHAT_I_WAS_ASKED_TO_DO = Put the executive conclusion first for arbitrary reports, expose detailed analysis on demand, and keep E2E verification artifacts out of customer-facing report lists without deleting data.
+WHAT_I_ACTUALLY_DID = Reordered the Smart Report, added accessible disclosures for generic intelligence and source rows, filtered report-advisor-e2e-* from the customer catalogue, updated browser E2E to expand details during proof, and added contract assertions.
+WHAT_IS_PROVEN = Source and test files were committed and read back from GitHub. Product Build, Quality, browser E2E, Final Certification and Phase-F have not all passed on this checkpoint; production remains unproven.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38670174150 listed four UI source/test paths as unreported.
+ROOT_CAUSE = The handoff report anchor remained on 7d63d43aec5f1877c64e48f66145a4ecc5f60bba rather than functional checkpoint f25af5867d40a665cbce502aef591fafe6d4f411. The fix is to report the actual code checkpoint; do not relax the checker.
 PRODUCT_COMPLETE = NO
 
 ## What was requested
