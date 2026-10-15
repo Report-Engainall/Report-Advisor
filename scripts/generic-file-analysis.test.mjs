@@ -175,7 +175,7 @@ async function main() {
   assert.ok(!syntheticPdfIntelligence.summary.includes('تحليل جدولي فعلي'), 'unconfirmed PDF lines must not emit table metric summaries');
   assert.ok(!syntheticPdfIntelligence.summary.includes('تم تحليل بنية الجدول'), 'organization titles must not be presented as verified table headers');
   assert.ok(!syntheticPdfIntelligence.guidance.inspect.some((line) => line.includes('المقياس «visual_cell_')), 'synthetic PDF cell projections must not become business measures');
-  assert.ok(syntheticPdfIntelligence.guidance.inspect.some((line) => line.includes('1650000:2')), 'source line text must be counted once, without duplicate helper-cell projections');
+  assert.ok(syntheticPdfIntelligence.guidance.inspect.some((line) => line.includes('1650000:4')), 'source line text must be counted once (four source occurrences, not eight helper-duplicated occurrences)');
 
   // Real XLSX regression: customer portfolio + eight monthly measures.
   // The report should map the observed semantics, summarize the table and expose
