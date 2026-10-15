@@ -1,24 +1,22 @@
-# LIVE RESUME — 2026-10-15 / PR #926 handoff repair verified; release still blocked
+# LIVE RESUME — 2026-10-15 / Full Product Browser E2E PASS; production release blocked
 
 Repository: Report-Engainall/Report-Advisor
-Branch: fix/generic-source-completeness-20261014
-PR #926: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
-Main HEAD: b4bb9fe6f278fd7d2c2dcb76b144638549036565
-Code checkpoint: 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
-Tested checkpoint: 85e30715ceb10a039a99da68c3f6e0c58d539278
-CURRENT_EXACT_HEAD = 85e30715ceb10a039a99da68c3f6e0c58d539278 (validated source/checkpoint head; the commits in this update are documentation-only successors)
-CODE_CHECKPOINT = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
-REPORT_FOR_HEAD = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
-UPDATED_AT = 2026-10-15T03:27:00+03:00
+BRANCH = fix/generic-source-completeness-20261014
+PR = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
+MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
+CURRENT_EXACT_HEAD = e624f3f304528fe95a58a18bcd3c5f00c26b94f4 (fully tested code/workflow head; this update is documentation-only)
+CODE_CHECKPOINT = e624f3f304528fe95a58a18bcd3c5f00c26b94f4
+REPORT_FOR_HEAD = e624f3f304528fe95a58a18bcd3c5f00c26b94f4
+UPDATED_AT = 2026-10-15T00:51:06Z
 PRODUCT_COMPLETE = NO
-ACTION_STATUS = On exact tested head 85e30715ceb10a039a99da68c3f6e0c58d539278: Session Handoff Contract run 38659742014 PASS, Final Certification Gate run 38659741971 PASS, Execution Enforcement Contract run 38659741997 PASS. Netlify PR #926 preview deployment 6ad01cfd3e56264f7b41c3d1 is ready and /api/health reports matching source/build/deployment SHA 85e30715... for preview review_id 926. Product Build, Quality, and Full Product Browser E2E PASS evidence exists on predecessor c33ab8a only; these did not rerun on this governance/docs-only candidate and are not relabelled as exact-head passes.
-IMPLEMENTED = Fixed scripts/check-session-handoff-contract.mjs allowlist to accept docs/execution/reports/ while retaining ancestry checks, changed-path coverage, required fields and status validation. Added dated record docs/execution/reports/2026-10-15/REPORT-20261015-0327-PR926-HANDOFF-PASS.md.
-TESTED = PASS on 85e30715ceb10a039a99da68c3f6e0c58d539278 for Session Handoff Contract, Final Certification Gate, and Execution Enforcement Contract; links: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659742014 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659741971 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659741997 .
-PERSISTED / READBACK-PROVEN = The checker and all checkpoint files were read back from GitHub after commit 76391da; this update creates a new documentation-only checkpoint and must be read back after ref update.
-BROWSER-PROVEN = Full Product Browser E2E passed on c33ab8a in run 38655098864 only. Netlify preview has exact SHA health proof, but no authenticated real-customer upload-to-decision run has been claimed for 85e30715 or production.
-PRODUCTION-PROVEN = NOT_PROVEN. Public production /api/health returns healthy but reports stale source/build/deployment SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b and deploy ID 6ac3d608e2e37d0008cc0222. Production /api/tenant-canary is currently served as SPA fallback HTML; the PR #925 preview probe fails closed with HTTP 503 operational_token_not_configured.
-OPEN_BLOCKER = Phase-F run 38646785819 on PR #925 head 0719a1e9a43321d5ea07f323c7ecb389e460bff4 passed 3/4 live probes and failed tenant-canary with HTTP 503 operational_token_not_configured. Netlify site/team env inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; NETLIFY_AUTH_TOKEN is unavailable through connected secret administration. Do not fabricate secrets or weaken isolation.
-NEXT_EXACT_ACTION = Provision the owner-approved operational token, service-role credential and production deploy token in their designated secret stores, then rerun PR #925 Phase-F and the guarded production deployment against the exact candidate SHA.
+ACTION_STATUS = Exact-head PASS on e624f3f304528fe95a58a18bcd3c5f00c26b94f4: Product Build Gate 38660139973, Quality 38660140496, Data Quality Runtime 38660140278, Device-Independent Browser E2E 38660140189, Storage Tenant Runtime E2E 38660139930, Final Certification Gate 38660140574, Session Handoff Contract 38660140707, Execution Enforcement Contract 38660140489, and Full Product Browser E2E 38660140004. Generic file analysis PASS, authenticated Chromium routes PASS, business journey + source-bound Smart Report PASS, 48/48 archetype engine runtime PASS, universal browser evidence gate PASS, artifact upload PASS and run-scoped E2E actor cleanup PASS. Optional real-source coverage diagnostic timed out after 240 seconds and reported 0/48 NOT_PROVEN without gating generic file analysis.
+IMPLEMENTED = Fixed strict session-handoff path allowlist to recognize docs/execution/reports/; ancestry, changed-path coverage, evidence, and tenant-isolation checks remain intact.
+TESTED = All nine listed exact-head gates PASS on e624f3f304528fe95a58a18bcd3c5f00c26b94f4. Full Product Browser artifact 11939347446 (61,548,868 bytes): https://github.com/Report-Engainall/Report-Advisor/actions/runs/38660140004 . Session Handoff and certification must be rerun after this documentation-only checkpoint.
+PERSISTED / READBACK-PROVEN = Checker fix at 76391da039330ba1953e6ddcb6f1d0ee26cfdb01; state, report and memory will be read back after this update.
+BROWSER-PROVEN = YES on exact head e624f3f304528fe95a58a18bcd3c5f00c26b94f4. Real-report job 8dbafdf8-f769-4c4f-97a5-22eac8b47d41, source path تقارير ارصدة المخزون.pdf, hash sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839, 254 rows. Chromium auth/routes and Smart Report source-lineage / refresh proof passed; test actor cleanup revoked 4 scoped users.
+PRODUCTION-PROVEN = NOT_PROVEN. Public production serves source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b from deploy 6ac3d608e2e37d0008cc0222. Production /api/tenant-canary currently falls back to SPA HTML.
+OPEN_BLOCKER = PR #925 Phase-F run 38646785819 failed on head 0719a1e9a43321d5ea07f323c7ecb389e460bff4: /api/tenant-canary returned HTTP 503 operational_token_not_configured (3/4 probes passed). Netlify environment inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY. These must be provisioned by an authorized owner; connected GitHub tools cannot write repository secrets. No secret was fabricated or security gate bypassed.
+NEXT_EXACT_ACTION = Verify this docs-only successor's handoff / certification / enforcement checks; then provision owner-approved runtime credentials in Netlify Functions/runtime, ensure the operational token matches the GitHub Actions secret, rerun Phase-F on exact PR #925 SHA, then guarded deploy and production SHA verification.
 
 ---
 
