@@ -1,3 +1,27 @@
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #925 dark executive chain and exact-head validation
+
+Repository: Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+CODE_CHECKPOINT = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+REPORT_FOR_HEAD = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+PRODUCT_COMPLETE = NO
+UPDATED_AT = 2026-10-15T04:14:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Resume from live GitHub, improve the actual user-visible smart-report UI, follow the Phase-F failure, validate current code, and preserve an exact resumable checkpoint without inventing or exposing credentials.
+WHAT_I_ACTUALLY_DID = Changed styles only in src/components/UniversalIntelligenceChain.tsx, committed the change as e411f4af2e5201ed8ed59eb521c04ef297bafd2c, read the file/blob back from GitHub, checked exact-head workflow states, and read detailed logs for Phase-F and Session Handoff. I am updating all checkpoint files in one docs-only successor commit.
+WHAT_IS_PROVEN = The UI component is imported/rendered by src/pages/SmartReportPage.tsx and src/pages/ExternalFileAnalysisPage.tsx. The style-only source change is committed and read back. On predecessor 0719a1e..., Product Build, Quality, Final Certification, Session Handoff, and Full Product Browser E2E succeeded, while Phase-F failed at tenant-canary; those runs are historical relative to e411f4af2e5201ed8ed59eb521c04ef297bafd2c. Current exact-head runs: Build 38664442538 and Quality 38664442535 and Final Certification 38664442411 are in progress; browser E2E 38664442574 is queued; Phase-F 38664442547 is in progress. Session Handoff 38664442553 failed because the source change was not reported yet.
+FIRST_ACTIVE_FAILURE = Session Handoff run 38664442553, job 116192997356: stale report; unreported files: src/components/UniversalIntelligenceChain.tsx. Separately, predecessor Phase-F run 38646785819 returned tenant-canary HTTP 503 operational_token_not_configured. Current Phase-F run 38664442547 remains in progress at this capture.
+ROOT_CAUSE = The UI change was pushed without simultaneously re-anchoring the strict session handoff report to that functional commit. The live resilience failure is a separate missing Netlify runtime operational token, not an excuse to relax the handler's fail-closed guard.
+FIX = Keep the handoff contract intact; set REPORT_FOR_HEAD to the functional checkpoint e411f4af2e5201ed8ed59eb521c04ef297bafd2c and document changed paths in this successor. Do not transfer predecessor gate results to the new head.
+TESTED = No claim of final exact-head PASS. Workflow outcomes listed above were pending except for the specific handoff failure when captured.
+BROWSER-PROVEN = Prior head 0719a1e... passed Full Product Browser E2E; current UI checkpoint run 38664442574 was queued, so current-head browser proof is pending.
+PRODUCTION-PROVEN = NOT_PROVEN; production deployment 6ac3d608e2e37d0008cc0222 is ready but serves SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b, older than current main. Exact-SHA health/tenant-canary proof has not been established in production.
+OPEN_BLOCKER = Netlify runtime inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; authorized NETLIFY_AUTH_TOKEN cannot be configured from the current GitHub connector. Do not fabricate secrets or relax tenant/RLS protections.
+NEXT_EXACT_ACTION = Read back the successor's PR head; inspect the new exact-head Actions, fix the first new failure, and only retest live Phase-F once the missing runtime credentials are configured.
+SESSION HANDOFF = READY (history retained; final exact-head gates pending)
+
+---
+
 # CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #925 metric completeness and handoff
 
 Repository: Report-Engainall/Report-Advisor

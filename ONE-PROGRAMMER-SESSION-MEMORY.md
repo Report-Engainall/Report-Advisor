@@ -1,3 +1,27 @@
+# LIVE RESUME — 2026-10-15 / PR #925 dark executive chain + exact-head gates
+
+Repository: Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+CURRENT_EXACT_HEAD = e411f4af2e5201ed8ed59eb521c04ef297bafd2c (functional UI checkpoint; documentation-only successor follows)
+CODE_CHECKPOINT = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+REPORT_FOR_HEAD = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
+UPDATED_AT = 2026-10-15T04:14:00+03:00
+PRODUCT_COMPLETE = NO
+
+ACTION_STATUS = The actual UniversalIntelligenceChain used by the smart-report screen now has a cohesive dark navy/Indigo/Amber executive treatment. Commit: https://github.com/Report-Engainall/Report-Advisor/commit/e411f4af2e5201ed8ed59eb521c04ef297bafd2c; component readback: https://github.com/Report-Engainall/Report-Advisor/blob/fix/netlify-runtime-provenance-on-main-20261014/src/components/UniversalIntelligenceChain.tsx. This is styling only; no analysis, evidence, authentication, or RLS logic changed.
+
+EXACT_HEAD_ACTIONS = Build 38664442538 IN_PROGRESS; Quality 38664442535 IN_PROGRESS; Final Certification 38664442411 IN_PROGRESS; Full Product Browser E2E 38664442574 QUEUED; Phase-F 38664442547 IN_PROGRESS. Session Handoff 38664442553 failed because the source path was not added to the checkpoint; docs-only successor records it. Never report these pending runs as pass.
+
+PHASE_F_PRIOR_EVIDENCE = Run 38646785819 on predecessor 0719a1e9a43321d5ea07f323c7ecb389e460bff4: health SHA check, backup/restore and rollback passed; tenant-canary returned HTTP 503 operational_token_not_configured; 3/4 probes passed and Phase F remained NOT READY.
+
+NETLIFY_ENV = Site env inventory is missing RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY. The tenant-canary handler correctly fails closed. Production deploy token NETLIFY_AUTH_TOKEN is not manageable via the connected session. Do not fabricate secrets, expose values, or weaken tenant isolation.
+PRODUCTION = NOT_PROVEN. Published production deploy 6ac3d608e2e37d0008cc0222 serves SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b; current main is b4bb9fe6f278fd7d2c2dcb76b144638549036565.
+NEXT_EXACT_ACTION = Re-read live PR head after this docs-only commit, inspect only exact-head Actions, fix the first evidenced failure, and keep Phase-F blocked until authorized runtime config exists.
+
+---
+
 # LIVE RESUME — 2026-10-15 / PR #925 missing-measurement truth fix
 
 Repository: Report-Engainall/Report-Advisor

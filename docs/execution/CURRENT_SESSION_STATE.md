@@ -1,3 +1,50 @@
+# LIVE RESUME — 2026-10-15 / PR #925 dark executive chain + current exact-head gates
+
+Repository: Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+CURRENT_EXACT_HEAD = e411f4af2e5201ed8ed59eb521c04ef297bafd2c (functional UI checkpoint; this documentation-only successor records the checkpoint)
+CODE_CHECKPOINT = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+REPORT_FOR_HEAD = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
+UPDATED_AT = 2026-10-15T04:14:00+03:00
+PRODUCT_COMPLETE = NO
+ACTION_STATUS = Actual UniversalIntelligenceChain dark executive palette committed and read back. Exact-head Product Build, Quality, Final Certification, Full Product Browser E2E, and Phase-F runs were started for this code checkpoint. Session Handoff Contract correctly failed because its report baseline did not yet list src/components/UniversalIntelligenceChain.tsx; this docs-only successor records the change without altering the contract.
+
+## Implemented this cycle
+- Functional UI commit: https://github.com/Report-Engainall/Report-Advisor/commit/e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+- Readback: https://github.com/Report-Engainall/Report-Advisor/blob/fix/netlify-runtime-provenance-on-main-20261014/src/components/UniversalIntelligenceChain.tsx
+- Changed style classes only in src/components/UniversalIntelligenceChain.tsx: dark navy surface, restrained Indigo accents, readable slate text, and Amber decision-boundary panel across the actual universal chain used on SmartReportPage. No analysis logic, evidence rules, auth, RLS, or thresholds were changed.
+- Existing generic-analysis correction remains: src/lib/file-engine/generic-intelligence.ts preserves absent monthly measurements as unknown, reports coverage/missing values, and avoids reconciling incomplete rows as zero. Regression lives in scripts/generic-file-analysis.test.mjs.
+
+## Actions on exact code checkpoint e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+- Product Build Gate run 38664442538: IN_PROGRESS at capture.
+- Quality run 38664442535: IN_PROGRESS at capture.
+- Final Certification Gate run 38664442411: IN_PROGRESS at capture.
+- Full Product Browser E2E run 38664442574: QUEUED at capture.
+- Phase-F Live Resilience run 38664442547: IN_PROGRESS at capture.
+- Session Handoff Contract run 38664442553: FAILED; job 116192997356 reported exactly: SESSION_HANDOFF_CONTRACT_FAIL: stale report; unreported files: src/components/UniversalIntelligenceChain.tsx. Root cause was checkpoint drift, not a code failure. The correction here keeps the existing strict contract and moves REPORT_FOR_HEAD to the exact code checkpoint e411f4af2e5201ed8ed59eb521c04ef297bafd2c.
+- The earlier exact-head Phase-F run 38646785819 on predecessor 0719a1e9a43321d5ea07f323c7ecb389e460bff4 passed health identity, backup/restore, and rollback probes; tenant-canary failed HTTP 503 operational_token_not_configured (3/4). Do not transfer that result to run 38664442547.
+
+## Runtime and release blockers
+- Netlify site environment inventory currently contains RESILIENCE_CANARY_FOREIGN_COMPANY_ID, RESILIENCE_COMPANY_ID, SUPABASE_URL, VITE_SUPABASE_ANON_KEY, and VITE_SUPABASE_URL. It lacks runtime RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY.
+- The tenant-canary handler correctly fails closed when RESILIENCE_OPERATIONAL_TOKEN is absent; do not bypass the token check or cross-tenant/RLS guards. The connected GitHub administration surface cannot set or expose the required secret values.
+- NETLIFY_AUTH_TOKEN for authorized production deployment is not available to this session for configuration. No secret was fabricated or exposed.
+- Current published production deploy: 6ac3d608e2e37d0008cc0222, SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b, published 2026-10-05; this is stale against main b4bb9fe6f278fd7d2c2dcb76b144638549036565. Exact-SHA production proof remains NOT_PROVEN.
+
+## Truth boundary
+IMPLEMENTED = YES for the style-only UI refinement.
+PERSISTED = YES — commit e411f4af2e5201ed8ed59eb521c04ef297bafd2c exists on the PR branch.
+READBACK-PROVEN = YES — component content/blob read back from GitHub.
+TESTED = PENDING on the final exact head; runs listed above were pending when captured.
+BROWSER-PROVEN = Previous checkpoint 0719a1e... passed Full Product Browser E2E; current UI checkpoint E2E run 38664442574 was queued, therefore latest-code browser proof is pending.
+PRODUCTION-PROVEN = NOT_PROVEN.
+PRODUCT_COMPLETE = NO.
+OPEN_BLOCKER = Phase-F requires authorized Netlify runtime secrets; production deployment requires authorized NETLIFY_AUTH_TOKEN; exact-head workflows must finish.
+NEXT_EXACT_ACTION = After this docs-only commit, reread the live PR head and inspect the newly triggered exact-head Actions; fix the first evidenced failure. Re-run/prove Phase-F only after the authorized runtime env variables are configured.
+
+---
+
 # LIVE RESUME — 2026-10-15 / PR #925 metric completeness and handoff repair
 
 Repository: Report-Engainall/Report-Advisor
