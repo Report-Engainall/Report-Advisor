@@ -102,7 +102,7 @@ function assertUniversalChainDisclosure(pageSource, pageName, expandedByDefault)
   const disclosureStart = pageSource.lastIndexOf('<details', chainPosition);
   const openingTagEnd = pageSource.indexOf('>', disclosureStart);
   const openingTag = disclosureStart >= 0 && openingTagEnd >= 0 ? pageSource.slice(disclosureStart, openingTagEnd + 1) : '';
-  const expanded = /\\bopen\\b/.test(openingTag);
+  const expanded = /\bopen\b/.test(openingTag);
   if (expandedByDefault && !expanded) throw new Error(pageName + ' must keep the full source-analysis chain expanded for the interactive file lab');
   if (!expandedByDefault && expanded) throw new Error(pageName + ' must leave deep analysis collapsed behind the executive-first summary');
   if (!expandedByDefault && (
