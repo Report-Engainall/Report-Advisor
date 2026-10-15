@@ -1,24 +1,24 @@
 # CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #927 PDF reconstruction correctness
 Repository: Report-Engainall/Report-Advisor
-REPORT_FOR_HEAD = 50a121570e8308c52c02726552b36194aded9ab3
-UPDATED_AT = 2026-10-15T02:38:30Z
-WHAT_I_WAS_ASKED_TO_DO = Fix the PDF extraction/analysis failure where organization titles were accepted as numeric table headers and synthetic visual cells inflated generic metrics.
-WHAT_I_ACTUALLY_DID = PR #927 raises the PDF reconstructed-table confidence floor from 35 to 55, classifies PDF visual-line/helper-column layouts as evidence rather than business tables, reads the original line text once for generic analysis, and adds focused PDF/generic analysis regressions. After Quality reported a Behavioral regressions failure on its previous head, corrected the newly added keyword-count expectation: `1650000 | 1650000` contains two source occurrences; the duplicate helper-cell projection would have produced four.
-WHAT_IS_PROVEN = GitHub readback confirms the functional code checkpoint 50a121570e8308c52c02726552b36194aded9ab3, all intended implementation/test files on branch, and the corrected source-only count assertion. Typecheck passed on the prior documentation-only head; session handoff was observed passing on that prior head. The current-head rerun has not yet proven the corrected Behavioral regressions step.
-FIRST_ACTIVE_FAILURE = Behavioral regressions failed on prior PR head 2d4f46f7c1cb0f4193e60ad6a2de3c782555b69a; the step log was unavailable while the overall Quality job continued. The faulty assertion discovered by source review has been corrected, but its relationship to the observed failure is not claimed as proven until rerun.
-ROOT_CAUSE = PDF table extraction accepted a weak 41-point header candidate at the 35-point threshold; synthetic PDF fallback rows included `text` plus `visual_cell_*` projections, which generic table analysis treated as independent measures. Separately, the new test initially expected four `1650000` keyword hits although its source-text field contains only two.
-NEXT_EXACT_ACTION = Inspect Quality, Product Build Gate, Session Handoff, Final Certification and browser check results for the exact new PR #927 source head; fix actual failures and confirm Behavioral regressions is green before merge.
+REPORT_FOR_HEAD = 45123ea3241faa46749bac6df394c31bddd2794a
+UPDATED_AT = 2026-10-15T02:39:15Z
+WHAT_I_WAS_ASKED_TO_DO = Correct the inaccurate PDF table and numeric results shown to the user, preserve source evidence when table structure is not proven, and make the regression mandatory in CI.
+WHAT_I_ACTUALLY_DID = PR #927 raises the PDF table confidence floor 35→55; detects synthetic PDF visual-line datasets and uses the original line text once rather than independently counting visual_cell helper projections; adds false-header and deduplicated-text regression cases; corrects the test count to two source occurrences (not four); and adds test:pdf-visual-line-fallback to Quality's Behavioral regressions command.
+WHAT_IS_PROVEN = Readback verified the implementation, tests, workflow command and exact code checkpoint 45123ea3241faa46749bac6df394c31bddd2794a. The previous Quality run on 2d4f46f7c1cb0f4193e60ad6a2de3c782555b69a failed exactly on the erroneous occurrence-count assertion at scripts/generic-file-analysis.test.mjs:178; Typecheck and Build completed successfully in that run, but the overall quality result was FAIL. This checkpoint fixes the expected count and adds explicit CI execution of the PDF table confidence regression. Fresh exact-head CI is pending.
+FIRST_ACTIVE_FAILURE = The prior exact-head Quality run failed on the newly added source-occurrence assertion because the expected value was 4 while the source-text line contains two copies of 1650000. The assertion now expects 2, and duplicate helper-cell counting would be 4. This prior failure is acknowledged, not hidden.
+ROOT_CAUSE = extractPdfTable accepted a weak 41-point candidate at a minimum threshold of 35. Generic analysis treated synthetic visual-cell columns as independent business measures. A wrong expected number in the first regression run also caused Quality's Behavioral regressions step to fail.
+NEXT_EXACT_ACTION = Read Quality and all required check outcomes for the exact source head after the documentation-only update. Confirm the corrected assertion and PDF parser test pass; then confirm Build, handoff, certification and browser E2E. Fix actual failures before any merge.
 SESSION HANDOFF = NOT READY
 PRODUCT_COMPLETE = NO
 
-## Implementation / scope boundary
-- `src/lib/file-engine/pdf-table.ts`: weak header candidates below 55 return to the existing page/line evidence fallback.
-- `src/lib/file-engine/generic-intelligence.ts`: synthetic line layouts with page/line ordinals, source text, and visual helper cells are not profiled as business tables; generic text evidence uses the original line field once.
-- `scripts/pdf-visual-line-fallback.test.ts`: reproduces the 41-point organization-title header and keeps known valid-table coverage.
-- `scripts/generic-file-analysis.test.mjs`: verifies that helper-cell projections do not duplicate numeric keywords or become business measures; expected source count is now two, not four.
-- No business records were written. No tenant/authentication/RLS, security, data-quality, workflow, or certification gate was bypassed or weakened.
-- Exact-head behavioral test, build, browser, production, and DB/job/sourceHash verification are still required.
-- A separate production runtime-token blocker in prior records remains outside this PR and is not claimed as resolved.
+## Change map
+- `src/lib/file-engine/pdf-table.ts`: weak headers below 55 are not structured into a table.
+- `src/lib/file-engine/generic-intelligence.ts`: synthetic PDF visual-line layouts skip business-table profiling and use source text once.
+- `scripts/pdf-visual-line-fallback.test.ts`: 41-point false-header regression; existing confirmed table continues to reconstruct.
+- `scripts/generic-file-analysis.test.mjs`: helper cells are excluded from duplicate keyword counts; expected source count is two.
+- `.github/workflows/quality.yml`: PDF visual-line parser regression runs in the Behavioral regressions stage.
+- No business records were written; no quality/security/authentication/RLS thresholds or release gates were weakened.
+- Browser, DB/job/sourceHash readback against a re-uploaded PDF, and production deployment proof remain NOT PROVEN. A separate operational-token deployment blocker recorded earlier is outside this patch.
 ---
 
 # CURRENT PROGRAMMER REPORT — 2026-10-14 — PR #924 workflow hardening + handoff repair

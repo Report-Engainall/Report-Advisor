@@ -1,25 +1,27 @@
 # LIVE RESUME — 2026-10-15 / PR #927 PDF reconstruction correctness
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 50a121570e8308c52c02726552b36194aded9ab3
-CODE_CHECKPOINT = 50a121570e8308c52c02726552b36194aded9ab3
-REPORT_FOR_HEAD = 50a121570e8308c52c02726552b36194aded9ab3
+CURRENT_EXACT_HEAD = 45123ea3241faa46749bac6df394c31bddd2794a
+CODE_CHECKPOINT = 45123ea3241faa46749bac6df394c31bddd2794a
+REPORT_FOR_HEAD = 45123ea3241faa46749bac6df394c31bddd2794a
 BRANCH = fix/pdf-reconstruction-confidence-20261015
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/927 (OPEN / NOT MERGED; the PR source will be a documentation-only descendant after this checkpoint)
-ACTION_STATUS = PDF confidence/evidence fix implemented and readback-proven; incorrect expected keyword-occurrence count in its new regression corrected from 4 to 2 because the fixture has two occurrences in the source text and four only when helper projections are double-counted. Exact-head rerun of Behavioral regressions and release gates is pending.
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/927 (OPEN / NOT MERGED; source will be a documentation-only descendant of this code checkpoint)
+ACTION_STATUS = PDF parser/evidence fix committed and readback-proven; source-only keyword expectation corrected; the new PDF visual-line regression test is now included in Quality Behavioral regressions. Exact-head rerun is pending.
 PRODUCT_COMPLETE = NO
-OPEN_BLOCKERS = Quality previously reported Behavioral regressions failure on the prior PR head; the failing log was unavailable while the job continued, so the corrected assertion must be verified by rerun. Product Build Gate, Session Handoff, Final Certification and browser workflows also require exact-head results. Production/browser proof of reprocessing the user's original PDF is not established.
-NEXT_EXACT_ACTION = Read all PR #927 workflow results for the exact documentation-successor head, starting with Quality Behavioral regressions and Product Build Gate. Fix actual failures without lowering confidence thresholds or waiving gates. Do not merge until the required checks are green. After deployment, upload the original PDF again and verify its sourceHash/jobId and evidence on the live UI before declaring resolution.
+OPEN_BLOCKERS = Previous Quality run failed on the incorrect added occurrence-count expectation; corrected to count two source occurrences rather than four helper-duplicated occurrences. Current exact-head Quality, Build, Session Handoff, Final Certification, and browser workflows still need results. Production/browser proof on the original file is not established.
+NEXT_EXACT_ACTION = Read required checks on the exact new PR #927 source head. Confirm PDF visual-line test, generic file analysis, Typecheck, Build, Session Handoff, Final Certification and browser E2E; repair any failure without waiving gates. Do not merge until mandatory checks pass. After deployment re-upload the source PDF and verify it by SHA-256/jobId and source evidence.
 
-## Confirmed reproduction and correction
-- User-provided source: المديونيه المستحقه 24-9-2026.pdf, source hash prefix 64fe6040946c54f5…
-- UI defect: 246 records, 2 fields; two company names promoted to table headers; `PDF_TABLE_RECONSTRUCTED:41%`; semantic mapping 0/2; arithmetic summaries reported on a weakly reconstructed PDF layout.
-- Root cause: generic PDF table detection accepted scores >=35. The organization-title candidate scored 41. The PDF visual-line fallback exposes `page_number`, `line_number`, `text`, and `visual_cell_*`; generic intelligence treated helper cells as separate source measures and double-counted source text.
-- Corrected code checkpoint: 50a121570e8308c52c02726552b36194aded9ab3
-- Main implementation: `src/lib/file-engine/pdf-table.ts` raises the minimum score to 55; `src/lib/file-engine/generic-intelligence.ts` recognizes synthetic visual-line datasets and consumes the source text once; regressions are in `scripts/pdf-visual-line-fallback.test.ts` and `scripts/generic-file-analysis.test.mjs`.
-- Prior-head CI signal: the Quality `Behavioral regressions` step failed on documentation-successor head `2d4f46f7c1cb0f4193e60ad6a2de3c782555b69a`. The step log was not readable during that run, and no unverified cause is declared. Source inspection did identify and fix a wrong expected count in the added test: the fixture contains two literal `1650000` tokens in the `text` field; including helper columns would count four.
-- Verification state: repository readback proves the code and assertion correction are committed. The current-head re-run is the required proof that the regression suite passes. No user-source re-upload, production deployment, browser result or DB/job readback is claimed.
-- This report/state update is documentation-only after CODE_CHECKPOINT; historical records below remain intact.
+## Reproduced defect
+- User-provided source: المديونيه المستحقه 24-9-2026.pdf, displayed hash prefix 64fe6040946c54f5…
+- UI falsely showed 246 records and two company names as measure-column headers with `PDF_TABLE_RECONSTRUCTED:41%`, then calculated extreme arithmetic summaries while reporting mapping confidence 0/2.
+- Root cause: the parser accepted header candidates >=35 even though this candidate scored 41. The PDF visual fallback has `page_number`, `line_number`, `text`, and `visual_cell_*` fields, so the generic table profile counted helper projections as separate measures.
+- Code checkpoint: 45123ea3241faa46749bac6df394c31bddd2794a
+- `src/lib/file-engine/pdf-table.ts`: minimum structured-PDF table header score increased to 55; weak candidates return to page/line evidence.
+- `src/lib/file-engine/generic-intelligence.ts`: synthetic PDF visual-line layout is not treated as a business table; source line text is analyzed once rather than through duplicated helper columns.
+- Tests: `scripts/pdf-visual-line-fallback.test.ts` reproduces the 41-point false header while preserving a supported table case. `scripts/generic-file-analysis.test.mjs` verifies the source text's two occurrences of `1650000` are counted as 2, not 4. `.github/workflows/quality.yml` now runs `npm run test:pdf-visual-line-fallback` in the Behavioral regressions gate.
+- Previous CI evidence: on head `2d4f46f7c1cb0f4193e60ad6a2de3c782555b69a`, Quality failed on that incorrect assertion; its log explicitly reported the source occurrence-count assertion. Typecheck succeeded and Build completed; the overall run remains FAILED. This is corrected in the new code checkpoint and must be proven by the rerun.
+- Proof boundary: code and workflow changes are GitHub-readback-proven. The current exact-head tests, browser upload using the user's source PDF, DB/job readback, and production fix remain unproven.
+- This document is the code checkpoint; next branch head will only add state/report/archive documentation. Historical checkpoint records below are preserved.
 ---
 
 # LIVE RESUME — 2026-10-14 / PR #924 non-secret deploy-ID fallback + handoff repair

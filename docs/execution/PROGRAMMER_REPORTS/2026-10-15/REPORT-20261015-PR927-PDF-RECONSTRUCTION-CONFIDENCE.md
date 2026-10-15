@@ -2,34 +2,33 @@
 
 Date: 2026-10-15
 Repository: Report-Engainall/Report-Advisor
-Code checkpoint: 50a121570e8308c52c02726552b36194aded9ab3
+Code checkpoint: 45123ea3241faa46749bac6df394c31bddd2794a
 PR: https://github.com/Report-Engainall/Report-Advisor/pull/927
 Branch: fix/pdf-reconstruction-confidence-20261015
-Status at this capture: OPEN / NOT MERGED
+Status: OPEN / NOT MERGED
 
 ## Reproduction
-The UI exposed a PDF as 246 records and 2 columns. The columns were organization names rather than proven business fields. The adapter marked them `PDF_TABLE_RECONSTRUCTED:41%`, while generic intelligence generated numeric statistics as though the titles were verified table headings. PDF visual-layout rows also expose `page_number`, `line_number`, `text`, and synthetic `visual_cell_*` projections.
+The UI exposed `المديونيه المستحقه 24-9-2026.pdf` as 246 records and 2 columns. The column headers were organization names, mapping was 0/2, yet the adapter marked the reconstruction `PDF_TABLE_RECONSTRUCTED:41%` and the generic analysis calculated arithmetic results as if the PDF table structure were proven.
 
-## Root cause and functional fix
-- `extractPdfTable` accepted weak header candidates at score 35, so the 41-point organization-title candidate could be accepted.
-- The fallback table profile missed layouts with more than two columns and counted synthetic visual helper cells separately from source text.
-- The PDF table floor was raised to 55 and the generic analysis layer now recognizes synthetic line layouts, avoids business-table profiling, and uses source-line text only once.
+## Root cause and fix
+1. `extractPdfTable` accepted detected headers at score 35; this fixture's organization-title pair scores 41.
+2. Visual PDF fallback stores both a `text` source line and `visual_cell_*` helper columns, which previously let the generic profile count the same source tokens multiple times and mislabel the layout as a business table.
+3. Raise the structured table floor to 55. Keep low-confidence rows as original page/line evidence. Treat the synthetic layout as text-first evidence, not a business table, and analyze the `text` field once.
 
-## Regression suite
-- `scripts/pdf-visual-line-fallback.test.ts`: expected to prove the 41-point false header is rejected while a known table still reconstructs.
-- `scripts/generic-file-analysis.test.mjs`: expected to prove synthetic PDF helper columns do not become business measures or duplicate keyword counts.
-- Correction after prior Quality run: that run reported the overall `Behavioral regressions` step as failed, but its live log was not available while the job continued. Source review found a test expectation bug and changed it: the source text `1650000 | 1650000` contains two literal tokens. Correct behavior is keyword count `1650000:2`; the helper fields would inflate it to `1650000:4`. The current-head re-run must confirm the failure is gone.
+## Tests and CI correction
+- PDF parser regression reproduces the 41-point false header and asserts no table reconstruction; it retains positive coverage for a known good header.
+- Generic regression checks that `1650000 | 1650000` is counted twice from the source `text`, rather than four times when the same values are counted again through helper cells.
+- First Quality run on `2d4f46f7c1cb0f4193e60ad6a2de3c782555b69a` failed on the added count assertion, expecting four source occurrences. The log confirmed the assertion; the fixture actually has two. Fixed to `1650000:2`.
+- Quality workflow's Behavioral regressions stage now calls `npm run test:pdf-visual-line-fallback`, so the actual confidence-gate regression is explicitly run during mandatory Quality.
 
 ## Verification boundary
-- GitHub readback of code and corrected test: PASS.
-- Typecheck on prior head: PASS.
-- Session Handoff Contract on prior head: PASS.
-- Behavioral regressions on prior head: FAIL; reason awaiting exact-head re-run confirmation, do not conceal.
-- Current-head Quality/Build/Final Certification/browser workflows: PENDING.
-- Browser proof of re-uploading the user's original PDF: NOT RUN.
-- DB/job/sourceHash readback: NOT RUN.
+- Code, corrected test and quality-workflow invocation: GitHub-readback-proven.
+- Typecheck on the previous head: PASS.
+- Previous overall Quality run: FAIL due the wrong test expectation (corrected at this checkpoint).
+- Current exact-head behavioral test, Product Build Gate, Quality, Session Handoff, Final Certification and browser E2E: PENDING.
+- Original PDF re-upload/browser proof and DB/job/sourceHash readback: NOT RUN.
 - Production deployment proof: NOT PROVEN.
 - Product complete: NO.
 
 ## Next exact action
-Read the new exact-head PR #927 checks. Confirm Behavioral regressions, Product Build Gate, Quality and Final Certification pass; fix any demonstrated failure without reducing gates. After merge/deployment, re-upload the original PDF and verify source hash/job identity, visible rows, no company-name-as-measure summary, and accurate evidence counts before declaring this issue resolved.
+Inspect the exact-head CI and browser results for PR #927. Confirm the corrected source-occurrence count and the new PDF regression pass, fix any remaining failure without bypasses, and only then proceed through required merge/deploy gates. Re-upload the original PDF on the live app to verify its current source-bound result before declaring resolution.
