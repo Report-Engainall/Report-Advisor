@@ -3,51 +3,37 @@
 Repository: Report-Engainall/Report-Advisor
 PR: https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
 BRANCH = fix/netlify-runtime-provenance-on-main-20261014
-CURRENT_EXACT_HEAD = f25af5867d40a665cbce502aef591fafe6d4f411 (functional checkpoint; following commits are documentation-only)
-CODE_CHECKPOINT = f25af5867d40a665cbce502aef591fafe6d4f411
-REPORT_FOR_HEAD = f25af5867d40a665cbce502aef591fafe6d4f411
+CURRENT_EXACT_HEAD = 33729b8b195d887c591b7296fcdb479b81ed3b4d (functional code/test checkpoint; following commit is documentation-only)
+CODE_CHECKPOINT = 33729b8b195d887c591b7296fcdb479b81ed3b4d
+REPORT_FOR_HEAD = 33729b8b195d887c591b7296fcdb479b81ed3b4d
 MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
-UPDATED_AT = 2026-10-15T02:18:00Z
-ACTION_STATUS = Customer-facing report hierarchy repair is committed; exact-head validation is pending on the documented checkpoint.
-WHAT_I_WAS_ASKED_TO_DO = Put the executive conclusion first for arbitrary reports, expose detailed analysis on demand, and keep E2E verification artifacts out of customer-facing report lists without deleting data.
-WHAT_I_ACTUALLY_DID = Reordered the Smart Report, added accessible disclosures for generic intelligence and source rows, filtered report-advisor-e2e-* from the customer catalogue, updated browser E2E to expand details during proof, and added contract assertions.
-WHAT_IS_PROVEN = Source and test files were committed and read back from GitHub. Product Build, Quality, browser E2E, Final Certification and Phase-F have not all passed on this checkpoint; production remains unproven.
-FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38670174150 listed four UI source/test paths as unreported.
-ROOT_CAUSE = The handoff report anchor remained on 7d63d43aec5f1877c64e48f66145a4ecc5f60bba rather than functional checkpoint f25af5867d40a665cbce502aef591fafe6d4f411. The fix is to report the actual code checkpoint; do not relax the checker.
+UPDATED_AT = 2026-10-15T02:24:30Z
+ACTION_STATUS = Executive-first report hierarchy and customer report catalogue filtering committed; exact-head gates are queued and must not be considered passed.
+WHAT_I_WAS_ASKED_TO_DO = Put the executive conclusion first for any uploaded report, expose full analysis on demand, and keep internal E2E fixture files out of customer-facing recent reports without deleting persisted rows.
+WHAT_I_ACTUALLY_DID = Reordered SmartReportPage so the advisor brief precedes analysis; collapsed the universal chain and added accessible summaries for it, generic intelligence, and raw source rows; excluded reserved report-advisor-e2e-* file names from ReportsPage catalogue/pagination; updated E2E to expand detailed analysis; updated contracts to require progressive disclosure.
+WHAT_IS_PROVEN = Source and test commits were read back. On predecessor f25af5867d40a665cbce502aef591fafe6d4f411, TypeScript and production build passed, but Product Build Gate failed because an old contract demanded the universal chain be expanded by default. Contract corrected at 33729b8b195d887c591b7296fcdb479b81ed3b4d; fresh exact-head Product Build, Quality and browser E2E runs are pending.
+FIRST_ACTIVE_FAILURE = Product Build Gate run 38670173962 on predecessor f25af5867d40a665cbce502aef591fafe6d4f411 failed at scripts/smart-report-complete-intelligence-surface.test.mjs:105 because it required the Smart Report disclosure to be open by default.
+ROOT_CAUSE = The assertion contradicted the desired executive-first interface. It now verifies that Smart Report's universal chain is collapsed but discoverable through explicit summary markers, while File Lab remains expanded for interactive analysis. The complete analysis/evidence collections are preserved; neither tests nor evidence guards were removed.
 PRODUCT_COMPLETE = NO
 
-## What was requested
-Deliver a real customer-facing report experience for any uploaded report: lead with the decision-relevant conclusion, preserve the source/job/hash boundary, expose full analysis on demand, and prevent automated test artifacts from appearing as recent customer reports. Do not delete persisted records or weaken evidence, authentication, tenant isolation, or RLS.
+## What changed
+- src/pages/SmartReportPage.tsx — commits b7c59add29bd9f8769a51ed00a94ea29f398a0cb and d6b22a575cba38951f9198788b939d9fcf1edb25: advisor-first layout; progressive disclosure for full intelligence, generic findings, and source-row exploration; accessible test IDs on the universal analysis disclosure.
+- src/pages/ReportsPage.tsx — commits 8c6ac7fc9572e8476c63b3b117da0103f8ad4307 and f25af5867d40a665cbce502aef591fafe6d4f411: filters reserved report-advisor-e2e-* names from the customer catalog and load-more pages without deleting records; keeps explicit job-ID readback.
+- scripts/real-business-e2e.mjs — commit f92dc4f82f2703d6ddc76e5acac04b877c9009ad: opens generic analysis explicitly during proof.
+- scripts/customer-facing-report-surface-contract.test.mjs — commit a02e4f5884c691aa5b4b251431cde3a7789fc84a: enforces brief-before-details and visible disclosures.
+- scripts/smart-report-complete-intelligence-surface.test.mjs — commits 178e468f462ac70b940d4ddeaa2db5719ea47e9b and 33729b8b195d887c591b7296fcdb479b81ed3b4d: checks collapsed Smart Report disclosure discoverability while keeping File Lab expanded.
 
-## Implemented in the functional checkpoint
-- `src/pages/SmartReportPage.tsx` (commit b7c59add29bd9f8769a51ed00a94ea29f398a0cb): moves the executive advisor brief ahead of bulky analysis; collapses the universal chain and wraps generic intelligence and raw source exploration in explicit, accessible detail disclosures.
-- `src/pages/ReportsPage.tsx` (commit 8c6ac7fc9572e8476c63b3b117da0103f8ad4307; context guard follow-up f25af5867d40a665cbce502aef591fafe6d4f411): filters reserved `report-advisor-e2e-` file names from customer report selection and catalogue without deleting the persisted jobs; full intelligence and row exploration are progressive disclosures. Explicit reportJobId/sourceHash navigation remains supported.
-- `scripts/real-business-e2e.mjs` (commit f92dc4f82f2703d6ddc76e5acac04b877c9009ad): browser proof explicitly opens the collapsed generic-intelligence disclosure before inspecting lineage/results.
-- `scripts/customer-facing-report-surface-contract.test.mjs` (commit a02e4f5884c691aa5b4b251431cde3a7789fc84a): locks executive-first order, disclosures, automation-artifact filtering, and E2E interaction.
+## Latest exact-checkpoint gates at capture
+- Product Build Gate: 38670762383 — QUEUED.
+- Quality: 38670762442 — QUEUED.
+- Full Product Browser E2E: 38670762430 — PENDING.
+- Session Handoff Contract: 38670762373 — PENDING before this documentation-only commit.
+- Final Certification Gate: 38670762208 — QUEUED.
+- Phase-F Live Resilience: 38670762113 — QUEUED.
+- The older preview canary still fails closed with HTTP 503 operational_token_not_configured; Netlify runtime inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY. Do not fabricate/expose secrets or weaken tenant/RLS safeguards.
+- Published Netlify production was last verified at deploy 6ac3d608e2e37d0008cc0222, source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b, dated 2026-10-05. Production SHA/runtime proof remains NOT_PROVEN.
 
-## What is proven right now
-IMPLEMENTED = YES — all four functional files are committed in the PR branch.
-READBACK-PROVEN = YES — GitHub file content and commits were read back.
-ROUTE-PROVEN = Only previously verified preview upload route at https://deploy-preview-925--aghbari-report-advisor.netlify.app/import/analyze; that old preview is not proof of this new UI checkpoint.
-BUILD / QUALITY / BROWSER-PROVEN = PENDING — consume exact-checkpoint Actions below; code edits and queued workflows are not test success.
-PRODUCTION-PROVEN = NOT_PROVEN. Published Netlify production was still on SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b (deploy 6ac3d608e2e37d0008cc0222, 2026-10-05) at the last verified inventory.
-PHASE-F = BLOCKED until authorized Netlify runtime configuration includes the required operational credential; prior exact-head probe returned 503 operational_token_not_configured. Never invent/expose secrets or relax tenant/RLS guards.
-PRODUCT_COMPLETE = NO.
-
-## Active failures and their causes
-FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38670174150 on this checkpoint failed with unreported paths: scripts/customer-facing-report-surface-contract.test.mjs, scripts/real-business-e2e.mjs, src/pages/ReportsPage.tsx, src/pages/SmartReportPage.tsx.
-ROOT_CAUSE = Handoff docs still anchored REPORT_FOR_HEAD to 7d63d43aec5f1877c64e48f66145a4ecc5f60bba, so the checker correctly detected later product files as unreported. The checker must remain strict; this documentation checkpoint re-anchors at the current functional commit.
-SECONDARY_NOTE = Quality run 38670097753 on an older moving merge ref failed diagnostics because the branch HEAD changed during the job; lint/build then failed from dependencies not being installed (eslint/vite missing). Do not treat that downstream failure as a code defect or a pass. Recheck the fresh exact-checkpoint runs.
-
-## Exact-checkpoint workflow snapshot
-- Product Build Gate: run 38670173962 — QUEUED when captured.
-- Quality: run 38670174226 — IN_PROGRESS when captured.
-- Full Product Browser E2E: run 38670174040 — PENDING when captured.
-- Phase-F Live Resilience: run 38670174127 — QUEUED when captured; previous probe failed closed due to missing runtime operational token.
-- Final Certification Gate: run 38670173837 — IN_PROGRESS when captured; do not infer its result.
-- Session Handoff Contract: run 38670174150 — FAILED for stale report coverage; a fresh run must pass after this docs-only correction.
-
-NEXT_EXACT_ACTION = Read the live PR head after these documentation commits; inspect fresh Product Build, Quality, Session Handoff, Full Product Browser E2E, Final Certification, and Phase-F on that exact SHA. Repair only the next observed failure. Keep PR #925 open and do not claim product completion or production proof.
+NEXT_EXACT_ACTION = After this documentation-only checkpoint, read live PR #925 head and recheck exact-head Product Build, Quality, Session Handoff, Browser E2E, Final Certification and Phase-F. Repair the first real failure only. Do not merge and do not claim production/product completion from pending or predecessor results.
 SESSION HANDOFF = NOT READY
 
 ---
