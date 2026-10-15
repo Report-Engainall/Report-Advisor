@@ -1,26 +1,27 @@
-# CURRENT PROGRAMMER REPORT — 2026-10-15 — Full browser proof passed; production release blocked
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — Real-source matrix N+1 query reduction
 
 Repository: Report-Engainall/Report-Advisor
 BRANCH = fix/generic-source-completeness-20261014
 PR = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
 MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
-CURRENT_EXACT_HEAD = e624f3f304528fe95a58a18bcd3c5f00c26b94f4 (tested code/workflow head; docs-only successor follows)
-CODE_CHECKPOINT = e624f3f304528fe95a58a18bcd3c5f00c26b94f4
-REPORT_FOR_HEAD = e624f3f304528fe95a58a18bcd3c5f00c26b94f4
-UPDATED_AT = 2026-10-15T00:51:06Z
-WHAT_I_WAS_ASKED_TO_DO = Continue implementation and verification on Report-Advisor, preserve source provenance and tenant isolation, prove generic file intelligence and report-to-decision UI, and leave a resumable exact-head checkpoint.
-WHAT_I_ACTUALLY_DID = Fixed the handoff contract allowlist on PR #926, verified checkpoint persistence, then re-ran and inspected exact-head Full Product Browser E2E instead of transferring predecessor results. Checked current production provenance and the separate Phase-F blocker.
-WHAT_IS_PROVEN = On exact head e624f3f304528fe95a58a18bcd3c5f00c26b94f4: Product Build Gate 38660139973 PASS; Quality 38660140496 PASS including GENERIC FILE ANALYSIS PASS; Data Quality Runtime 38660140278 PASS; Device-Independent Browser E2E 38660140189 PASS; Storage Tenant Runtime E2E 38660139930 PASS; Final Certification Gate 38660140574 PASS; Session Handoff 38660140707 PASS; Execution Enforcement 38660140489 PASS; Full Product Browser E2E 38660140004 PASS. Browser proved exact checkout/build, canonical regressions, auth/routes, real business journey and Smart Report refresh, supported-format generic intelligence, universal browser evidence gate, artifact upload and cleanup. Artifact ID 11939347446, 61,548,868 bytes. Optional specialist-real-source matrix timed out after 240 seconds and truthfully reported 0/48 NOT_PROVEN; it is explicitly not a generic-analysis gate. Mandatory archetype engine runtime contract passed 48/48.
-FIRST_ACTIVE_FAILURE = Phase-F Live Resilience run 38646785819 on PR #925 head 0719a1e9a43321d5ea07f323c7ecb389e460bff4.
-ROOT_CAUSE = Netlify tenant-canary fails closed with HTTP 503 operational_token_not_configured because RESILIENCE_OPERATIONAL_TOKEN is not configured in Netlify runtime. The function also requires SUPABASE_SERVICE_ROLE_KEY, absent from the Netlify environment inventory. Production still runs old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
-FIX = Added docs/execution/reports/ to the strict session-handoff allowlist in code checkpoint 76391da039330ba1953e6ddcb6f1d0ee26cfdb01. Ancestry, changed-path coverage, evidence, auth, and tenant-isolation checks were not weakened. All listed gates passed on tested head e624f3f304528fe95a58a18bcd3c5f00c26b94f4.
-TESTED = Exact-head build, quality, data-quality, device-independent browser, storage tenant, certification, handoff, enforcement and Full Product Browser E2E PASS.
-PERSISTED / READBACK-PROVEN = Checker and checkpoint files were read from GitHub; this docs-only update records exact browser artifacts and will be read back after commit.
-SESSION HANDOFF = READY on tested head e624f3f304528fe95a58a18bcd3c5f00c26b94f4; documentation successor checks required.
-BROWSER-PROVEN = YES on e624f3f304528fe95a58a18bcd3c5f00c26b94f4. Report job 8dbafdf8-f769-4c4f-97a5-22eac8b47d41, source تقارير ارصدة المخزون.pdf, 254 rows, hash sha256:3e945a181e766f2e2a50ea765a2db40d57a5c6049481b8e208be10a59d328839. E2E actor cleanup revoked four scoped actors.
+CURRENT_EXACT_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead (code checkpoint; docs-only successor follows)
+CODE_CHECKPOINT = 0efe136056277bbf5968c5454e9e9ae4a56ffead
+REPORT_FOR_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead
+UPDATED_AT = 2026-10-15T01:03:00Z
+WHAT_I_WAS_ASKED_TO_DO = Continue actual work on universal Report-Advisor analysis and close the real-source diagnostic timeout while retaining tenant, source hash, canonical anchor and evidence-passport boundaries.
+WHAT_I_ACTUALLY_DID = Investigated the timeout, queried read-only Supabase counts, then implemented batched eligibility-index/job reads, per-tenant governed corpus prefetch, batched canonical anchor lookup, regression assertions and atomic progress output. New source/test files are committed and read back.
+WHAT_IS_PROVEN = Prior head e624f3f passed universal generic file analysis and authenticated browser journey; Full Product Browser run 38660140004 passed generic formats, source-bound Smart Report, 48/48 runtime contract, universal evidence gate and cleanup. Its optional real-source matrix timed out at 240 seconds, yielding 0/48 NOT_PROVEN; this prompted the current fix. On new code checkpoint 0efe136056277bbf5968c5454e9e9ae4a56ffead, persisted/readback is proven; exact-head test results remain pending.
+FIRST_ACTIVE_FAILURE = Optional real-source coverage diagnostic timeout at run 38660140004, browser step 23; wrapper reported SPECIALIST_PREFLIGHT_TIMEOUT exit 124.
+ROOT_CAUSE = The source matrix scanned all completed jobs and ran one file_records request per passport before filtering real uploads. Database counts showed one tenant with 3,393 completed jobs but only 16 report_corpus files. Canonical record anchors were also queried sequentially.
+FIX = Select job IDs from VERIFIED/READY evidence passports and fetch those jobs in bounded batches; prefetch governed report_corpus file records once per tenant, index by exact file hash, then keep the strict isGovernedRealFileRecord check. Fetch canonical import anchors in bounded batches preserving commit and anchor precedence. Save atomic IN_PROGRESS artifacts as the scan runs; only all-48-complete and all-48-supported may report PASS.
+TESTED = Readback of source and contract files succeeded. Exact-head Quality, matrix-contract, Full Product Browser, Build and Certification outcomes on 0efe136056277bbf5968c5454e9e9ae4a56ffead remain PENDING.
+PERSISTED / READBACK-PROVEN = Commit 0efe136056277bbf5968c5454e9e9ae4a56ffead contains the performance and regression-contract changes; fresh GitHub readback returned source blob c9828a660dfad0ba73a5fcb695767f2cdd9b4845 and test blob 0fd4c80294a0c10c11d593418473225981769ec5.
+SESSION HANDOFF = NOT READY — current docs successor must pass handoff and final certification checks.
+BROWSER-PROVEN = predecessor only. New matrix implementation requires exact-head browser proof; timeout output must retain honest partial progress rather than appear as a final 0/48.
 PRODUCTION-PROVEN = NOT_PROVEN.
-PRODUCT_COMPLETE = NO.
-NEXT_EXACT_ACTION = Rerun handoff/certification/enforcement on this docs successor; provision authorized RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY to Netlify Functions/runtime, synchronize operational token with GitHub Actions, rerun Phase-F on PR #925 exact SHA, and only then guarded deployment and production proof.
+PRODUCT_COMPLETE = NO
+OPEN_BLOCKER = PR #925 Phase-F remains blocked by missing authorized Netlify runtime secrets; do not weaken token or tenant-isolation guards.
+NEXT_EXACT_ACTION = Verify source-matrix contract plus exact-head Quality/Build/Full Product Browser/Final Certification; then complete authorized Phase-F runtime secret setup.
 
 ---
 
