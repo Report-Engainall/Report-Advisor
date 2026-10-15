@@ -1,24 +1,25 @@
-# LIVE RESUME — 2026-10-15 / Real-source matrix optimization committed; exact-head retest pending
+# LIVE RESUME — 2026-10-15 / Real-source matrix optimization and lint fix; exact retests pending
 
 Repository: Report-Engainall/Report-Advisor
 BRANCH = fix/generic-source-completeness-20261014
 PR = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
 MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
-CURRENT_EXACT_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead (code checkpoint; docs-only successor follows)
-CODE_CHECKPOINT = 0efe136056277bbf5968c5454e9e9ae4a56ffead
-REPORT_FOR_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead
-UPDATED_AT = 2026-10-15T01:03:00Z
+CURRENT_EXACT_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8 (code checkpoint; docs-only successor follows)
+CODE_CHECKPOINT = f9bb12d80d295e47643effb779c1160dd063afc8
+REPORT_FOR_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8
+UPDATED_AT = 2026-10-15T01:11:00Z
 PRODUCT_COMPLETE = NO
-ACTION_STATUS = Prior tested code/workflow head e624f3f304528fe95a58a18bcd3c5f00c26b94f4 passed Product Build Gate 38660139973, Quality 38660140496 (GENERIC FILE ANALYSIS PASS), Data Quality Runtime 38660140278, Device-Independent Browser E2E 38660140189, Storage Tenant Runtime E2E 38660139930, Final Certification Gate 38660140574, Session Handoff 38660140707, Execution Enforcement 38660140489, and Full Product Browser E2E 38660140004. Its optional real-source coverage diagnostic timed out after 240 seconds and reported 0/48 NOT_PROVEN. Code checkpoint 0efe136056277bbf5968c5454e9e9ae4a56ffead changes the matrix preflight and its contract test to batch eligibility/job reads, prefetch governed corpus files once per tenant, batch canonical anchors, and atomically save progress. Exact-head retests are pending.
-IMPLEMENTED = Removed the N+1 file_records reads per passport and the broad scan of all completed jobs. The preflight now derives candidate job IDs from VERIFIED/READY evidence passports, reads only those IDs in bounded batches, loads report-corpus file records once per tenant and classifies by exact source hash using isGovernedRealFileRecord. Canonical import anchors are fetched in batches while exact company/source-hash/record-ID validation stays intact. Partial diagnostic artifacts atomically record IN_PROGRESS/COMPLETE and completed-archetype counts; PASS requires all 48 archetypes completed and supported.
-TESTED = Source/test changes are persisted at 0efe136056277bbf5968c5454e9e9ae4a56ffead; exact-head Quality, matrix contract, browser and certification results are PENDING. Predecessor PASS evidence is not transferred to this code checkpoint.
-PERSISTED / READBACK-PROVEN = Both changed source/test files were freshly read from GitHub after commit 0efe136056277bbf5968c5454e9e9ae4a56ffead. This docs checkpoint will be read back after commit.
-BROWSER-PROVEN = Full Product Browser E2E PASS on predecessor e624f3f only (run 38660140004, artifact 11939347446); it exposed the optional matrix timeout. The optimization is not browser-proven until a new exact-head run closes.
-PRODUCTION-PROVEN = NOT_PROVEN. Public production serves old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b from deploy 6ac3d608e2e37d0008cc0222.
-FIRST_ACTIVE_FAILURE = Optional real-source coverage diagnostic timed out after 240s on e624f3f; it could not complete, so its output was NOT_PROVEN.
-ROOT_CAUSE = Preflight iterated completed report jobs and issued a file_records query per passport before filtering for real uploads. One configured tenant had 3,393 completed jobs but only 16 governed corpus files. Canonical commit anchors were also queried sequentially.
-OPEN_BLOCKER = PR #925 Phase-F run 38646785819 remains failed closed on head 0719a1e9a43321d5ea07f323c7ecb389e460bff4: /api/tenant-canary HTTP 503 operational_token_not_configured. Netlify runtime lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; these must be provisioned by an authorized owner.
-NEXT_EXACT_ACTION = Run exact-head Quality, matrix contract, Full Product Browser E2E, Build and Certification on this code checkpoint and successor; inspect partial/final matrix artifact; then resolve the separately blocked PR #925 Phase-F secret prerequisite.
+ACTION_STATUS = Prior tested code/workflow head e624f3f304528fe95a58a18bcd3c5f00c26b94f4 passed Product Build, Quality (GENERIC FILE ANALYSIS PASS), Data Quality Runtime, Device-Independent Browser, Storage Tenant Runtime, Final Certification, Session Handoff, Execution Enforcement and Full Product Browser E2E. Optional real-source matrix timed out after 240 seconds and reported 0/48 NOT_PROVEN. Code checkpoint f9bb12d80d295e47643effb779c1160dd063afc8 includes batched matrix reads, one per-tenant governed-file prefetch, batched canonical anchors, atomic progress snapshots and the lint correction removing a duplicate results declaration. Exact-head reruns are pending.
+IMPLEMENTED = Preflight job IDs now come from VERIFIED/READY passports, completed jobs are queried in bounded IN batches, governed file records are fetched once per tenant and classified by exact source hash, and canonical anchors are fetched in bounded batches with source/tenant/ID checks unchanged. Atomic IN_PROGRESS/COMPLETE reports make partial work visible and PASS requires all 48 profiles to be complete and supported. A follow-up lint run caught a duplicate results declaration at code checkpoint 0efe136; commit f9bb12d removed it and the contract now asserts exactly one accumulator.
+TESTED = Source/test readbacks after f9bb12d confirmed one results accumulator. Quality on prior docs head f3dccc failed with the duplicate declaration; exact-head build/quality/matrix-contract/browser/certification results for f9bb12d and this docs successor are PENDING.
+PERSISTED / READBACK-PROVEN = Matrix source/test files are read back from GitHub; this checkpoint will be re-read after commit.
+BROWSER-PROVEN = Full Product Browser E2E PASS only on predecessor e624f3f (run 38660140004, artifact 11939347446); optional matrix diagnostic timed out and is exactly why the optimization was added. Do not claim coverage PASS on the new head before the new run completes.
+PRODUCTION-PROVEN = NOT_PROVEN. Public production remains on SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b (deploy 6ac3d608e2e37d0008cc0222).
+FIRST_ACTIVE_FAILURE = Lint on code predecessor 0efe136 detected duplicate declaration: “Identifier 'results' has already been declared”.
+ROOT_CAUSE = Moved shared results array to the top to support incremental progress writes but left the original declaration before the profile loop.
+FIX = Removed the old declaration in f9bb12d and added a regression assertion that the shared accumulator is declared exactly once. The same commit retains query batching and atomic progress.
+OPEN_BLOCKER = PR #925 Phase-F run 38646785819 remains failed closed with HTTP 503 operational_token_not_configured on /api/tenant-canary. Authorized Netlify runtime values RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY are absent; do not fabricate secrets or weaken isolation.
+NEXT_EXACT_ACTION = Run exact-head Quality/Lint, matrix contract, Product Build, Full Product Browser and Final Certification on f9bb12d and its docs successor. Then examine the source coverage artifact honestly; after CI passes, continue authorized Phase-F secret provisioning as a separate production prerequisite.
 
 ---
 

@@ -1,27 +1,27 @@
-# CURRENT PROGRAMMER REPORT — 2026-10-15 — Real-source matrix N+1 query reduction
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — Batch real-source matrix and fix duplicate result accumulator
 
 Repository: Report-Engainall/Report-Advisor
 BRANCH = fix/generic-source-completeness-20261014
 PR = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
 MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
-CURRENT_EXACT_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead (code checkpoint; docs-only successor follows)
-CODE_CHECKPOINT = 0efe136056277bbf5968c5454e9e9ae4a56ffead
-REPORT_FOR_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead
-UPDATED_AT = 2026-10-15T01:03:00Z
-WHAT_I_WAS_ASKED_TO_DO = Continue actual work on universal Report-Advisor analysis and close the real-source diagnostic timeout while retaining tenant, source hash, canonical anchor and evidence-passport boundaries.
-WHAT_I_ACTUALLY_DID = Investigated the timeout, queried read-only Supabase counts, then implemented batched eligibility-index/job reads, per-tenant governed corpus prefetch, batched canonical anchor lookup, regression assertions and atomic progress output. New source/test files are committed and read back.
-WHAT_IS_PROVEN = Prior head e624f3f passed universal generic file analysis and authenticated browser journey; Full Product Browser run 38660140004 passed generic formats, source-bound Smart Report, 48/48 runtime contract, universal evidence gate and cleanup. Its optional real-source matrix timed out at 240 seconds, yielding 0/48 NOT_PROVEN; this prompted the current fix. On new code checkpoint 0efe136056277bbf5968c5454e9e9ae4a56ffead, persisted/readback is proven; exact-head test results remain pending.
-FIRST_ACTIVE_FAILURE = Optional real-source coverage diagnostic timeout at run 38660140004, browser step 23; wrapper reported SPECIALIST_PREFLIGHT_TIMEOUT exit 124.
-ROOT_CAUSE = The source matrix scanned all completed jobs and ran one file_records request per passport before filtering real uploads. Database counts showed one tenant with 3,393 completed jobs but only 16 report_corpus files. Canonical record anchors were also queried sequentially.
-FIX = Select job IDs from VERIFIED/READY evidence passports and fetch those jobs in bounded batches; prefetch governed report_corpus file records once per tenant, index by exact file hash, then keep the strict isGovernedRealFileRecord check. Fetch canonical import anchors in bounded batches preserving commit and anchor precedence. Save atomic IN_PROGRESS artifacts as the scan runs; only all-48-complete and all-48-supported may report PASS.
-TESTED = Readback of source and contract files succeeded. Exact-head Quality, matrix-contract, Full Product Browser, Build and Certification outcomes on 0efe136056277bbf5968c5454e9e9ae4a56ffead remain PENDING.
-PERSISTED / READBACK-PROVEN = Commit 0efe136056277bbf5968c5454e9e9ae4a56ffead contains the performance and regression-contract changes; fresh GitHub readback returned source blob c9828a660dfad0ba73a5fcb695767f2cdd9b4845 and test blob 0fd4c80294a0c10c11d593418473225981769ec5.
-SESSION HANDOFF = NOT READY — current docs successor must pass handoff and final certification checks.
-BROWSER-PROVEN = predecessor only. New matrix implementation requires exact-head browser proof; timeout output must retain honest partial progress rather than appear as a final 0/48.
+CURRENT_EXACT_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8 (code checkpoint; docs-only successor follows)
+CODE_CHECKPOINT = f9bb12d80d295e47643effb779c1160dd063afc8
+REPORT_FOR_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8
+UPDATED_AT = 2026-10-15T01:11:00Z
+WHAT_I_WAS_ASKED_TO_DO = Remove the 240-second timeout cause from the optional real-source matrix while keeping file-origin, evidence snapshot, tenant and canonical commit proof strict; test and persist every fix.
+WHAT_I_ACTUALLY_DID = Batched completed-job queries using only VERIFIED/READY passport IDs, prefetched governed file records once per tenant, batched canonical anchors, and added atomic progress artifacts plus contract assertions. Exact-head Quality then revealed a duplicate results declaration from moving the accumulator; removed the old declaration and added a one-accumulator contract invariant.
+WHAT_IS_PROVEN = Prior head e624f3f passed generic file analysis and the complete browser business/Smart Report journey, but its optional specialist matrix timed out and reported 0/48 NOT_PROVEN. On f3dccc, lint failed specifically with “Identifier 'results' has already been declared”; f9bb12d fixes that and source/test files were read back. Exact-head CI for f9bb12d and its docs-only successor remains pending.
+FIRST_ACTIVE_FAILURE = Quality run 38663310993 on 0efe136, lint reported the duplicate results declaration. Session handoff on the code-only intermediate also failed because the new code/test files were not yet covered by the report checkpoint.
+ROOT_CAUSE = An earlier edit moved results to the top for incremental progress but did not delete the original declaration before the profile loop; documentation also needed advancing after the source/test files changed.
+FIX = Code commit f9bb12d80d295e47643effb779c1160dd063afc8 removes the duplicate and asserts exactly one results accumulator in scripts/real-48-source-matrix-contract.test.mjs. Batching and partial-progress behavior remain implemented.
+TESTED = Fresh readback confirmed results declaration count = 1 on f9bb12d; exact-head CI remains PENDING.
+PERSISTED / READBACK-PROVEN = Both source/test blobs were re-read from GitHub after commit f9bb12d. This doc successor is being written and will be re-read.
+SESSION HANDOFF = NOT READY — new docs-only successor needs contract recheck.
+BROWSER-PROVEN = predecessor e624f3f only, run 38660140004. The matrix optimization has not yet passed a new full browser run.
 PRODUCTION-PROVEN = NOT_PROVEN.
 PRODUCT_COMPLETE = NO
-OPEN_BLOCKER = PR #925 Phase-F remains blocked by missing authorized Netlify runtime secrets; do not weaken token or tenant-isolation guards.
-NEXT_EXACT_ACTION = Verify source-matrix contract plus exact-head Quality/Build/Full Product Browser/Final Certification; then complete authorized Phase-F runtime secret setup.
+OPEN_BLOCKER = PR #925 Phase-F still fails at HTTP 503 operational_token_not_configured. Do not weaken security to force a release.
+NEXT_EXACT_ACTION = Verify Quality/Lint, matrix contract, Build, Full Product Browser and Final Certification on f9bb12d and the documentation successor. If the matrix still reaches timeout, inspect its partial artifact progress before making another change.
 
 ---
 

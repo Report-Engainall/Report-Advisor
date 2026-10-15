@@ -1,26 +1,23 @@
-# LIVE RESUME — 2026-10-15 / Matrix preflight optimization committed; tests pending
+# LIVE RESUME — 2026-10-15 / Matrix source optimization plus duplicate-accumulator fix
 
 Repository: Report-Engainall/Report-Advisor
 BRANCH = fix/generic-source-completeness-20261014
 PR = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
 MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
-CURRENT_EXACT_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead (code checkpoint; docs-only successor follows)
-CODE_CHECKPOINT = 0efe136056277bbf5968c5454e9e9ae4a56ffead
-REPORT_FOR_HEAD = 0efe136056277bbf5968c5454e9e9ae4a56ffead
+CURRENT_EXACT_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8 (code checkpoint; docs-only successor follows)
+CODE_CHECKPOINT = f9bb12d80d295e47643effb779c1160dd063afc8
+REPORT_FOR_HEAD = f9bb12d80d295e47643effb779c1160dd063afc8
 PRODUCT_COMPLETE = NO
 
-## New source-matrix optimization
-- Commit 0efe136056277bbf5968c5454e9e9ae4a56ffead: preflight uses verified/ready evidence passport job IDs, bounded IN queries, per-tenant prefetch of report_corpus file records, and an exact file-hash map before calling the unchanged governed-real-source classifier.
-- Canonical import commit anchors are fetched in bounded batches then resolved in original newest-commit/anchor order with exact tenant/hash/ID checks.
-- Diagnostic writes atomic IN_PROGRESS/COMPLETE snapshots at startup, during source selection and after each archetype. PASS requires the complete profile list and 48 supported results.
-- Source and regression-contract files were read back from GitHub.
-- Previous exact-head e624f3f proof: generic file analysis, authenticated Chromium journey, source-bound Smart Report, 48/48 engine runtime contract, universal evidence gate and cleanup all passed. The optional real-source diagnostic timed out at 240 seconds and emitted 0/48 NOT_PROVEN; it was not proof of actual zero coverage.
-- New exact-head runtime results at 0efe136056277bbf5968c5454e9e9ae4a56ffead remain pending.
-## Production blocker
-- PR #925 Phase-F run 38646785819 failed closed at HTTP 503 operational_token_not_configured.
-- Public production still serves SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b from deploy 6ac3d608e2e37d0008cc0222.
-- Netlify environment lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY. Do not invent secrets or weaken tenant isolation.
-NEXT_EXACT_ACTION = Verify exact-head matrix contract, Quality, Full Browser E2E and certification. Then obtain owner-authorized runtime secrets and rerun Phase-F.
+## Matrix performance checkpoint
+- Commit 0efe136 batches candidate jobs from verified/ready passport IDs, prefetches governed file records once per tenant, batches canonical commit anchors, and writes atomic progress.
+- Quality found a real syntax failure on that intermediate: duplicate declaration “Identifier 'results' has already been declared”.
+- Commit f9bb12d80d295e47643effb779c1160dd063afc8 removes the stale lower declaration; readback confirmed the results array is declared exactly once and the contract test now checks that invariant.
+- New build, Quality, matrix contract and full browser exact-head runs are pending; don’t treat previous e624f3f test passes as proof for this source change.
+- The optional matrix on e624f3f timed out at 240 seconds and emitted 0/48 NOT_PROVEN. New code writes accurate IN_PROGRESS/COMPLETE records so an interrupted scan is distinguishable from a final proof.
+## Production remains blocked
+PR #925 Phase-F run 38646785819 returned HTTP 503 operational_token_not_configured. Netlify lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; production remains on old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Do not fabricate secrets or weaken tenant isolation.
+NEXT_EXACT_ACTION = Verify latest CI on f9bb12d and docs successor, inspect the matrix proof artifact, then continue owner-authorized Phase-F credential setup.
 
 ---
 
