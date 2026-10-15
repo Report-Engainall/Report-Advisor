@@ -138,5 +138,5 @@ assert.ok(surface.includes('shadow-[0_12px_35px_-28px_rgba(15,23,42,.45)]'), 'Pr
 assert.ok(generic.includes('shadow-[0_18px_52px_-42px_rgba(15,23,42,.55)]'), 'Generic intelligence must read as a primary analysis surface');
 assert.ok(generic.includes('hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md'), 'Signal cards need deliberate hover affordance');
 assert.ok(chain.includes('bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,.26),transparent_40%),linear-gradient(135deg,#090f1e_0%,#141c32_64%,#212348_100%)]'), 'Universal intelligence executive signal must use the shared dark-indigo treatment');
-assert.ok(chain.includes('border-primary-200 bg-primary-50 text-primary-900'), 'Verified source states should use restrained indigo instead of green-heavy accents');
+assert.ok(chain.includes('border-indigo-300/40 bg-indigo-400/10 text-indigo-200'), 'Verified source states should use restrained indigo within the dark executive palette');
 assert.ok(!chain.includes('border-emerald-200 bg-emerald-50 text-emerald-900'), 'Remove green-heavy verified status styling from the intelligence chain');
