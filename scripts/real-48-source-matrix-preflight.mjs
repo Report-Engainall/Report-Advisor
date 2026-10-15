@@ -515,8 +515,6 @@ async function sourceRowsFor(source) {
   return normalized;
 }
 
-const results = [];
-
 for (const profile of profiles) {
   const candidates = sourceRecords
     .filter((source) => source.sampleSize >= profile.minimumSample && requiredFieldsPresent(profile, source.fields))

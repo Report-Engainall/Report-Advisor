@@ -91,4 +91,8 @@ if (/const fileRecords = await evidenceSelect\(\s*'file_records',\s*\{\s*company
   fail('Preflight must not query file_records once per passport');
 }
 
+if ((source.match(/const results = \[\];/g) ?? []).length !== 1) {
+  fail('The matrix must use one shared results accumulator for incremental progress');
+}
+
 console.log('real-48-source-matrix-contract: PASS');
