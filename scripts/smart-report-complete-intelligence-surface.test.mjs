@@ -96,16 +96,23 @@ if (genericEngine.includes('numericColumns.slice(0, 5)')) throw new Error('Gener
 if (!genericEngine.includes('const numericSummary = numericColumns.map')) throw new Error('Every source numeric column must receive a complete descriptive profile');
 if (!genericEngine.includes('hasLineOrdinal') || !genericEngine.includes('hasLineContent')) throw new Error('Document line/text adapters must retain text evidence rather than becoming synthetic business tables');
 
-function assertUniversalChainExpandedByDefault(pageSource, pageName) {
+function assertUniversalChainDisclosure(pageSource, pageName, expandedByDefault) {
   const chainPosition = pageSource.indexOf('<UniversalIntelligenceChain result={universalIntelligence}');
   if (chainPosition < 0) throw new Error(pageName + ' must render the unified intelligence chain');
   const disclosureStart = pageSource.lastIndexOf('<details', chainPosition);
   const openingTagEnd = pageSource.indexOf('>', disclosureStart);
   const openingTag = disclosureStart >= 0 && openingTagEnd >= 0 ? pageSource.slice(disclosureStart, openingTagEnd + 1) : '';
-  if (!/\bopen\b/.test(openingTag)) throw new Error(pageName + ' must show the complete unified intelligence chain expanded by default');
+  const expanded = /\\bopen\\b/.test(openingTag);
+  if (expandedByDefault && !expanded) throw new Error(pageName + ' must keep the full source-analysis chain expanded for the interactive file lab');
+  if (!expandedByDefault && expanded) throw new Error(pageName + ' must leave deep analysis collapsed behind the executive-first summary');
+  if (!expandedByDefault && (
+    !openingTag.includes('data-testid="smart-report-universal-chain-details"') ||
+    !pageSource.includes('data-testid="smart-report-universal-chain-summary"') ||
+    !pageSource.includes('المسار الكامل مع الإشارات والأدلة يظهر عند الفتح')
+  )) throw new Error(pageName + ' must expose a discoverable summary for the collapsed universal analysis chain');
 }
-assertUniversalChainExpandedByDefault(smartReportPage, 'Smart Report');
-assertUniversalChainExpandedByDefault(uploadPage, 'File Lab');
+assertUniversalChainDisclosure(smartReportPage, 'Smart Report', false);
+assertUniversalChainDisclosure(uploadPage, 'File Lab', true);
 
 const universalChain = fs.readFileSync(new URL('../src/components/UniversalIntelligenceChain.tsx', import.meta.url), 'utf8');
 if (universalChain.includes('item.evidence.slice(0, 3)')) throw new Error('Universal intelligence chain must not hide available stage evidence');
