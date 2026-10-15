@@ -1,3 +1,31 @@
+# LIVE RESUME — 2026-10-15 / PR #927 PDF reconstruction correctness
+
+Repository: Report-Engainall/Report-Advisor
+CURRENT_EXACT_HEAD = 4ba8cd5073838f5a469f7a527a217cdcf1cc30a0
+CODE_CHECKPOINT = 4ba8cd5073838f5a469f7a527a217cdcf1cc30a0
+REPORT_FOR_HEAD = 4ba8cd5073838f5a469f7a527a217cdcf1cc30a0
+BRANCH = fix/pdf-reconstruction-confidence-20261015
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/927 (OPEN / NOT MERGED; the PR source will be a documentation-only descendant after this checkpoint)
+ACTION_STATUS = Implemented and readback-proven: PDF table confidence guard raised 35→55; synthetic PDF visual-line datasets are preserved as evidence lines and their text is counted once; focused regressions added. Exact-head CI has not yet been read back. Browser/production proof is not established.
+PRODUCT_COMPLETE = NO
+OPEN_BLOCKERS = Exact-head Quality/Build/Session Handoff/Final Certification checks pending; production/runtime operational token issue described in prior records remains separate and unresolved here.
+NEXT_EXACT_ACTION = Read the required checks and workflow runs for the exact PR #927 source head after documentation persistence; fix test failures without weakening confidence thresholds or evidence gates. Do not merge unless every required gate passes. After merge, re-read live PDF behavior before claiming production fixed.
+
+## Confirmed reproduction and correction
+- User-provided source: المديونيه المستحقه 24-9-2026.pdf, source hash prefix 64fe6040946c54f5…
+- Failure shown in UI: 246 rows, 2 fields; company names promoted to table headings; column quality marker PDF_TABLE_RECONSTRUCTED:41%; 0/2 semantic mappings; repeated values and a large negative outlier shown as if they were validated business measures.
+- Root cause: extractPdfTable accepted candidate headers at score 35, so a 41-point pair of organization titles could pass as a business table. On fallback, page/line evidence includes page_number, line_number, text and visual_cell_* helper projections; generic table profiling treated these synthetic layout fields as separate measures and duplicated text evidence.
+- Functional code checkpoint: 4ba8cd5073838f5a469f7a527a217cdcf1cc30a0
+- Changes are limited to:
+  - src/lib/file-engine/pdf-table.ts
+  - src/lib/file-engine/generic-intelligence.ts
+  - scripts/pdf-visual-line-fallback.test.ts
+  - scripts/generic-file-analysis.test.mjs
+- Fix behavior: weak header candidates below 55 now fall back to page/line evidence; synthetic document layouts are not presented as structured business tables; the source line is used once for generic text evidence; regression asserts distinguish four source occurrences from eight duplicated-helper occurrences.
+- Verification state: GitHub readback confirmed the branch files and commit ancestry. Test code is added but tests have not yet been proven by exact-head CI. No claim is made that the user's original PDF has been reprocessed, that its business fields are mapped, or that the live deployment is corrected.
+- This state/report update is documentation-only after CODE_CHECKPOINT; historical blocks below are retained for traceability.
+---
+
 # LIVE RESUME — 2026-10-14 / PR #924 non-secret deploy-ID fallback + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
