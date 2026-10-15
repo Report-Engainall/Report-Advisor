@@ -438,6 +438,16 @@ async function waitForSmartReportEvidenceSurface(page) {
   await passportSummary.waitFor({ state: 'visible', timeout: 30000 });
   const summaryText = (await passportSummary.innerText()).toUpperCase();
   assert.ok(summaryText.includes('EVIDENCE PASSPORT'), 'SMART_REPORT_VISIBLE_EVIDENCE_PASSPORT_MISSING');
+
+  // Full analysis stays collapsed for a clean executive first view. Expand it
+  // explicitly in the proof flow before asserting source lineage and results.
+  const genericDetailsSummary = page.locator('[data-testid="smart-report-generic-details-summary"]');
+  if (await genericDetailsSummary.count()) {
+    const genericCard = page.locator('[data-testid="smart-report-generic-intelligence"] [data-testid="generic-file-intelligence"]');
+    if (!(await genericCard.isVisible().catch(() => false))) {
+      await genericDetailsSummary.click();
+    }
+  }
 }
 
 async function proveSmartReportAndEvidence(page, companyId, importResult, label) {
