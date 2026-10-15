@@ -1,30 +1,32 @@
-# LIVE RESUME — 2026-10-15 / PR #926 handoff contract repair
+# LIVE RESUME — 2026-10-15 / Handoff contract fix proven; runtime release blocked
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01 (governance-code checkpoint; later docs-only successors follow)
-BRANCH = fix/generic-source-completeness-20261014
-PR #926 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
+Branch: fix/generic-source-completeness-20261014
+PR #926: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
+Main HEAD: b4bb9fe6f278fd7d2c2dcb76b144638549036565
+Code checkpoint: 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
+Tested checkpoint: 85e30715ceb10a039a99da68c3f6e0c58d539278
+CURRENT_EXACT_HEAD = 85e30715ceb10a039a99da68c3f6e0c58d539278 (tested checkpoint; this update is docs-only)
 CODE_CHECKPOINT = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
 REPORT_FOR_HEAD = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
 PRODUCT_COMPLETE = NO
 
-## Current proven state
-- Main HEAD at last read: b4bb9fe6f278fd7d2c2dcb76b144638549036565.
-- PR #926 predecessor head: c33ab8a195fafbe0f1b54f81482869cacc306441.
-- On that predecessor, Product Build, Quality, Data Quality Runtime and Full Product Browser E2E passed; Session Handoff and Final Certification failed on the single unreported dated report path.
-- New governance code checkpoint: 76391da039330ba1953e6ddcb6f1d0ee26cfdb01; updated the allowlist to recognize docs/execution/reports/ while preserving strict diff, ancestry and required-field checks.
-- Dated execution record: docs/execution/reports/2026-10-15/REPORT-20261015-0319-PR926-HANDOFF-ALLOWLIST.md.
-- PR #925's separate Phase-F still fails on head 0719a1e9a43321d5ea07f323c7ecb389e460bff4 because tenant-canary returns HTTP 503 operational_token_not_configured. Production deploy 6ac3d608e2e37d0008cc0222 serves old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
-- Netlify site inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; authorized NETLIFY_AUTH_TOKEN is not administrable through the current GitHub connector.
-- No secret values were invented or exposed, and no isolation/authorization contract was weakened.
+## Results now proven
+- The handoff allowlist now recognizes the documented `docs/execution/reports/` path and still enforces merge-base ancestry, full changed-file coverage and required checkpoint fields.
+- On tested head 85e30715ceb10a039a99da68c3f6e0c58d539278: Session Handoff Contract run 38659742014 PASS; Final Certification Gate run 38659741971 PASS; Execution Enforcement Contract run 38659741997 PASS.
+- Links: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659742014 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659741971 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659741997 .
+- Netlify preview 926 deploy ID 6ad01cfd3e56264f7b41c3d1 reports source/build/deployment SHA 85e30715... at /api/health.
+- Generic Product Build, Quality and Full Product Browser E2E passed earlier on c33ab8a only: runs 38655098902, 38655099274, 38655098864. Do not transfer those labels to the newer head.
+- Public production still serves source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b from deploy 6ac3d608e2e37d0008cc0222. Production tenant-canary route currently falls back to the SPA. PR #925 Phase-F run 38646785819 fails at HTTP 503 operational_token_not_configured (3/4 live probes pass).
+- The environment inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; NETLIFY_AUTH_TOKEN cannot be configured through current GitHub connector. No secrets were invented, read out to logs, or security gates weakened.
 
-## Truth boundary
-IMPLEMENTED = YES, committed at 76391da039330ba1953e6ddcb6f1d0ee26cfdb01.
-TESTED = PENDING on the updated code and exact docs successor head.
-READBACK-PROVEN = pending post-write readback now required.
-BROWSER-PROVEN = PASS on c33ab8a only, not inherited by successor.
+## Status boundary
+IMPLEMENTED = yes, checker fix at 76391da039330ba1953e6ddcb6f1d0ee26cfdb01.
+TESTED = Session Handoff, Final Certification and Enforcement pass on 85e30715.
+READBACK-PROVEN = prior checker/docs readback passed; verify the new documentation successor now.
+BROWSER-PROVEN = predecessor browser E2E only, not current authenticated production journey.
 PRODUCTION-PROVEN = NOT_PROVEN.
-NEXT_EXACT_ACTION = Verify branch HEAD and read back the checker/state/report/memory/archive, then inspect exact-head Quality, Session Handoff, Final Certification, and Full Product Browser E2E.
+NEXT_EXACT_ACTION = Provision authorized operational and deploy secrets, rerun Phase-F and verify exact production deployment SHA.
 
 ---
 

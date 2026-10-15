@@ -1,26 +1,29 @@
-# CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #926 handoff contract repair
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #926 handoff contract repaired
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01 (governance-code checkpoint; documentation-only successor commits follow)
-BRANCH = fix/generic-source-completeness-20261014
-PR = https://github.com/Report-Engainall/Report-Advisor/pull/926 (OPEN / NOT MERGED)
+Branch: fix/generic-source-completeness-20261014
+PR #926: OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
+Main HEAD: b4bb9fe6f278fd7d2c2dcb76b144638549036565
+Code checkpoint: 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
+Tested checkpoint: 85e30715ceb10a039a99da68c3f6e0c58d539278
+CURRENT_EXACT_HEAD = 85e30715ceb10a039a99da68c3f6e0c58d539278 (tested head before this documentation-only successor)
 CODE_CHECKPOINT = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
 REPORT_FOR_HEAD = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
-UPDATED_AT = 2026-10-15T03:19:00+03:00
-WHAT_I_WAS_ASKED_TO_DO = Resume the existing Report-Advisor work from live GitHub, continue generic source completeness and Smart Report provenance, fix proven CI blockers, preserve tenant isolation, and save an exact resumption point.
-WHAT_I_ACTUALLY_DID = Read live state for PR #925/#926, confirmed current main b4bb9fe6f278fd7d2c2dcb76b144638549036565 and PR #926 candidate c33ab8a195fafbe0f1b54f81482869cacc306441, inspected exact workflow logs, traced handoff and certification failure to the dated execution-report path being rejected, and updated scripts/check-session-handoff-contract.mjs so docs/execution/reports/ is allowed alongside the existing report paths. No auth, RLS, secret, or release threshold was weakened. Added docs/execution/reports/2026-10-15/REPORT-20261015-0319-PR926-HANDOFF-ALLOWLIST.md.
-WHAT_IS_PROVEN = On predecessor c33ab8a, Product Build Gate 38655098902, Quality 38655099274, Data Quality Runtime 38655099183, and Full Product Browser E2E 38655098864 passed. Session Handoff 38655098976 failed because docs/execution/reports/2026-10-15/REPORT-20261015-GENERIC-ORIGIN-PROVENANCE.md was outside the hard-coded allowlist. Final Certification 38655098952 failed on that same contract error. Fix committed as 76391da039330ba1953e6ddcb6f1d0ee26cfdb01; exact-head retests are pending.
-FIRST_ACTIVE_FAILURE = Session Handoff Contract run 38655098976 and Final Certification Gate run 38655098952 on c33ab8a.
-ROOT_CAUSE = scripts/check-session-handoff-contract.mjs allowed docs/execution/PROGRAMMER_REPORTS/ but not docs/execution/reports/, contradicting the documented dated-report convention.
-FIX = Extended the strict allowed-path expression to include docs/execution/reports/ only; retained merge-base ancestry, changed-file diffing, required checkpoint fields, and READY/NOT READY validation. This change must prove itself via new exact-head actions.
-TESTED = PENDING on 76391da039330ba1953e6ddcb6f1d0ee26cfdb01; predecessor statuses above do not transfer.
-PERSISTED / READBACK-PROVEN = Written to existing PR #926 branch; perform fresh readback after the current checkpoint updates.
-BROWSER-PROVEN = PASS on predecessor c33ab8a only; exact successor rerun required.
+UPDATED_AT = 2026-10-15T03:27:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue actual work on Report-Advisor, use live GitHub state, fix evidenced blockers, preserve source-truth and tenant-isolation rules, and maintain a resumable checkpoint.
+WHAT_I_ACTUALLY_DID = Inspected live PR/main and exact-head workflow logs; fixed the handoff contract's allowlist to accept the documented docs/execution/reports/ directory without relaxing the strict changed-file or ancestry checks; saved and read back checkpoint files. Verified exact-head Session Handoff, Final Certification, and Execution Enforcement results on 85e30715. Checked the current Netlify production runtime and PR preview provenance.
+WHAT_IS_PROVEN = On tested head 85e30715ceb10a039a99da68c3f6e0c58d539278, Session Handoff run 38659742014, Final Certification Gate 38659741971, and Execution Enforcement Contract 38659741997 all succeeded. The Netlify preview's /api/health reports source_sha/build_sha/deployment_sha 85e30715... and deploy id 6ad01cfd3e56264f7b41c3d1. Prior Product Build, Quality, and Full Product Browser E2E runs 38655098902, 38655099274, and 38655098864 passed only on predecessor c33ab8a; they are not claimed as runs on the new governance candidate. Public production /api/health reports old SHA 858ef8e3... and deploy 6ac3d608e2e37d0008cc0222. Its /api/tenant-canary URL falls through to SPA HTML. Phase-F run 38646785819 failed closed at HTTP 503 operational_token_not_configured.
+FIRST_ACTIVE_FAILURE = Phase-F Live Resilience run 38646785819 on PR #925 head 0719a1e9a43321d5ea07f323c7ecb389e460bff4.
+ROOT_CAUSE = Runtime canary requires the configured RESILIENCE_OPERATIONAL_TOKEN; this key and SUPABASE_SERVICE_ROLE_KEY are absent from Netlify site/team environment inventories. NETLIFY_AUTH_TOKEN cannot be administered by the currently connected GitHub tools. No approved values can be created from this connection.
+FIX = Added docs/execution/reports/ to the strict session-handoff changed-path allowlist. The fix is proven by Session Handoff Contract PASS on 85e30715 while retaining merge-base ancestry and diff coverage. Exact run links: https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659742014 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659741971 ; https://github.com/Report-Engainall/Report-Advisor/actions/runs/38659741997 .
+TESTED = Session Handoff / Final Certification / Execution Enforcement PASS on 85e30715; generic file Product Build, Quality and Browser E2E PASS on predecessor c33ab8a only.
+PERSISTED / READBACK-PROVEN = Checker and checkpoint files read back from GitHub after commit 76391da; new documentation-only successor being written and will be verified.
+BROWSER-PROVEN = PASS on predecessor c33ab8a only. Preview SHA health proof is not an authenticated end-to-end proof. Authenticated live upload-to-evidence-to-decision persistence remains NOT_PROVEN on current head and in production.
 PRODUCTION-PROVEN = NOT_PROVEN.
-SESSION HANDOFF = NOT READY — waiting for new exact-head contract and certification results.
+SESSION HANDOFF = READY — run 38659742014 succeeded on tested head 85e30715; Final Certification and Enforcement also succeeded on that tested head. Documentation-only successor checks are expected to execute separately.
 PRODUCT_COMPLETE = NO
-OPEN_BLOCKER = PR #925 Phase-F run 38646785819 failed on 0719a1e9a43321d5ea07f323c7ecb389e460bff4: /api/tenant-canary returned HTTP 503 operational_token_not_configured. Netlify production deploy 6ac3d608e2e37d0008cc0222 is ready but serves old source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b. Netlify environment inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; NETLIFY_AUTH_TOKEN cannot be administered by the current GitHub connection. Do not fabricate credentials or weaken isolation.
-NEXT_EXACT_ACTION = Re-read the current branch and checkpoint files, then inspect new exact-head Session Handoff, Quality, Final Certification, and Full Product Browser E2E results and fix the first proven defect.
+OPEN_BLOCKER = Missing authorized runtime/deployment credentials prevent Phase-F tenant-canary from passing and prevent production release proof.
+NEXT_EXACT_ACTION = Configure approved secrets in their correct secret stores, rerun Phase-F on the current PR #925 candidate, and validate the exact production deploy SHA before any merge/release.
 
 ---
 
