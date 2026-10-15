@@ -139,6 +139,14 @@ const reportCards = [
   { path:'/reports/profitability', title:'الربحية', stage:'قرار', desc:'هوامش الربحية حسب المنتج والعميل والفئة.', icon:TrendingUp, iconClass:'bg-primary-50 text-primary-600' },
 ];
 
+// Browser-driven E2E uploads use this reserved prefix. Keep those internal
+// verification artifacts out of customer-facing "latest reports" and catalog
+// cards; they remain persisted and can still be opened explicitly by job id.
+function isInternalAutomationReport(report: Pick<SmartReportCatalogItem, 'sourcePath'>): boolean {
+  const fileName = String(report.sourcePath ?? '').trim().split(/[\\/]/).pop()?.toLowerCase() ?? '';
+  return fileName.startsWith('report-advisor-e2e-');
+}
+
 export function ReportsCenterPage() {
   // Preserve explicit report context when navigation originates from a Smart Report.
   // A requested source must never silently fall back to the tenant's latest report.
@@ -207,7 +215,7 @@ export function ReportsCenterPage() {
 
     if (catalogRead.status === 'fulfilled') {
       const catalogPage = catalogRead.value;
-      catalog = catalogPage.reports;
+      catalog = catalogPage.reports.filter((report) => !isInternalAutomationReport(report));
       setSmartReports(catalog);
       setCatalogOffset(catalogPage.nextOffset ?? catalogPage.scanned);
       setCatalogHasMore(catalogPage.nextOffset !== null);
@@ -309,7 +317,7 @@ export function ReportsCenterPage() {
       );
       setSmartReports((current) => {
         const seen = new Set(current.map((report) => report.jobId + ':' + report.sourceHash));
-        const additions = page.reports.filter((report) => {
+        const additions = page.reports.filter((report) => !isInternalAutomationReport(report)).filter((report) => {
           const key = report.jobId + ':' + report.sourceHash;
           if (seen.has(key)) return false;
           seen.add(key);
@@ -341,7 +349,7 @@ export function ReportsCenterPage() {
   if (error && smartReports.length === 0) {
     return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10"><PageHeader title="مركز التقارير" subtitle="تعذر تحميل البيانات الحالية." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">إعادة المحاولة</button>} /><ErrorState message={error} onRetry={() => void load()} /></div>;
   }
-  if (!snapshot && smartReports.length === 0) return <DataUnavailableState title="مركز التقارير ينتظر المصدر" message="لا توجد لقطة تنفيذية ولا تقارير مكتملة للعرض بعد؛ لم يتم اختلاق أي بطاقة أو رقم." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
+  if (!snapshot && smartReports.length === 0 && !primarySmartReport) return <DataUnavailableState title="مركز التقارير ينتظر المصدر" message="لا توجد لقطة تنفيذية ولا تقارير مكتملة للعرض بعد؛ لم يتم اختلاق أي بطاقة أو رقم." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
   const persistedSmartJobId = typeof window !== 'undefined'
     ? window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? ''
@@ -477,10 +485,29 @@ export function ReportsCenterPage() {
     )}
 
     {primarySmartReport ? (
-      <div className="ag-reports-live-intelligence space-y-4" aria-label="ذكاء التقرير والبيانات المصدرية الحالية">
-        <ReportIntelligencePanel report={primarySmartReport} />
-        <BusinessDataExplorer report={primarySmartReport} />
-      </div>
+      <details data-testid="reports-center-primary-analysis-details" className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+        <summary data-testid="reports-center-primary-analysis-summary" className="cursor-pointer list-none px-5 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="section-kicker">تفاصيل التقرير الأحدث</div>
+              <div className="mt-1 text-sm font-black text-ink-950">الإشارات، التوصيات، الأدلة والبيانات الأصلية</div>
+              <p className="mt-1 text-xs leading-5 text-ink-500">الخلاصة والإشارة ومسار المصدر ظاهرة أعلاه؛ افتح التفاصيل عند مراجعة الصفوف والأدلة.</p>
+            </div>
+            <span className="shrink-0 rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">عرض التفاصيل</span>
+          </div>
+        </summary>
+        <div className="border-t border-ink-100 p-3 lg:p-4">
+          <div className="ag-reports-live-intelligence space-y-4" aria-label="ذكاء التقرير والبيانات المصدرية الحالية">
+            <ReportIntelligencePanel report={primarySmartReport} />
+            <details data-testid="reports-center-primary-source-data-details" className="rounded-2xl border border-ink-200 bg-white">
+              <summary data-testid="reports-center-primary-source-data-summary" className="cursor-pointer list-none px-4 py-3 text-sm font-black text-ink-900">استكشاف الصفوف والحقول الأصلية</summary>
+              <div className="border-t border-ink-100 p-3">
+                <BusinessDataExplorer report={primarySmartReport} />
+              </div>
+            </details>
+          </div>
+        </div>
+      </details>
     ) : null}
 
     <section className="ag-reports-explain grid gap-4 lg:grid-cols-[1.4fr_.6fr] items-end">

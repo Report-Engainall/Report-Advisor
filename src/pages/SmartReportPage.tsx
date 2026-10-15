@@ -1044,36 +1044,6 @@ export function SmartReportPage() {
       </div>
     </section>
 
-    {universalIntelligence && (
-      <details open className="progressive-disclosure rounded-[22px] border border-ink-200 bg-white shadow-card">
-        <summary className="cursor-pointer list-none px-5 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="section-kicker">الإثبات التفصيلي</div>
-              <div className="mt-1 text-base font-black text-ink-950">كيف وصل التقرير إلى الحكم والقرار المقترح؟</div>
-              <div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل مع الإشارات والأدلة ظاهر مباشرة؛ يمكنك طيّه عند الحاجة.</div>
-            </div>
-            <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">ظاهر الآن · اضغط للطي</span>
-          </div>
-        </summary>
-        <div className="border-t border-ink-100 p-3 lg:p-4">
-          <UniversalIntelligenceChain result={universalIntelligence} />
-        </div>
-      </details>
-    )}
-
-    <section aria-label="التحليل العام للمصدر" data-testid="smart-report-generic-intelligence">
-      <GenericFileIntelligenceCard
-        intelligence={report.genericIntelligence}
-        format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
-        sourcePath={report.sourcePath}
-        sourceHash={report.sourceHash}
-        reportJobId={report.jobId}
-        analysisScope={report.canonicalAnalysisScope}
-        analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}
-      />
-    </section>
-
     <section id="advisor-decision-brief" data-testid="smart-report-advisor-brief" className="rounded-[22px] border border-primary-200 bg-[linear-gradient(145deg,#f5fbf9,#ffffff)] p-5 shadow-card lg:p-7" aria-label="الخلاصة الاستشارية للتقرير">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -1174,7 +1144,61 @@ export function SmartReportPage() {
       </div>
     </section>
 
+    {universalIntelligence && (
+      <details data-testid="smart-report-universal-chain-details" className="progressive-disclosure rounded-[22px] border border-ink-200 bg-white shadow-card">
+        <summary data-testid="smart-report-universal-chain-summary" className="cursor-pointer list-none px-5 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="section-kicker">الإثبات التفصيلي</div>
+              <div className="mt-1 text-base font-black text-ink-950">كيف وصل التقرير إلى الحكم والقرار المقترح؟</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-500">المسار الكامل مع الإشارات والأدلة يظهر عند الفتح؛ تبقى الخلاصة التنفيذية أولًا.</div>
+            </div>
+            <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">يفتح عند الحاجة</span>
+          </div>
+        </summary>
+        <div className="border-t border-ink-100 p-3 lg:p-4">
+          <UniversalIntelligenceChain result={universalIntelligence} />
+        </div>
+      </details>
+    )}
+
+    <details data-testid="smart-report-generic-details" className="progressive-disclosure mt-3 rounded-[22px] border border-ink-200 bg-white shadow-card">
+      <summary data-testid="smart-report-generic-details-summary" className="cursor-pointer list-none px-5 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="section-kicker">تفاصيل التحليل العام</div>
+            <div className="mt-1 text-sm font-black text-ink-950">كل الإشارات والنتائج والتوصيات والأدلة</div>
+            <p className="mt-1 text-xs leading-5 text-ink-500">افتح التفاصيل عند الحاجة؛ تبقى الخلاصة التنفيذية أولًا.</p>
+          </div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">عرض التفاصيل</span>
+        </div>
+      </summary>
+      <div className="border-t border-ink-100 p-3 lg:p-4">
+    <section aria-label="التحليل العام للمصدر" data-testid="smart-report-generic-intelligence">
+      <GenericFileIntelligenceCard
+        intelligence={report.genericIntelligence}
+        format={report.sourceAnalysis?.sourceFormat ?? 'generic'}
+        sourcePath={report.sourcePath}
+        sourceHash={report.sourceHash}
+        reportJobId={report.jobId}
+        analysisScope={report.canonicalAnalysisScope}
+        analysisSource={report.canonicalRows.length === 0 && report.genericIntelligence ? 'source-analysis-snapshot' : 'canonical'}
+      />
+    </section>
+      </div>
+    </details>
+
+      <details data-testid="smart-report-source-data-details" className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+        <summary data-testid="smart-report-source-data-summary" className="cursor-pointer list-none px-5 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div><div className="section-kicker">بيانات المصدر</div><div className="mt-1 text-sm font-black text-ink-950">استكشاف الصفوف والحقول الأصلية</div><p className="mt-1 text-xs leading-5 text-ink-500">المعاينة والقياسات التفصيلية متاحة عند الحاجة، دون مزاحمة الخلاصة والقرار.</p></div>
+            <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">عرض البيانات</span>
+          </div>
+        </summary>
+        <div className="border-t border-ink-100 p-3 lg:p-4">
       <BusinessDataExplorer report={report} />
+        </div>
+      </details>
 
     
 

@@ -156,14 +156,24 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     ? dataset.rows.filter((row) => /منقطع|متوقف|inactive|churn|lost/i.test(normalize(String(valueFor(row, statusColumn) ?? '')))).slice(0, 5)
       .map((row) => String(valueFor(row, entityColumn) ?? 'سجل') + ' · ' + String(valueFor(row, statusColumn) ?? ''))
     : [];
-  const monthStats = monthColumns.map(({ column }) => ({
-    label: column.name,
-    total: dataset.rows.reduce((sum, row) => sum + (numericValue(valueFor(row, column)) ?? 0), 0),
-    active: dataset.rows.filter((row) => (numericValue(valueFor(row, column)) ?? 0) > 0).length,
-  }));
+  const monthStats = monthColumns.map(({ column }) => {
+    const observed = dataset.rows
+      .map((row) => numericValue(valueFor(row, column)))
+      .filter((value): value is number => value !== null);
+    return {
+      label: column.name,
+      total: observed.length ? observed.reduce((sum, value) => sum + value, 0) : null,
+      numericCount: observed.length,
+      missingCount: Math.max(0, dataset.rows.length - observed.length),
+      active: observed.filter((value) => value > 0).length,
+    };
+  });
   const latest = monthStats[monthStats.length - 1];
   const previous = monthStats.length > 1 ? monthStats[monthStats.length - 2] : undefined;
-  const change = previous && latest && previous.total !== 0 ? ((latest.total - previous.total) / Math.abs(previous.total)) * 100 : null;
+  const change = previous && latest
+    && previous.total !== null && latest.total !== null && previous.total !== 0
+    ? ((latest.total - previous.total) / Math.abs(previous.total)) * 100
+    : null;
   const topRecords = entityColumn && totalColumn
     ? [...dataset.rows].map((row) => ({ name: String(valueFor(row, entityColumn) ?? '').trim(), value: numericValue(valueFor(row, totalColumn)) }))
       .filter((item) => item.name && item.value !== null)
@@ -198,10 +208,18 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
   const statusSummary = [...statusCounts.entries()].sort((a, b) => b[1] - a[1])
     .map(([label, count]) => label + ': ' + count.toLocaleString('ar-YE'));
   const portfolioLike = Boolean(customerColumn && statusColumn && (totalColumn || monthColumns.length >= 3));
-  const totalValue = totalColumn
-    ? dataset.rows.reduce((sum, row) => sum + (numericValue(valueFor(row, totalColumn)) ?? 0), 0)
-    : null;
+  const totalValues = totalColumn
+    ? dataset.rows
+      .map((row) => numericValue(valueFor(row, totalColumn)))
+      .filter((value): value is number => value !== null)
+    : [];
+  const totalValue = totalValues.length ? totalValues.reduce((sum, value) => sum + value, 0) : null;
+  const totalMissingCount = totalColumn ? Math.max(0, dataset.rows.length - totalValues.length) : 0;
   const totalMismatchCount = rowsWithMonthlyAndStatedTotalPlaceholder(dataset, totalColumn, monthColumns, valueFor, numericValue);
+  const totalIncompleteComparisonCount = rowsWithIncompleteMonthlyAndStatedTotal(dataset, totalColumn, monthColumns, valueFor, numericValue);
+  const monthlyEvidence = monthStats.map((month) => month.total === null
+    ? month.label + ': لا توجد قيم رقمية مقروءة · فارغ/غير رقمي ' + month.missingCount
+    : month.label + ': ' + numberLabel(month.total) + ' · قيم رقمية ' + month.numericCount + '/' + dataset.rows.length);
   const topEvidence = topRecords.map((item) => item.name + ' · ' + totalColumn?.name + ': ' + numberLabel(item.value ?? 0));
   const inspect = [
     'الصفوف ' + dataset.rowCount.toLocaleString('ar-YE') + ' · الأعمدة ' + dataset.columnCount.toLocaleString('ar-YE'),
@@ -209,11 +227,20 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     ...numericSummary,
     ...(portfolioLike ? ['ملف نشاط العملاء: ربط الحالة والقياسات الشهرية والإجمالي من العناوين المرصودة', 'حالة منقطع في المصدر: ' + stoppedCount.toLocaleString('ar-YE')] : []),
     ...(statusSummary.length ? ['توزيع ' + statusColumn?.name + ': ' + statusSummary.join(' · ')] : []),
-    ...(totalValue !== null ? ['مجموع ' + totalColumn?.name + ': ' + numberLabel(totalValue) + ' (العملة كما في المصدر/غير مفترضة)'] : []),
-    ...(portfolioLike ? ['فحص الاتساق: ' + totalMismatchCount.toLocaleString('ar-YE') + ' سجلًا يختلف فيه الإجمالي عن مجموع الأشهر بأكثر من 1%'] : []),
-    ...monthStats.map((month) => month.label + ': مجموع ' + numberLabel(month.total) + ' · سجلات بقيمة موجبة ' + month.active.toLocaleString('ar-YE')),
+    ...(totalColumn ? [totalValue === null
+      ? 'مجموع ' + totalColumn.name + ': غير متاح لعدم وجود قيم رقمية مقروءة · صفوف المصدر ' + dataset.rows.length + ' · فارغ/غير رقمي ' + totalMissingCount
+      : 'مجموع ' + totalColumn.name + ': ' + numberLabel(totalValue) + ' · قيم رقمية ' + totalValues.length + '/' + dataset.rows.length + ' · فارغ/غير رقمي ' + totalMissingCount + ' (العملة كما في المصدر/غير مفترضة)'] : []),
+    ...(portfolioLike ? [
+      'فحص الاتساق: ' + totalMismatchCount.toLocaleString('ar-YE') + ' سجلًا يختلف فيه الإجمالي عن مجموع الأشهر بأكثر من 1%',
+      ...(totalIncompleteComparisonCount ? ['فحص الاتساق: استُبعد ' + totalIncompleteComparisonCount.toLocaleString('ar-YE') + ' سجلًا لوجود فترة شهرية فارغة/غير رقمية؛ لم تُعامل القيمة المفقودة كصفر.'] : []),
+    ] : []),
+    ...monthStats.map((month) => month.total === null
+      ? month.label + ': لا توجد قيم رقمية مقروءة · صفوف المصدر ' + dataset.rows.length + ' · فارغ/غير رقمي ' + month.missingCount
+      : month.label + ': مجموع ' + numberLabel(month.total) + ' · قيم رقمية ' + month.numericCount + '/' + dataset.rows.length + ' · فارغ/غير رقمي ' + month.missingCount + ' · سجلات بقيمة موجبة ' + month.active.toLocaleString('ar-YE')),
     ...(topEvidence.length ? ['أعلى السجلات حسب ' + totalColumn?.name + ': ' + topEvidence.join(' · ')] : []),
-    ...(change !== null && latest && previous ? ['التغير من ' + previous.label + ' إلى ' + latest.label + ': ' + (change >= 0 ? '+' : '') + numberLabel(change) + '%'] : []),
+    ...(change !== null && latest && previous && latest.total !== null && previous.total !== null
+      ? ['التغير من ' + previous.label + ' إلى ' + latest.label + ': ' + (change >= 0 ? '+' : '') + numberLabel(change) + '%']
+      : []),
   ];
   const summary = portfolioLike
     ? 'تحليل جدولي: ' + dataset.rowCount.toLocaleString('ar-YE') + ' سجلًا، ' + dataset.columnCount + ' عمودًا؛ ' + (statusColumn?.name ?? 'حالة') + ' يحتوي ' + stoppedCount.toLocaleString('ar-YE') + ' سجلًا مصنفًا كمنقطع/متوقف ضمن قيم المصدر. ' + (totalValue !== null ? ' مجموع ' + totalColumn?.name + ' = ' + numberLabel(totalValue) + '.' : '')
@@ -229,7 +256,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
     priority: portfolioLike && stoppedCount ? 'high' : 'medium',
     title: portfolioLike ? 'ملف نشاط العملاء' : 'ملخص الجدول المستخرج',
     statement: headline,
-    evidence: [...statusSummary, ...topEvidence, ...monthStats.map((month) => month.label + ': ' + numberLabel(month.total))],
+    evidence: [...statusSummary, ...topEvidence, ...monthlyEvidence],
     limitation: 'هذا الوصف مشتق من القيم والعناوين الظاهرة؛ لا يفترض عملة أو سببًا أو أثرًا غير موجود في الملف.',
     action: portfolioLike && stoppedCount
       ? 'راجع عينة السجلات المصنفة بالانقطاع وتحقق من آخر تعامل قبل اعتماد قائمة استعادة العملاء.'
@@ -291,7 +318,7 @@ function profileStructuredTable(dataset: Dataset): StructuredTableProfile | null
       risk: 'قد تعتمد بعض التقارير نطاق فترات أو قواعد استثناء مختلفة.', blocker: 'تعريف حدود المجموع والإعفاءات غير مرفق.', limitation: 'الاختبار الحسابي لا يثبت صحة المعاملة الأصلية.',
     });
   }
-  if (portfolioLike && change !== null && latest && previous) recommendations.push({
+  if (portfolioLike && change !== null && latest && previous && latest.total !== null && previous.total !== null) recommendations.push({
     id: 'generic:table:review-monthly-change', status: 'PROPOSED',
     priority: Math.abs(change) >= 20 ? 'high' : 'medium',
     title: 'راجع تغير آخر فترتين في المصدر',
@@ -319,9 +346,23 @@ function rowsWithMonthlyAndStatedTotalPlaceholder(
   return dataset.rows.filter((row) => {
     const stated = numericValue(valueFor(row, totalColumn));
     const monthlyValues = monthColumns.map(({ column }) => numericValue(valueFor(row, column)));
-    if (stated === null || !monthlyValues.some((value) => value !== null)) return false;
-    const monthly = monthlyValues.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+    if (stated === null || !monthlyValues.length || monthlyValues.some((value) => value === null)) return false;
+    const monthly = monthlyValues.reduce<number>((sum, value) => sum + (value as number), 0);
     return Math.abs(stated - monthly) > Math.max(1, Math.abs(stated) * 0.01);
+  }).length;
+}
+
+function rowsWithIncompleteMonthlyAndStatedTotal(
+  dataset: Dataset,
+  totalColumn: Dataset['columns'][number] | undefined,
+  monthColumns: Array<{ column: Dataset['columns'][number]; key: string }>,
+  valueFor: (row: Record<string, unknown>, column: Dataset['columns'][number]) => unknown,
+  numericValue: (value: unknown) => number | null,
+): number {
+  if (!totalColumn || !monthColumns.length) return 0;
+  return dataset.rows.filter((row) => {
+    if (numericValue(valueFor(row, totalColumn)) === null) return false;
+    return monthColumns.some(({ column }) => numericValue(valueFor(row, column)) === null);
   }).length;
 }
 

@@ -1,3 +1,95 @@
+# LIVE RESUME — 2026-10-15 / PR #925 customer-facing report hierarchy repair
+
+Repository: Report-Engainall/Report-Advisor
+PR: https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+CURRENT_EXACT_HEAD = 33729b8b195d887c591b7296fcdb479b81ed3b4d (functional code/test checkpoint; following commit is documentation-only)
+CODE_CHECKPOINT = 33729b8b195d887c591b7296fcdb479b81ed3b4d
+REPORT_FOR_HEAD = 33729b8b195d887c591b7296fcdb479b81ed3b4d
+MAIN_HEAD = b4bb9fe6f278fd7d2c2dcb76b144638549036565
+UPDATED_AT = 2026-10-15T02:24:30Z
+ACTION_STATUS = Executive-first report hierarchy and customer report catalogue filtering committed; exact-head gates are queued and must not be considered passed.
+WHAT_I_WAS_ASKED_TO_DO = Put the executive conclusion first for any uploaded report, expose full analysis on demand, and keep internal E2E fixture files out of customer-facing recent reports without deleting persisted rows.
+WHAT_I_ACTUALLY_DID = Reordered SmartReportPage so the advisor brief precedes analysis; collapsed the universal chain and added accessible summaries for it, generic intelligence, and raw source rows; excluded reserved report-advisor-e2e-* file names from ReportsPage catalogue/pagination; updated E2E to expand detailed analysis; updated contracts to require progressive disclosure.
+WHAT_IS_PROVEN = Source and test commits were read back. On predecessor f25af5867d40a665cbce502aef591fafe6d4f411, TypeScript and production build passed, but Product Build Gate failed because an old contract demanded the universal chain be expanded by default. Contract corrected at 33729b8b195d887c591b7296fcdb479b81ed3b4d; fresh exact-head Product Build, Quality and browser E2E runs are pending.
+FIRST_ACTIVE_FAILURE = Product Build Gate run 38670173962 on predecessor f25af5867d40a665cbce502aef591fafe6d4f411 failed at scripts/smart-report-complete-intelligence-surface.test.mjs:105 because it required the Smart Report disclosure to be open by default.
+ROOT_CAUSE = The assertion contradicted the desired executive-first interface. It now verifies that Smart Report's universal chain is collapsed but discoverable through explicit summary markers, while File Lab remains expanded for interactive analysis. The complete analysis/evidence collections are preserved; neither tests nor evidence guards were removed.
+PRODUCT_COMPLETE = NO
+
+## What changed
+- src/pages/SmartReportPage.tsx — commits b7c59add29bd9f8769a51ed00a94ea29f398a0cb and d6b22a575cba38951f9198788b939d9fcf1edb25: advisor-first layout; progressive disclosure for full intelligence, generic findings, and source-row exploration; accessible test IDs on the universal analysis disclosure.
+- src/pages/ReportsPage.tsx — commits 8c6ac7fc9572e8476c63b3b117da0103f8ad4307 and f25af5867d40a665cbce502aef591fafe6d4f411: filters reserved report-advisor-e2e-* names from the customer catalog and load-more pages without deleting records; keeps explicit job-ID readback.
+- scripts/real-business-e2e.mjs — commit f92dc4f82f2703d6ddc76e5acac04b877c9009ad: opens generic analysis explicitly during proof.
+- scripts/customer-facing-report-surface-contract.test.mjs — commit a02e4f5884c691aa5b4b251431cde3a7789fc84a: enforces brief-before-details and visible disclosures.
+- scripts/smart-report-complete-intelligence-surface.test.mjs — commits 178e468f462ac70b940d4ddeaa2db5719ea47e9b and 33729b8b195d887c591b7296fcdb479b81ed3b4d: checks collapsed Smart Report disclosure discoverability while keeping File Lab expanded.
+
+## Latest exact-checkpoint gates at capture
+- Product Build Gate: 38670762383 — QUEUED.
+- Quality: 38670762442 — QUEUED.
+- Full Product Browser E2E: 38670762430 — PENDING.
+- Session Handoff Contract: 38670762373 — PENDING before this documentation-only commit.
+- Final Certification Gate: 38670762208 — QUEUED.
+- Phase-F Live Resilience: 38670762113 — QUEUED.
+- The older preview canary still fails closed with HTTP 503 operational_token_not_configured; Netlify runtime inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY. Do not fabricate/expose secrets or weaken tenant/RLS safeguards.
+- Published Netlify production was last verified at deploy 6ac3d608e2e37d0008cc0222, source SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b, dated 2026-10-05. Production SHA/runtime proof remains NOT_PROVEN.
+
+NEXT_EXACT_ACTION = After this documentation-only checkpoint, read live PR #925 head and recheck exact-head Product Build, Quality, Session Handoff, Browser E2E, Final Certification and Phase-F. Repair the first real failure only. Do not merge and do not claim production/product completion from pending or predecessor results.
+SESSION HANDOFF = NOT READY
+
+---
+
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #925 dark executive chain and exact-head validation
+
+Repository: Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+CODE_CHECKPOINT = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+REPORT_FOR_HEAD = e411f4af2e5201ed8ed59eb521c04ef297bafd2c
+PRODUCT_COMPLETE = NO
+UPDATED_AT = 2026-10-15T04:14:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Resume from live GitHub, improve the actual user-visible smart-report UI, follow the Phase-F failure, validate current code, and preserve an exact resumable checkpoint without inventing or exposing credentials.
+WHAT_I_ACTUALLY_DID = Changed styles only in src/components/UniversalIntelligenceChain.tsx, committed the change as e411f4af2e5201ed8ed59eb521c04ef297bafd2c, read the file/blob back from GitHub, checked exact-head workflow states, and read detailed logs for Phase-F and Session Handoff. I am updating all checkpoint files in one docs-only successor commit.
+WHAT_IS_PROVEN = The UI component is imported/rendered by src/pages/SmartReportPage.tsx and src/pages/ExternalFileAnalysisPage.tsx. The style-only source change is committed and read back. On predecessor 0719a1e..., Product Build, Quality, Final Certification, Session Handoff, and Full Product Browser E2E succeeded, while Phase-F failed at tenant-canary; those runs are historical relative to e411f4af2e5201ed8ed59eb521c04ef297bafd2c. Current exact-head runs: Build 38664442538 and Quality 38664442535 and Final Certification 38664442411 are in progress; browser E2E 38664442574 is queued; Phase-F 38664442547 is in progress. Session Handoff 38664442553 failed because the source change was not reported yet.
+FIRST_ACTIVE_FAILURE = Session Handoff run 38664442553, job 116192997356: stale report; unreported files: src/components/UniversalIntelligenceChain.tsx. Separately, predecessor Phase-F run 38646785819 returned tenant-canary HTTP 503 operational_token_not_configured. Current Phase-F run 38664442547 remains in progress at this capture.
+ROOT_CAUSE = The UI change was pushed without simultaneously re-anchoring the strict session handoff report to that functional commit. The live resilience failure is a separate missing Netlify runtime operational token, not an excuse to relax the handler's fail-closed guard.
+FIX = Keep the handoff contract intact; set REPORT_FOR_HEAD to the functional checkpoint e411f4af2e5201ed8ed59eb521c04ef297bafd2c and document changed paths in this successor. Do not transfer predecessor gate results to the new head.
+TESTED = No claim of final exact-head PASS. Workflow outcomes listed above were pending except for the specific handoff failure when captured.
+BROWSER-PROVEN = Prior head 0719a1e... passed Full Product Browser E2E; current UI checkpoint run 38664442574 was queued, so current-head browser proof is pending.
+PRODUCTION-PROVEN = NOT_PROVEN; production deployment 6ac3d608e2e37d0008cc0222 is ready but serves SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b, older than current main. Exact-SHA health/tenant-canary proof has not been established in production.
+OPEN_BLOCKER = Netlify runtime inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; authorized NETLIFY_AUTH_TOKEN cannot be configured from the current GitHub connector. Do not fabricate secrets or relax tenant/RLS protections.
+NEXT_EXACT_ACTION = Read back the successor's PR head; inspect the new exact-head Actions, fix the first new failure, and only retest live Phase-F once the missing runtime credentials are configured.
+SESSION HANDOFF = READY (history retained; final exact-head gates pending)
+
+---
+
+# CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #925 metric completeness and handoff
+
+Repository: Report-Engainall/Report-Advisor
+BRANCH = fix/netlify-runtime-provenance-on-main-20261014
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
+CODE_CHECKPOINT = 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8
+REPORT_FOR_HEAD = 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8
+PRODUCT_COMPLETE = NO
+UPDATED_AT = 2026-10-15T01:22:00+03:00
+WHAT_I_WAS_ASKED_TO_DO = Continue from live GitHub, correct evidenced defects in the generic-file analysis, validate the new code, and preserve a truthful resumable checkpoint without inventing credentials.
+WHAT_I_ACTUALLY_DID = Changed monthly aggregation to preserve missing values as unknown, added missing coverage and a count of incomplete reconciliation rows, and added a sparse-data regression. Corrected the test's expected count to accept the Arabic-localized digit the application intentionally emits.
+IMPLEMENTED = YES — functional commit https://github.com/Report-Engainall/Report-Advisor/commit/e4d8332a598366438eba2f831c817a5061edbe09; test-assertion correction https://github.com/Report-Engainall/Report-Advisor/commit/7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8.
+READBACK-PROVEN = YES for the current functional and test commits and both changed files; docs-only checkpoint awaits ref update/readback.
+FIRST_ACTIVE_FAILURE = Quality run 38646392385 on e4d8332a598366438eba2f831c817a5061edbe09: new regression assertion expected the ASCII digit `1`, but the report formats counts with `toLocaleString('ar-YE')`. Session Handoff run 38646392387 independently flagged the two functional paths as unreported because the checkpoint still referenced f4994137d1b8ae09103b8a3e19abe3deee1c02b7.
+ROOT_CAUSE = One assertion was over-specific about localized numerals; separately, report baseline drift meant the strict handoff checker correctly rejected unreported paths.
+FIX = Test assertion now accepts ASCII or Arabic-Indic one; documentation-only successor re-anchors `REPORT_FOR_HEAD` to 7d1fdaa86d7f5bf167c3b51dfd54c71e764a96c8. No code, test coverage, or handoff policy was weakened.
+TESTED = The first regression attempt failed at the assertion described above. Results from Product Build 38646392171, Quality 38646392385, Final Certification 38646392375, Browser E2E 38646392119 and Phase-F 38646392275 are on predecessor e4d8332a598366438eba2f831c817a5061edbe09; do not transfer them to the new head. New exact-head runs are required.
+BROWSER-PROVEN = NOT_PROVEN on the latest code until exact-head E2E succeeds.
+PRODUCTION-PROVEN = NOT_PROVEN.
+OPEN_BLOCKER = Netlify runtime environment lacks `RESILIENCE_OPERATIONAL_TOKEN` and `SUPABASE_SERVICE_ROLE_KEY`; production workflow still requires authorized `NETLIFY_AUTH_TOKEN`. No secrets are readable/manageable via connected GitHub secret APIs.
+NEXT_EXACT_ACTION = Attach the documentation-only checkpoint to this branch with an expected-SHA lease, verify its readback, then consume the new exact-head workflow outcomes and repair the first remaining assertion.
+SESSION HANDOFF = DOCS-ONLY REPAIR PREPARED; EXACT-HEAD PASS REQUIRED
+
+
+---
+
+# Previous handoff retained below (historical checkpoint)
+
 # CURRENT PROGRAMMER REPORT — 2026-10-14 — PR #924 workflow hardening + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
