@@ -16,7 +16,7 @@ for (const marker of [
   "claim.evidenceSnapshotId === candidate.snapshot.id",
   "persistedArchetypeConsistency",
   "persistedArchetypeId",
-  "status: supported === profiles.length ? 'PASS' : 'NOT_PROVEN'",
+  "executionState === 'COMPLETE' && results.length === profiles.length && supported === profiles.length",
   "canonicalRowsRead: chosen ? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,",
 ]) {
   if (!source.includes(marker)) fail('Missing real-48 proof invariant: ' + marker);
@@ -70,6 +70,25 @@ for (const marker of [
   "generic source findings must remain available without a specialist",
 ]) {
   if (!genericFileTest.includes(marker)) fail('Generic file proof missing optional-specialty regression: ' + marker);
+}
+
+
+for (const marker of [
+  "async function serviceRestSelectIn(",
+  "const passportJobIds = [...new Set(passports",
+  "'metadata->>report_corpus': 'true'",
+  "const fileRecordsByHash = new Map()",
+  "const fileRecords = fileRecordsByHash.get(sourceHash) ?? []",
+  "await writeProgress('IN_PROGRESS', 'source-scan-started'",
+  "await writeProgress('IN_PROGRESS', 'archetype-evaluated'",
+  "await writeProgress('COMPLETE', 'archetype-matrix-complete')",
+  "await fs.rename(tempFile, outFile)",
+  "executionState,",
+]) {
+  if (!source.includes(marker)) fail('Missing matrix performance/progress invariant: ' + marker);
+}
+if (/const fileRecords = await evidenceSelect\(\s*'file_records',\s*\{\s*company_id: companyId,\s*file_hash: sourceHash,/s.test(source)) {
+  fail('Preflight must not query file_records once per passport');
 }
 
 console.log('real-48-source-matrix-contract: PASS');

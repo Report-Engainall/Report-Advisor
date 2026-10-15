@@ -1,4 +1,5 @@
-﻿import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
+﻿import fs from 'node:fs/promises';
+import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
 import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-schema.ts';
 import { committedCanonicalRecordIds, isGovernedRealFileRecord, resolveCanonicalImportIdFromAnchor } from './real-source-provenance.mjs';
 
@@ -17,10 +18,16 @@ if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED');
 const outFile = process.env.E2E_REPORT_DIR
   ? process.env.E2E_REPORT_DIR + '/real-48-source-matrix-preflight.json'
   : 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
+const profiles = listReportArchetypes();
+const sourceRecords = [];
+const sourceRowsCache = new Map();
+const results = [];
+let selectionDiagnostics = null;
 
 for (const [name, value] of Object.entries({ anonKey, email, password })) {
   if (!value) throw new Error('REAL_48_SOURCE_MATRIX_ENV_MISSING:' + name);
 }
+await writeProgress('IN_PROGRESS', 'environment-validated');
 
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, {
@@ -52,6 +59,68 @@ async function serviceRestSelect(table, filters, select, options = {}) {
   const body = await response.text();
   if (!response.ok) throw new Error('SERVICE_' + table + '_HTTP_' + response.status + ':' + body.slice(0, 800));
   return body ? JSON.parse(body) : [];
+}
+
+
+async function serviceRestSelectIn(table, filters, inColumn, values, select, options = {}) {
+  if (!serviceRoleKey) return [];
+  const uniqueValues = [...new Set((values ?? []).map((value) => String(value ?? '').trim()).filter(Boolean))];
+  if (!uniqueValues.length) return [];
+  const chunkSize = Number.isInteger(options.chunkSize) && options.chunkSize > 0
+    ? Math.min(options.chunkSize, 100)
+    : 100;
+  const result = [];
+  for (let offset = 0; offset < uniqueValues.length; offset += chunkSize) {
+    const batch = uniqueValues.slice(offset, offset + chunkSize);
+    const url = new URL(supabaseURL + '/rest/v1/' + table);
+    url.searchParams.set('select', select);
+    for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, 'eq.' + value);
+    // Candidate values here are UUIDs. Bounded PostgREST in-lists avoid N+1 reads.
+    url.searchParams.set(inColumn, 'in.(' + batch.map((value) => '"' + value.replaceAll('"', '\\"') + '"').join(',') + ')');
+    if (options.order) url.searchParams.set('order', options.order);
+    if (options.limit) url.searchParams.set('limit', String(options.limit));
+    const response = await fetch(url, {
+      headers: { apikey: serviceRoleKey, Authorization: 'Bearer ' + serviceRoleKey },
+    });
+    const body = await response.text();
+    if (!response.ok) throw new Error('SERVICE_' + table + '_IN_HTTP_' + response.status + ':' + body.slice(0, 800));
+    const rows = body ? JSON.parse(body) : [];
+    if (Array.isArray(rows)) result.push(...rows);
+  }
+  return result;
+}
+
+async function writeProgress(executionState, phaseName, details = {}) {
+  const supported = results.filter((row) => row.status === 'SUPPORTED_REAL_SOURCE').length;
+  const proof = {
+    exactHead,
+    diagnostics: selectionDiagnostics,
+    generatedAt: new Date().toISOString(),
+    executionState,
+    status: executionState === 'COMPLETE' && results.length === profiles.length && supported === profiles.length
+      ? 'PASS'
+      : 'NOT_PROVEN',
+    progress: {
+      phase: phaseName,
+      archetypesCompleted: results.length,
+      totalArchetypes: profiles.length,
+      sourceRecordsSelected: sourceRecords.length,
+      ...details,
+    },
+    sourceJobsScanned: sourceRecords.length,
+    archetypes: results,
+    summary: {
+      totalArchetypes: profiles.length,
+      supported,
+      notProven: profiles.length - supported,
+    },
+  };
+  const directory = outFile.slice(0, outFile.lastIndexOf('/')) || '.';
+  await fs.mkdir(directory, { recursive: true });
+  const tempFile = outFile + '.tmp';
+  await fs.writeFile(tempFile, JSON.stringify(proof, null, 2) + '\n', 'utf8');
+  await fs.rename(tempFile, outFile);
+  return proof;
 }
 
 async function authenticatedUserId(accessToken) {
@@ -152,7 +221,8 @@ const configuredTenantIds = [...new Set(
     .filter(Boolean),
 )];
 if (!configuredTenantIds.length) throw new Error('REAL_48_CORPUS_TENANT_IDS_MISSING');
-const selectionDiagnostics = await buildSelectionDiagnostics(actorCompanyId);
+selectionDiagnostics = await buildSelectionDiagnostics(actorCompanyId);
+await writeProgress('IN_PROGRESS', 'source-scan-started', { configuredTenants: configuredTenantIds.length });
 
 async function restSelect(table, filters, select, options = {}) {
   const url = new URL(supabaseURL + '/rest/v1/' + table);
@@ -263,21 +333,24 @@ async function resolveCanonicalImportContext(companyId, sourceHash, fallbackImpo
     'id,company_id,entity_type,source_hash,committed_ids,committed_count,committed_at',
     { order: 'committed_at.desc', limit: 20 },
   );
+  const matchingCommits = commits.filter((commit) =>
+    String(commit.company_id ?? '') === String(companyId) &&
+    String(commit.source_hash ?? '') === String(sourceHash)
+  );
+  const anchorIds = [...new Set(matchingCommits.flatMap((commit) => committedCanonicalRecordIds(commit, 8)))];
+  const anchorRows = await serviceRestSelectIn(
+    'canonical_dataset_records',
+    { company_id: companyId, source_hash: sourceHash },
+    'id',
+    anchorIds,
+    'id,company_id,source_hash,import_job_id',
+  );
+  const anchorsById = new Map(anchorRows.map((row) => [String(row.id ?? ''), row]));
 
-  for (const commit of commits) {
-    if (String(commit.company_id ?? '') !== String(companyId) ||
-        String(commit.source_hash ?? '') !== String(sourceHash)) continue;
+  // Preserve newest-commit/anchor ordering while fetching anchors in bounded batches.
+  for (const commit of matchingCommits) {
     for (const recordId of committedCanonicalRecordIds(commit, 8)) {
-      const anchors = await serviceRestSelect(
-        'canonical_dataset_records',
-        { company_id: companyId, id: recordId, source_hash: sourceHash },
-        'id,company_id,source_hash,import_job_id',
-        { limit: 2 },
-      );
-      const anchor = anchors.find((row) => Boolean(resolveCanonicalImportIdFromAnchor(
-        row,
-        { recordId, companyId, sourceHash },
-      )));
+      const anchor = anchorsById.get(recordId);
       const importJobId = resolveCanonicalImportIdFromAnchor(
         anchor,
         { recordId, companyId, sourceHash },
@@ -305,31 +378,50 @@ async function resolveCanonicalImportContext(companyId, sourceHash, fallbackImpo
   };
 }
 
-const profiles = listReportArchetypes();
 const evidenceSelect = serviceRestSelect;
-const sourceRecords = [];
-const sourceRowsCache = new Map();
 
 for (const companyId of configuredTenantIds) {
-  // Bound large service-role reads to the target tenant at query time.
+  // Passports are the eligibility index: do not scan unrelated completed jobs.
   const passports = await evidenceSelect(
     'report_evidence_passports',
     { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
-    'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash',
-    { limit: 5000 },
+    'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash,updated_at',
+    { order: 'updated_at.desc', limit: 5000 },
   );
-  const verifiedJobIds = new Set(passports.map((row) => String(row.report_execution_job_id)));
-
-  const jobs = await evidenceSelect(
+  const passportJobIds = [...new Set(passports
+    .map((row) => String(row.report_execution_job_id ?? '').trim())
+    .filter(Boolean))];
+  const jobs = await serviceRestSelectIn(
     'report_execution_jobs',
     { company_id: companyId, status: 'completed' },
+    'id',
+    passportJobIds,
     'id,company_id,source_path,source_hash,evidence,completed_at',
-    { order: 'completed_at.desc', limit: 5000 },
+    { order: 'completed_at.desc' },
   );
-
+  const jobsById = new Map(jobs.map((job) => [String(job.id), job]));
+  // Load governed corpus records once per tenant, then classify by exact source hash.
+  // The strict real-upload predicate below remains the classification boundary.
+  const governedFileRecords = await evidenceSelect(
+    'file_records',
+    { company_id: companyId, 'metadata->>report_corpus': 'true' },
+    'id,company_id,file_name,file_hash,metadata',
+    { limit: 1000 },
+  );
+  const fileRecordsByHash = new Map();
+  for (const record of governedFileRecords) {
+    const hash = String(record.file_hash ?? '').trim();
+    if (!hash) continue;
+    const bucket = fileRecordsByHash.get(hash) ?? [];
+    bucket.push(record);
+    fileRecordsByHash.set(hash, bucket);
+  }
+  const visitedJobIds = new Set();
   for (const passport of passports) {
-    const job = jobs.find((item) => String(item.id) === String(passport.report_execution_job_id));
-    if (!job || !verifiedJobIds.has(String(job.id))) continue;
+    const jobId = String(passport.report_execution_job_id ?? '').trim();
+    const job = jobsById.get(jobId);
+    if (!job || visitedJobIds.has(jobId)) continue;
+    visitedJobIds.add(jobId);
 
     const rendered = job.evidence?.renderedOutput && typeof job.evidence.renderedOutput === 'object'
       ? job.evidence.renderedOutput
@@ -342,15 +434,7 @@ for (const companyId of configuredTenantIds) {
     // Resolve the governed file record by the exact source identity.
     // A global file_records limit is unsafe because the database contains more than
     // 5000 records across tenants; it can silently omit a valid corpus file.
-    const fileRecords = await evidenceSelect(
-      'file_records',
-      {
-        company_id: companyId,
-        file_hash: sourceHash,
-      },
-      'id,company_id,file_name,file_hash,metadata',
-      { limit: 20 },
-    );
+    const fileRecords = fileRecordsByHash.get(sourceHash) ?? [];
     const governedRealSource = fileRecords.find((record) => isGovernedRealFileRecord(record, job.source_path));
     if (!governedRealSource) continue;
 
@@ -405,6 +489,7 @@ for (const companyId of configuredTenantIds) {
       canonicalCommittedCount: canonicalContext.committedCount,
       sourceRecord: governedRealSource,
     });
+    await writeProgress('IN_PROGRESS', 'source-candidate-selected', { currentTenant: companyId });
   }
 }
 
@@ -587,27 +672,10 @@ for (const profile of profiles) {
         || chosen.job.evidence.renderedOutput.archetypeId === profile.id)
       : null,
   });
+  await writeProgress('IN_PROGRESS', 'archetype-evaluated', { lastArchetypeId: profile.id });
 }
 
-const supported = results.filter((row) => row.status === 'SUPPORTED_REAL_SOURCE').length;
-const missing = results.filter((row) => row.status === 'NOT_PROVEN_REAL_SOURCE').length;
-const proof = {
-  exactHead,
-  diagnostics: selectionDiagnostics,
-  generatedAt: new Date().toISOString(),
-  status: supported === profiles.length ? 'PASS' : 'NOT_PROVEN',
-  sourceJobsScanned: sourceRecords.length,
-  archetypes: results,
-  summary: {
-    totalArchetypes: profiles.length,
-    supported,
-    notProven: missing,
-  },
-};
-
-await (await import('node:fs/promises')).mkdir(outFile.slice(0, outFile.lastIndexOf('/')) || '.', { recursive: true });
-await (await import('node:fs/promises')).writeFile(outFile, JSON.stringify(proof, null, 2) + '\n', 'utf8');
-
+const proof = await writeProgress('COMPLETE', 'archetype-matrix-complete');
 if (proof.status !== 'PASS') {
   console.warn(JSON.stringify({ summary: proof.summary, sourceJobsScanned: proof.sourceJobsScanned, diagnostics: proof.diagnostics }));
   if (process.env.REAL_SOURCE_MATRIX_DIAGNOSTIC_ONLY === '1') {
