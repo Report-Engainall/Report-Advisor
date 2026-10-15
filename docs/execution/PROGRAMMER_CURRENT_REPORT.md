@@ -1,26 +1,24 @@
 # CURRENT PROGRAMMER REPORT — 2026-10-15 — PR #927 PDF reconstruction correctness
 Repository: Report-Engainall/Report-Advisor
-REPORT_FOR_HEAD = 4ba8cd5073838f5a469f7a527a217cdcf1cc30a0
-UPDATED_AT = 2026-10-15T02:35:00Z
-WHAT_I_WAS_ASKED_TO_DO = Fix the false PDF-table interpretation shown by the user, where two organization names were accepted as numeric measure headers and duplicated reconstructed cells polluted generic business analysis.
-WHAT_I_ACTUALLY_DID = Created PR #927 on fix/pdf-reconstruction-confidence-20261015. Raised the generic PDF table reconstruction minimum confidence from 35 to 55, added synthetic PDF line-layout detection and source-text-only extraction for the generic layer, and added focused regressions in the PDF fallback test and generic file analysis test. Corrected the occurrence-count assertion to four literal appearances in the two source lines, not eight appearances after duplicate helper-cell projections.
-WHAT_IS_PROVEN = GitHub readback confirms code checkpoint 4ba8cd5073838f5a469f7a527a217cdcf1cc30a0; changed blobs are present on the PR branch; regression assertions cover the 41-point organization-title candidate, fallback preserving original visual evidence, confirmed table reconstruction, and no duplicate business metrics from visual_cell_* projections.
-FIRST_ACTIVE_FAILURE = Exact-head automated test results for the new PR #927 changes have not yet been read back. CI outcome is PENDING, not PASS.
-ROOT_CAUSE = extractPdfTable accepted header scores >=35 and therefore allowed a 41-point pair of organization-title strings to be interpreted as table headings. The fallback PDF dataset repeats each visual cell as helper columns next to the source line's text field; generic table analysis counted that synthetic projection as independent business data.
-NEXT_EXACT_ACTION = Read Quality, Build, Session Handoff and Final Certification results against the exact PR #927 source head after the documentation-only successor. If anything fails, repair the actual cause and rerun; do not waive checks or lower evidence requirements.
+REPORT_FOR_HEAD = 50a121570e8308c52c02726552b36194aded9ab3
+UPDATED_AT = 2026-10-15T02:38:30Z
+WHAT_I_WAS_ASKED_TO_DO = Fix the PDF extraction/analysis failure where organization titles were accepted as numeric table headers and synthetic visual cells inflated generic metrics.
+WHAT_I_ACTUALLY_DID = PR #927 raises the PDF reconstructed-table confidence floor from 35 to 55, classifies PDF visual-line/helper-column layouts as evidence rather than business tables, reads the original line text once for generic analysis, and adds focused PDF/generic analysis regressions. After Quality reported a Behavioral regressions failure on its previous head, corrected the newly added keyword-count expectation: `1650000 | 1650000` contains two source occurrences; the duplicate helper-cell projection would have produced four.
+WHAT_IS_PROVEN = GitHub readback confirms the functional code checkpoint 50a121570e8308c52c02726552b36194aded9ab3, all intended implementation/test files on branch, and the corrected source-only count assertion. Typecheck passed on the prior documentation-only head; session handoff was observed passing on that prior head. The current-head rerun has not yet proven the corrected Behavioral regressions step.
+FIRST_ACTIVE_FAILURE = Behavioral regressions failed on prior PR head 2d4f46f7c1cb0f4193e60ad6a2de3c782555b69a; the step log was unavailable while the overall Quality job continued. The faulty assertion discovered by source review has been corrected, but its relationship to the observed failure is not claimed as proven until rerun.
+ROOT_CAUSE = PDF table extraction accepted a weak 41-point header candidate at the 35-point threshold; synthetic PDF fallback rows included `text` plus `visual_cell_*` projections, which generic table analysis treated as independent measures. Separately, the new test initially expected four `1650000` keyword hits although its source-text field contains only two.
+NEXT_EXACT_ACTION = Inspect Quality, Product Build Gate, Session Handoff, Final Certification and browser check results for the exact new PR #927 source head; fix actual failures and confirm Behavioral regressions is green before merge.
 SESSION HANDOFF = NOT READY
 PRODUCT_COMPLETE = NO
 
 ## Implementation / scope boundary
-- `src/lib/file-engine/pdf-table.ts`: low-confidence candidates below 55 are rejected as structured tables and retained through the existing visual-line evidence fallback.
-- `src/lib/file-engine/generic-intelligence.ts`: detects synthetic line layouts even where page/line/text/visual-cell helper columns exceed two columns; generic text evidence reads the original line field once; structured-table profiling is skipped for synthetic line layouts.
-- `scripts/pdf-visual-line-fallback.test.ts`: reproduces the 41-point false header and verifies visual evidence fallback; checks that an established header remains reconstructable.
-- `scripts/generic-file-analysis.test.mjs`: verifies the PDF helper projection is not mistaken for separate measures and does not duplicate keyword counts.
-- No source business records were written. No tenant, authentication, RLS, security, quality threshold, deployment credential or workflow gate was bypassed.
-- Local test execution is unavailable in this connector-only session; automated exact-head CI is the required next proof. Production/browser/DB proof has not been performed for this fix.
-
-## Related live constraints
-The prior live session record reports a separate operational runtime blocker (missing valid VERCEL_TOKEN / runtime `operational_token_not_configured` on health endpoints). This PR does not address or claim to resolve that release-credential blocker. The current public/production deployment must be tested after the code is merged and deployed with authorized configuration.
+- `src/lib/file-engine/pdf-table.ts`: weak header candidates below 55 return to the existing page/line evidence fallback.
+- `src/lib/file-engine/generic-intelligence.ts`: synthetic line layouts with page/line ordinals, source text, and visual helper cells are not profiled as business tables; generic text evidence uses the original line field once.
+- `scripts/pdf-visual-line-fallback.test.ts`: reproduces the 41-point organization-title header and keeps known valid-table coverage.
+- `scripts/generic-file-analysis.test.mjs`: verifies that helper-cell projections do not duplicate numeric keywords or become business measures; expected source count is now two, not four.
+- No business records were written. No tenant/authentication/RLS, security, data-quality, workflow, or certification gate was bypassed or weakened.
+- Exact-head behavioral test, build, browser, production, and DB/job/sourceHash verification are still required.
+- A separate production runtime-token blocker in prior records remains outside this PR and is not claimed as resolved.
 ---
 
 # CURRENT PROGRAMMER REPORT — 2026-10-14 — PR #924 workflow hardening + handoff repair
