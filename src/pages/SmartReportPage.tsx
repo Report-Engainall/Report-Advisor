@@ -1145,8 +1145,8 @@ export function SmartReportPage() {
     </section>
 
     {universalIntelligence && (
-      <details className="progressive-disclosure rounded-[22px] border border-ink-200 bg-white shadow-card">
-        <summary className="cursor-pointer list-none px-5 py-4">
+      <details data-testid="smart-report-universal-chain-details" className="progressive-disclosure rounded-[22px] border border-ink-200 bg-white shadow-card">
+        <summary data-testid="smart-report-universal-chain-summary" className="cursor-pointer list-none px-5 py-4">
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className="section-kicker">الإثبات التفصيلي</div>
