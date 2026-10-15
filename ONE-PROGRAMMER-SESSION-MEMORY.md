@@ -1,28 +1,30 @@
-# LIVE RESUME — 2026-10-15 / Generic intelligence rowset provenance
+# LIVE RESUME — 2026-10-15 / PR #926 handoff contract repair
 
 Repository: Report-Engainall/Report-Advisor
-CURRENT_EXACT_HEAD = 2b65b597307a6b17d98549b30c1c4097a168b0d4 (latest code head; later commits in this checkpoint are documentation-only)
+CURRENT_EXACT_HEAD = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01 (governance-code checkpoint; later docs-only successors follow)
 BRANCH = fix/generic-source-completeness-20261014
 PR #926 = OPEN / NOT MERGED — https://github.com/Report-Engainall/Report-Advisor/pull/926
-CODE_CHECKPOINT = 2b65b597307a6b17d98549b30c1c4097a168b0d4
-REPORT_FOR_HEAD = 2b65b597307a6b17d98549b30c1c4097a168b0d4
+CODE_CHECKPOINT = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
+REPORT_FOR_HEAD = 76391da039330ba1953e6ddcb6f1d0ee26cfdb01
 PRODUCT_COMPLETE = NO
 
-## Implemented in this checkpoint
-- `src/lib/report-smart.ts` now preserves the exact origin returned by `selectGenericSourceRows` as `genericIntelligenceSource` (`canonical` or `source-analysis-snapshot`) through the source-bound smart-report result.
-- `src/pages/SmartReportPage.tsx` and `src/components/CustomerReportSurface.tsx` now render that returned origin instead of inferring it from whether canonical rows are empty.
-- `scripts/smart-report-complete-intelligence-surface.test.mjs` asserts end-to-end origin propagation and rejects the old row-count heuristic.
+## Current proven state
+- Main HEAD at last read: b4bb9fe6f278fd7d2c2dcb76b144638549036565.
+- PR #926 predecessor head: c33ab8a195fafbe0f1b54f81482869cacc306441.
+- On that predecessor, Product Build, Quality, Data Quality Runtime and Full Product Browser E2E passed; Session Handoff and Final Certification failed on the single unreported dated report path.
+- New governance code checkpoint: 76391da039330ba1953e6ddcb6f1d0ee26cfdb01; updated the allowlist to recognize docs/execution/reports/ while preserving strict diff, ancestry and required-field checks.
+- Dated execution record: docs/execution/reports/2026-10-15/REPORT-20261015-0319-PR926-HANDOFF-ALLOWLIST.md.
+- PR #925's separate Phase-F still fails on head 0719a1e9a43321d5ea07f323c7ecb389e460bff4 because tenant-canary returns HTTP 503 operational_token_not_configured. Production deploy 6ac3d608e2e37d0008cc0222 serves old SHA 858ef8e3e5bc5bf74430555eadfb9e6767be348b.
+- Netlify site inventory lacks RESILIENCE_OPERATIONAL_TOKEN and SUPABASE_SERVICE_ROLE_KEY; authorized NETLIFY_AUTH_TOKEN is not administrable through the current GitHub connector.
+- No secret values were invented or exposed, and no isolation/authorization contract was weakened.
 
-## Verification boundary
-- GitHub writes completed: report-smart commit `a98794a14bf8395ce96ddd6414820d779b472f3a`; Smart Report page commit `d3c9c62e2ae602fc50cfda34f754fd640351addb`; customer report surface commit `c1e00ec36bffa3b8cf96adfbbae45775b57837ae`; regression-contract commit / latest code head `2b65b597307a6b17d98549b30c1c4097a168b0d4`.
-- These files were committed to the existing PR #926 branch; the latest content readback and exact-head workflow results are pending this checkpoint. Do not transfer predecessor test results to this head.
-- Predecessor documentation head `811afddf2dc4a7d05b99523f3c3aeddae23fd01b` passed Product Build Gate run 38629910926, Quality run 38629911024, Final Certification Gate run 38629910729, Session Handoff Contract run 38629911052, Data Quality Runtime run 38629910900, Full Product Browser E2E run 38629911008, Device-Independent Browser E2E run 38629913533 and Storage Tenant Runtime E2E run 38629911146. This evidence belongs only to `811afdd...`.
-- PR #925 remains a separate release blocker. Phase-F run 38610637235 failed with `operational_token_not_configured`; Netlify production deploy 6ac3d608e2e37d0008cc0222 still serves source SHA `858ef8e3e5bc5bf74430555eadfb9e6767be348b`, not the candidate code. No authorized deployment/runtime secret was fabricated or weakened.
-- `PERSISTED` = code changes committed remotely. `READBACK-PROVEN` = pending fresh verification of all changed paths. `TESTED` = PENDING on exact head `2b65b597307a6b17d98549b30c1c4097a168b0d4`. `BROWSER-PROVEN` = predecessor only. `PRODUCTION-PROVEN` = NOT_PROVEN. `PRODUCT_COMPLETE` = NO.
-
-FIRST_ACTIVE_FAILURE = Exact-head build / quality / certification / browser / handoff runs have not yet been confirmed for `2b65b597307a6b17d98549b30c1c4097a168b0d4`. Handoff also requires this checkpoint to anchor its report at the code commit before documentation-only successor commits.
-
-NEXT_EXACT_ACTION = Re-read all four changed code/test paths from this branch, confirm the branch tip and Session Handoff Contract on its documentation successor, then inspect the newest exact-head Product Build, Quality, Final Certification, Data Quality Runtime and Full Product Browser E2E results; fix only the first evidenced failure.
+## Truth boundary
+IMPLEMENTED = YES, committed at 76391da039330ba1953e6ddcb6f1d0ee26cfdb01.
+TESTED = PENDING on the updated code and exact docs successor head.
+READBACK-PROVEN = pending post-write readback now required.
+BROWSER-PROVEN = PASS on c33ab8a only, not inherited by successor.
+PRODUCTION-PROVEN = NOT_PROVEN.
+NEXT_EXACT_ACTION = Verify branch HEAD and read back the checker/state/report/memory/archive, then inspect exact-head Quality, Session Handoff, Final Certification, and Full Product Browser E2E.
 
 ---
 
