@@ -384,7 +384,10 @@ export function extractPdfTable(
   }
 
   const selected = selectHeaderCandidate(candidateEntries);
-  if (!selected || selected.candidate.score < 35) return null;
+  // PDF title/account-name lines can align above numeric rows without being headers.
+  // A weak 35-point guess previously promoted those labels into numeric business measures.
+  // Keep low-confidence layouts as page/line evidence until the table shape is supported.
+  if (!selected || selected.candidate.score < 55) return null;
 
   const headers = selected.candidate.headers.map((header, index) => header || `column_${index + 1}`);
   const rows: Array<Record<string, unknown>> = [];
