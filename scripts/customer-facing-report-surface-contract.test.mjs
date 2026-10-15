@@ -42,6 +42,13 @@ assert.ok(!customerSurfaceWithoutSourceProp.includes('{report.sourcePath}'), 'Cu
 assert.ok(!surface.includes('report.archetypeId'));
 assert.ok(smart.includes('displayColumnLabel'));
 assert.ok(smart.includes('التقرير الذكي'));
+const advisorBriefPosition = smart.indexOf('id="advisor-decision-brief"');
+const genericDetailsPosition = smart.indexOf('data-testid="smart-report-generic-details"');
+assert.ok(advisorBriefPosition >= 0 && genericDetailsPosition > advisorBriefPosition, 'Executive brief must precede the expanded generic-analysis layer');
+assert.ok(smart.includes('data-testid="smart-report-generic-details-summary"'), 'Generic analysis must be reachable through an accessible disclosure summary');
+assert.ok(smart.includes('data-testid="smart-report-source-data-summary"'), 'Raw source rows must be available through progressive disclosure');
+assert.ok(reports.includes("fileName.startsWith('report-advisor-e2e-')") && reports.includes('function isInternalAutomationReport'), 'Internal browser-E2E artifacts must not pollute the customer-facing report catalog');
+assert.ok(reports.includes('data-testid="reports-center-primary-analysis-summary"'), 'Latest-report diagnostics must remain available behind progressive disclosure');
 assert.ok(smart.includes("report.specialty === 'sales' ? 'المبيعات'"));
 assert.ok(app.includes("if (authQuery) return <AuthGate><AppShell /></AuthGate>;"), 'AUTH_QUERY_MUST_OPEN_THE_PROTECTED_WORKSPACE_AFTER_LOGIN');
 assert.ok(app.includes("const isLandingPath = location.pathname === '/' || location.pathname === '';"), 'PUBLIC_PROPOSAL_DEMO_MUST_BE_LANDING_ONLY');
@@ -95,6 +102,7 @@ for (const { path: surfacePath, content } of customerFacingSurfaces) {
 
 assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(Decision ROI|Business Replay|Money Recovery|Outcome follow-up)\b/.test(content)));
 const realBusinessE2E = fs.readFileSync('scripts/real-business-e2e.mjs', 'utf8');
+assert.ok(realBusinessE2E.includes('genericDetailsSummary.click()'), 'Browser proof must expand the collapsed generic-analysis disclosure before asserting readback');
 assert.ok(realBusinessE2E.includes('async function waitForSmartReportEvidenceSurface(page)'), 'Real business E2E must use a dedicated visible Evidence Passport proof');
 assert.ok(realBusinessE2E.includes("locator('[data-testid=\"smart-report-decision-chain\"]')"), 'Real business E2E must assert the visible source-bound decision chain');
 assert.ok(realBusinessE2E.includes(".filter({ hasText: 'التفاصيل الكاملة للتقرير' })"), 'Real business E2E must scope Evidence Passport to the visible details summary');
