@@ -3,6 +3,9 @@
 Repository: Report-Engainall/Report-Advisor
 PR: https://github.com/Report-Engainall/Report-Advisor/pull/925 (OPEN / NOT MERGED)
 Branch: fix/netlify-runtime-provenance-on-main-20261014
+CURRENT_EXACT_HEAD = 7d63d43aec5f1877c64e48f66145a4ecc5f60bba
+CODE_CHECKPOINT = 7d63d43aec5f1877c64e48f66145a4ecc5f60bba
+REPORT_FOR_HEAD = 7d63d43aec5f1877c64e48f66145a4ecc5f60bba
 FUNCTIONAL_CHECKPOINT: 7d63d43aec5f1877c64e48f66145a4ecc5f60bba
 FUNCTIONAL_COMMIT: https://github.com/Report-Engainall/Report-Advisor/commit/7d63d43aec5f1877c64e48f66145a4ecc5f60bba
 PRODUCT_COMPLETE: NO
