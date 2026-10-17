@@ -19,4 +19,4 @@ const unreported=changed.filter(p=>!allowed.test(p));
 if(unreported.length)die('stale report; unreported files: '+unreported.join(', '));
 if(!fs.existsSync(archiveRoot))die('missing archive root');
 if(!/^SESSION HANDOFF\s*=\s*(READY|NOT READY)/mi.test(report))die('invalid SESSION HANDOFF value');
-console.log('SESSION_HANDOFF_CONTRACT_PASS report_for='+reportHead+' current_head='+execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim());
+console.log('SESSION_HANDOFF_CONTRACT_PASS report_for='+reportHead+' ancestry_target='+ancestryTarget+' current_head='+execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim());
