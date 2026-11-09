@@ -1,0 +1,43 @@
+name: Arithmetic Relationship Inference
+
+on:
+  push:
+    branches: [main, 'feat/verified-arithmetic-relationships-*']
+    paths:
+      - 'src/lib/report-intelligence/arithmetic-relationship-inference.ts'
+      - 'src/lib/universal-report-intelligence.ts'
+      - 'scripts/arithmetic-relationship-inference.test.ts'
+      - '.github/workflows/arithmetic-relationship-inference.yml'
+  pull_request:
+    paths:
+      - 'src/lib/report-intelligence/arithmetic-relationship-inference.ts'
+      - 'src/lib/universal-report-intelligence.ts'
+      - 'scripts/arithmetic-relationship-inference.test.ts'
+      - '.github/workflows/arithmetic-relationship-inference.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arithmetic-relationship-inference-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-arithmetic-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck complete product
+        run: npm run typecheck
+      - name: Verify arithmetic relationships and evidence boundaries
+        run: node --experimental-strip-types scripts/arithmetic-relationship-inference.test.ts
