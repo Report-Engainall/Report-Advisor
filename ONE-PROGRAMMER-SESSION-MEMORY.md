@@ -1,3 +1,31 @@
+# CURRENT LIVE RESUME — 2026-11-09 / Report-Advisor PR #928
+
+Official target: `Report-Engainall/Report-Advisor`  
+Read-only source reference: `ahmedalag7777-cyber/repo-resume-workspace`  
+Current branch: `feat/verified-arithmetic-relationships-20261109`  
+Functional code checkpoint: `c363c9c5356691578e6295fcc904fad69579e427`  
+PR: https://github.com/Report-Engainall/Report-Advisor/pull/928  
+Verified main base: `b4bb9fe6f278fd7d2c2dcb76b144638549036565`
+
+Implemented and integrated arithmetic relationship intelligence in the existing Universal Report pipeline:
+- bounded +, −, ×, ÷ and percentage-ratio discovery;
+- independent discovery/validation partitions;
+- source-row evidence, exclusions, residuals and counterexamples;
+- fail-closed behavior for incomplete source rows and ambiguous mapping;
+- visible Arabic `الاستدلال الحسابي` stage and Smart Report findings/recommendations;
+- regression coverage and dedicated GitHub Actions workflow.
+
+Exact proof: run 42545000930 PASS on code checkpoint `c363c9c5356691578e6295fcc904fad69579e427`; complete TypeScript typecheck PASS; output `ARITHMETIC_RELATIONSHIP_INFERENCE_PASS`. Product Build Gate run 42545000905 succeeded.
+
+First blocker: Session Handoff Contract run 42545000985 failed because four implementation paths were absent from the programmer report. They are now documented in the current delivery report and archive. Re-run handoff on the documentation successor; do not relax the checker. Re-read all global checks on the final PR head. PR #928 remains open and unmerged. Main and PRs #925–#927 remain untouched. No production/browser completion claim or deployment.
+
+Detailed current handoff: `docs/execution/CURRENT_SESSION_STATE.md`  
+Detailed work report: `docs/execution/PROGRAMMER_CURRENT_REPORT.md`  
+Archive: `docs/execution/PROGRAMMER_REPORTS/2026-11-09/REPORT-20261109-PR928-VERIFIED-ARITHMETIC-RELATIONSHIPS.md`
+
+Storage constraint: use GitHub directly for repository work and CI; do not create unnecessary local copies or attachments.
+---
+
 # LIVE RESUME — 2026-10-14 / PR #924 non-secret deploy-ID fallback + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
