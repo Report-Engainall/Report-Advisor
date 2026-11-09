@@ -11,7 +11,6 @@ const numericColumns = (...names: string[]): ArithmeticRelationshipColumn[] =>
   names.map((name, index) => ({ name, index, dataType: 'decimal', mappingConfidence: 95 }));
 
 function rowsFor(
-  names: string[],
   make: (index: number) => Record<string, unknown>,
 ): ArithmeticRelationshipRow[] {
   return Array.from({ length: 18 }, (_, index) => ({
@@ -20,7 +19,7 @@ function rowsFor(
   }));
 }
 
-const additionRows = rowsFor(['left', 'right', 'net'], (i) => {
+const additionRows = rowsFor( (i) => {
   const left = i - 7; // Includes negative values and zero.
   const right = i * 2 + 3;
   return { left, right, net: left + right };
@@ -40,7 +39,7 @@ assert.equal(additionCandidate.validation.rows.length, 6);
 assert.ok(additionCandidate.validation.rows.every((row) => row >= 100));
 assert.equal(additionCandidate.counterexamples.length, 0);
 
-const multiplicationRows = rowsFor(['quantity', 'unit_price', 'gross'], (i) => {
+const multiplicationRows = rowsFor( (i) => {
   const quantity = i + 1;
   const unit_price = i * 3 + 4;
   return { quantity, unit_price, gross: quantity * unit_price };
@@ -54,7 +53,7 @@ assert.ok(multiplication.candidates.some((item) =>
   item.formula === 'gross = quantity × unit_price' && item.status === 'supported'
 ), 'multiplication must be identified and independently validated');
 
-const percentageRows = rowsFor(['fulfilled', 'ordered', 'fulfillment_pct'], (i) => {
+const percentageRows = rowsFor( (i) => {
   const fulfilled = i + 2;
   const ordered = i * 2 + 9;
   if (i === 4) return { fulfilled, ordered: 0, fulfillment_pct: null };
@@ -71,7 +70,7 @@ const percentageCandidate = percentage.candidates.find((item) =>
 assert.ok(percentageCandidate?.status === 'supported', 'percentage ratios must pass independent validation');
 assert.ok(percentageCandidate.excludedRows.includes(104), 'division-by-zero row must be excluded with its source row number');
 
-const counterexampleRows = rowsFor(['base', 'adjustment', 'final'], (i) => {
+const counterexampleRows = rowsFor( (i) => {
   const base = i * 5 + 10;
   const adjustment = i * 2 + 1;
   const final = base + adjustment + (i === 2 ? 25 : 0); // row 102 is in the held-out validation set.
@@ -106,7 +105,7 @@ const tooSmall = inferArithmeticRelationships({
 assert.equal(tooSmall.status, 'insufficient');
 assert.equal(tooSmall.reason, 'INSUFFICIENT_SOURCE_ROWS');
 
-const duplicateSemanticRows = rowsFor(['raw_a', 'raw_b', 'raw_out'], (i) => ({
+const duplicateSemanticRows = rowsFor((i) => ({
   total_value: i * 10 + 1,
 }));
 const duplicateSemantic = inferArithmeticRelationships({
@@ -120,6 +119,19 @@ const duplicateSemantic = inferArithmeticRelationships({
 });
 assert.equal(duplicateSemantic.status, 'unavailable',
   'ambiguous duplicate mapped fields must not be used as a fallback source for arithmetic');
+
+const identifierRows = rowsFor((i) => ({
+  invoice_code: 10000 + i,
+  units: i * 3 + 2,
+  total: 10000 + i + (i * 3 + 2),
+}));
+const identifierInference = inferArithmeticRelationships({
+  rows: identifierRows,
+  columns: numericColumns('invoice_code', 'units', 'total'),
+  expectedRowCount: identifierRows.length,
+});
+assert.equal(identifierInference.status, 'unavailable',
+  'numeric-looking invoice identifiers must not be treated as business measures');
 
 const baseIntelligence: ReportIntelligence = {
   businessQuestion: 'ما الذي حدث؟',
@@ -159,9 +171,9 @@ assert.ok(integrated.recommendations.some((item) => item.id.startsWith('rec:arit
 assert.ok(integrated.guidance.inspect.some((item) => item.includes('net = left + right')));
 assert.ok(
   integrated.recommendations.every((item) =>
-    !/أثر مالي مثبت|زيادة أرباح مؤكدة/.test(item.impact)
+    item.impact.includes('لا يوجد أثر مالي مثبت')
   ),
-  'arithmetic relationships must not invent financial impact',
+  'arithmetic recommendations must explicitly withhold unsupported financial impact',
 );
 
 console.log('ARITHMETIC_RELATIONSHIP_INFERENCE_PASS');
