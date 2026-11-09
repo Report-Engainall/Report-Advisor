@@ -214,9 +214,9 @@ export function inferArithmeticRelationships(input: {
     const excludedRows: number[] = [];
     const observations: Observation[] = [];
     for (const sample of samples) {
-      const a = parseNumber(sample.data?.[left.name] ?? (left.mappedField ? sample.data?.[left.mappedField] : null));
-      const b = parseNumber(sample.data?.[right.name] ?? (right.mappedField ? sample.data?.[right.mappedField] : null));
-      const actual = parseNumber(sample.data?.[output.name] ?? (output.mappedField ? sample.data?.[output.mappedField] : null));
+      const a = parseNumber(rowValue({ data: sample.data }, left, !text(left.mappedField) || mappedFieldCounts.get(text(left.mappedField)) === 1));
+      const b = parseNumber(rowValue({ data: sample.data }, right, !text(right.mappedField) || mappedFieldCounts.get(text(right.mappedField)) === 1));
+      const actual = parseNumber(rowValue({ data: sample.data }, output, !text(output.mappedField) || mappedFieldCounts.get(text(output.mappedField)) === 1));
       const expectedValue = a === null || b === null ? null : calculate(operation, a, b);
       if (a === null || b === null || actual === null || expectedValue === null
         || ![a, b, actual, expectedValue].every(Number.isFinite)) {
