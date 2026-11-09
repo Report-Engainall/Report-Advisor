@@ -71,7 +71,7 @@ type Observation = {
 
 const NUMERIC_TYPES = new Set(['number', 'numeric', 'integer', 'decimal', 'currency', 'percentage', 'float', 'double']);
 const NON_NUMERIC_TYPES = new Set(['text', 'string', 'date', 'datetime', 'boolean', 'time']);
-const IDENTIFIER_HEADER = /(?:^|[\\s_./-])(?:id|code|sku|barcode|serial|phone|mobile|row|line|invoice|document|account|reference|uuid)(?:$|[\\s_./-])|(?:كود|رمز|باركود|هاتف|جوال|تسلسل|مرجع|معرف|رقم الفاتورة|رقم المستند)/iu;
+const IDENTIFIER_HEADER = /(?:^|[\s_./-])(?:id|code|sku|barcode|serial|phone|mobile|row|line|invoice|document|account|reference|uuid)(?:$|[\s_./-])|(?:كود|رمز|باركود|هاتف|جوال|تسلسل|مرجع|معرف|رقم الفاتورة|رقم المستند)/iu;
 
 function text(value: unknown): string {
   return String(value ?? '').trim();
@@ -86,7 +86,7 @@ function rowValue(row: ArithmeticRelationshipRow, column: ArithmeticRelationship
 }
 
 function normalizeDeclaredType(value: unknown): string {
-  return text(value).toLowerCase().replace(/[\\s_-]+/g, '');
+  return text(value).toLowerCase().replace(/[\s_-]+/g, '');
 }
 
 function isDeclaredNumeric(column: ArithmeticRelationshipColumn): boolean {
