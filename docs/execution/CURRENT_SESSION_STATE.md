@@ -1,3 +1,43 @@
+# LIVE RESUME — 2026-11-09 / PR #928 verified arithmetic relationship inference
+
+Repository: Report-Engainall/Report-Advisor
+CURRENT_EXACT_HEAD = c363c9c5356691578e6295fcc904fad69579e427 (functional code checkpoint; documentation-only handoff successor follows)
+CODE_CHECKPOINT = c363c9c5356691578e6295fcc904fad69579e427
+REPORT_FOR_HEAD = c363c9c5356691578e6295fcc904fad69579e427
+BRANCH = feat/verified-arithmetic-relationships-20261109
+PR = https://github.com/Report-Engainall/Report-Advisor/pull/928 (OPEN / NOT MERGED)
+MAIN_BASE = b4bb9fe6f278fd7d2c2dcb76b144638549036565
+SOURCE_REFERENCE = ahmedalag7777-cyber/repo-resume-workspace @ 6313b5f33a3798ca65346f94b74d63ae90b62c5f (READ ONLY)
+ACTION_STATUS = ARITHMETIC_RELATIONSHIP_ENGINE_IMPLEMENTED; DEDICATED_TYPECHECK_AND_REGRESSION_PASS; GLOBAL_RELEASE_GATES_NOT_YET_CLOSED
+PRODUCT_COMPLETE = NO
+SESSION HANDOFF = NOT READY — first current PR attempt reported four unreported implementation paths; exact paths are now documented and must be re-run on this successor.
+
+## Scope completed on this branch
+- New bounded arithmetic inference for +, −, ×, ÷ and percentages with independent discovery/validation samples.
+- Fail closed on incomplete source rows, insufficient samples and ambiguous duplicated semantic fields.
+- Preserve source row references, exclusions, residuals and counterexamples.
+- Integrate source-bound findings/signals/recommendations into existing Smart Report intelligence and add visible Arabic arithmetic stage.
+- Dedicated test + workflow; no paid dependency, package/lockfile, database, auth/RLS or production changes.
+- Detailed implementation record: docs/execution/PROGRAMMER_REPORTS/2026-11-09/REPORT-20261109-PR928-VERIFIED-ARITHMETIC-RELATIONSHIPS.md
+
+## Exact proof observed on code checkpoint c363c9c5356691578e6295fcc904fad69579e427
+- Arithmetic Relationship Inference run 42545000930: PASS.
+- Complete product TypeScript typecheck inside that run: PASS.
+- Deterministic regression output: ARITHMETIC_RELATIONSHIP_INFERENCE_PASS.
+- Product Build Gate run 42545000905: SUCCESS.
+- Session Handoff run 42545000985: FAILURE because the four PR implementation paths had not yet been documented, not because the implementation test failed.
+- At capture, Quality, Storage Tenant Runtime E2E, Device-Independent Browser E2E, Data Quality Runtime and Final Certification had not all reached terminal success. Re-read on final exact PR head.
+
+## Preserved boundaries
+- Main was not modified.
+- PRs #925, #926 and #927 remain separate; no changes were made to their branches.
+- No production deployment or browser/product-complete claim.
+- Arithmetic coincidence is an observed relationship only; it does not establish source-field semantics, causality, original spreadsheet formulas or financial impact.
+
+NEXT_EXACT_ACTION = Re-read current PR head after this documentation checkpoint; verify Session Handoff passes, then consume all required exact-head Quality, Build, Final Certification, browser/runtime and security results. Repair only confirmed failures. Keep PR #928 open until mandatory checks pass.
+
+---
+
 # LIVE RESUME — 2026-10-14 / PR #924 non-secret deploy-ID fallback + handoff repair
 
 Repository: Report-Engainall/Report-Advisor
