@@ -53,7 +53,7 @@ export type ArithmeticRelationshipRow = {
 
 type NumericColumn = ArithmeticRelationshipColumn & {
   index: number;
-  values: number[];
+  values: Array<number | null>;
   validCount: number;
   coverage: number;
 };
