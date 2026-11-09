@@ -6,6 +6,7 @@ import {
   type ArithmeticRelationshipRow,
 } from '../src/lib/report-intelligence/arithmetic-relationship-inference.ts';
 import type { ReportIntelligence } from '../src/lib/report-intelligence/report-smart-insights.ts';
+import { buildUniversalReportIntelligence } from '../src/lib/universal-report-intelligence.ts';
 
 const numericColumns = (...names: string[]): ArithmeticRelationshipColumn[] =>
   names.map((name, index) => ({ name, index, dataType: 'decimal', mappingConfidence: 95 }));
@@ -175,5 +176,35 @@ assert.ok(
   ),
   'arithmetic recommendations must explicitly withhold unsupported financial impact',
 );
+
+const universalReport = buildUniversalReportIntelligence({
+  specialty: null,
+  rowCount: additionRows.length,
+  sourcePath: 'arithmetic-integration.csv',
+  sourceHash: 'a'.repeat(64),
+  reportJobId: 'arithmetic-integration-fixture',
+  tenantId: 'arithmetic-test-tenant',
+  sourceAnalysis: {
+    datasets: [{
+      columns: numericColumns('left', 'right', 'net').map((column) => ({
+        name: column.name,
+        mappedField: null,
+        dataType: column.dataType,
+        mappingConfidence: column.mappingConfidence,
+      })),
+    }],
+  },
+  canonicalRows: additionRows.map((row) => ({
+    row_number: row.row_number,
+    data: row.data,
+  })),
+});
+assert.equal(universalReport.arithmeticRelationships.status, 'evaluated');
+assert.ok(universalReport.stages.some((item) =>
+  item.key === 'arithmetic' && item.status === 'DERIVED'
+), 'the verified arithmetic stage must be exposed in the universal report');
+assert.ok(universalReport.intelligence.signals.some((item) =>
+  item.id.startsWith('arithmetic:relationship:') && item.evidence.some((line) => line.includes('validation='))
+), 'arithmetic signals must flow into the same Smart Report intelligence object');
 
 console.log('ARITHMETIC_RELATIONSHIP_INFERENCE_PASS');
