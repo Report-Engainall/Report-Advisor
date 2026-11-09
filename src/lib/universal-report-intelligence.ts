@@ -12,6 +12,12 @@ import {
   type ReportRecommendation,
   type ReportSignal,
 } from './report-intelligence/report-smart-insights';
+import {
+  addArithmeticRelationshipInsights,
+  inferArithmeticRelationships,
+  type ArithmeticRelationshipColumn,
+  type ArithmeticRelationshipInference,
+} from './report-intelligence/arithmetic-relationship-inference.js';
 
 export type UniversalIntelligenceStageStatus =
   | 'VERIFIED'
@@ -43,6 +49,7 @@ export type UniversalIntelligenceResult = {
   mappedFieldCount: number;
   totalFieldCount: number;
   stages: UniversalIntelligenceStage[];
+  arithmeticRelationships: ArithmeticRelationshipInference;
   topQuestions: Array<{
     id: string;
     label: string;
@@ -171,6 +178,36 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
   if (input.previewIntelligence) intelligence = input.previewIntelligence;
   if (input.generalIntelligence) intelligence = composeIntelligenceLayers(input.generalIntelligence, intelligence);
 
+  // Use the same canonical source rows as the report and fail closed on incomplete input.
+  const sourceRows = Array.isArray(input.canonicalRows) ? input.canonicalRows : [];
+  const sourceDataset = input.sourceAnalysis?.datasets?.[0];
+  const rawSourceColumns = sourceDataset && typeof sourceDataset === 'object'
+    && Array.isArray((sourceDataset as Record<string, unknown>).columns)
+    ? (sourceDataset as Record<string, unknown>).columns as Array<Record<string, unknown> | string>
+    : [];
+  const arithmeticColumns: ArithmeticRelationshipColumn[] = rawSourceColumns.length
+    ? rawSourceColumns.flatMap((item, index) => {
+        if (typeof item === 'string') return [{ name: item, index }];
+        if (!item || typeof item !== 'object') return [];
+        const column = item as Record<string, unknown>;
+        const name = text(column.name ?? column.mappedField);
+        if (!name) return [];
+        return [{
+          name,
+          mappedField: text(column.mappedField) || null,
+          dataType: text(column.dataType ?? column.type) || null,
+          mappingConfidence: Number.isFinite(Number(column.mappingConfidence)) ? Number(column.mappingConfidence) : null,
+          index,
+        }];
+      })
+    : Object.keys(sourceRows[0]?.data ?? {}).map((name, index) => ({ name, index }));
+  const arithmeticRelationships = inferArithmeticRelationships({
+    rows: sourceRows,
+    columns: arithmeticColumns,
+    expectedRowCount: typeof input.rowCount === 'number' ? input.rowCount : sourceRows.length,
+  });
+  intelligence = addArithmeticRelationshipInsights(intelligence, arithmeticRelationships);
+
   const provenance = {
     tenantId: input.tenantId ?? 'preview',
     sourceHash: text(input.sourceHash).replace(/^sha256:/, '') || 'preview:unhashed',
@@ -247,6 +284,46 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
         : 'وجود حقول ناقصة أو غير معرّفة يحد من قوة الاستنتاج.',
       ['mappedFields=' + stats.mapped, ...(quality == null ? [] : ['completeness=' + quality + '%'])],
       quality != null && quality >= 85 ? 'ابحث عن الإشارة وليس مجرد الوصف.' : 'راجع الحقول التي تحد من القرار.',
+    ),
+    stage(
+      'arithmetic',
+      'الاستدلال الحسابي',
+      arithmeticRelationships.status === 'partial_source'
+        ? 'REVIEW_REQUIRED'
+        : arithmeticRelationships.status === 'insufficient'
+          ? 'INSUFFICIENT_DATA'
+          : arithmeticRelationships.status === 'unavailable'
+            ? 'NOT_AVAILABLE'
+            : arithmeticRelationships.candidates.some((item) => item.status === 'supported')
+              ? 'DERIVED'
+              : arithmeticRelationships.candidates.length
+                ? 'REVIEW_REQUIRED'
+                : 'NOT_AVAILABLE',
+      arithmeticRelationships.status === 'partial_source'
+        ? 'توقف الاستدلال لأن صفوف المصدر غير مكتملة.'
+        : arithmeticRelationships.status === 'insufficient'
+          ? 'العينة أقل من الحد الأدنى للتحقق الحسابي.'
+          : arithmeticRelationships.status === 'unavailable'
+            ? 'لا تتوفر ثلاثة أعمدة رقمية مناسبة لاختبار العلاقات.'
+            : arithmeticRelationships.candidates.some((item) => item.status === 'supported')
+              ? 'تم دعم ' + arithmeticRelationships.candidates.filter((item) => item.status === 'supported').length + ' علاقة حسابية بعينة تحقق مستقلة.'
+              : arithmeticRelationships.candidates.length
+                ? 'ظهرت علاقات مرشحة لكن التحقق المستقل كشف استثناءات.'
+                : 'لم تثبت علاقة حسابية ضمن حدود العينة والتحقق.',
+      'الأعمدة الرقمية: ' + arithmeticRelationships.numericColumns
+        + ' · المعادلات المختبرة: ' + arithmeticRelationships.testedEquations
+        + ' · الصفوف المفحوصة: ' + arithmeticRelationships.sampledRows + '/' + arithmeticRelationships.sourceRows
+        + (arithmeticRelationships.truncated ? ' · طُبقت حدود فحص آمنة.' : ''),
+      arithmeticRelationships.candidates.slice(0, 4).flatMap((item) => [
+        'formula=' + item.formula,
+        'discovery=' + item.discovery.matches + '/' + item.discovery.sampleSize,
+        'validation=' + item.validation.matches + '/' + item.validation.sampleSize,
+      ]).slice(0, 10),
+      arithmeticRelationships.status === 'partial_source'
+        ? 'أكمل استرجاع جميع الصفوف القانونية قبل اعتماد أي علاقة حسابية.'
+        : arithmeticRelationships.candidates.some((item) => item.status === 'supported')
+          ? 'راجع معنى الحقول ووحداتها قبل اعتماد العلاقة كقاعدة عمل.'
+          : 'وسّع العينة أو راجع تعريف الأعمدة الرقمية دون افتراض معادلة مسبقة.',
     ),
     stage(
       'signal',
@@ -366,6 +443,7 @@ export function buildUniversalReportIntelligence(input: UniversalReportInput): U
     mappedFieldCount: stats.mapped,
     totalFieldCount: stats.total,
     stages,
+    arithmeticRelationships,
     topQuestions,
   };
 }
